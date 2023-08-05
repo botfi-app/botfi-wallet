@@ -11,7 +11,7 @@ onBeforeMount(() => {
 })
 
 const initialize = () => {
-    if(!keystore.hasMnemonic()){
+    if(!keystore.hasDefaultWallet()){
         //router.push({ name: 'create-account' })
     }
 }

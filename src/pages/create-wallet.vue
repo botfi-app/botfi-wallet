@@ -5,7 +5,10 @@ import { useRouter } from "vue-router";
 import Wallet from "../classes/Wallet";
 import LoadingView from "../layouts/LoadingView.vue";
 import { useToast } from "../composables/useToast";
+import clipboard from "clipboard"
+import { useAlertDialog } from "../composables/useAlertDialog"
 
+const alertDialog = useAlertDialog()
 const toast = useToast()
 const keystore = useKeyStore()
 const mnemonic = ref(null)
@@ -20,7 +23,7 @@ const initialize = async () => {
 
    isLoading.value = true 
 
-   let walletStatus = await Wallet.generateMnemonic()
+   let walletStatus = await Wallet.createWallet(keystore.password)
 
    if(walletStatus.isError()){
      error.value = walletStatus.getMessage()
@@ -31,12 +34,12 @@ const initialize = async () => {
    seedPhraseArray.value = mnemonic.value.mnemonic.phrase.split(" ");
 
   isLoading.value = false 
-   
+
 }
 
 onBeforeMount(() => {
     
-    if(keystore.hasMnemonic()){
+    if(keystore.hasDefaultWallet()){
         isLoading.value = false
         return router.push("/")
     }
@@ -49,15 +52,28 @@ onBeforeMount(() => {
     }
 
     initialize()
+
+    let cb = new clipboard("#copy-btn")
+
+    cb.on('success', (e) => {
+        toast.open("Copied to clipboard")
+    });
+
+
 })
 
 
-const onCopy = () => {
-    toast.open("Copied to clipboard")
-}
-
 const saveWalletInfo = async () => {
 
+    if(!hasCopiedSeedPhrase.value){
+        return alertDialog.open("Kindly accept that you copied the seed phrase")
+    }
+
+    if(!hasAgreedSeedPhraseTerms.value){
+        return alertDialog.open("Accept our terms to continue")
+    }
+
+    //keystore.saveMnemonic(mnemonic.value)
 }
 </script>
 
@@ -134,7 +150,15 @@ const saveWalletInfo = async () => {
                     >
                         {{ isPhraseHidden ? "Reveal" : "Hide" }}
                     </k-button>
-                    <k-button ripple rounded large raised class=" mx-1" @click="onCopy">
+                    <k-button 
+                        ripple 
+                        rounded 
+                        large 
+                        raised 
+                        class=" mx-1"
+                        id="copy-btn"
+                        :data-clipboard-text="seedPhraseArray.join(' ')"
+                    >
                         Copy
                     </k-button>
                 </div>

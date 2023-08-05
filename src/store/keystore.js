@@ -10,25 +10,29 @@ export const useKeyStore = defineStore('keystore', () => {
     const _password = ref("")
 
     const $state = ref({
-        mnemonic:    [],
-        keys:        []
+        seedPhraseInfo:  {},
+        keys:            []
     }); 
 
 
-    const mnemonic  = computed(()       =>    $state.value.mnemonic )
-    const keys      = computed(()       =>    $state.value.keys )
-    const password  = computed(()       =>    _password.value )
+    const seedPhraseInfo    = computed(()       =>    $state.value.seedPhrase )
+    const keys              = computed(()       =>    $state.value.keys )
+    const password          = computed(()       =>    _password.value )
 
     const setPassword = (pass) => {
         _password.value = pass
     }
 
-    const getMnemonic = () => {
-        return KeyStore.getMnemonic(password)
+    const getDefaultWallet = () => {
+        return KeyStore.getDefaultWallet(password)
     }
 
-    const hasMnemonic = () => {
-        return (localStore.getItem("mnemonic") || "").length > 0;
+    const hasDefaultWallet = () => {
+        return KeyStore.hasDefaultWallet()
+    }
+
+    const saveDefaultWallet = async (_seedPhraseInfo) => {
+        return KeyStore.saveDefaultWallet(password, _seedPhraseInfo)
     }
 
     const getAccounts = async (password) => {
@@ -38,9 +42,10 @@ export const useKeyStore = defineStore('keystore', () => {
     }
 
     return {
-        hasMnemonic,
+        hasDefaultWallet,
         getAccounts,
-        getMnemonic,
+        getDefaultWallet,
+        saveDefaultWallet,
         password,
         setPassword
     }

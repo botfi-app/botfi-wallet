@@ -2,21 +2,23 @@
  * BotFi (https://botfi.app)
  * @author BotFi <hello@botfi.app>
  */
-
+import { HDNodeWallet } from "ethers/src.ts/wallet/hdwallet"
 
 export default class KeyStore {
 
-    static getMnemonic = async (password="") => {
+    static SP_STORE_KEY = "__sp_infp"
+
+    static getDefaultWallet = async (password="") => {
         try {
             
             if(password == ''){
                 return Status.errorPromise("password_required")
             }
 
-            let data = localStorage.getItem("mnemonic") || ""
+            let data = localStorage.getItem(SP_STORE_KEY) || ""
 
             if(data.trim() == ""){
-                return Status.successData()
+                return Status.errorPromise("No default wallet found")
             }
 
             let dataObj;
@@ -43,7 +45,26 @@ export default class KeyStore {
 
             return Status.successData(decryptData)
         } catch(e){
-            Utils.logError(`KeyStore#getMnemonic:`, e)
+            Utils.logError(`KeyStore#getDefaultWallet:`, e)
+            return Status.errorPromise()
+        }
+    }
+
+    static hasDefaultWallet() {
+        return (localStore.getItem(this.SP_STORE_KEY) || "").trim().length > 0
+    }
+
+    static async saveDefaultWallet(password, walletInfo) {
+        try {
+
+            if ((localStore.getItem(this.SP_STORE_KEY) || "").length > 0){
+                return Status.errorPromise("Seed phrase already exists, cannot be overwritten")
+            }
+
+            
+
+        } catch(e){
+            Utils.logError(`KeyStore#saveSeedPhraseInfo:`, e)
             return Status.errorPromise()
         }
     }

@@ -2,9 +2,7 @@
 
 import { onBeforeMount, onMounted, ref, watch } from "vue"
 import { useRouter, useRoute } from 'vue-router';
-import LoadingView from "../layouts/LoadingView.vue";
 import { useKeyStore } from "../store/keystore";
-import Wallet from "../classes/Wallet"
 import { isStrongPassword } from "validator"
 import { useAlertDialog } from "../composables/useAlertDialog"
 
