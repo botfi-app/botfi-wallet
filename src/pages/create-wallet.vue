@@ -4,7 +4,9 @@ import { useKeyStore } from "../store/keystore";
 import { useRouter } from "vue-router";
 import Wallet from "../classes/Wallet";
 import LoadingView from "../layouts/LoadingView.vue";
+import { useToast } from "../composables/useToast";
 
+const toast = useToast()
 const keystore = useKeyStore()
 const mnemonic = ref(null)
 const seedPhraseArray = ref([])
@@ -16,6 +18,8 @@ const isPhraseHidden           = ref(true)
 
 const initialize = async () => {
 
+   isLoading.value = true 
+
    let walletStatus = await Wallet.generateMnemonic()
 
    if(walletStatus.isError()){
@@ -26,7 +30,8 @@ const initialize = async () => {
    mnemonic.value = walletStatus.getData()
    seedPhraseArray.value = mnemonic.value.mnemonic.phrase.split(" ");
 
-  // console.log("seedPhraseArray.value==>", seedPhraseArray.value)
+  isLoading.value = false 
+   
 }
 
 onBeforeMount(() => {
@@ -42,11 +47,14 @@ onBeforeMount(() => {
     if(password == ''){
         return router.push("/set-password?next=create-wallet")
     }
-})
 
-onMounted(() => {
     initialize()
 })
+
+
+const onCopy = () => {
+    toast.open("Copied to clipboard")
+}
 
 const saveWalletInfo = async () => {
 
@@ -126,7 +134,7 @@ const saveWalletInfo = async () => {
                     >
                         {{ isPhraseHidden ? "Reveal" : "Hide" }}
                     </k-button>
-                    <k-button ripple rounded large raised class=" mx-1">
+                    <k-button ripple rounded large raised class=" mx-1" @click="onCopy">
                         Copy
                     </k-button>
                 </div>

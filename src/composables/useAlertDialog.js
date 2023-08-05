@@ -2,10 +2,11 @@
 import { onBeforeUnmount } from 'vue'
 import { useEventBus } from './useEventBus'
 
-const eventBus = useEventBus()
 
 // by convention, composable function names start with "use"
 export const useAlertDialog = () => {
+
+    const eventBus = useEventBus()
 
     const open = (title, message) => {
         eventBus.emit("open-dialog", {title, message})

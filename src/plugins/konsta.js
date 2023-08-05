@@ -12,7 +12,8 @@ import {
     kListItem,
     kCheckbox,
     kDialog,
-    kDialogButton
+    kDialogButton,
+    kToast
 } from 'konsta/vue'; 
 
 export default {
@@ -31,5 +32,6 @@ export default {
         .component("k-checkbox", kCheckbox)
         .component("k-dialog", kDialog)
         .component("k-dialog-button", kDialogButton)
+        .component("k-toast",kToast)
     }
 }

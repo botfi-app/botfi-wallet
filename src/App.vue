@@ -15,5 +15,6 @@ import AlertDialog from "./components/common/AlertDialog.vue";
       </transition>
     </router-view>
     <alert-dialog />
+    <toast />
   </k-app>
 </template>
