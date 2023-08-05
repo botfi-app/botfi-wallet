@@ -6,6 +6,7 @@ const props = defineProps({
     showNav: { type: Boolean, default: true }
 })
 
+
 const router = useRouter()
 </script>
 <template>

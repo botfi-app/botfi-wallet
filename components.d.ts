@@ -17,6 +17,7 @@ declare module '@vue/runtime-core' {
     MainLayout: typeof import('./src/layouts/MainLayout.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    Toast: typeof import('./src/components/common/Toast.vue')['default']
     ValidPasswordHints: typeof import('./src/components/common/ValidPasswordHints.vue')['default']
   }
 }

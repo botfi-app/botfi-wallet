@@ -18,7 +18,7 @@ module.exports = konstaConfig({
 
       'botfi-primary': '#51e8c4',
       // custom colors used for Konsta UI components theming
-      'botfi-secondary': '#FAB612',
+      'secondary': '#FAB612',
       
     }
   },

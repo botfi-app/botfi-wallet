@@ -102,7 +102,10 @@ const onPasswordSave = async () => {
             centerTitle
         >
             <template #left>
-                <k-navbar-back-link text="Back" @click="router.go(-1)" />
+                <k-navbar-back-link 
+                    text="Back"
+                    @click="router.push(getNextPage() == 'settings' ? '/settings' : '/')" 
+                />
             </template>
             <template #right>
                 <k-button 
