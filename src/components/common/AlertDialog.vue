@@ -1,36 +1,29 @@
 <script setup>
-import { onBeforeMount, ref } from 'vue';
-import { useEventBus } from '../../composables/useEventBus';
+import { computed, onBeforeMount, ref, watch } from 'vue';
 
-const eventBus = useEventBus()
-const isOpened = ref(false)
-const title = ref("")
-const message = ref("")
-
-onBeforeMount(() => {
-    eventBus.on("open-dialog", (data) => {
-        isOpened.value = true
-        title.value    = data.title || ""
-        message.value  = data.message || ""
-    })
-
-    eventBus.on("close-dialog", () => {
-        isOpened.value = false
-    })
+const props = defineProps({
+    opened: { type: Boolean, default: false },
+   // title: { type: String, default: '' },
+    message: { type: String, default: '' }
 })
 
-const open = () => {
-    isOpened.value = true
-}
+const emits = defineEmits(["close"])
+
+const isOpened = ref(props.opened)
+//const title = computed( () => props.title)
+const message = computed( () => props.message)
+
+watch(isOpened, () => {
+   if(!isOpened.value) { emits("close") }
+}, { deep: true })
+
 </script>
 <template>
     <Teleport to="body">
         <k-dialog
             :opened="isOpened"
-            @backdropclick="() => (isOpened = false)"
         >
-      <template #title>{{ title }}</template>
-        {{ message }}
+        <p class="text-md pt-2">{{ message }}</p>
         <template #buttons>
             <k-dialog-button @click="() => (isOpened = false)">
                 Ok

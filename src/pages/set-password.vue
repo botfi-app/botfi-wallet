@@ -1,16 +1,16 @@
 <script setup>
 
-import { onBeforeMount, onMounted, ref, watch } from "vue"
+import { inject, onBeforeMount, onMounted, ref, watch } from "vue"
 import { useRouter, useRoute } from 'vue-router';
-import { useKeyStore } from "../store/keystore";
+import { useWalletStore } from "../store/walletStore";
 import { isStrongPassword } from "validator"
-import { useAlertDialog } from "../composables/useAlertDialog"
 
 const router = useRouter()
 const route  = useRoute()
-const keystore = useKeyStore()
-const alertDialog = useAlertDialog()
+const walletStore = useWalletStore()
+const alertDialog = inject("alertDialog")
 
+const initialized = ref(false)
 const hasValidPassword = ref(false)
 const password = ref("")
 const password2 = ref("")
@@ -49,8 +49,14 @@ watch(password2, () => {
 
 onBeforeMount(() => {
     if(getNextPage() == ""){
-        router.push("/")
+       return router.push("/")
     }
+
+    if(getNextPage() == "create-wallet" &&  walletStore.hasDefaultWallet()){
+        return router.push("/login")
+    }
+
+    initialized.value = true
 })
 
 const getNextPage = () => {
@@ -84,8 +90,8 @@ const onPasswordSave = async () => {
         return false;
     }
 
-    // lets save the password in keystore 
-    keystore.setPassword(password.value) 
+    // lets save the password in walletStore 
+    walletStore.setPassword(password.value) 
 
     router.push(`/${getNextPage()}`)
 }
@@ -94,6 +100,7 @@ const onPasswordSave = async () => {
    <main-layout
         title="Password"
         :show-nav="false"
+        v-if="initialized"
     >
         <k-navbar 
             title="Password" 

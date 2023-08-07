@@ -15,9 +15,14 @@ export default class Wallet {
             const mnemonic = Mnemonic.fromEntropy(randomBytes(16), password)
 
             let ewallet = HDNodeWallet.fromMnemonic(mnemonic)
+            
+            let result = JSON.parse(JSON.stringify(ewallet))
 
-            console.log(ewallet)
-            return Status.successData(ewallet)
+            result["privateKey"] = ewallet.privateKey 
+
+            //console.log("result===>", result)
+
+            return Status.successData(result)
 
         } catch(e){
             Utils.logError("Wallet#generateMnemonic:", e)
@@ -25,9 +30,11 @@ export default class Wallet {
         }
     }
 
-    static async encrypt(key, data) {
+    static async encryptWallet(password, walletInfo, isDefaultWallet = false) {
         try {
 
+            
+            //localStorage.setItem()
         } catch(e){
             Utils.logError("Wallet#encrypt:", e)
             return Status.error("Failed to generate key phrase")

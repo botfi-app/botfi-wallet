@@ -10,14 +10,19 @@ export {}
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
     AlertDialog: typeof import('./src/components/common/AlertDialog.vue')['default']
-    HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
+    BotfiProvider: typeof import('./src/layouts/BotfiProvider.vue')['default']
+    BotFiProvider: typeof import('./src/layouts/BotFiProvider.vue')['default']
     Icon: typeof import('./src/components/common/Icon.vue')['default']
     'IcPh:x': typeof import('~icons/ph/x')['default']
+    LoaderDialog: typeof import('./src/components/common/LoaderDialog.vue')['default']
+    LoadingDialog: typeof import('./src/components/common/LoadingDialog.vue')['default']
+    LoadingModal: typeof import('./src/components/common/loadingModal.vue')['default']
     LoadingView: typeof import('./src/layouts/LoadingView.vue')['default']
     MainLayout: typeof import('./src/layouts/MainLayout.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     Toast: typeof import('./src/components/common/Toast.vue')['default']
     ValidPasswordHints: typeof import('./src/components/common/ValidPasswordHints.vue')['default']
+    Xxx: typeof import('./src/layouts/xxx.vue')['default']
   }
 }

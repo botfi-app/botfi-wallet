@@ -1,21 +1,23 @@
 <script setup>
-import { ref, onBeforeMount, onMounted } from "vue"
-import { useKeyStore } from "../store/keystore";
+import { ref, onBeforeMount, inject } from "vue"
+import { useWalletStore } from "../store/walletStore";
 import { useRouter } from "vue-router";
 import Wallet from "../classes/Wallet";
 import LoadingView from "../layouts/LoadingView.vue";
 import { useToast } from "../composables/useToast";
 import clipboard from "clipboard"
-import { useAlertDialog } from "../composables/useAlertDialog"
 
-const alertDialog = useAlertDialog()
+const loader = inject("loaderDialog")
+const alertDialog = inject("alertDialog")
 const toast = useToast()
-const keystore = useKeyStore()
-const mnemonic = ref(null)
+const walletStore = useWalletStore()
+const walletInfo = ref(null)
 const seedPhraseArray = ref([])
+const initialized = ref(false)
 const router = useRouter()
 const isLoading                = ref(false)
 const hasCopiedSeedPhrase      = ref(false)
+const copyBtnClicked           = ref(false) 
 const hasAgreedSeedPhraseTerms = ref(false)
 const isPhraseHidden           = ref(true)
 
@@ -23,29 +25,30 @@ const initialize = async () => {
 
    isLoading.value = true 
 
-   let walletStatus = await Wallet.createWallet(keystore.password)
+   let walletStatus = await Wallet.createWallet(walletStore.password)
 
    if(walletStatus.isError()){
      error.value = walletStatus.getMessage()
      return false;
    }
 
-   mnemonic.value = walletStatus.getData()
-   seedPhraseArray.value = mnemonic.value.mnemonic.phrase.split(" ");
+   walletInfo.value = walletStatus.getData()
+   seedPhraseArray.value = walletInfo.value.mnemonic.phrase.split(" ");
 
   isLoading.value = false 
+  initialized.value = true
 
 }
 
 onBeforeMount(() => {
     
-    if(keystore.hasDefaultWallet()){
+    if(walletStore.hasDefaultWallet()){
         isLoading.value = false
-        return router.push("/")
+        return router.push("/login")
     }
 
     // lets check if we have password
-    let password = keystore.password.trim()
+    let password = walletStore.password.trim()
 
     if(password == ''){
         return router.push("/set-password?next=create-wallet")
@@ -57,6 +60,7 @@ onBeforeMount(() => {
 
     cb.on('success', (e) => {
         toast.open("Copied to clipboard")
+        copyBtnClicked.value = true
     });
 
 
@@ -65,6 +69,10 @@ onBeforeMount(() => {
 
 const saveWalletInfo = async () => {
 
+    if(!copyBtnClicked.value){
+        return alertDialog.open("Copy the seed phrase by clicking the copy button")
+    }
+    
     if(!hasCopiedSeedPhrase.value){
         return alertDialog.open("Kindly accept that you copied the seed phrase")
     }
@@ -73,7 +81,19 @@ const saveWalletInfo = async () => {
         return alertDialog.open("Accept our terms to continue")
     }
 
-    //keystore.saveMnemonic(mnemonic.value)
+    loader.show("saving on device")
+
+   let saveStatus = await walletStore.saveDefaultWallet(walletInfo)
+
+   loader.hide()
+
+   ///console.log("saveStatus==>", saveStatus)
+
+   if(saveStatus.isError()){
+        return alertDialog.open(saveStatus.getMessage())
+   }
+
+   router.push("/wallet")
 }
 </script>
 
@@ -81,6 +101,7 @@ const saveWalletInfo = async () => {
     <main-layout
         title="Create Wallet"
         :show-nav="false"
+        v-if="initialized"
     >
         <k-navbar 
             title="Create Wallet" 
@@ -96,7 +117,7 @@ const saveWalletInfo = async () => {
                     class="k-color-primary btn mr-2 px-6"
                     @click.prevent="saveWalletInfo"
                 >
-                   Next
+                   Done
                 </k-button>
             </template>
         </k-navbar>
