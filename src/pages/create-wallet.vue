@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onBeforeMount, inject } from "vue"
+import { ref, onBeforeMount, inject, toValue } from "vue"
 import { useWalletStore } from "../store/walletStore";
 import { useRouter } from "vue-router";
 import Wallet from "../classes/Wallet";
@@ -25,7 +25,7 @@ const initialize = async () => {
 
    isLoading.value = true 
 
-   let walletStatus = await Wallet.createWallet(walletStore.password)
+   let walletStatus = await Wallet.createWallet(toValue(walletStore.password))
 
    if(walletStatus.isError()){
      error.value = walletStatus.getMessage()
@@ -72,7 +72,7 @@ const saveWalletInfo = async () => {
     if(!copyBtnClicked.value){
         return alertDialog.open("Copy the seed phrase by clicking the copy button")
     }
-    
+
     if(!hasCopiedSeedPhrase.value){
         return alertDialog.open("Kindly accept that you copied the seed phrase")
     }
@@ -83,7 +83,7 @@ const saveWalletInfo = async () => {
 
     loader.show("saving on device")
 
-   let saveStatus = await walletStore.saveDefaultWallet(walletInfo)
+   let saveStatus = await walletStore.saveDefaultWallet(toValue(walletInfo))
 
    loader.hide()
 

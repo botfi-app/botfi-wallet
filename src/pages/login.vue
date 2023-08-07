@@ -33,6 +33,8 @@ const handleLogin = async () => {
     // lets validate password 
     let loginStatus = await walletStore.doLogin(pass)
 
+    console.log("loginStatus===>", loginStatus)
+
     if(loginStatus.isError()){
 
         let errMsg = loginStatus.getMessage()

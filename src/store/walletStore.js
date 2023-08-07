@@ -1,8 +1,9 @@
 import { defineStore } from 'pinia'
-import {ref, computed, toValue } from 'vue'
+import {ref, computed, toValue, toRaw } from 'vue'
 import Status from '../classes/Status';
-import keyStore from '../classes/keyStore';
+import Wallet from '../classes/Wallet';
 import KeyStore from '../classes/keyStore';
+
 
 export const useWalletStore = defineStore('walletStore', () => {
 
@@ -24,7 +25,7 @@ export const useWalletStore = defineStore('walletStore', () => {
 
     const doLogin = async (pass) => {
         
-        let defaultWalletStatus = await KeyStore.getDefaultWallet(pass)
+        let defaultWalletStatus = await KeyStore.getDefaultWallet(toValue(pass))
         
         if(defaultWalletStatus.isError()){
 
@@ -38,14 +39,17 @@ export const useWalletStore = defineStore('walletStore', () => {
         }
 
         let defaultWallet = defaultWalletStatus.getData()
-        
+
+
+        return Status.errorPromise()
     } //end do login 
+
 
     const getDefaultWallet = async () => {
 
         if(defaultWallet.value == null){
             
-            let defaultWalletStatus = await keyStore.getDefaultWallet(toValue(password))
+            let defaultWalletStatus = await KeyStore.getDefaultWallet(toValue(password))
             
             let _walletInfo = defaultWalletStatus.getData()
 
@@ -61,12 +65,12 @@ export const useWalletStore = defineStore('walletStore', () => {
 
 
     const hasDefaultWallet = () => {
-        return keyStore.hasDefaultWallet()
+        return KeyStore.hasDefaultWallet()
     }
 
     const saveDefaultWallet = async (_walletInfo) => {
         
-        let saveStatus = await keyStore.saveDefaultWallet(toValue(password), toValue(_walletInfo))
+        let saveStatus = await KeyStore.saveDefaultWallet(toValue(password), toRaw(_walletInfo))
 
         if(saveStatus.isError()){
             return saveStatus
@@ -86,7 +90,7 @@ export const useWalletStore = defineStore('walletStore', () => {
             return Status.error("password_required")
         }
 
-        let accountsStatus = await keyStore.getAccounts(pass)
+        let accountsStatus = await KeyStore.getAccounts(pass)
 
         if(accountsStatus.isError()){
             return accountsStatus

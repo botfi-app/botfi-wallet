@@ -3,7 +3,7 @@
  * @author BotFi <hello@botfi.app>
  */
 
-import { encryptKeystoreJson, decryptKeystoreJson, getAddress } from "ethers"
+import { encryptKeystoreJson, decryptKeystoreJson, getAddress, Wallet as ethersWallet } from "ethers"
 import Utils from "./Utils"
 import Status from "./Status"
 
@@ -17,31 +17,33 @@ export default class KeyStore {
     static async getDefaultWallet(password="") {
         try {
             
+            //console.log("password===>", password)
+
             if(password == ''){
                 return Status.errorPromise("password_required")
             }
 
-            let data = localStorage.getItem(this.DEFAULT_ACCOUNT_KEY) || ""
+            let defaultWalletDataStr = localStorage.getItem(this.DEFAULT_ACCOUNT_KEY) || ""
 
-            if(data.trim() == ""){
-                return Status.errorPromise("No default wallet found")
+            if(defaultWalletDataStr == ""){
+                return Status.errorPromise("default_account_not_found")
             }
 
-            let defaultAcctStr = localStorage.getItem(this.DEFAULT_ACCOUNT_KEY) || ""
+            let walletData = JSON.parse(defaultWalletDataStr)
 
-            if(defaultAcctStr == ""){
+            if(!("data" in walletData)){
+                await this.resetDefaultAccount()
                 return Status.errorPromise("default_account_not_found")
             }
 
             let decryptedData;
 
             try {
-                decryptedData = await decryptKeystoreJson(defaultAcctStr)
+                decryptedData = await ethersWallet.fromEncryptedJson(walletData.data, password)
             } catch(e){
                 Utils.logError(`KeyStore#getDefaultWallet:`, e)
                 return Status.errorPromise("wallet_decryption_failed")
             }
-
 
             return Status.successData(decryptedData)
 
@@ -49,6 +51,11 @@ export default class KeyStore {
             Utils.logError(`walletStore#getDefaultWallet:`, e)
             return Status.errorPromise("failed to fetch default wallet")
         }
+    }
+
+    static resetDefaultAccount(){
+        localStorage.removeItem(this.DEFAULT_ACCOUNT_KEY)
+        localStorage.removeItem(this.ACCOUNTS_KEY)
     }
 
     static hasDefaultWallet() {
@@ -62,21 +69,9 @@ export default class KeyStore {
                 return Status.errorPromise("Default account already exists, it cannot be overwritten")
             }
 
-            let mnemonic = {
-                entropy: walletInfo.mnemonic.entropy,
-                locale:  walletInfo.mnemonic.wordlist.locale,
-                path:    walletInfo.path
-            }
+            let encryptedWallet = await walletInfo.encrypt(password)
 
-            let data = { 
-                address:    walletInfo.address, 
-                privateKey: walletInfo.privateKey,
-                mnemonic
-            }
-
-            //console.log("data===>", data)
-
-            let encryptedData = await encryptKeystoreJson(data, password)
+            let encryptedData = { data: encryptedWallet }
 
             localStorage.setItem(this.DEFAULT_ACCOUNT_KEY, JSON.stringify(encryptedData))
 

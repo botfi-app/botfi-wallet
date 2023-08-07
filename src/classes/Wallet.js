@@ -5,24 +5,16 @@
 
 import Status from "./Status"
 import Utils from "./Utils"
-import {  Mnemonic, HDNodeWallet, randomBytes } from "ethers"
+import {   Wallet as ethersWallet } from "ethers"
 
 export default class Wallet {
 
     static async createWallet(password) {
         try {
 
-            const mnemonic = Mnemonic.fromEntropy(randomBytes(16), password)
+            let walletInfo = ethersWallet.createRandom()
 
-            let ewallet = HDNodeWallet.fromMnemonic(mnemonic)
-            
-            let result = JSON.parse(JSON.stringify(ewallet))
-
-            result["privateKey"] = ewallet.privateKey 
-
-            //console.log("result===>", result)
-
-            return Status.successData(result)
+            return Status.successData(walletInfo)
 
         } catch(e){
             Utils.logError("Wallet#generateMnemonic:", e)

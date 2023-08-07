@@ -16,8 +16,10 @@ const alertDialog = {
         }
 
         alertInfo.value = { opened: true, message, handleOnClose }
+
+        console.log("alertInfo.value===>", alertInfo.value)
     },
-    
+
     close: () => alertInfo.value = { opened: false, message: ""},
     update: (message, onClose = null) => alertInfo.value = { opened: true, message, onClose}
 }
@@ -46,7 +48,7 @@ provide("loaderDialog", loaderDialog)
             :opened="alertInfo.opened" 
             :key="alertInfo.opened"
             :message="alertInfo.message"
-            @close="alertInfo.onCloseHandler"
+            @close="alertInfo.handleOnClose"
         />
         <loading-dialog 
             :opened="loaderInfo.opened" 
