@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import {ref, computed, toValue } from 'vue'
 import Status from '../classes/Status';
 import keyStore from '../classes/keyStore';
+import KeyStore from '../classes/keyStore';
 
 export const useWalletStore = defineStore('walletStore', () => {
 
@@ -20,6 +21,25 @@ export const useWalletStore = defineStore('walletStore', () => {
     const setPassword = (pass) => {
         _password.value = pass
     }
+
+    const doLogin = async (pass) => {
+        
+        let defaultWalletStatus = await KeyStore.getDefaultWallet(pass)
+        
+        if(defaultWalletStatus.isError()){
+
+            let errMsg = defaultWalletStatus.getMessage()
+
+            if(errMsg == 'wallet_decryption_failed'){
+                return Status.errorPromise("Failed to decrypt wallet, check password")
+            }
+
+            return defaultWalletStatus
+        }
+
+        let defaultWallet = defaultWalletStatus.getData()
+        
+    } //end do login 
 
     const getDefaultWallet = async () => {
 
@@ -84,6 +104,7 @@ export const useWalletStore = defineStore('walletStore', () => {
         getDefaultWallet,
         saveDefaultWallet,
         password,
-        setPassword
+        setPassword,
+        doLogin
     }
 })

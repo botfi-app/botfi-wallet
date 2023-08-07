@@ -2,13 +2,24 @@
 import { provide, ref } from 'vue';
 import AlertDialog from '../components/common/AlertDialog.vue';
 
-const alertInfo = ref({ opened: false, message: ""})
+const alertInfo = ref({ opened: false, message: "", onClose: null })
 const loaderInfo = ref({ opened: false, message: "", canClose: true })
 
 const alertDialog = {
-    open: (message) => alertInfo.value = { opened: true, message},
+    open: (message, onClose = null) =>{
+        
+        let handleOnClose = async () => {
+            alertInfo.value = { ...alertInfo.value, opened: false } 
+            if(onClose && typeof onClose === 'function'){
+                onClose()
+            }
+        }
+
+        alertInfo.value = { opened: true, message, handleOnClose }
+    },
+    
     close: () => alertInfo.value = { opened: false, message: ""},
-    update: (message) => alertInfo.value = { opened: true, message}
+    update: (message, onClose = null) => alertInfo.value = { opened: true, message, onClose}
 }
 
 const loaderDialog = {
@@ -35,7 +46,7 @@ provide("loaderDialog", loaderDialog)
             :opened="alertInfo.opened" 
             :key="alertInfo.opened"
             :message="alertInfo.message"
-            @close="alertInfo.opened=false"
+            @close="alertInfo.onCloseHandler"
         />
         <loading-dialog 
             :opened="loaderInfo.opened" 

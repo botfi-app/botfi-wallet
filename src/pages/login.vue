@@ -1,8 +1,9 @@
 <script setup>
-import { onBeforeMount, ref } from 'vue';
+import { inject, onBeforeMount, ref } from 'vue';
 import { useWalletStore } from "../store/walletStore"
 import { useRouter } from 'vue-router';
 
+const alertDialog = inject("alertDialog")
 const initialized = ref(false)
 const walletStore = useWalletStore()
 const router = useRouter()
@@ -23,6 +24,29 @@ const initialize = () => {
 
 const handleLogin = async () => {
     
+    let pass = password.value.trim()
+
+    if(pass == ''){
+        return alertDialog.open("Password is required")
+    }
+
+    // lets validate password 
+    let loginStatus = await walletStore.doLogin(pass)
+
+    if(loginStatus.isError()){
+
+        let errMsg = loginStatus.getMessage()
+
+        if(errMsg == 'default_account_not_found'){
+            alertDialog.open(
+                "Default account was not found, create an account or import one",
+                () => router.push("/")
+            )
+            return false;
+        }
+
+        return alertDialog.open(errMsg)
+    }
 }
 </script>
 <template>
@@ -57,6 +81,7 @@ const handleLogin = async () => {
                 <div class="mb-5 flex flex-col items-center w-full">
                     <k-button rounded raised large 
                         class="btn mb-5"
+                        @click.prevent="handleLogin"
                     >
                         Login
                     </k-button>

@@ -14,7 +14,7 @@ export default class KeyStore {
     static ACCOUNTS_KEY = "__botfi_accts_"
 
 
-    static getDefaultWallet = async (password="") => {
+    static async getDefaultWallet(password="") {
         try {
             
             if(password == ''){
@@ -27,11 +27,27 @@ export default class KeyStore {
                 return Status.errorPromise("No default wallet found")
             }
 
+            let defaultAcctStr = localStorage.getItem(this.DEFAULT_ACCOUNT_KEY) || ""
 
-            return Status.successData(decryptData)
+            if(defaultAcctStr == ""){
+                return Status.errorPromise("default_account_not_found")
+            }
+
+            let decryptedData;
+
+            try {
+                decryptedData = await decryptKeystoreJson(defaultAcctStr)
+            } catch(e){
+                Utils.logError(`KeyStore#getDefaultWallet:`, e)
+                return Status.errorPromise("wallet_decryption_failed")
+            }
+
+
+            return Status.successData(decryptedData)
+
         } catch(e){
             Utils.logError(`walletStore#getDefaultWallet:`, e)
-            return Status.errorPromise()
+            return Status.errorPromise("failed to fetch default wallet")
         }
     }
 
@@ -43,10 +59,8 @@ export default class KeyStore {
         try {
 
             if ((localStorage.getItem(this.DEFAULT_ACCOUNT_KEY) || "").length > 0){
-                return Status.errorPromise("Seed phrase already exists, cannot be overwritten")
+                return Status.errorPromise("Default account already exists, it cannot be overwritten")
             }
-
-            //console.log(walletInfo)
 
             let mnemonic = {
                 entropy: walletInfo.mnemonic.entropy,
