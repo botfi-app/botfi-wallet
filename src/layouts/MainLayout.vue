@@ -4,7 +4,8 @@ const props = defineProps({
     showBackBtn: { type: Boolean, default: true },
     title: { type: String, default: "" },
     showNav: { type: Boolean, default: true },
-    rightBtn: { type: Object, default: {} }
+    rightBtn: { type: Object, default: {} },
+    centerTitle: { type: Boolean, default: true }
 })
 
 
@@ -12,7 +13,11 @@ const router = useRouter()
 </script>
 <template>
     <k-page>
-        <k-navbar :title="props.title" centerTitle v-if="showNav">
+        <k-navbar 
+            :title="props.title" 
+            :centerTitle="props.centerTitle" 
+            v-if="showNav"
+        >
             <template #left  v-if="props.showBackBtn">
                 <k-navbar-back-link text="Back" @click="router.go(-1)" />
             </template>

@@ -15,10 +15,16 @@ const initialize = () => {
     if(walletStore.hasDefaultWallet()){
         router.push('/login')
     }
+
+    initialized.value = true
 }
 </script>
 <template>
-    <main-layout :showBackBtn="false" title="BotFi Wallet">
+    <main-layout 
+        :showBackBtn="false" 
+        title="BotFi Wallet"
+        v-if="initialized"
+    >
        
         <k-block strong inset class="">
             <div class="flex flex-col w-full items-center">
