@@ -26,7 +26,7 @@ const initialize = () => {
         v-if="initialized"
     >
        
-        <k-block strong inset class="">
+        <k-block strong inset class="max-w400">
             <div class="flex flex-col w-full items-center">
             
                 <div class="flex justify-center">

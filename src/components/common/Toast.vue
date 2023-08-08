@@ -12,7 +12,7 @@ onMounted(() => {
         text.value = data.text || ""
         opened.value = true 
 
-        let autoclose = data.autoclose || false 
+        let autoclose = data.autoclose || true 
 
         if(autoclose){
             window.setTimeout(()=> opened.value = false, 5_000 )

@@ -6,9 +6,9 @@ import Wallet from "../classes/Wallet";
 import LoadingView from "../layouts/LoadingView.vue";
 import { useToast } from "../composables/useToast";
 import clipboard from "clipboard"
+import Utils from "../classes/Utils";
 
-const loader = inject("loaderDialog")
-const alertDialog = inject("alertDialog")
+
 const toast = useToast()
 const walletStore = useWalletStore()
 const walletInfo = ref(null)
@@ -59,10 +59,9 @@ onBeforeMount(() => {
     let cb = new clipboard("#copy-btn")
 
     cb.on('success', (e) => {
-        toast.open("Copied to clipboard")
+        Utils.showToast("Copied to clipboard")
         copyBtnClicked.value = true
     });
-
 
 })
 
@@ -70,27 +69,27 @@ onBeforeMount(() => {
 const saveWalletInfo = async () => {
 
     if(!copyBtnClicked.value){
-        return alertDialog.open("Copy the seed phrase by clicking the copy button")
+        return Utils.mAlert("Copy the seed phrase by clicking the copy button")
     }
 
     if(!hasCopiedSeedPhrase.value){
-        return alertDialog.open("Kindly accept that you copied the seed phrase")
+        return Utils.mAlert("Kindly accept that you copied the seed phrase")
     }
 
     if(!hasAgreedSeedPhraseTerms.value){
-        return alertDialog.open("Accept our terms to continue")
+        return Utils.mAlert("Accept our terms to continue")
     }
 
-    loader.show("saving on device")
+    let loader = Utils.loader("saving on device")
 
-   let saveStatus = await walletStore.saveDefaultWallet(toValue(walletInfo))
+   let saveStatus =  await Utils.runBlocking(() => walletStore.saveDefaultWallet(toValue(walletInfo)))
 
-   loader.hide()
+   loader.close()
 
    ///console.log("saveStatus==>", saveStatus)
 
    if(saveStatus.isError()){
-        return alertDialog.open(saveStatus.getMessage())
+        return Utils.statusAlert(saveStatus.getMessage())
    }
 
    router.push("/wallet")
@@ -121,7 +120,7 @@ const saveWalletInfo = async () => {
                 </k-button>
             </template>
         </k-navbar>
-        <k-block strong inset>
+        <k-block strong inset class="max-w600">
             <Loading-view :isLoading="isLoading">
                 <div class="text-md text-center my-2">
                     This seed phrase is the key to your wallet, save it securely 

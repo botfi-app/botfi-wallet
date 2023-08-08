@@ -7,17 +7,16 @@ import KeyStore from '../classes/keyStore';
 
 export const useWalletStore = defineStore('walletStore', () => {
 
-    const _password = ref("")
-
     const $state = ref({
+        password:         "",
         defaultWallet:    null,
-        accounts:            []
+        accounts:            {}
     }); 
 
 
     const defaultWallet     = computed(()        =>   $state.value.defaultWallet )
     const accounts          = computed(()       =>    $state.value.keys )
-    const password          = computed(()       =>    _password.value )
+    const password          = computed(()       =>    $state.value.value )
 
     const setPassword = (pass) => {
         _password.value = pass
@@ -38,31 +37,38 @@ export const useWalletStore = defineStore('walletStore', () => {
             return defaultWalletStatus
         }
 
-        let defaultWallet = defaultWalletStatus.getData()
+        $state.value.defaultWallet = defaultWalletStatus.getData()
 
+        // lets now fetch the accounts
+        let accountsStatus = await KeyStore.getAccounts(toValue(pass))
 
-        return Status.errorPromise()
-    } //end do login 
-
-
-    const getDefaultWallet = async () => {
-
-        if(defaultWallet.value == null){
-            
-            let defaultWalletStatus = await KeyStore.getDefaultWallet(toValue(password))
-            
-            let _walletInfo = defaultWalletStatus.getData()
-
-            if(defaultWalletStatus.isError() || _walletInfo == null){
-                return defaultWalletStatus
-            }
-          
-            $state.value.defaultWallet = _walletInfo
+        if(accountsStatus.isError()){
+            return accountsStatus
         }
 
-        return $state.value.defaultWallet
+        $state.value.accounts = accountsStatus.getData()
+
+        $state.value.password = pass;
+
+        return Status.successPromise()
+    } //end do login 
+
+    const isLoggedIn = () => {
+        return (password.value != '' && 
+            defaultWallet.value != null && 
+            Object.keys(accounts.value).length > 0
+        )
     }
 
+    const logout = () => {
+        $state.value = {
+            password: '',
+            defaultWallet: null,
+            accounts: {}
+        }
+
+       return Status.success()
+    }
 
     const hasDefaultWallet = () => {
         return KeyStore.hasDefaultWallet()
@@ -101,14 +107,29 @@ export const useWalletStore = defineStore('walletStore', () => {
         return accountsStatus
     }
 
+    const resetAccount = async () => {
+
+         await KeyStore.resetAccount()
+        
+        $state.value = {
+            accounts: {},
+            defaultWallet: null 
+        }
+
+        return Status.success()
+    }
+
     return {
         hasDefaultWallet,
         updateAccounts,
         accounts,
-        getDefaultWallet,
+        defaultWallet,
         saveDefaultWallet,
         password,
         setPassword,
-        doLogin
+        doLogin,
+        isLoggedIn,
+        resetAccount,
+        logout
     }
 })

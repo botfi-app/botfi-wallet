@@ -12,6 +12,7 @@ declare module '@vue/runtime-core' {
     AlertDialog: typeof import('./src/components/common/AlertDialog.vue')['default']
     BotfiProvider: typeof import('./src/layouts/BotfiProvider.vue')['default']
     BotFiProvider: typeof import('./src/layouts/BotFiProvider.vue')['default']
+    ConfirmDialog: typeof import('./src/components/common/ConfirmDialog.vue')['default']
     Icon: typeof import('./src/components/common/Icon.vue')['default']
     'IcPh:x': typeof import('~icons/ph/x')['default']
     LoaderDialog: typeof import('./src/components/common/LoaderDialog.vue')['default']
@@ -21,8 +22,11 @@ declare module '@vue/runtime-core' {
     MainLayout: typeof import('./src/layouts/MainLayout.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    SweetAlert2: typeof import('./src/layouts/SweetAlert2.vue')['default']
     Toast: typeof import('./src/components/common/Toast.vue')['default']
+    Toolbar: typeof import('./src/layouts/Toolbar.vue')['default']
     ValidPasswordHints: typeof import('./src/components/common/ValidPasswordHints.vue')['default']
+    WalletLayout: typeof import('./src/layouts/WalletLayout.vue')['default']
     Xxx: typeof import('./src/layouts/xxx.vue')['default']
   }
 }

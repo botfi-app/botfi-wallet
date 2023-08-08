@@ -1,6 +1,5 @@
 <script setup>
-  import { onMounted, provide, ref } from "vue";
-import AlertDialog from "./components/common/AlertDialog.vue";
+import { onMounted, provide, ref } from "vue";
 import BotFiProvider from "./layouts/BotFiProvider.vue";
 
 </script>

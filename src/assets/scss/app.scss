@@ -5,6 +5,7 @@
 @tailwind utilities;
 
 @import "./animate.css/animate.css";
+@import "./loader.scss";
 
 .btn {
     //max-width: 400px;
@@ -19,4 +20,18 @@
 
 .text-white-alpha-80 {
     color: rgba($color: #ffffff, $alpha: 0.8) !important;
+}
+
+.swal-popup { border-radius: 18px; }
+
+.max-w400 { 
+    max-width: 400px;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+.max-w600 {
+    max-width: 600px;
+    margin-left: auto !important;
+    margin-right: auto !important;
 }

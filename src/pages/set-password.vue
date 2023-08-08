@@ -1,14 +1,14 @@
 <script setup>
 
-import { inject, onBeforeMount, onMounted, ref, watch } from "vue"
+import { onBeforeMount, ref, watch } from "vue"
 import { useRouter, useRoute } from 'vue-router';
 import { useWalletStore } from "../store/walletStore";
 import { isStrongPassword } from "validator"
+import Utils from "../classes/Utils";
 
 const router = useRouter()
 const route  = useRoute()
 const walletStore = useWalletStore()
-const alertDialog = inject("alertDialog")
 
 const initialized = ref(false)
 const hasValidPassword = ref(false)
@@ -77,8 +77,7 @@ const onPasswordSave = async () => {
    // console.log("passwordError.value===>", passwordError.value)
 
     if(password.value.trim() == ''){
-        alertDialog.open("Error", "Password is required")
-        return false;
+       return Utils.errorAlert("Password is required")
     }
 
     if(!(passwordError.value == '' && password2Error.value == '')){
@@ -86,8 +85,7 @@ const onPasswordSave = async () => {
     }
 
     if(!(hasAgreedNoPassReset.value && hasAgreedToNoPassOnServer.value)){
-        alertDialog.open("Error", "Accept our terms to proceed")
-        return false;
+        return Utils.errorAlert("Accept our terms to proceed")
     }
 
     // lets save the password in walletStore 
@@ -123,7 +121,7 @@ const onPasswordSave = async () => {
                 </k-button>
             </template>
         </k-navbar>
-        <k-block strong inset>
+        <k-block strong inset class="max-w400">
             <k-list v-if="!hasValidPassword" class="p-0">
              
                 <div class="my-2 mt-8 text-md px-2 text-center">

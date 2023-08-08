@@ -6,6 +6,7 @@
 import { encryptKeystoreJson, decryptKeystoreJson, getAddress, Wallet as ethersWallet } from "ethers"
 import Utils from "./Utils"
 import Status from "./Status"
+import { toValue } from "vue"
 
 
 export default class KeyStore {
@@ -32,7 +33,7 @@ export default class KeyStore {
             let walletData = JSON.parse(defaultWalletDataStr)
 
             if(!("data" in walletData)){
-                await this.resetDefaultAccount()
+                await this.resetAccount()
                 return Status.errorPromise("default_account_not_found")
             }
 
@@ -41,6 +42,11 @@ export default class KeyStore {
             try {
                 decryptedData = await ethersWallet.fromEncryptedJson(walletData.data, password)
             } catch(e){
+                
+                if(e.code == "INVALID_ARGUMENT" && e.argument == "password"){
+                    return Status.errorPromise("Invalid password")
+                }
+
                 Utils.logError(`KeyStore#getDefaultWallet:`, e)
                 return Status.errorPromise("wallet_decryption_failed")
             }
@@ -53,9 +59,10 @@ export default class KeyStore {
         }
     }
 
-    static resetDefaultAccount(){
+    static async resetAccount(){
         localStorage.removeItem(this.DEFAULT_ACCOUNT_KEY)
         localStorage.removeItem(this.ACCOUNTS_KEY)
+        
     }
 
     static hasDefaultWallet() {
@@ -68,6 +75,8 @@ export default class KeyStore {
             if ((localStorage.getItem(this.DEFAULT_ACCOUNT_KEY) || "").length > 0){
                 return Status.errorPromise("Default account already exists, it cannot be overwritten")
             }
+
+            password = toValue(password)
 
             let encryptedWallet = await walletInfo.encrypt(password)
 
@@ -103,6 +112,8 @@ export default class KeyStore {
             return Status.successData({})
         }
 
+        password = toValue(password)
+
         //console.log("walletsStr===>", walletsStr)
 
         let walletsObj = {}
@@ -113,12 +124,21 @@ export default class KeyStore {
             return Status.successData({})
         }
 
-        //console.log("walletsObj===>",walletsObj)
+        ///console.log("password===>",password)
 
         for(let key of Object.keys(walletsObj)){
-            let item = walletsObj[key]
-            let decryptedAcct = await decryptKeystoreJson(item.wallet, password)
-            walletsObj[key].wallet = decryptedAcct
+            try {
+                let item = walletsObj[key]
+                let decryptedAcct = await ethersWallet.fromEncryptedJson(item.wallet, password)
+                walletsObj[key].wallet = decryptedAcct
+
+                if(item.name == ''){
+                    walletsObj[key].name = decryptedAcct.address;
+                }
+            } catch(e){ 
+                console.log("KeyStore#getAcounts:", key, e)
+                continue; 
+            }
         }
 
         return Status.successData(walletsObj)
@@ -131,8 +151,11 @@ export default class KeyStore {
         let dbWalletsStr = (localStorage.getItem(this.ACCOUNTS_KEY) || "").trim()
 
         if(dbWalletsStr != ""){
-            try { wallets = JSON.parse(dbWalletsStr) } catch(e){}
-
+            try { 
+                wallets = JSON.parse(dbWalletsStr) 
+            } catch(e){
+                return Status.errorPromise("Failed to decode accounts store data")
+            }
         }
 
         address = getAddress(address)
@@ -141,6 +164,10 @@ export default class KeyStore {
             address, 
             privateKey
         }
+
+        password = toValue(password)
+        
+        //console.log("password===>", password)
 
         // lets encrypt the wallet account 
         let encryptedWallet = await encryptKeystoreJson(walletInfo, password)
