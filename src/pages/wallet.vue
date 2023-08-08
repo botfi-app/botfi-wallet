@@ -3,7 +3,9 @@ import WalletLayout from '../layouts/WalletLayout.vue';
 
 </script>
 <template>
-    <WalletLayout>
-        
+    <WalletLayout
+        title="Wallet"
+    >
+
     </WalletLayout>
 </template>

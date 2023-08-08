@@ -23,6 +23,7 @@ declare module '@vue/runtime-core' {
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SweetAlert2: typeof import('./src/layouts/SweetAlert2.vue')['default']
+    TabBar: typeof import('./src/layouts/TabBar.vue')['default']
     Toast: typeof import('./src/components/common/Toast.vue')['default']
     Toolbar: typeof import('./src/layouts/Toolbar.vue')['default']
     ValidPasswordHints: typeof import('./src/components/common/ValidPasswordHints.vue')['default']

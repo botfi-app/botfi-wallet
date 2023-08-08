@@ -13,7 +13,11 @@ import {
     kCheckbox,
     kDialog,
     kDialogButton,
-    kToast
+    kToast,
+    kTabbar,
+    kToolbar,
+    kTabbarLink,
+    kIcon
 } from 'konsta/vue'; 
 
 export default {
@@ -33,5 +37,9 @@ export default {
         .component("k-dialog", kDialog)
         .component("k-dialog-button", kDialogButton)
         .component("k-toast",kToast)
+        .component("k-tabbar", kTabbar)
+        .component("k-toolbar", kToolbar)
+        .component("k-tabbar-link", kTabbarLink)
+        .component("k-icon", kIcon)
     }
 }
