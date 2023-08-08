@@ -108,4 +108,8 @@ export default class Utils {
         }))
     } //end call blocking 
 
+
+    static maskAddress(address, firstLen=4, lastLen=4) {
+        return (address.substring(0, firstLen)+"..."+address.substr((address.length - lastLen), lastLen))
+    }
 }

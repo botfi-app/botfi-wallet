@@ -10,6 +10,7 @@ export {}
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
     AlertDialog: typeof import('./src/components/common/AlertDialog.vue')['default']
+    Avatar: typeof import('./src/components/common/Avatar.vue')['default']
     BotfiProvider: typeof import('./src/layouts/BotfiProvider.vue')['default']
     BotFiProvider: typeof import('./src/layouts/BotFiProvider.vue')['default']
     ConfirmDialog: typeof import('./src/components/common/ConfirmDialog.vue')['default']

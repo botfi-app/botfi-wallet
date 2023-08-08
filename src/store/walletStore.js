@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import {ref, computed, toValue, toRaw } from 'vue'
 import Status from '../classes/Status';
-import Wallet from '../classes/Wallet';
+///import Wallet from '../classes/Wallet';
 import KeyStore from '../classes/keyStore';
 
 
@@ -14,8 +14,8 @@ export const useWalletStore = defineStore('walletStore', () => {
     }); 
 
 
-    const defaultWallet     = computed(()        =>   $state.value.defaultWallet )
-    const accounts          = computed(()       =>    $state.value.keys )
+    const defaultWallet     = computed(()       =>    $state.value.defaultWallet )
+    const accounts          = computed(()       =>    $state.value.accounts )
     const password          = computed(()       =>    $state.value.value )
 
     const setPassword = (pass) => {
