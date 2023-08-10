@@ -2,21 +2,21 @@
 import { onMounted, provide, ref } from "vue";
 import BotFiProvider from "./layouts/BotFiProvider.vue";
 
+//leave-active-class="animate__animated animate__zoomOut animate__fastest"
 </script>
 
 <template>
   <k-app theme="material" safe-areas>
-    <BotFiProvider>
       <router-view v-slot="{ Component, route }">
         <transition  
-          mode="out-in"
+          name="custom-classes"
           enter-active-class="animate__animated animate__zoomIn animate__fastest"
-          leave-active-class="animate__animated animate__zoomOut animate__fastest"
         >
           <component :is="Component" :key="route.path"  />
         </transition>
       </router-view>
-    </BotFiProvider>
+
+      <toast />
   </k-app>
 </template>
 

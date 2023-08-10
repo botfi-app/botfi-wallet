@@ -16,10 +16,10 @@ export const useWalletStore = defineStore('walletStore', () => {
 
     const defaultWallet     = computed(()       =>    $state.value.defaultWallet )
     const accounts          = computed(()       =>    $state.value.accounts )
-    const password          = computed(()       =>    $state.value.value )
+    const password          = computed(()       =>    $state.value.password )
 
     const setPassword = (pass) => {
-        _password.value = pass
+        $state.value.password = pass
     }
 
     const doLogin = async (pass) => {

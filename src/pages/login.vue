@@ -5,6 +5,7 @@ import { useRouter } from 'vue-router';
 import Utils from '../classes/Utils'
 import { useToast } from '../composables/useToast';
 
+const navigator = window.navigator
 const initialized = ref(false)
 const toast = useToast()
 const walletStore = useWalletStore()
@@ -117,6 +118,7 @@ const resetAccount = async () => {
                         class="mx-0"
                     />
                 </k-list>
+
                 <div class="mb-5 flex flex-col items-center w-full">
                     <k-button rounded raised large 
                         class="btn mb-5"

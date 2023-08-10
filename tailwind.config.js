@@ -13,7 +13,7 @@ module.exports = konstaConfig({
     colors: {
       
       // "primary" is the main app color, if not specified will be default to '#007aff'
-      primary: '#3bedb2',
+      //primary: '#3bedb2',
       //bg: '#007aff',
 
       'botfi-primary': '#51e8c4',

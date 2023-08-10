@@ -21,14 +21,17 @@ declare module '@vue/runtime-core' {
     LoadingModal: typeof import('./src/components/common/loadingModal.vue')['default']
     LoadingView: typeof import('./src/layouts/LoadingView.vue')['default']
     MainLayout: typeof import('./src/layouts/MainLayout.vue')['default']
+    Navbar: typeof import('./src/components/wallet/Navbar.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    SidePanel: typeof import('./src/components/wallet/SidePanel.vue')['default']
     SweetAlert2: typeof import('./src/layouts/SweetAlert2.vue')['default']
-    TabBar: typeof import('./src/layouts/TabBar.vue')['default']
+    TabBar: typeof import('./src/components/wallet/TabBar.vue')['default']
     Toast: typeof import('./src/components/common/Toast.vue')['default']
     Toolbar: typeof import('./src/layouts/Toolbar.vue')['default']
     ValidPasswordHints: typeof import('./src/components/common/ValidPasswordHints.vue')['default']
     WalletLayout: typeof import('./src/layouts/WalletLayout.vue')['default']
+    WalletNavbar: typeof import('./src/components/wallet/WalletNavbar.vue')['default']
     Xxx: typeof import('./src/layouts/xxx.vue')['default']
   }
 }
