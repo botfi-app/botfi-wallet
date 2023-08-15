@@ -4,12 +4,9 @@ import { useWalletStore } from "../store/walletStore";
 import { useRouter } from "vue-router";
 import Wallet from "../classes/Wallet";
 import LoadingView from "../layouts/LoadingView.vue";
-import { useToast } from "../composables/useToast";
 import clipboard from "clipboard"
 import Utils from "../classes/Utils";
 
-
-const toast = useToast()
 const walletStore = useWalletStore()
 const walletInfo = ref(null)
 const seedPhraseArray = ref([])
@@ -51,7 +48,7 @@ onBeforeMount(() => {
     let password = walletStore.password.trim()
 
     if(password == ''){
-        return router.push("/set-password?next=create-wallet")
+        return router.push("/set-pin?next=create-wallet")
     }
 
     initialize()
@@ -59,7 +56,7 @@ onBeforeMount(() => {
     let cb = new clipboard("#copy-btn")
 
     cb.on('success', (e) => {
-        Utils.showToast("Copied to clipboard")
+        Utils.toast("Copied to clipboard")
         copyBtnClicked.value = true
     });
 
@@ -102,87 +99,83 @@ const saveWalletInfo = async () => {
         :show-nav="false"
         v-if="initialized"
     >
-        <k-navbar 
-            title="Create Wallet" 
-            centerTitle
-        >
-            <template #left>
-                <k-navbar-back-link text="Back" @click="router.go(-1)" />
-            </template>
-            <template #right>
-                <k-button 
-                    rounded 
-                    large 
-                    class="k-color-primary btn mr-2 px-6"
-                    @click.prevent="saveWalletInfo"
-                >
-                   Done
-                </k-button>
-            </template>
-        </k-navbar>
-        <k-block strong inset class="max-w600">
-            <Loading-view :isLoading="isLoading">
-                <div class="text-md text-center my-2">
-                    This seed phrase is the key to your wallet, save it securely 
-                    for future recovery of your wallet & funds
-                </div>
-                <div class="py-2 grid grid-rows-6 md:grid-rows-4 grid-cols-2 md:grid-cols-3">
-                    <template v-for="(word,index) in seedPhraseArray" :key="index">
-                        <div class="p-1">
-                            <k-button tonal large class="k-color-primary text-white-alpha-80" :disabled="true">  
-                                {{ isPhraseHidden ? "***" : word }}
-                            </k-button>
+     
+        <div class="w-400">
+            
+            <loading-view :isLoading="isLoading">
+
+                <div class="d-flex flex-column w-400 pb-5 align-items-center">
+                    
+                    <top-logo />
+                    
+                    <div class="text-md text-center my-2 muted hint">
+                        This seed phrase is the key to your wallet, save it securely 
+                        for future recovery of your wallet & funds
+                    </div>
+                    <div class="py-2 row">
+                        <template v-for="(word,index) in seedPhraseArray" :key="index">
+                            <div class="col-6 col-md-4 p-1 px-2">
+                                <div
+                                    click.prevent 
+                                    class="phrase-word bg-darken3-alpha px-4 py-3 w-full rounded text-dark" 
+                                    :disabled="true"
+                                >  
+                                    {{ isPhraseHidden ? "***" : word }}
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+
+                    <div class="mt-4 h-divider" />
+
+                    <div class="mt-4 mb-4">
+                        <div class="form-check">
+                            <input 
+                                v-model="hasCopiedSeedPhrase"
+                                class="form-check-input" 
+                                type="checkbox" 
+                                id="hasCopiedSeedPhrase"
+                            />
+                            <label class="form-check-label hint" for="hasCopiedSeedPhrase">
+                                I have copied the seed phrase & saved it securely
+                            </label>
                         </div>
-                    </template>
+                        <div class="form-check my-4">
+                            <input 
+                                v-model="hasAgreedSeedPhraseTerms"
+                                class="form-check-input" 
+                                type="checkbox" 
+                                id="hasAgreedSeedPhraseTerms"
+                            />
+                            <label class="form-check-label hint" for="hasAgreedSeedPhraseTerms">
+                                I understand that the seed phrase won't be saved on BotFi's servers
+                            </label>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-row pb-4 w-full">
+                        <button
+                            class="btn btn-secondary btn-lg rounded-pill mx-1 w-full" 
+                            @click="isPhraseHidden=!isPhraseHidden"
+                        >
+                            {{ isPhraseHidden ? "Reveal" : "Hide" }}
+                        </button>
+                        <button 
+                            class="btn btn-info btn-lg rounded-pill mx-1 w-full"
+                            id="copy-btn"
+                            :data-clipboard-text="seedPhraseArray.join(' ')"
+                        >
+                            Copy
+                        </button>
+                    </div>
+
+
+                    <MainBtn
+                        text="Continue"
+                        :onClick="saveWalletInfo"
+                        :isLoading="isLoading"
+                    />
                 </div>
-                <div class="relative hairline-b mt-4"></div>
-                <div class="mt-5 mb-4">
-                    <k-list>
-                        <k-list-item label title="I have copied the seed phrase & saved it securely">
-                            <template #media>
-                                <k-checkbox
-                                    component="div"
-                                    name="demo-checkbox"
-                                    :checked="hasCopiedSeedPhrase"
-                                    @change="hasCopiedSeedPhrase = !hasCopiedSeedPhrase"
-                                />
-                            </template>
-                        </k-list-item>
-                        <k-list-item label title="I understand that the seed phrase won't be saved on BotFi's servers">
-                            <template #media>
-                                <k-checkbox
-                                    component="div"
-                                    name="demo-checkbox"
-                                    :checked="hasAgreedSeedPhraseTerms"
-                                    @change="hasAgreedSeedPhraseTerms = !hasAgreedSeedPhraseTerms"
-                                />
-                            </template>
-                        </k-list-item>
-                    </k-list>
-                </div>
-                <div class="flex flex-row pb-4">
-                    <k-button 
-                        rounded 
-                        large 
-                        raised 
-                        class="k-color-secondary mx-1" 
-                        @click="isPhraseHidden=!isPhraseHidden"
-                    >
-                        {{ isPhraseHidden ? "Reveal" : "Hide" }}
-                    </k-button>
-                    <k-button 
-                        ripple 
-                        rounded 
-                        large 
-                        raised 
-                        class=" mx-1"
-                        id="copy-btn"
-                        :data-clipboard-text="seedPhraseArray.join(' ')"
-                    >
-                        Copy
-                    </k-button>
-                </div>
-            </Loading-view>
-        </k-block>
+            </loading-view>
+        </div>
     </main-layout>
 </template>

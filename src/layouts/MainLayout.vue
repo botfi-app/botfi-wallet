@@ -1,40 +1,71 @@
 <script setup>
+import { onBeforeMount, watch, inject, ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import Navbar from '../components/header/Navbar.vue';
+import EventBus from '../classes/EventBus';
+
+const botUtils = inject("botUtils")
+
 const props = defineProps({
-    showBackBtn: { type: Boolean, default: true },
     title: { type: String, default: "" },
-    showNav: { type: Boolean, default: true },
-    rightBtn: { type: Object, default: {} },
-    centerTitle: { type: Boolean, default: true }
+    showBackBtn: { type: Boolean, default: false },
+    onBackBtnClick: { type: Function, default: null },
+    centerContent:  { type: Boolean, default: false }
 })
 
+const appMain        = ref()
+const appContent     = ref()
+const hasNativeNav   = ref(false)
+const initialized    = ref(false)
 
-const router = useRouter()
+onBeforeMount(() => {
+    initialize()
+})
+
+const initialize = () => {
+
+    let p = botUtils.platform()
+    hasNativeNav.value = (!(p=='' || p == 'unknown'))
+    
+    EventBus.on("app_expanded", () =>  {
+        computeAppHeight()
+    })
+
+    initialized.value = true
+}
+
+onMounted(() => {
+    computeAppHeight()
+})
+
+const computeAppHeight = () => {
+
+    let height = botUtils.getViewportHeight()
+    
+    let appm = appMain.value
+    appm.style.height = height + 'px'
+
+    let expanded = botUtils.isExpanded()
+    let cl = appm.classList;
+
+    (expanded) ? cl.add("expanded") : cl.remove("expanded")
+    
+    document.documentElement.dataset.isExpanded = expanded
+}
+
 </script>
 <template>
-    <k-page>
-        <k-navbar 
-            :title="props.title" 
-            :centerTitle="props.centerTitle" 
-            v-if="showNav"
+    <div class="app-main" ref="appMain">
+        <Navbar 
+            v-if="!hasNativeNav" 
+            :title="props.title"
+            :has-back-btn="props.showBackBtn"  
+            :on-back-btn-click="props.onBackBtnClick"
+        />
+        <div :class="`app-content ${props.centerContent ? 'center-content' : ''}`" 
+            ref="appContent"
         >
-            <template #left  v-if="props.showBackBtn">
-                <k-navbar-back-link text="Back" @click="router.go(-1)" />
-            </template>
-            <template #right v-if="Object.keys(props.rightBtn).length > 0">
-                <k-button 
-                    rounded 
-                    large 
-                    :class="`${props.rightBtn.class || ''} btn mr-2 px-6`"
-                    @click.prevent="props.rightBtn.onClick"
-                >
-                   {{ props.rightBtn.text  }}
-                </k-button>
-            </template>
-        </k-navbar>
-        <slot />
-        <div class="my-5 text-center">
-            BotFi v1.0.0
+            <slot />
         </div>
-    </k-page>
+    </div>
 </template>

@@ -6,42 +6,71 @@
 import { useRoute,  useRouter } from "vue-router";
 import Swal from 'sweetalert2'
 import "sweetalert2/src/sweetalert2.scss"
-import EventBus from './EventBus'
-
-const $swal = Swal.mixin({
-    buttonsStyling: false,
-    customClass: {
-        confirmButton: 'flex text-center justify-center items-center appearance-none py-1 transition-colors focus:outline-none cursor-pointer select-none overflow-hidden z-10 inline-flex relative duration-300 font-medium px-4 rounded-full active:bg-opacity-15 touch-ripple-primary text-md-light-primary dark:text-md-dark-primary text-sm h-10',
-        cancelButton: 'flex text-center justify-center items-center appearance-none py-1 transition-colors focus:outline-none cursor-pointer select-none overflow-hidden z-10 inline-flex relative duration-300 font-medium px-4 rounded-full active:bg-opacity-15 touch-ripple-primary text-md-light-primary dark:text-md-dark-primary text-sm h-10',
-        popup: 'rounded-[1.75rem]  max-w-[90%] w-[19.5rem] bg-md-light-surface-3 dark:bg-md-dark-surface-3',
-        title: "w-full text-md-light-on-surface dark:text-md-dark-on-surface",
-        htmlContainer: "text-md-light-on-surface-variant dark:text-md-dark-on-surface-variant",
-        footer: 'flex items-center justify-end pt-6 space-x-2 rtl:space-x-reverse'
-    },
-})
-
+///import EventBus from './EventBus'
+///import { inject } from "vue";
 
 export default class Utils {
+
+    static generalErrorMsg = "An unknown error occured, try again later"
 
     static logError(msg, err){
         console.log(msg, err)
     }
 
-    static getSwal() {
-        return $swal
+    static getSwal(extraOpts = {}) {
+
+        let position = (this.isExpanded()) ? "center" : "top"
+
+        return Swal.mixin({
+            position,
+            buttonsStyling: false,
+            customClass: {
+                confirmButton: 'btn mx-1 btn-lg shadow-lg px-5 btn-primary rounded-pill',
+                cancelButton: 'btn btn-lg mx-1 px-5 btn-info rounded-pill',
+                popup: 'shadow-lg',
+                htmlContainer: "",
+            },
+            ...extraOpts
+        })
+        
+    }
+
+    static toBool(val){
+        if(typeof val === 'boolean') return val;
+        val = (val || "").toString().toLowerCase().trim()
+        if(val == "true" || val == "1") { return true }
+        else { return false; }
+    }
+
+    static isExpanded = () => {
+        let root = document.documentElement
+        return (this.toBool(root.dataset.isExpanded) || false)
     }
 
     static mAlert(text) {
+
+        let position = (this.isExpanded()) ? "center" : "top"
 
         let html = `<div class="mt-4">${text}</div>`
 
         let params = {
             title: "",
             html,
-            icon: null
+            icon: null,
+            position
         }
 
-        $swal.fire(params)
+        return this.getSwal().fire(params)
+    }
+
+    static getCssVar(name, selector = '') {
+
+        if(selector == '') selector = ":root"
+
+        let el = document.querySelector(":root")
+        
+        return window.getComputedStyle(el)
+                     .getPropertyValue(`--${name}`);
     }
 
     static loader (text) {
@@ -49,6 +78,8 @@ export default class Utils {
     }
 
     static loaderWithTitle (title, text, canclose=true) {
+
+        let position = (this.isExpanded()) ? "center" : "top"
 
         //if(!ttl || ttl <= 0) ttl = 1440 * 1000;
 
@@ -59,7 +90,7 @@ export default class Utils {
             </div>
         `);
 
-        let _swal = $swal.fire({
+        let _swal = this.getSwal().fire({
             title,
             html: htmlContent(text),
             //timer: ttl,
@@ -69,6 +100,7 @@ export default class Utils {
             showCloseButton: false,
             showConfirmButton: canclose,
             confirmButtonText: "Close",
+            position
         })
 
         _swal.hideCloseBtn = () => {
@@ -90,10 +122,6 @@ export default class Utils {
 
     static successAlert = (msg) => this.mAlert( msg )
 
-    static showToast(text, autoclose=true) {
-        EventBus.emit("open-toast", { text, autoclose })
-    }
-
     // call blocking task
     static runBlocking(callback = () => {}){
         return (new Promise((resolve, reject) => {
@@ -111,5 +139,26 @@ export default class Utils {
 
     static maskAddress(address, firstLen=4, lastLen=4) {
         return (address.substring(0, firstLen)+"..."+address.substr((address.length - lastLen), lastLen))
+    }
+
+    static unknownErrorAlert ( text = "") {
+        if(text == '') text = this.generalErrorMsg
+        this.mAlert(text)
+    }
+
+    static toast(title) {
+        Swal.fire({
+            title,
+            toast:              true,
+            position:           'bottom',
+            showConfirmButton:  false,
+            timer:              5000,
+            timerProgressBar:   true,
+            backdrop        :   false,
+            didOpen: (toast) => {
+              toast.addEventListener('mouseenter', Swal.stopTimer)
+              toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        })
     }
 }

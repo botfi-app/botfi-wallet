@@ -1,41 +1,112 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap');
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 @import "./animate.css/animate.css";
 @import "./loader.scss";
 
-.btn {
-    //max-width: 400px;
+//$secondary: #FAB612;
+$success: #69f0ae;
+$info: #03a9f4;
+$warning: #ffc107;
+$danger: #ff1744;
+
+@import "~/bootswatch/dist/cosmo/variables";
+@import "./bootstrap";
+@import "~/bootswatch/dist/cosmo/bootswatch";
+
+@import "./telegram.scss";
+
+body {
+    overflow-x: hidden !important;
 }
 
-.logo { width: 100px; }
+.btn-secondary {
+    color: rgba(#fff, 0.9);
+}
 
-.wrapper {
+.app-main {
     width: 100%;
-    min-height: 100vh;
+    max-width: 800px;
+    height: 100vh;
+    margin-left: auto;
+    margin-right: auto;
+
+    .app-content{
+        padding-top: 2%;
+        transition: padding 1s;
+    }
+
+    &.expanded .app-content.center-content {
+        padding-top: 20%;
+    }
 }
 
-.text-white-alpha-80 {
-    color: rgba($color: #ffffff, $alpha: 0.8) !important;
+.logo { width: 100px; max-width: 95%; }
+
+.mt-10p {
+    margin-top: 5%;
 }
 
-.swal-popup { border-radius: 18px; }
-
-.max-w400 { 
+.w-400 {
+    width: 95%;
     max-width: 400px;
-    margin-left: auto !important;
     margin-right: auto !important;
+    margin-left: auto !important;
 }
 
-.max-w600 {
-    max-width: 600px;
-    margin-left: auto !important;
-    margin-right: auto !important;
+.w-full { width: 100% !important; }
+.h-full { height: 100% !important; }
+
+input.form-control {
+    border-width: 2px;
+    &:focus {
+        border: 2px solid var(--bs-primary);
+    }
 }
 
-.cursor-pointer {
-    cursor: pointer;
+.swal2-popup {
+    border-radius: 18px;
+    background: var(--bs-body-bg);
+    color: var(--bs-body-color);
+}
+
+html[data-is-expanded=false] .swal2-popup {
+    top: 20%;
+}
+
+.form-check-label {
+    user-select: none;
+}
+
+.form-check{
+    display: flex;
+    
+    .form-check-input {
+        margin-right: 6px; 
+       flex-grow: 0;
+       flex-shrink: 0;
+       width: 20px;
+       height: 20px;
+       border-width: 2px;
+    }
+
+    .form-check-label {
+        position: relative;
+        top: 3px;
+    }
+}
+
+.btn-soft-info {
+    color: darken($info, 1%);
+    background-color: rgba($info, 0.1);
+    border: none;
+}
+
+.phrase-word {
+    background: rgba($gray-100, 0.98);
+    text-align: center;
+    letter-spacing: 1px;
+}
+
+.h-divider {
+    height: 1px;
+    width: 100%;
+    background-color: #fff;
 }

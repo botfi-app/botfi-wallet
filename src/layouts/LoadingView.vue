@@ -5,9 +5,9 @@
 </script>
 <template>
     <template v-if="props.isLoading">
-        <div class="parent flex items-center justify-center">
-            <div class="text-center py-10">
-                <k-preloader size='w-6 h-6' class="k-color-botfi-primary" />
+        <div class="parent d-flex align-items-center justify-content-center">
+            <div class="spinner-border spinner-border-sm text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
             </div>
         </div>
     </template>

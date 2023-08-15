@@ -13,6 +13,7 @@ import WalletLayout from '../layouts/WalletLayout.vue';
                </div>
             </k-card>
         </div>
-
+        
+        <TabBar />
     </WalletLayout>
 </template>

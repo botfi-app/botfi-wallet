@@ -1,0 +1,263 @@
+import tinycolor from "tinycolor2";
+import TelegramCore from "../classes/bots/TelegramCore";
+import EventBus from "../classes/EventBus"
+
+export default {
+    install: (app, options) => {
+        
+        if(!("Telegram" in window)) return;
+
+        let telegram = window.Telegram;
+        let webApp = telegram.WebApp
+
+        setColors(webApp)
+
+        webApp.onEvent("themeChanged", () => setColors(webApp))
+
+        webApp.onEvent("viewportChanged", () => {
+           window.setTimeout(() => EventBus.emit("app_expanded", webApp.isExpanded), 100)
+        })
+
+
+        let botUtils = (new TelegramCore(telegram))
+
+        window.botUtils = botUtils;
+
+        app.provide("botUtils", botUtils)
+
+    }
+
+  }
+
+
+  const setColors = (webApp) => {
+
+    let scheme = webApp.colorScheme;
+    
+    let root = document.querySelector(":root")
+    let rs = root.style;
+    
+    root.setAttribute('data-bs-theme', scheme);
+    
+    let schemeStyle = document.querySelector(`:root[data-bs-theme=${scheme}]`)
+    let ss = schemeStyle.style
+
+    //console.log("schemeStyle===>", schemeStyle)
+
+    let colors = webApp.themeParams || {}
+
+    const setCssVar = (name, value) => {
+        //console.log(`--${name}: `, value)
+        rs.setProperty(`--${name}`, value)
+        ss.setProperty(`--${name}`, value)
+    }
+
+    const darkenColor = (color, darkLevel, alphaLevel=null) => {
+        
+        if(!(color instanceof tinycolor)){
+            color = tinycolor(color.toString())
+        }
+
+        //console.log("color==>", color)
+
+        let c = color.clone().darken(darkLevel)
+
+        if(alphaLevel == null) {
+            return c.toHexString()
+        } else {
+           return c.setAlpha(alphaLevel).toRgbString()
+        }
+    }
+
+    //lets get the colors 
+    let bgColor      = colors.bg_color || "";
+    let secondaryBgColor  =  colors.secondary_bg_color || ""
+    let textColor    = colors.text_color || ""
+    let linkColor   = colors.link_color || ""
+    let hintColor   = colors.hint_color || ""
+    let primaryBtnColor = colors.button_color || ""
+    let primaryBtnText = colors.button_text_color || ""
+
+    let cssStyles = ""
+    let cssVars = []
+
+
+    if(linkColor != ''){
+        cssVars.push(["bs-link-color", linkColor])
+    }
+
+    if(primaryBtnColor != ''){
+        cssVars.push(['bs-primary', tinycolor(primaryBtnColor).darken(10).toHexString()])
+    }
+
+    if(bgColor != ''){
+
+        let _bg = tinycolor(bgColor)
+        let _tc = tinycolor(textColor)
+
+        cssVars.push(
+            ...[
+                ['bs-body-bg', bgColor],
+                ["bs-body-bg-rgb", _bg.toRgbString()],
+                ["bs-body-color", textColor],
+                ["bs-body-color-rgb", _tc.toRgbString() ]
+            ]
+        )
+
+        
+        if(scheme == 'dark'){
+            cssStyles += `
+                .swal2-popup {
+                    background: ${darkenColor(_bg, 2, 0.98)} !important;
+                    color: ${textColor};
+                }
+
+                .swal2-backdrop-show { 
+                    background: ${darkenColor(_bg, 50, 0.4)} !important;
+                }
+                
+            `
+        }
+
+        if(scheme == 'dark'){
+
+            let border = _bg.clone().lighten(3).setAlpha(0.9).toRgbString()
+
+            cssStyles += `
+                .form-control, .form-check-input {
+                    border: 2px solid ${border};
+                }
+                .h-divider { background: ${border} !important; }
+            `
+            cssVars.push(...[
+                [ "bs-border-color", border ], 
+                ["bs-border-color-translucent", _bg.clone().lighten(3).setAlpha(0.175).toRgbString()]
+            ])
+
+        } else {
+
+            let border = darkenColor(_bg, 6, 0.9)
+
+            cssStyles += `
+                .form-control, .form-check-input { 
+                    border: 2px solid ${border};
+                }
+                .h-divider { background: ${border} !important; }
+            `
+
+            cssVars.push(...[
+                ["bs-border-color", border ],
+                ["bs-border-color-translucent", darkenColor(_bg, 6, 0.175)]
+            ])
+        }
+
+        cssStyles += `
+            .bg-darken3-alpha { 
+                background: ${darkenColor(_bg, 3, 0.9)} !important;
+                color: ${textColor} !important;
+            }
+        `
+    }
+
+    
+
+    if(secondaryBgColor != ''){
+
+        let sBgColor = tinycolor(secondaryBgColor)
+        let sTextColor = (sBgColor.isDark()) ? sBgColor.lighten(95) : sBgColor.darken(90)
+
+        cssVars.push(...[
+            ["bs-secondary-bg", secondaryBgColor],
+            ["bs-secondary-bg-rgb", sBgColor.toRgbString()],
+            ["bs-secondary-color", sTextColor.toHexString()],
+            ["bs-secondary-color-rgb", sTextColor.toRgbString()]
+        ])
+
+    }
+
+    if(linkColor != ""){
+        cssVars.push(...[
+            ["bs-link-color", linkColor],
+            ["bs-link-color-rgb", tinycolor(linkColor).toRgbString()]
+        ])
+    }
+
+    if(hintColor != ''){
+        cssStyles += `.hint { color: ${hintColor} !important; } `
+    }
+
+    const setBtnVars = (bgColor, textColor="") => {
+
+        let btn = tinycolor(bgColor) 
+        let btnDarken = (level) => darkenColor(btn, level) 
+
+        if(textColor == ""){
+            textColor = (btn.isDark())
+                        ? btn.clone().lighten(100).toHexString()
+                        : btn.clone().darken(100).toHexString()
+        }
+
+        return `
+            --bs-btn-bg: ${bgColor};
+            --bs-btn-color: ${textColor};
+            --bs-btn-border-color: ${btnDarken(2)};
+            --bs-btn-hover-bg: ${btnDarken(5)};
+            --bs-btn-hover-border-color: ${btnDarken(7)};
+            --bs-btn-focus-shadow-rgb:  ${btnDarken(60)};
+            --bs-btn-active-bg: ${btnDarken(10)};
+            --bs-btn-active-bg: ${btnDarken(12)};
+            --bs-btn-disabled-bg: ${btnDarken(20)};
+            --bs-btn-disabled-border-color: ${btnDarken(22)};
+        `
+    }
+
+    //lets get the primary btn 
+    if(primaryBtnColor != ''){
+
+        let pbtn = tinycolor(primaryBtnColor)
+
+        cssVars.push(["bs-primary", primaryBtnColor])
+
+        cssStyles += `
+            .btn-primary {
+                ${setBtnVars(primaryBtnColor, primaryBtnText)}
+            }
+
+            .form-check-input:checked { 
+                background-color: ${darkenColor(pbtn, 2)} !important;
+                border-color: ${pbtn.clone().toHexString()} !important;
+            }
+
+            .form-check-input:focus {
+                border-color: ${pbtn.clone().lighten(10).toHexString()} !important;
+                box-shadow: 0 0 0 0.25rem ${pbtn.clone().setAlpha(0.25).toRgbString()} !important;
+            }
+
+            .form-control:focus {
+                border-color: ${pbtn.clone().lighten(10).setAlpha(0.9).toRgbString()} !important;
+                box-shadow: 0 0 0 0.25rem ${pbtn.clone().setAlpha(0.25).toRgbString()} !important;
+            }
+        `
+
+
+        cssStyles += `
+            .btn-secondary {
+                ${setBtnVars(tinycolor(primaryBtnColor).complement().toHexString())}
+            }
+        `
+        
+    }
+    
+    /// set css vars
+    cssVars.forEach(async (itemArray) => setCssVar(itemArray[0], itemArray[1]))
+    
+    if(cssStyles != ""){
+        setCssStyle(cssStyles)
+    }
+}
+
+const setCssStyle = (text) => {
+   let  s = document.createElement("style")
+   s.textContent = text;
+   document.head.appendChild(s)
+}

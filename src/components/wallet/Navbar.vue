@@ -24,22 +24,9 @@ onBeforeMount(() => {
         :title="props.title"
         :centerTitle="false"
     >
-        <template #left>
-            <a href="#" 
-               @click.prevent="isSidePanelOpened = true" 
-               class="px-2"
-            >
-                <Icon name="ri:menu-4-fill" :size="24" />
-            </a>
-        </template>
         <template #right>
             <div class="flex px-2 items-center">
                 
-                <k-button rounded raised medium tonal>
-                    <Icon name="iconamoon:notification-light" :size="24" />
-                </k-button>
-                
-
                 <div class="ms-2 px-0">
                     <k-button rounded raised medium tonal class="flex flex-row ps-1 k-color-secondary">
                         <Avatar 
@@ -56,8 +43,4 @@ onBeforeMount(() => {
             </div>
         </template>
     </k-navbar>
-    <SidePanel 
-        :opened="isSidePanelOpened" 
-        @close="isSidePanelOpened = false"
-    />
 </template>

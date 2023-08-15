@@ -34,5 +34,11 @@ export default defineConfig({
       algorithm: ["brotliCompress"]
     })
 
-  ]
+  ],
+  resolve: {
+    alias: {
+      '@': path.join(__dirname, '/src/'),
+      '~': __dirname+"/node_modules/",
+    },
+  },
 })

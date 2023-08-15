@@ -5,18 +5,13 @@ export default [
         url:   '/wallet'
     },
     {
-        title: 'Swap',
-        icon:   'uil:exchange',
-        url:    '/swap'
+        title: 'Transactions',
+        icon:   'icon-park-outline:transaction-order',
+        url:    '/tx'
     },
     {
-        title: 'Bridge',
-        icon:  'icon-park-solid:bridge-one',
-        url:   '/bridge'
-    },
-    {
-        title: 'Cards',
-        icon:   'basil:card-solid',
-        url:   '/cards'
+        title:  'Notifications',
+        icon:   'material-symbols:notifications-outline',
+        url:    '/notifications'
     }
 ]

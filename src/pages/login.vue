@@ -1,16 +1,15 @@
 <script setup>
-import { inject, onBeforeMount, ref } from 'vue';
+import { inject, onBeforeMount, ref, watch } from 'vue';
 import { useWalletStore } from "../store/walletStore"
 import { useRouter } from 'vue-router';
 import Utils from '../classes/Utils'
 import { useToast } from '../composables/useToast';
+import Pincode from '../components/common/Pincode.vue';
 
-const navigator = window.navigator
 const initialized = ref(false)
-const toast = useToast()
 const walletStore = useWalletStore()
 const router      = useRouter()
-const password    = ref("")
+const pin         = ref("")
 
 onBeforeMount(() => {
     initialize()
@@ -29,18 +28,20 @@ const initialize = () => {
 
 const handleLogin = async () => {
     
-    let pass = password.value.trim()
+    let p = pin.value.toString().trim()
 
-    if(pass == ''){
-        return Utils.errorAlert("Password is required")
+    console.log(p)
+
+    if(p == '' || p.length < 4){
+        return Utils.errorAlert("Pin code is required")
     }
 
     let loader =  Utils.loader("Decrypting wallets..")
-    
-    let loginStatus = await Utils.runBlocking(() => walletStore.doLogin(pass))
-        
-    //console.log("loginStatus===>", loginStatus)
 
+    p = parseInt(p)
+    
+    let loginStatus = await Utils.runBlocking(() => walletStore.doLogin(p))
+        
     loader.close()
 
     if(loginStatus.isError()){
@@ -48,11 +49,10 @@ const handleLogin = async () => {
         let errMsg = loginStatus.getMessage()
 
         if(errMsg == 'default_account_not_found'){
-            Utils.getSwal().fire({
-                title: "Error",
-                text:  "Default account was not found, create an account or import one",
-                didClose: () => router.push("/")
-            })
+            Utils.mAlert(
+                "Default account was not found, create an account or import one",
+                () => router.push("/")
+            )
 
             return false
         }
@@ -71,7 +71,13 @@ const resetAccount = async () => {
                         denyButtonText:     'Cancel',
                         text: `This action will delete all the acounts on the device permanently, 
                                 make sure you have a backup of your seed phrase to restore the accounts`,
-                        title: "Reset Account?"
+                        title: "Reset Account?",
+                        focusCancel: true,
+                        customClass: {
+                            confirmButton: "btn btn-lg px-5 btn-danger mx-1 rounded-pill",
+                            cancelButton: "btn btn-lg px-5 btn-info mx-1 rounded-pill shadow-lg"
+                        }
+
                     })
     
     if(!action.isConfirmed){
@@ -84,56 +90,45 @@ const resetAccount = async () => {
         return Utils.mAlert(resetStatus.getMessage())
     }
 
-    Utils.showToast("Account reset completed")
+    Utils.toast("Account reset completed")
 
     router.push("/")
 }
+
 </script>
 <template>
     <main-layout 
-        :showBackBtn="false"
-        title="BotFi Wallet"
-        :centerTitle="true"
+        :has-back-btn="false"
+        title="Login"
+        :center-content="true"
         v-if="initialized"
     >
        
-        <k-block strong inset class="max-w400">
-            <div class="flex flex-col w-full items-center">
-            
-                <div class="flex justify-center">
-                    <img 
-                        src="/images/svg/logo.svg" 
-                        class="logo mt-5 animate__animated animate__pulse animate__slow animate__infinite	infinite" 
-                        alt="" 
-                    />
-                </div>
+        <div class="d-flex flex-column w-400  align-items-center">
 
-                <k-list  class="p-0 w-full">
-                    <k-list-input
-                        label="Password"
-                        floating-label
-                        type="password"
-                        placeholder="Enter Password"
-                        @input="e=> password = e.target.value"
-                        class="mx-0"
-                    />
-                </k-list>
+            <top-logo />
 
-                <div class="mb-5 flex flex-col items-center w-full">
-                    <k-button rounded raised large 
-                        class="btn mb-5"
-                        @click.prevent="handleLogin"
-                    >
-                        Login
-                    </k-button>
-                    <k-button  rounded  raised large 
-                        class="k-color-secondary btn mb-5"
-                        @click="resetAccount"
-                    >
-                        Reset Account
-                    </k-button>
-                </div>
+            <div class="mt-3">
+                <Pincode 
+                    label="Enter Pin"
+                    @change="(v) => pin = v"
+                />
             </div>
-        </k-block>
+
+            <div class="my-5 px-5 d-flex flex-column align-items-center w-full">
+                <button
+                    class="btn btn-lg w-full  rounded-pill shadow btn-primary mb-2"
+                    @click.prevent="handleLogin"
+                >
+                    Login
+                </button>
+                <button 
+                    class="btn-danger  btn-lg w-full shadow rounded-pill btn mb-2"
+                    @click="resetAccount"
+                >
+                    Reset Account
+                </button>
+            </div>
+        </div>
     </main-layout>
 </template>

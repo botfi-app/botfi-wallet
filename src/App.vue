@@ -6,18 +6,14 @@ import BotFiProvider from "./layouts/BotFiProvider.vue";
 </script>
 
 <template>
-  <k-app theme="material" safe-areas>
-      <router-view v-slot="{ Component, route }">
-        <transition  
-          name="custom-classes"
-          enter-active-class="animate__animated animate__zoomIn animate__fastest"
-        >
-          <component :is="Component" :key="route.path"  />
-        </transition>
-      </router-view>
-
-      <toast />
-  </k-app>
+  <router-view v-slot="{ Component, route }">
+    <transition  
+      name="custom-classes"
+      enter-active-class="animate__animated animate__zoomIn animate__fastest"
+    >
+      <component :is="Component" :key="route.path"  />
+    </transition>
+  </router-view>
 </template>
 
 <style scoped>

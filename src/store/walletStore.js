@@ -1,9 +1,10 @@
 import { defineStore } from 'pinia'
-import {ref, computed, toValue, toRaw } from 'vue'
+import {ref, computed, toValue, toRaw, inject } from 'vue'
 import Status from '../classes/Status';
 ///import Wallet from '../classes/Wallet';
 import KeyStore from '../classes/keyStore';
 
+const botUtils = inject("botUtils")
 
 export const useWalletStore = defineStore('walletStore', () => {
 
@@ -49,9 +50,18 @@ export const useWalletStore = defineStore('walletStore', () => {
         $state.value.accounts = accountsStatus.getData()
 
         $state.value.password = pass;
+        
 
         return Status.successPromise()
     } //end do login 
+
+    const saveSession = () => {
+
+        //user account 
+        let accountInfo = botUtils.getAccount()
+
+        //if()
+    }
 
     const isLoggedIn = () => {
         return (password.value != '' && 

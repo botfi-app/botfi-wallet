@@ -36,9 +36,8 @@ onBeforeMount(() => {
 </script>
 <template>
      <k-page v-if="initialized">
-        <Navbar :title="props.title" />
         <slot />
-        <TabBar />
+       
     </k-page>
 </template>
 <style>
