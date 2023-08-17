@@ -1,5 +1,5 @@
 <script setup>
-import { onBeforeMount, watch, inject, ref, onMounted } from 'vue';
+import { onBeforeMount, watch, inject, ref, onMounted, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
 import Navbar from '../components/header/Navbar.vue';
 import EventBus from '../classes/EventBus';
@@ -39,18 +39,21 @@ onMounted(() => {
 })
 
 const computeAppHeight = () => {
+    nextTick(()=> {
+        let height = botUtils.getViewportHeight()
+        
+        let expanded = botUtils.isExpanded()
 
-    let height = botUtils.getViewportHeight()
-    
-    let appm = appMain.value
-    appm.style.height = height + 'px'
+        let appm = document.querySelector(".app-main")
+        
+        if(appm){
+            appm.style.height = height + 'px'
+            let cl = appm.classList;
+            (expanded) ? cl.add("expanded") : cl.remove("expanded")
+        }
 
-    let expanded = botUtils.isExpanded()
-    let cl = appm.classList;
-
-    (expanded) ? cl.add("expanded") : cl.remove("expanded")
-    
-    document.documentElement.dataset.isExpanded = expanded
+        document.documentElement.dataset.isExpanded = expanded
+    })
 }
 
 </script>

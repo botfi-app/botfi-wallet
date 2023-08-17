@@ -12,6 +12,7 @@ import "sweetalert2/src/sweetalert2.scss"
 export default class Utils {
 
     static generalErrorMsg = "An unknown error occured, try again later"
+    static openAppFromChatPlatform = "open the app from a chat platform such as telegram"
 
     static logError(msg, err){
         console.log(msg, err)
@@ -161,4 +162,5 @@ export default class Utils {
             }
         })
     }
+    
 }

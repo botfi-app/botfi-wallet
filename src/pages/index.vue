@@ -11,9 +11,9 @@ onBeforeMount(() => {
     initialize()
 })
 
-const initialize = () => {
+const initialize = async () => {
     if(walletStore.hasDefaultWallet()){
-        router.push('/login')
+        await router.push('/login')
     }
 
     initialized.value = true

@@ -11,11 +11,10 @@ import { toValue } from "vue"
 
 export default class KeyStore {
 
-    static DEFAULT_ACCOUNT_KEY = "__botfi_dw_info_"
-    static ACCOUNTS_KEY = "__botfi_accts_"
+    static DEFAULT_WALLET_KEY = (userId) => `${userId}__botfi_dw_info`
+    static ACCOUNTS_KEY = (userId) => `${userId}__botfi_accts`
 
-
-    static async getDefaultWallet(password="") {
+    static async getDefaultWallet(userId,password) {
         try {
             
             //console.log("password===>", password)
@@ -24,7 +23,7 @@ export default class KeyStore {
                 return Status.errorPromise("password_required")
             }
 
-            let defaultWalletDataStr = localStorage.getItem(this.DEFAULT_ACCOUNT_KEY) || ""
+            let defaultWalletDataStr = localStorage.getItem(this.DEFAULT_WALLET_KEY(userId)) || ""
 
             if(defaultWalletDataStr == ""){
                 return Status.errorPromise("default_account_not_found")
@@ -59,20 +58,22 @@ export default class KeyStore {
         }
     }
 
-    static async resetAccount(){
-        localStorage.removeItem(this.DEFAULT_ACCOUNT_KEY)
-        localStorage.removeItem(this.ACCOUNTS_KEY)
+    static async resetAccount(userId){
+        localStorage.removeItem(this.DEFAULT_WALLET_KEY(userId))
+        localStorage.removeItem(this.ACCOUNTS_KEY(userId))
         
     }
 
-    static hasDefaultWallet() {
-        return (localStorage.getItem(this.DEFAULT_ACCOUNT_KEY) || "").trim().length > 0
+    static hasDefaultWallet(userId) {
+        return (localStorage.getItem(this.DEFAULT_WALLET_KEY(userId)) || "").trim().length > 0
     }
 
-    static async saveDefaultWallet(password, walletInfo) {
+    static async saveDefaultWallet(userId, password, walletInfo) {
         try {
 
-            if ((localStorage.getItem(this.DEFAULT_ACCOUNT_KEY) || "").length > 0){
+            let defaultWalletKey = this.DEFAULT_WALLET_KEY(userId)
+
+            if ((localStorage.getItem(defaultWalletKey) || "").length > 0){
                 return Status.errorPromise("Default account already exists, it cannot be overwritten")
             }
 
@@ -82,18 +83,19 @@ export default class KeyStore {
 
             let encryptedData = { data: encryptedWallet }
 
-            localStorage.setItem(this.DEFAULT_ACCOUNT_KEY, JSON.stringify(encryptedData))
+            localStorage.setItem(defaultWalletKey, JSON.stringify(encryptedData))
 
             let walletAcctData = {
                 address:    walletInfo.address, 
                 privateKey: walletInfo.privateKey,
-                index:      0
+                index:      0,
+                imported:   false
             }
 
-            let saveAccountStatus = await this.saveAccount(password, walletAcctData)
+            let saveAccountStatus = await this.saveAccount(userId, password, walletAcctData)
 
             if(saveAccountStatus.isError()){
-                localStorage.removeItem(this.DEFAULT_ACCOUNT_KEY)
+                this.resetAccount(userId)
                 return saveAccountStatus
             }
             
@@ -104,17 +106,15 @@ export default class KeyStore {
         }
     }
 
-    static async getAccounts(password) {
+    static async getAccounts(userId, password) {
 
-        let walletsStr = (localStorage.getItem(this.ACCOUNTS_KEY) || "").trim()
+        password = toValue(password)
+
+        let walletsStr = (localStorage.getItem(this.ACCOUNTS_KEY(userId)) || "").trim()
 
         if(walletsStr == ""){
             return Status.successData({})
         }
-
-        password = toValue(password)
-
-        //console.log("walletsStr===>", walletsStr)
 
         let walletsObj = {}
 
@@ -144,11 +144,13 @@ export default class KeyStore {
         return Status.successData(walletsObj)
     }
 
-    static async saveAccount(password, { name = "", address, privateKey, index = 0, isImported}) {
-        
+    static async saveAccount(userId, password, opts = {}) {
+
+        let { name = "", address, privateKey, index = 0, imported} = opts;
+
         let wallets = {}
 
-        let dbWalletsStr = (localStorage.getItem(this.ACCOUNTS_KEY) || "").trim()
+        let dbWalletsStr = (localStorage.getItem(this.ACCOUNTS_KEY(userId)) || "").trim()
 
         if(dbWalletsStr != ""){
             try { 
@@ -176,14 +178,14 @@ export default class KeyStore {
             name, 
             wallet: encryptedWallet,
             index, 
-            isImported
+            imported
         }
 
         let key = address.toLowerCase().substring(2);
 
         wallets[key] = dataToSave
 
-        localStorage.setItem(this.ACCOUNTS_KEY, JSON.stringify(wallets))
+        localStorage.setItem(this.ACCOUNTS_KEY(userId), JSON.stringify(wallets))
  
         return Status.successPromise()
     }

@@ -7,6 +7,7 @@ import LoadingView from "../layouts/LoadingView.vue";
 import clipboard from "clipboard"
 import Utils from "../classes/Utils";
 
+const botUtils = inject("botUtils")
 const walletStore = useWalletStore()
 const walletInfo = ref(null)
 const seedPhraseArray = ref([])
@@ -37,7 +38,7 @@ const initialize = async () => {
 
 }
 
-onBeforeMount(() => {
+onBeforeMount(async () => {
     
     if(walletStore.hasDefaultWallet()){
         isLoading.value = false
@@ -45,7 +46,7 @@ onBeforeMount(() => {
     }
 
     // lets check if we have password
-    let password = walletStore.password.trim()
+    let password = await walletStore.getPassword()
 
     if(password == ''){
         return router.push("/set-pin?next=create-wallet")
@@ -63,33 +64,45 @@ onBeforeMount(() => {
 })
 
 
-const saveWalletInfo = async () => {
+const onSave = async () => {
 
-    if(!copyBtnClicked.value){
-        return Utils.mAlert("Copy the seed phrase by clicking the copy button")
+    try {
+
+        if(!copyBtnClicked.value){
+            Utils.mAlert("Copy the seed phrase by clicking the copy button")
+            return false
+        }
+
+        if(!hasCopiedSeedPhrase.value){
+            Utils.mAlert("Kindly accept that you copied the seed phrase")
+            return false
+        }
+
+        if(!hasAgreedSeedPhraseTerms.value){
+            Utils.mAlert("Accept our terms to continue")
+            return false
+        }
+
+        let loader = Utils.loader("Saving on device")
+
+        let saveStatus =  await Utils.runBlocking(() => walletStore.saveDefaultWallet(toValue(walletInfo)))
+
+        loader.close()
+
+        if(saveStatus.isError()){
+             Utils.mAlert(saveStatus.getMessage())
+            return false
+        }
+
+        router.push("/wallet")
+
+    } catch(e){
+        Utils.logError("create-wallet.vue#onSave:", e)
+        Utils.unknownErrorAlert()
+    } finally {
+        isLoading.value = false 
     }
 
-    if(!hasCopiedSeedPhrase.value){
-        return Utils.mAlert("Kindly accept that you copied the seed phrase")
-    }
-
-    if(!hasAgreedSeedPhraseTerms.value){
-        return Utils.mAlert("Accept our terms to continue")
-    }
-
-    let loader = Utils.loader("saving on device")
-
-   let saveStatus =  await Utils.runBlocking(() => walletStore.saveDefaultWallet(toValue(walletInfo)))
-
-   loader.close()
-
-   ///console.log("saveStatus==>", saveStatus)
-
-   if(saveStatus.isError()){
-        return Utils.statusAlert(saveStatus.getMessage())
-   }
-
-   router.push("/wallet")
 }
 </script>
 
@@ -168,12 +181,11 @@ const saveWalletInfo = async () => {
                         </button>
                     </div>
 
-
-                    <MainBtn
-                        text="Continue"
-                        :onClick="saveWalletInfo"
-                        :isLoading="isLoading"
-                    />
+                    <div class="mt-4 w-full">
+                        <button @click.prevent="onSave" class="btn btn-lg rounded-pill btn-primary w-full">
+                            Continue
+                        </button>
+                    </div>
                 </div>
             </loading-view>
         </div>

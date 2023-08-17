@@ -22,6 +22,7 @@
     "konsta": "^2.0.0",
     "pinia": "^2.1.6",
     "scrypt-pbkdf": "^1.1.1",
+    "shimmer-css": "^1.0.1",
     "siimple": "^4.3.1",
     "simple-crypto-js": "^3.0.1",
     "simplebar": "^6.2.5",

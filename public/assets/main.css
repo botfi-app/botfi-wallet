@@ -5,15 +5,18 @@
     position: absolute;
     width:  40px;
     height: 40px;
-    top: 0;
     left: 0;
     right: 0;
+    top:  0;
     bottom: 0;
     margin: auto;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     z-index: 100px;
+}
+
+
+html[data-is-expanded=false] #main-loader {
+    top: 25% !important;
+    bottom: unset;
 }
 
 #main-loader .mloader {

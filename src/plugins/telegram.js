@@ -3,12 +3,30 @@ import TelegramCore from "../classes/bots/TelegramCore";
 import EventBus from "../classes/EventBus"
 
 export default {
-    install: (app, options) => {
-        
-        if(!("Telegram" in window)) return;
+    install: (app, options={}) => {
 
+        let { router } = options;
+        
+        ///ensureTelegramClient()
+
+        router.beforeResolve((to, from, next) => {
+
+            if(to.fullPath.startsWith("/error")) next()
+
+            if(!ensureTelegramClient()){
+                return false;
+            }
+
+            next();
+        });
+
+        //console.log("window.location.pathname===>", window.location.pathname)
+
+        if(window.location.pathname.startsWith("/error")) return true;
+        
         let telegram = window.Telegram;
         let webApp = telegram.WebApp
+
 
         setColors(webApp)
 
@@ -24,11 +42,42 @@ export default {
         window.botUtils = botUtils;
 
         app.provide("botUtils", botUtils)
-
     }
 
   }
 
+const ensureTelegramClient = () => {
+
+    if(window.location.pathname.startsWith("/error")){
+        return true;
+    }
+
+    if(!("Telegram" in window)) {
+        window.location = "/error/unknown-client"
+        return false;
+    }
+
+    let t = window.Telegram;
+    let webApp = t.WebApp || null
+
+    if(!webApp || !webApp.initData || webApp.initData == ''){
+        window.location = "/error/bad-telegram-client"
+        return false
+    }
+
+    //finally 
+    if(!webApp.initDataUnsafe || 
+        Object.keys(webApp.initDataUnsafe).length == 0 ||
+        !webApp.initDataUnsafe.user || 
+        webApp.initDataUnsafe.user.id.toString() == ''
+    ){
+        window.location = "/error/unknown-telegram-client"
+        return false
+    }
+
+    return true;
+
+  }
 
   const setColors = (webApp) => {
 

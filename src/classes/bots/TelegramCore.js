@@ -13,8 +13,20 @@ export default class TelegramCore {
     }
 
     // get account 
-    getAccount() {
+    getUserInfo() {
         
+        if(!this.webApp) return null 
+
+        let user = this.webApp.initDataUnsafe.user || null;
+
+        if(user == null) return null
+
+        return {
+            id: user.id, 
+            username: user.username,
+            firstName: user.first_name,
+            lastName: user.lastName
+        }
     }
 
     notSupported() {
@@ -39,11 +51,12 @@ export default class TelegramCore {
 
         return {
             isSupported: () => _isSupported,
-            show: () => mb.show(),
-            hide: () => mb.hide(),
-            disable: () => mb.disable(),
-            showProgress: () => mb.showProgress(false),
-            hideProgress: () => mb.hideProgress()
+            show: ()                => mb.show(),
+            hide: ()                => mb.hide(),
+            disable: ()             => mb.disable(),
+            setOnClick: (callback)  => mb.onClick(callback),
+            showProgress: ()        => mb.showProgress(false),
+            hideProgress: ()        => mb.hideProgress()
         }
     }
 

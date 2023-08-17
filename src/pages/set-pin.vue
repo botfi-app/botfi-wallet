@@ -143,11 +143,9 @@ const onSave = async () => {
             </div>
 
             <div class="mt-4 w-full px-5">
-                <MainBtn
-                    text="Next"
-                    :onClick="onSave"
-                    :isLoading="isLoading"
-                />
+                <button @click.prevent="onSave" class="btn btn-lg rounded-pill btn-primary w-full">
+                    Continue
+                </button>
             </div>
         </div>
     </main-layout>

@@ -18,7 +18,6 @@ router.beforeResolve(() => {
 
 router.afterEach(() => {
     window.setTimeout(() => {
-        console.log("booom")
         let appDom = document.getElementById("app")
         let mainLoader = document.getElementById("main-loader")
         mainLoader.classList.add("hidden")
@@ -28,6 +27,6 @@ router.afterEach(() => {
     
 app.use(router)
     .use(pinia)
-    .use(telegram)
+    .use(telegram, { router })
     
 app.mount('#app')

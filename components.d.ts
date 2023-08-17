@@ -9,17 +9,21 @@ export {}
 
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
+    AccountSelect: typeof import('./src/components/wallet/AccountSelect.vue')['default']
     Avatar: typeof import('./src/components/common/Avatar.vue')['default']
     BotFiProvider: typeof import('./src/layouts/BotFiProvider.vue')['default']
+    ChainSelect: typeof import('./src/components/wallet/ChainSelect.vue')['default']
     Icon: typeof import('./src/components/common/Icon.vue')['default']
     LoadingView: typeof import('./src/layouts/LoadingView.vue')['default']
     MainBtn: typeof import('./src/components/common/MainBtn.vue')['default']
     MainLayout: typeof import('./src/layouts/MainLayout.vue')['default']
     Nav: typeof import('./src/components/header/Nav.vue')['default']
     Navbar: typeof import('./src/components/header/Navbar.vue')['default']
+    NetworkSelect: typeof import('./src/components/wallet/NetworkSelect.vue')['default']
     Pin: typeof import('./src/components/common/Pin.vue')['default']
     Pincode: typeof import('./src/components/common/Pincode.vue')['default']
     PinCode: typeof import('./src/components/common/PinCode.vue')['default']
+    ProfilePhoto: typeof import('./src/components/common/ProfilePhoto.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SidePanel: typeof import('./src/components/wallet/SidePanel.vue')['default']

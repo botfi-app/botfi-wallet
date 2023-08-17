@@ -117,13 +117,13 @@ const resetAccount = async () => {
 
             <div class="my-5 px-5 d-flex flex-column align-items-center w-full">
                 <button
-                    class="btn btn-lg w-full  rounded-pill shadow btn-primary mb-2"
+                    class="btn btn-lg w-full  rounded-pill shadow btn-primary mb-4"
                     @click.prevent="handleLogin"
                 >
                     Login
                 </button>
                 <button 
-                    class="btn-danger  btn-lg w-full shadow rounded-pill btn mb-2"
+                    class="btn-none text-danger w-full btn mb-2"
                     @click="resetAccount"
                 >
                     Reset Account

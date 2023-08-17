@@ -22,6 +22,7 @@ import { inject, onBeforeMount, onBeforeUnmount, ref, watch } from 'vue';
     let _mBtn = mainBtn.value
     if(_mBtn){
         _mBtn.disable()
+        _mBtn.setOnClick(null)
         _mBtn.hide()
     }
   })
@@ -52,6 +53,7 @@ import { inject, onBeforeMount, onBeforeUnmount, ref, watch } from 'vue';
        (props.show) ? _mBtn.show() : _mBtn.hide()
     }
   }, { deep: true })
+  
 </script>
 <template>
     <template v-if="initialized && mainBtn == null">

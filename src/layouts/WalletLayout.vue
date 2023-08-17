@@ -2,7 +2,7 @@
 import { onBeforeMount, ref } from 'vue';
 import { useWalletStore } from '../store/walletStore';
 import { useRouter } from 'vue-router';
-import Navbar from '../components/wallet/Navbar.vue';
+import MainLayout from './MainLayout.vue';
 
 
 const props = defineProps({
@@ -12,9 +12,7 @@ const props = defineProps({
 const walletStore = useWalletStore()
 const router = useRouter()
 const initialized = ref(false)
-const defaultWallet = ref()
-const accounts = ref({})
-const selectedAccount = ref()
+
 
 onBeforeMount(() => {
 
@@ -22,23 +20,18 @@ onBeforeMount(() => {
         return router.push("/login")
     }
 
-    // lets fetch default account
-    defaultWallet.value = walletStore.defaultWallet
-    accounts.value = walletStore.accounts
-    
-    selectedAccount.value = accounts.value[Object.keys(accounts.value)[0]]
-
-   // console.log("selectedAccount===>", selectedAccount.value)
-
     initialized.value = true
 })
 
 </script>
 <template>
-     <k-page v-if="initialized">
+    <MainLayout 
+        :has-back-btn="false"
+        :title="props.title"
+        v-if="initialized"
+    >    
         <slot />
-       
-    </k-page>
+    </MainLayout>
 </template>
 <style>
 .addr-btn { padding: 0px !important; }

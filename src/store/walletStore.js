@@ -4,9 +4,10 @@ import Status from '../classes/Status';
 ///import Wallet from '../classes/Wallet';
 import KeyStore from '../classes/keyStore';
 
-const botUtils = inject("botUtils")
 
 export const useWalletStore = defineStore('walletStore', () => {
+
+    const botUtils = inject("botUtils")
 
     const $state = ref({
         password:         "",
@@ -18,14 +19,42 @@ export const useWalletStore = defineStore('walletStore', () => {
     const defaultWallet     = computed(()       =>    $state.value.defaultWallet )
     const accounts          = computed(()       =>    $state.value.accounts )
     const password          = computed(()       =>    $state.value.password )
-
+    const processedPass     = computed(()       =>    processPassword($state.value.password) )
+    
     const setPassword = (pass) => {
         $state.value.password = pass
     }
 
+    const getUserInfo = () => {
+        return botUtils.getUserInfo()
+    }
+    
+    const processPassword = (_pass="") => {
+
+        _pass = toValue(_pass).toString().trim()
+
+        //console.log("_pass===>2", _pass)
+
+        if(_pass == '' ) return _pass
+        
+        let userInfo = botUtils.getUserInfo()
+
+        if(userInfo == null) return _pass
+
+        return `${botUtils.botPlatform}_${userInfo.id}_${_pass}`
+    }
+
+    const getPassword = async () => {
+        return password.value.toString().trim()
+    }
+    
     const doLogin = async (pass) => {
         
-        let defaultWalletStatus = await KeyStore.getDefaultWallet(toValue(pass))
+        let _ppass = processPassword(pass)
+
+        let userId = getUserInfo().id;
+
+        let defaultWalletStatus = await KeyStore.getDefaultWallet(userId, _ppass)
         
         if(defaultWalletStatus.isError()){
 
@@ -41,7 +70,7 @@ export const useWalletStore = defineStore('walletStore', () => {
         $state.value.defaultWallet = defaultWalletStatus.getData()
 
         // lets now fetch the accounts
-        let accountsStatus = await KeyStore.getAccounts(toValue(pass))
+        let accountsStatus = await KeyStore.getAccounts(userId, _ppass)
 
         if(accountsStatus.isError()){
             return accountsStatus
@@ -50,19 +79,13 @@ export const useWalletStore = defineStore('walletStore', () => {
         $state.value.accounts = accountsStatus.getData()
 
         $state.value.password = pass;
-        
 
+        ///savePasswordToManager(pass)
+      
         return Status.successPromise()
     } //end do login 
 
-    const saveSession = () => {
-
-        //user account 
-        let accountInfo = botUtils.getAccount()
-
-        //if()
-    }
-
+ 
     const isLoggedIn = () => {
         return (password.value != '' && 
             defaultWallet.value != null && 
@@ -81,12 +104,18 @@ export const useWalletStore = defineStore('walletStore', () => {
     }
 
     const hasDefaultWallet = () => {
-        return KeyStore.hasDefaultWallet()
+        return KeyStore.hasDefaultWallet(getUserInfo().id)
     }
 
     const saveDefaultWallet = async (_walletInfo) => {
         
-        let saveStatus = await KeyStore.saveDefaultWallet(toValue(password), toRaw(_walletInfo))
+        let userId = getUserInfo().id;
+
+        let saveStatus = await KeyStore.saveDefaultWallet(
+                            userId,
+                            processPassword(password), 
+                            toRaw(_walletInfo)
+                        )
 
         if(saveStatus.isError()){
             return saveStatus
@@ -100,13 +129,16 @@ export const useWalletStore = defineStore('walletStore', () => {
 
     const updateAccounts = async () => {
         
-        let pass = toValue(password)
+        let pass = processPassword(toValue(password))
 
+        
         if(pass == "") {
-            return Status.error("password_required")
+            return Status.error("Pasword is required")
         }
 
-        let accountsStatus = await KeyStore.getAccounts(pass)
+        let userId = getUserInfo().id;
+
+        let accountsStatus = await KeyStore.getAccounts(userId, toValue(pass))
 
         if(accountsStatus.isError()){
             return accountsStatus
@@ -119,7 +151,9 @@ export const useWalletStore = defineStore('walletStore', () => {
 
     const resetAccount = async () => {
 
-         await KeyStore.resetAccount()
+        let userId = getUserInfo().id;
+
+        await KeyStore.resetAccount(userId)
         
         $state.value = {
             accounts: {},
@@ -135,7 +169,7 @@ export const useWalletStore = defineStore('walletStore', () => {
         accounts,
         defaultWallet,
         saveDefaultWallet,
-        password,
+        getPassword,
         setPassword,
         doLogin,
         isLoggedIn,
