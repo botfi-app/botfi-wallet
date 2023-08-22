@@ -10,19 +10,24 @@ export const useWalletStore = defineStore('walletStore', () => {
     const botUtils = inject("botUtils")
 
     const $state = ref({
-        password:         "",
-        defaultWallet:    null,
-        accounts:            {}
+        password:           "",
+        defaultWallet:      null,
+        wallets:            {},
+        activeWallet:     null
     }); 
 
 
     const defaultWallet     = computed(()       =>    $state.value.defaultWallet )
-    const accounts          = computed(()       =>    $state.value.accounts )
+    const wallets           = computed(()       =>    $state.value.wallets )
     const password          = computed(()       =>    $state.value.password )
     const processedPass     = computed(()       =>    processPassword($state.value.password) )
+    const activeWallet      = computed(()       =>    $state.value.activeWallet)
+    const activeWalletFull  = computed(()       =>    '0x' + $state.value.activeWallet)
     
+    const setState = (key, value) => $state.value[key] = value
+
     const setPassword = (pass) => {
-        $state.value.password = pass
+        setState("password", pass)
     }
 
     const getUserInfo = () => {
@@ -67,29 +72,64 @@ export const useWalletStore = defineStore('walletStore', () => {
             return defaultWalletStatus
         }
 
-        $state.value.defaultWallet = defaultWalletStatus.getData()
+        setState("defaultWallet", defaultWalletStatus.getData())
 
         // lets now fetch the accounts
-        let accountsStatus = await KeyStore.getAccounts(userId, _ppass)
+        let accountsStatus = await KeyStore.getWallets(userId, _ppass)
 
         if(accountsStatus.isError()){
             return accountsStatus
         }
 
-        $state.value.accounts = accountsStatus.getData()
+        setState("wallets", accountsStatus.getData());
+        setState("password", pass)
 
-        $state.value.password = pass;
-
-        ///savePasswordToManager(pass)
+        getActiveWalletInfo()
       
         return Status.successPromise()
     } //end do login 
 
+
+    const setActiveWallet = (addr) => {
+
+        addr = addr.toLowerCase()
+
+        if(addr.startsWith("0x")) addr = addr.substring(2)
+
+        setState('activeWallet', addr)
+
+        localStorage.setItem(`${getUserInfo().id}_active_wallet`, addr)
+    }
+
+    const getActiveWalletInfo = () => {
+        
+        let _swalletAddr = activeWallet.value || ""
+        
+        if(_swalletAddr.length == ''){
+            _swalletAddr = localStorage.getItem(`${getUserInfo().id}_active_wallet`) || ''
+        }
+
+        if(_swalletAddr == ''){
+            _swalletAddr = Object.keys(wallets.value)[0]
+        }
+
+        if(_swalletAddr.startsWith("0x")){
+            _swalletAddr = _swalletAddr.substring(2)
+        }
+
+        _swalletAddr = _swalletAddr.toLowerCase()
+
+        let w = wallets.value[_swalletAddr];
+
+       setActiveWallet( w.wallet.address )
+
+        return wallets.value[_swalletAddr]
+    }
  
     const isLoggedIn = () => {
         return (password.value != '' && 
             defaultWallet.value != null && 
-            Object.keys(accounts.value).length > 0
+            Object.keys(wallets.value).length > 0
         )
     }
 
@@ -97,7 +137,7 @@ export const useWalletStore = defineStore('walletStore', () => {
         $state.value = {
             password: '',
             defaultWallet: null,
-            accounts: {}
+            wallets: {}
         }
 
        return Status.success()
@@ -121,7 +161,7 @@ export const useWalletStore = defineStore('walletStore', () => {
             return saveStatus
         }
 
-        $state.defaultWallet = saveStatus.getData()
+        setState("defaultWallet", saveStatus.getData())
         updateAccounts();
 
         return saveStatus
@@ -138,25 +178,25 @@ export const useWalletStore = defineStore('walletStore', () => {
 
         let userId = getUserInfo().id;
 
-        let accountsStatus = await KeyStore.getAccounts(userId, toValue(pass))
+        let walletsStatus = await KeyStore.getWallets(userId, toValue(pass))
 
-        if(accountsStatus.isError()){
-            return accountsStatus
+        if(walletsStatus.isError()){
+            return walletsStatus
         }
 
-        $state.accounts = accountsStatus.getData()
+        setState("wallets", walletsStatus.getData())
 
-        return accountsStatus
+        return walletsStatus
     }
 
-    const resetAccount = async () => {
+    const resetWallets = async () => {
 
         let userId = getUserInfo().id;
 
-        await KeyStore.resetAccount(userId)
+        await KeyStore.resetWallets(userId)
         
         $state.value = {
-            accounts: {},
+            wallets: {},
             defaultWallet: null 
         }
 
@@ -166,14 +206,18 @@ export const useWalletStore = defineStore('walletStore', () => {
     return {
         hasDefaultWallet,
         updateAccounts,
-        accounts,
+        wallets,
         defaultWallet,
         saveDefaultWallet,
+        setActiveWallet,
+        activeWallet,
+        activeWalletFull,
+        getActiveWalletInfo,
         getPassword,
         setPassword,
         doLogin,
         isLoggedIn,
-        resetAccount,
+        resetWallets,
         logout
     }
 })

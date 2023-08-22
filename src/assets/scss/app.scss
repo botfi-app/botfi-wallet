@@ -12,7 +12,7 @@ $danger: #ff1744;
 @import "~/bootswatch/dist/cosmo/bootswatch";
 
 @import "./telegram.scss";
-@import "~/shimmer-css/shimmer.css";
+
 
 body {
     overflow-x: hidden !important;
@@ -34,10 +34,15 @@ body {
         transition: padding 1s;
     }
 
-    &.expanded .app-content.center-content {
-        padding-top: 20%;
+    &.expanded{
+
+        .app-content.center-content {
+            padding-top: 20%;
+        }
     }
 }
+
+
 
 .logo { width: 100px; max-width: 95%; }
 
@@ -52,7 +57,7 @@ body {
     margin-left: auto !important;
 }
 
-.w-full { width: 100% !important; }
+.w-full, .full-width { width: 100% !important; }
 .h-full { height: 100% !important; }
 
 input.form-control {
@@ -114,4 +119,16 @@ html[data-is-expanded=false] .swal2-popup {
 
 .main-btn {
 
+}
+
+.rounded-lg {
+    border-radius: 14px;
+}
+
+.modal-content {
+    margin-top: 60px;
+    .close-btn {
+        width: 26px;
+        height: 24px;
+    }
 }

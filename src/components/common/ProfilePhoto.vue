@@ -19,7 +19,7 @@ const initialize = async () => {
 </script>
 <template>
     <div v-if="!initialized">
-        <Avatar :name="props.userId" :size="38" class="" />
+        <Avatar :name="props.userId" :size="28" class="" />
     </div>
     <div v-else>
 

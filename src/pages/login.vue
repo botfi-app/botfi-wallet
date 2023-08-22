@@ -64,14 +64,14 @@ const handleLogin = async () => {
 }
 
 
-const resetAccount = async () => {
+const resetWallets = async () => {
     let action =   await Utils.getSwal().fire({
                         showCancelButton: true,
                         confirmButtonText: 'Confirm',
                         denyButtonText:     'Cancel',
-                        text: `This action will delete all the acounts on the device permanently, 
-                                make sure you have a backup of your seed phrase to restore the accounts`,
-                        title: "Reset Account?",
+                        text: `This action will delete all the wallets on the device permanently, 
+                                make sure you have a backup of your seed phrase to restore the wallets`,
+                        title: "Reset Wallets?",
                         focusCancel: true,
                         customClass: {
                             confirmButton: "btn btn-lg px-5 btn-danger mx-1 rounded-pill",
@@ -84,7 +84,7 @@ const resetAccount = async () => {
         return false;
     }
 
-    let resetStatus = await walletStore.resetAccount()
+    let resetStatus = await walletStore.resetWallets()
 
     if(resetStatus.isError()){
         return Utils.mAlert(resetStatus.getMessage())
@@ -124,9 +124,9 @@ const resetAccount = async () => {
                 </button>
                 <button 
                     class="btn-none text-danger w-full btn mb-2"
-                    @click="resetAccount"
+                    @click="resetWallets"
                 >
-                    Reset Account
+                    Reset Wallets
                 </button>
             </div>
         </div>
