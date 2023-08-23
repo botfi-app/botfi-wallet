@@ -1,18 +1,9 @@
 
 import Status from "./Status"
 import appConfig from "../config/app"
-import fetchPolyfill from "whatwg-fetch"
-//import AuthCore from "./AuthCore"
 import Utils from "./Utils"
-import AppData from "./AppData"
 
 export default class Http {
-
-    static async loadPolyfill(){
-        if(!("fetch" in window)){
-            window["fetch"] = fetchPolyfill
-        }
-    }
 
     /**
      * http get
@@ -32,7 +23,8 @@ export default class Http {
      */
     static async requestApi( method, uri, data={}, requiresAuth = false){
 
-        let headers = {"x-key": appConfig.apiKey}
+        let headers = {"x-key": appConfig.apiKey, "localtonet-skip-warning": 1}
+
         //let chainName = appConfig.default_chain;
 
         /*let walletCore = window.walletCore;
@@ -189,10 +181,7 @@ export default class Http {
        
         try {
 
-            this.loadPolyfill();
-
             let response = await window.fetch(url,rparams);
-
 
             return Status.successPromise(null, response)
 

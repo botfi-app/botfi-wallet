@@ -41,4 +41,12 @@ export default defineConfig({
       '~': __dirname+"/node_modules/",
     },
   },
+
+  optimizeDeps: {
+    exclude: [
+      "whatwg-fetch",
+      "animate.css"
+    ],
+  }
+
 })

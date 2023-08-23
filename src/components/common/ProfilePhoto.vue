@@ -1,7 +1,8 @@
 <script setup>
-import { onBeforeMount, ref } from 'vue';
+import { inject, onBeforeMount, ref } from 'vue';
 import Avatar from './Avatar.vue';
-
+import Utils from "../../classes/Utils"
+import Http from "../../classes/Http"
 
 const props = defineProps({
                 userId: String
@@ -11,17 +12,42 @@ onBeforeMount(() => {
     initialize()
 })
 
+const botUtils = inject("botUtils")
 const initialized = ref(false)
+const imgSrc = ref("")
+const imgRef = ref()
 
 const initialize = async () => {
+    try {
 
+        let uri = `/${botUtils.botPlatform}/profile-photo/${botUtils.getUserInfo().id}`
+        let resultStatus = await Http.getApi(uri)
+
+        if(resultStatus.isError()){
+            return  Utils.logError(`ProfilePhoto#initialize: ${resultStatus.getMessage()}`)
+        }
+
+        let imgB64Uri = resultStatus.getData() || ""
+        
+        if(imgB64Uri.trim() != ''){
+            imgSrc.value = imgB64Uri
+
+            imgRef.value.onerror = () => {
+                imgSrc.value = ''
+            }
+        }
+    } catch(e){
+        Utils.logError(`ProfilePhoto#initialize:`,e)
+    }
 }
+
+onBeforeMount(() => {
+    initialize()
+})
 </script>
 <template>
-    <div v-if="!initialized">
-        <Avatar :name="props.userId" :size="28" class="" />
-    </div>
-    <div v-else>
-
+    <div>
+        <img :src="imgSrc" v-if="imgSrc != ''" ref="imgRef" class="profile-photo shadow-lg" /> 
+        <Avatar :name="props.userId" v-else :size="28" class="" />
     </div>
 </template>

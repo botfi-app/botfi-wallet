@@ -39,6 +39,7 @@
   "devDependencies": {
     "@iconify/vue": "^4.1.1",
     "@siimple/postcss": "^0.3.1",
+    "@types/whatwg-fetch": "^0.0.33",
     "@vitejs/plugin-vue": "^4.2.3",
     "autoprefixer": "^10.4.14",
     "postcss": "^8.4.27",
