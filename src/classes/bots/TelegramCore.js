@@ -29,6 +29,15 @@ export default class TelegramCore {
         }
     }
 
+    getUid() {
+        let userInfo = this.getUserInfo()
+        if(userInfo == null) {
+            return null
+        }
+
+        return `${this.botPlatform}_${userInfo.id}`
+    }
+
     notSupported() {
         return { isSupported: () => false }
     }

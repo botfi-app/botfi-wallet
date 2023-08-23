@@ -8,10 +8,12 @@ import Swal from 'sweetalert2'
 import "sweetalert2/src/sweetalert2.scss"
 ///import EventBus from './EventBus'
 ///import { inject } from "vue";
+import Status from './Status'
 
 export default class Utils {
 
     static generalErrorMsg = "An unknown error occured, try again later"
+    static generalErrorStatus =  Status.error(this.generalErrorMsg)
     static openAppFromChatPlatform = "open the app from a chat platform such as telegram"
 
     static logError(msg, err){
@@ -153,14 +155,35 @@ export default class Utils {
             toast:              true,
             position:           'bottom',
             showConfirmButton:  false,
-            timer:              5000,
+            timer:              3000,
             timerProgressBar:   true,
             backdrop        :   false,
-            didOpen: (toast) => {
+            showCloseButton:  true,
+            /*didOpen: (toast) => {
               toast.addEventListener('mouseenter', Swal.stopTimer)
               toast.addEventListener('mouseleave', Swal.resumeTimer)
-            }
+            }*/
         })
     }
     
+    static getTokenIconName(symbol) {
+
+        symbol = symbol.replace(/(\_|\-)testnet/ig, "").toLowerCase()
+        
+        //console.log("symbol==>", symbol)
+
+        if(["hardhat", "ropsten", "rinkeby","kovan", "local", "heth"].includes(symbol)){
+            symbol = "eth"
+        } else if(symbol == "bsc" || symbol == "bnbchain"){
+            symbol = "bnb"
+        }
+
+        return symbol;
+    }
+
+    static getTokenIconUrl(symbol) {
+        symbol = this.getTokenIconName(symbol)
+        return `/images/crypto/${symbol.toLowerCase()}.svg`
+    }
+
 }

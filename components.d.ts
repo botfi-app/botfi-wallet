@@ -18,6 +18,7 @@ declare module '@vue/runtime-core' {
     LoadingView: typeof import('./src/layouts/LoadingView.vue')['default']
     MainBtn: typeof import('./src/components/common/MainBtn.vue')['default']
     MainLayout: typeof import('./src/layouts/MainLayout.vue')['default']
+    ModalSelect: typeof import('./src/components/modals/modal-select.vue')['default']
     Nav: typeof import('./src/components/header/Nav.vue')['default']
     Navbar: typeof import('./src/components/header/Navbar.vue')['default']
     NetAndAccountSelect: typeof import('./src/components/modals/NetAndAccountSelect.vue')['default']
