@@ -147,9 +147,11 @@ const ensureTelegramClient = () => {
         cssVars.push(
             ...[
                 ['bs-body-bg', bgColor],
-                ["bs-body-bg-rgb", _bg.toRgbString()],
+                ["bs-body-bg-rgb", _bg.clone().toRgbString()],
                 ["bs-body-color", textColor],
-                ["bs-body-color-rgb", _tc.toRgbString() ]
+                ["bs-body-color-rgb", _tc.toRgbString() ],
+                ['bs-modal-bg', _bg.clone().darken(1)],
+                ['bs-card-bg', _bg.clone().darken(1)],
             ]
         )
 

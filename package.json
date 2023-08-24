@@ -22,6 +22,7 @@
     "ethers": "^6.7.1",
     "konsta": "^2.0.0",
     "libsodium-wrappers": "^0.7.11",
+    "micromodal": "^0.4.10",
     "pinia": "^2.1.6",
     "scrypt-pbkdf": "^1.1.1",
     "shimmer-css": "^1.0.1",

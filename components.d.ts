@@ -23,7 +23,7 @@ declare module '@vue/runtime-core' {
     Navbar: typeof import('./src/components/header/Navbar.vue')['default']
     NetAndAccountSelect: typeof import('./src/components/modals/NetAndAccountSelect.vue')['default']
     NetworkAndAccount: typeof import('./src/components/modals/NetworkAndAccount.vue')['default']
-    NetworkSelect: typeof import('./src/components/wallet/NetworkSelect.vue')['default']
+    NetworkSelect: typeof import('./src/components/modals/network-select.vue')['default']
     Pin: typeof import('./src/components/common/Pin.vue')['default']
     Pincode: typeof import('./src/components/common/Pincode.vue')['default']
     PinCode: typeof import('./src/components/common/PinCode.vue')['default']

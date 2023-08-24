@@ -1,46 +1,47 @@
 <script setup>
+import { onMounted } from 'vue';
+import MicroModal from 'micromodal';  // es6 module
+
 const props = defineProps({
+    id: { type: String, default: 'select-modal' },
     title: { type: String, default: ""},
     options: { type: Array, default: []},
     selected: { type: String, default: "" }
 })
+
+const $emits = defineEmits(["close"])
+
+onMounted(() => {
+    setTimeout(() => initModal(), 1000)
+})
+
+const initModal = () => {
+    /*MicroModal.init({
+        onClose: modal =>  $emits("close"), 
+    })*/
+
+   // MicroModal.show("select-modal")
+}
+
 </script>
 
 <template>
-    <div class="modal"  
-        data-bs-backdrop="static" 
-        id="modal-select" 
-        tabindex="-1"
-    >
-        <div class="modal-dialog dialog-sm show">
-            <div class="modal-header">
-                <h5 class="modal-title">{{ props.title }}</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-content rounded-lg mt-10">
-                <ul class="list-group list-group-flush">
-                    <a href="#" v-for="(item,index) in props.options" 
-                        class="list-group-item list-group-item-action py-2 d-flex justify-items-between align-items-center"
-                        :key="index"
-                    >
-                        <div class="d-flex">
-                            <Icon name="clarity:check-line" 
-                                :size="24"
-                                v-if="props.selected != '' && props.selected == item.value"
-                                class="me-2 text-success"
-                            />
-                            <div>{{ item.text }}</div>
-                        </div>
-                        <img :width="24"
-                            :height="24"
-                            :src="item.iconUrl" 
-                            alt=""
-                            v-if="item.iconUrl && item.iconUrl != ''"
-                            loading='lazy'
-                        />
-                    </a>
-                </ul>
+   <div class="m_modal micromodal-slide" :id="props.id" aria-hidden="true">
+        <div class="modal__overlay" tabindex="-1" data-micromodal-close>
+            <div class="modal__container shadow-lg" role="dialog" aria-modal="true" aria-labelledby="modal-1-title">
+                <header class="modal__header">
+                    <h2 class="modal__title" id="modal-1-title">
+                        {{ props.title }}
+                    </h2>
+                    <button class="modal__close" aria-label="Close modal" data-micromodal-close></button>
+                </header>
+                <main class="modal__content" id="modal-1-content">
+                    <p>
+                        Try hitting the <code>tab</code> key and notice how the focus stays within the modal itself. Also, <code>esc</code> to close modal.
+                    </p>
+                </main>
             </div>
         </div>
     </div>
+      
 </template>
