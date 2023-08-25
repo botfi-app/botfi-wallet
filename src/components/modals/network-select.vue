@@ -1,15 +1,18 @@
 <script setup>
-import { inject, onBeforeMount, onMounted, ref } from 'vue';
+import { inject, onBeforeMount, onMounted, ref, toValue } from 'vue';
 import { useNetworkStore  } from '../../store/networkStore';
 import MicroModal from 'micromodal';  // es6 module
+import Utils from '../../classes/Utils';
+import { useWalletStore } from '../../store/walletStore';
 
 const $emits = defineEmits(['initialized','change'])
 
+const initialized = ref(false)
 const networkStore = useNetworkStore()
 const activeNetInfo = ref({})
-const selectNetworkModalId = ref("select-net-modal-"+Date.now())
+const selectNetworkModalId = ref("network-select-"+Date.now())
 const networkSelectData = ref([])
-
+const walletStore = useWalletStore()
 
 const initialize = async () => {
 
@@ -18,7 +21,9 @@ const initialize = async () => {
 
     $emits("initialized", activeNetInfo.value)
 
-    processNetworkSelectData(userNetworks.networks)   
+    processNetworkSelectData(toValue(userNetworks.networks))
+
+    initialized.value = true
 }
 
 onBeforeMount(() => {
@@ -41,18 +46,24 @@ const processNetworkSelectData = async (allNets) => {
 
     Object.keys(allNets).forEach((key) => {
         let item = allNets[key]
+        if(!item) return;
         processedData.push({ 
             text:       item.chainName, 
             value:      item.chainId, 
-            logoUrl:    Utils.getTokenIconUrl(netInfo.nativeCurrency.symbol)
+            iconUrl:    Utils.getTokenIconUrl(item.symbol)
         })
     })
 
     networkSelectData.value = processedData
 }
+
+const handleOnNetSelect = async (item) => {
+    let resultStatus = await networkStore.setActiveNetwork(item.chainId)
+    return false
+}
 </script>
 <template>
-    <div>
+    <div v-if="initialized">
         <div class="d-flex justify-content-between">
             <label class="fw-bold text-opacity-50">Network</label>
             <button class="btn btn-none text-info">Change</button>
@@ -63,21 +74,24 @@ const processNetworkSelectData = async (allNets) => {
             @click.prevent
         >
             <div class="text-break">
-                {{ netInfo.chainName }} ( {{ "0x" + parseInt(activeNetInfo.chainId, 16) }} )
+                {{ activeNetInfo.chainName }} ( {{ "0x" + parseInt(activeNetInfo.chainId, 16) }} )
             </div>
             <button class="btn btn-secondary p-2 rounded ms-2" >
                 <img 
                     :width="26" 
                     :height="26" 
                     class="rounded"
-                    :src="Utils.getTokenIconUrl(activeNetInfo.nativeCurrency.symbol)" 
+                    :src="Utils.getTokenIconUrl(activeNetInfo.symbol)" 
                 />
             </button>
         </a>
     </div>
-    <ModalSelect 
+    <modal-select 
         :id="selectNetworkModalId"
         :options="networkSelectData"
         title="Select Network"
+        :selected="activeNetInfo.chainId"
+        size="modal-sm"
+        :onSelect="handleOnNetSelect"
     />
 </template>

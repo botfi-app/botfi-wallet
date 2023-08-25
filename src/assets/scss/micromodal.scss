@@ -3,9 +3,7 @@
 \**************************/
 
 .m_modal {
-    
-    font-family: -apple-system,BlinkMacSystemFont,avenir next,avenir,helvetica neue,helvetica,ubuntu,roboto,noto,segoe ui,arial,sans-serif;
-  
+      
   
   .modal__overlay {
     position: fixed;
@@ -17,29 +15,35 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    touch-action: auto !important;
+    touch-action: auto !important;
   }
   
   .modal__container {
-    padding: 30px;
-    max-width: 500px;
-    max-height: 100vh;
-    border-radius: 4px;
-    margin-top: 5%;
-    margin-left: 10px;
-    margin-right: 10px;
-    overflow-y: auto;
-    box-sizing: border-box;
+    max-width: 96vw;
+    max-height: 90vh;
+    overflow: hidden;
     color: var(--bs-modal-color);
-    pointer-events: auto;
     background-color: var(--bs-modal-bg);
     border: 1px solid var(--bs-border-color);
     border-radius: 14px;
+    display: flex;
+    flex-direction: column;
+    touch-action: auto !important;
+    touch-action: auto !important;
+    &.modal-sm  { width: 300px; }                        
+    &.modal-md  { width: 500px; }   
+    &.modal-lg  { width: 800px; }
+    &.modal-xl  { width:  1140px; }
+
   }
   
   .modal__header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: 25px 15px;
+    margin-top: 10px;
   }
   
   .modal__title {
@@ -60,11 +64,14 @@
   .modal__header .modal__close:before { content: "\2715"; }
   
   .modal__content {
-    margin-top: 2rem;
-    margin-bottom: 2rem;
-    line-height: 1.5;
     color: var(--bs-color);
     background-color: var(--bs-modal-bg);
+    flex-grow: 1;
+    overflow-y: auto;
+    scroll-behavior: smooth !important;
+    pointer-events: auto;
+    touch-action: none;
+    overscroll-behavior-y: contain;
   }
   
   a, a:hover {

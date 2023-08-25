@@ -5,11 +5,20 @@
 
 import Status from "./Status"
 import Utils from "./Utils"
-import {   Wallet as ethersWallet } from "ethers"
+import ethers, {   Wallet as ethersWallet } from "ethers"
 
 export default class Wallet {
 
-    static async createWallet(password) {
+    connect (rpcUrl) {
+
+        try {
+            let provider = new ethers.JsonRpcProvider(rpcUrl)
+        } catch(e){
+            Utils.logError("")
+        }
+    }
+
+    static async createWallet() {
         try {
 
             let walletInfo = ethersWallet.createRandom()
@@ -22,14 +31,4 @@ export default class Wallet {
         }
     }
 
-    static async encryptWallet(password, walletInfo, isDefaultWallet = false) {
-        try {
-
-            
-            //localStorage.setItem()
-        } catch(e){
-            Utils.logError("Wallet#encrypt:", e)
-            return Status.error("Failed to generate key phrase")
-        }
-    }
 }

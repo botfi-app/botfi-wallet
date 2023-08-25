@@ -12,6 +12,10 @@ export const useNetworkStore = defineStore('networkStore', () => {
 
     //const userNetworkInfo  = computed(()  =>  $state.value.userNetworkInfo )
 
+    const setActiveNetwork = async (chainId) => {
+
+    }
+
     const fetchDefaultNetworks = async (force=false) => {
 
         let $s = $state.value

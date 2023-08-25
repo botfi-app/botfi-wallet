@@ -15,8 +15,7 @@ onBeforeMount(() => {
 const initialize = async => {
     userInfo.value =  botUtils.getUserInfo() || {}
     let username = (userInfo.value.username || "").trim()
-    name.value = (username.length > 0) ? '@'+username : userInfo.firstName;
-    
+    name.value = (username.length > 0) ? '@'+username : userInfo.firstName; 
 }
 </script>
 <template>
