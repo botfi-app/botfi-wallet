@@ -76,8 +76,8 @@ export default class Utils {
                      .getPropertyValue(`--${name}`);
     }
 
-    static loader (text) {
-        return this.loaderWithTitle("", text)
+    static loader (text, canclose = false) {
+        return this.loaderWithTitle("", text, canclose)
     }
 
     static loaderWithTitle (title, text, canclose=true) {
@@ -186,4 +186,7 @@ export default class Utils {
         return `/images/crypto/${symbol.toLowerCase()}.svg`
     }
 
+    static getUriPath() {
+        return window.location.pathname
+    }
 }

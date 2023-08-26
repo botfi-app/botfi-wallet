@@ -11,26 +11,19 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0,0,0,0.65);
+    background: rgba(0,0,0,0.75);
     display: flex;
     justify-content: center;
     align-items: center;
-    touch-action: auto !important;
-    touch-action: auto !important;
   }
   
   .modal__container {
     max-width: 96vw;
-    max-height: 90vh;
-    overflow: hidden;
+    overflow-x: hidden !important;
     color: var(--bs-modal-color);
     background-color: var(--bs-modal-bg);
     border: 1px solid var(--bs-border-color);
     border-radius: 14px;
-    display: flex;
-    flex-direction: column;
-    touch-action: auto !important;
-    touch-action: auto !important;
     &.modal-sm  { width: 300px; }                        
     &.modal-md  { width: 500px; }   
     &.modal-lg  { width: 800px; }
@@ -44,6 +37,7 @@
     align-items: center;
     padding: 25px 15px;
     margin-top: 10px;
+    flex: 0;
   }
   
   .modal__title {
@@ -66,12 +60,8 @@
   .modal__content {
     color: var(--bs-color);
     background-color: var(--bs-modal-bg);
-    flex-grow: 1;
-    overflow-y: auto;
-    scroll-behavior: smooth !important;
-    pointer-events: auto;
-    touch-action: none;
-    overscroll-behavior-y: contain;
+    flex: 1;
+    margin-top: 0px;
   }
   
   a, a:hover {

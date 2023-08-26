@@ -7,18 +7,15 @@ import { createPinia } from 'pinia'
 import telegram from './plugins/telegram'
 import SimpleBar from 'simplebar'
 import 'simplebar/dist/simplebar.css';
-import LocomotiveScroll from 'locomotive-scroll';
-
 
 const pinia = createPinia()
 
 const app = createApp(App)
 
-/*
-document.addEventListener("touchmove", function (event) {
-   // event.preventDefault();
-}, { passive: false
-});
+
+/*document.addEventListener("touchmove", e=> {
+    e.preventDefault();
+}, { passive: false });
 */
 
 router.beforeResolve(() => {

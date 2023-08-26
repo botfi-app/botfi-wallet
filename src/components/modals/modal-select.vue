@@ -6,12 +6,14 @@ import modal from './modal.vue';
 
 
 const props = defineProps({
-    id:       { type: String, default: 'select-modal' },
-    title:    { type: String, default: ""},
-    options:  { type: Array, default: []},
-    selected: { type: null, default: "" },
-    size:     { type: String, default: "modal-md" },
-    onSelect: { type: Function, default: () => true }
+    id:        { type: String, default: 'select-modal' },
+    title:     { type: String, default: ""},
+    options:   { type: Array, default: []},
+    selected:  { type: null, default: "" },
+    size:      { type: String, default: "modal-md" },
+    onSelect:  { type: Function, default: () => true },
+    maxHeight: { type: String, default: "" },
+    renderer:  { type: Function, default: null }
 })
 
 const selectedItem = ref(props.selected)
@@ -23,6 +25,7 @@ const handleOptionClick = async (item) => {
     if((await props.onSelect(item)) == true ){
         selectedItem.value = item.value
         $emits("change", item)
+        MicroModal.close(props.id)
     }
 }
 
@@ -32,31 +35,37 @@ const handleOptionClick = async (item) => {
     <modal
         :id="props.id"
         :title="props.title"
+        :max-height="props.maxHeight"
     >
-        <ul class="list-group list-group-flush w-full">
-            <li v-for="(item,index) in props.options" 
-                class="list-group-item list-group-item-action py-4 d-flex justify-content-between align-items-center"
-                :key="index"
-                @click.prevent="handleOptionClick(item)"
-            >
-                <div class="d-flex">
-                    <Icon name="clarity:check-line" 
-                        :size="24"
-                        v-if="selectedItem != '' && selectedItem == item.value"
-                        class="me-2 text-success"
+        <template v-if="props.renderer != null">
+
+        </template>
+        <template v-else>
+            <ul class="list-group list-group-flush w-full">
+                <li v-for="(item,index) in props.options" 
+                    class="list-group-item list-group-item-action py-4 d-flex justify-content-between align-items-center"
+                    :key="index"
+                    @click.prevent="handleOptionClick(item)"
+                >
+                    <div class="d-flex">
+                        <Icon name="clarity:check-line" 
+                            :size="24"
+                            v-if="selectedItem != '' && selectedItem == item.value"
+                            class="me-2 text-success"
+                        />
+                        <div>{{ item.text }}</div>
+                    </div>
+                    <Image 
+                        :width="28"
+                        :height="28"
+                        :src="item.iconUrl" 
+                        alt=""
+                        v-if="item.iconUrl && item.iconUrl != ''"
+                        :placeholder="item.text.charAt(0)"
+                        class="rounded-circle mselect-icon"
                     />
-                    <div>{{ item.text }}</div>
-                </div>
-                <Image 
-                    :width="28"
-                    :height="28"
-                    :src="item.iconUrl" 
-                    alt=""
-                    v-if="item.iconUrl && item.iconUrl != ''"
-                    :placeholder="item.text.charAt(0)"
-                    class="rounded-circle mselect-icon"
-                />
-            </li>
-        </ul>
+                </li>
+            </ul>
+        </template>
     </modal>
 </template>

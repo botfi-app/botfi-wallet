@@ -22,6 +22,7 @@ const initialize = async () => {
         isPageLoading.value = true 
 
         activeWalletInfo.value = walletStore.getActiveWalletInfo()
+        await walletStore.getUserNetworks()
 
     } catch(e){
         pageError.value = Utils.generalErrorMsg
@@ -41,54 +42,80 @@ onBeforeMount(() => {
         class="btn btn-primary rounded-pill" 
         :data-micromodal-trigger="modalId"
     >   
-        <div v-if="initialized" class="d-flex justify-content-center align-items-center text-sm">
+        <div v-if="initialized" class="d-flex justify-content-center align-items-center fs-12">
             <div>{{  Utils.maskAddress( walletStore.activeWalletFull ) }}</div>
-            <div v-if="netInfo != null"><span class="px-1">|</span>{{ netInfo.symbol }}</div> 
+            <div v-if="walletStore.userActiveNetwork != null">
+                <span class="px-1">|</span>{{ walletStore.userActiveNetwork.symbol }}
+            </div> 
         </div>
     </button>
     <modal
         :id="modalId"
         title=""
+        :has-header="false"
     >
         <loading-view :isLoading="isPageLoading">
-            <div class="p-3 text-center hint text-muted" v-if="pageError != ''">
-                <div>{{ pageError }}</div>
-                <div>
-                    <button @click.prevent="initialize" 
-                        class='btn btn-success btn-md px-4 py-2 rounded-pill mt-4'
-                    >
-                        Retry
-                    </button>
-                </div>
-            </div>
-            <div v-else class="p-3 pb-2">
-                <div>
-                    <div class="d-flex justify-content-between">
-                        <label class="fw-bold text-opacity-50">Wallet</label>
-                        <button class="btn btn-none text-info">Change</button>
-                    </div>
-                    <a href="#" 
-                        class="active-wallet-addr p-2 mt-2 border rounded d-flex justify-content-center align-items-center"
-                        @click.prevent
-                        :data-micromodal-trigger="selectWalletModalId"
-                    >
-                        <div class="text-break">{{ walletStore.activeWalletFull }}</div>
-                        <button class="btn btn-primary p-2 rounded ms-2" >
-                            <Icon name='solar:copy-bold-duotone' :size="24" />
+            <div class="py-3">
+                <div class="p-3 text-center hint text-muted" v-if="pageError != ''">
+                    <div>{{ pageError }}</div>
+                    <div>
+                        <button @click.prevent="initialize" 
+                            class='btn btn-success btn-md px-4 py-2 rounded-pill mt-4'
+                        >
+                            Retry
                         </button>
-                    </a>
+                    </div>
                 </div>
-                
-                <div class="mt-4">
-                    <network-select 
-                        @initialized="item => netInfo = item"
-                        @change="item => netInfo = item"
-                    />
-                </div>
-                <div class="mt-5">
-                    <button data-micromodal-close class="btn btn-primary full-width btn-lg rounded">
-                        Close
-                    </button>
+                <div v-else class="p-3 pb-2">
+                    <div>
+                        <div class="d-flex justify-content-between">
+                            <label class="fw-bold text-opacity-50">Wallet</label>
+                            <button class="btn btn-none text-info">Change</button>
+                        </div>
+                        <a href="#" 
+                            class="active-wallet-addr p-2 mt-2 border rounded d-flex justify-content-center align-items-center"
+                            @click.prevent
+                            :data-micromodal-trigger="selectWalletModalId"
+                        >
+                            <div class="text-break">{{ walletStore.activeWalletFull }}</div>
+                            <button class="btn btn-primary p-2 rounded ms-2" >
+                                <Icon name='solar:copy-bold-duotone' :size="24" />
+                            </button>
+                        </a>
+                    </div>
+                    <div class="mt-4">
+                        <div class="d-flex justify-content-between">
+                            <label class="fw-bold text-opacity-50">Network</label>
+                            <router-link  
+                                :to="`/networks?r=${Utils.getUriPath()}`" 
+                                class="btn btn-none text-info"
+                            >
+                                Change
+                            </router-link>
+                        </div>
+                        <router-link
+                            class="active-wallet-addr p-2 mt-2 border rounded d-flex justify-content-between  align-items-center"
+                            v-if="walletStore.userActiveNetwork != null"
+                            :to="`/networks?r=${Utils.getUriPath()}`"
+                        >
+                            <div class="text-break">
+                                {{ walletStore.userActiveNetwork.chainName }} ( {{ "0x" + parseInt( walletStore.userActiveNetwork.chainId, 16) }} )
+                            </div>
+                            <button class="btn btn-secondary p-2 rounded ms-2" >
+                                <img 
+                                    :width="26" 
+                                    :height="26" 
+                                    class="rounded"
+                                    :src="Utils.getTokenIconUrl( walletStore.userActiveNetwork.symbol)" 
+                                />
+                            </button>
+                        </router-link>
+                    </div>
+                    <div class="mt-5">
+                        <button data-micromodal-close class="btn btn-primary full-width btn-lg rounded-pill">
+                            Close
+                        </button>
+                    </div>
                 </div>
             </div>
         </loading-view>

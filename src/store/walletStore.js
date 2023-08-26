@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import {ref, computed, toValue, toRaw, inject } from 'vue'
 import Status from '../classes/Status';
-///import Wallet from '../classes/Wallet';
+import Wallet from '../classes/Wallet';
 import KeyStore from '../classes/keyStore';
 
 
@@ -10,10 +10,14 @@ export const useWalletStore = defineStore('walletStore', () => {
     const botUtils = inject("botUtils")
 
     const $state = ref({
-        password:           "",
-        defaultWallet:      null,
-        wallets:            {},
-        activeWallet:     null
+        walletCore:             null,
+        password:               "",
+        defaultWallet:          null,
+        wallets:                {},
+        activeWallet:           null,
+        userActiveNetwork:      null,
+        userNetworkInfo:        null,
+        defaultNetworkInfo:     null
     }); 
 
 
@@ -23,6 +27,7 @@ export const useWalletStore = defineStore('walletStore', () => {
     const processedPass     = computed(()       =>    processPassword($state.value.password) )
     const activeWallet      = computed(()       =>    $state.value.activeWallet)
     const activeWalletFull  = computed(()       =>    '0x' + $state.value.activeWallet)
+    const userActiveNetwork   = computed(()     =>     $state.value.userActiveNetwork)
     
     const setState = (key, value) => $state.value[key] = value
 
@@ -137,7 +142,7 @@ export const useWalletStore = defineStore('walletStore', () => {
         $state.value = {
             password: '',
             defaultWallet: null,
-            wallets: {}
+            wallets: {},
         }
 
        return Status.success()
@@ -203,6 +208,82 @@ export const useWalletStore = defineStore('walletStore', () => {
         return Status.success()
     }
 
+    const fetchDefaultNetworks = async (force=false) => {
+
+        let $s = $state.value
+
+        if(!force && $s.defaultNetworkInfo != null) {
+            return $s.defaultNetworkInfo
+        }
+
+        let results = await import("/data/networks.js?url")
+           
+        let data = results.default;
+
+        $s.defaultNetworkInfo = data;
+
+        return data
+    }
+
+    const getUserNetworks = async () => {
+
+        let uid = botUtils.getUid()
+        let key = `${uid}_user_networks`
+        let $s  = $state.value
+
+        if($s.userNetworkInfo != null) {
+            return $s.userNetworkInfo
+        }
+       
+        let userNetworksStr = (localStorage.getItem(key) || "").trim()
+        let userNetworkInfo;
+
+        if(userNetworksStr != ''){
+           userNetworkInfo = JSON.parse(userNetworksStr)
+        } else {
+            userNetworkInfo = await fetchDefaultNetworks(true)
+            localStorage.setItem(key, JSON.stringify(userNetworkInfo))
+        }
+
+        //console.log("userNetworkInfo===>", userNetworkInfo)
+
+        $s.userNetworkInfo   = userNetworkInfo
+        $s.userActiveNetwork = userNetworkInfo.networks[userNetworkInfo.default]
+
+        return userNetworkInfo
+    }
+
+    const setActiveNetwork = async (chainId) => {
+        
+        let walletCore = new Wallet()
+
+        //walletInfo 
+        let walletInfo = await getActiveWalletInfo()
+
+        let userNeworkInfo = await getUserNetworks()
+
+        let netInfo = userNeworkInfo.networks[chainId]
+
+        let connectStatus = await walletCore.connect(
+                                netInfo,
+                                walletInfo.wallet.privateKey 
+                            )
+
+        if(connectStatus.isError()) {
+            return connectStatus
+        }
+
+        userNeworkInfo.default = chainId
+
+        $state.value.userNetworkInfo = userNeworkInfo
+
+        let uid = botUtils.getUid()
+
+        localStorage.setItem(`${uid}_user_networks`, JSON.stringify(userNeworkInfo))
+
+        return Status.success()
+    }
+
     return {
         hasDefaultWallet,
         updateAccounts,
@@ -218,6 +299,10 @@ export const useWalletStore = defineStore('walletStore', () => {
         doLogin,
         isLoggedIn,
         resetWallets,
-        logout
+        logout,
+        getUserNetworks,
+        fetchDefaultNetworks,
+        setActiveNetwork,
+        userActiveNetwork
     }
 })

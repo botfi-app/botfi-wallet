@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onBeforeMount, onMounted, ref } from 'vue';
 import MicroModal from 'micromodal';  // es6 module
 
 const $emit = defineEmits(["close", "show"])
@@ -7,9 +7,19 @@ const $emit = defineEmits(["close", "show"])
 const props = defineProps({
     id:       { type: String, required: true },
     title:    { type: String, default: ""},
+    maxHeight:   { type: String, default: "" },
+    hasHeader: { type: Boolean, default: true }
 })
 
 //const bs = document.body.style
+
+const styles = ref({})
+
+onBeforeMount(() => {
+    if(props.maxHeight.trim() != ''){
+        styles.value['max-height'] = props.maxHeight
+    }
+})
 
 onMounted(() => {
     setTimeout(() => initModal(), 1000)
@@ -34,14 +44,15 @@ const initModal = () => {
                 role="dialog" 
                 aria-modal="true" 
                 aria-labelledby="modal-1-title"
+                :style="styles"
             >
-                <header class="modal__header">
+                <header class="modal__header" v-if="props.hasHeader">
                     <h2 class="modal__title" id="modal-1-title">
                         {{ props.title }}
                     </h2>
                     <button class="modal__close" aria-label="Close modal" data-micromodal-close></button>
                 </header>
-                <main data-simplebar
+                <main 
                     class="modal__content w-full" 
                 >
                     <slot />

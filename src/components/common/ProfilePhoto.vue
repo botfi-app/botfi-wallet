@@ -13,7 +13,6 @@ onBeforeMount(() => {
 })
 
 const botUtils = inject("botUtils")
-const initialized = ref(false)
 const imgSrc = ref("")
 const imgRef = ref()
 
@@ -31,10 +30,6 @@ const initialize = async () => {
         
         if(imgB64Uri.trim() != ''){
             imgSrc.value = imgB64Uri
-
-            imgRef.value.onerror = () => {
-                imgSrc.value = ''
-            }
         }
     } catch(e){
         Utils.logError(`ProfilePhoto#initialize:`,e)
@@ -47,7 +42,11 @@ onBeforeMount(() => {
 </script>
 <template>
     <div>
-        <img :src="imgSrc" v-if="imgSrc != ''" ref="imgRef" class="profile-photo shadow-lg" /> 
+        <img 
+            :src="imgSrc" 
+            v-if="imgSrc != ''" ref="imgRef" class="profile-photo shadow-lg" 
+            @error="imgSrc=''"
+        /> 
         <Avatar :name="props.userId" v-else :size="28" class="" />
     </div>
 </template>

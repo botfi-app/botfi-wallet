@@ -8,20 +8,21 @@ import { useWalletStore } from '../../store/walletStore';
 const $emits = defineEmits(['initialized','change'])
 
 const initialized = ref(false)
-const networkStore = useNetworkStore()
 const activeNetInfo = ref({})
 const selectNetworkModalId = ref("network-select-"+Date.now())
 const networkSelectData = ref([])
+const allNetworks = ref({})
 const walletStore = useWalletStore()
 
 const initialize = async () => {
 
-    let userNetworks = await networkStore.getUserNetworks()    
+    let userNetworks = await walletStore.getUserNetworks()    
     activeNetInfo.value = userNetworks.networks[userNetworks.default]
+    allNetworks.value = userNetworks.networks
 
-    $emits("initialized", activeNetInfo.value)
+    $emits("change", activeNetInfo.value)
 
-    processNetworkSelectData(toValue(userNetworks.networks))
+    processNetworkSelectData()
 
     initialized.value = true
 }
@@ -30,13 +31,11 @@ onBeforeMount(() => {
     initialize()
 })
 
-onMounted(() => {
-    window.setTimeout(() => {
-        MicroModal.init()
-    }, 1000)
-})
 
-const processNetworkSelectData = async (allNets) => {
+
+const processNetworkSelectData = async () => {
+
+    let allNets = allNetworks.value;
 
     if(Object(allNets).length == 0){
         return;
@@ -58,7 +57,21 @@ const processNetworkSelectData = async (allNets) => {
 }
 
 const handleOnNetSelect = async (item) => {
-    let resultStatus = await networkStore.setActiveNetwork(item.chainId)
+    let loader = Utils.loader("Changing Network")
+    
+    let resultStatus = await walletStore.setActiveNetwork(item.value)
+
+    loader.close()
+
+    if(resultStatus.isSuccess()){
+        let _netInfo = allNetworks.value[item.value]
+        activeNetInfo.value = _netInfo 
+        $emits("change", _netInfo)
+        return true
+    }
+
+    Utils.mAlert(resultStatus.getMessage())
+
     return false
 }
 </script>
@@ -93,5 +106,6 @@ const handleOnNetSelect = async (item) => {
         :selected="activeNetInfo.chainId"
         size="modal-sm"
         :onSelect="handleOnNetSelect"
+        max-height="350px"
     />
 </template>

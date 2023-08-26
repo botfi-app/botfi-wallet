@@ -17,17 +17,12 @@ $danger: #ff1744;
 
 
 body {
-    touch-action: none !important;
     overflow-x: hidden !important;
     overscroll-behavior-y: contain !important;
     scroll-behavior: smooth !important;
     font-family: -apple-system,BlinkMacSystemFont,avenir next,avenir,helvetica neue,helvetica,ubuntu,roboto,noto,segoe ui,arial,sans-serif;
 }
 
-*, html {
-    scroll-behavior: smooth !important;
-    touch-action: none !important;
-}
 
 .btn-secondary {
     color: rgba(#fff, 0.9);
@@ -170,3 +165,4 @@ html[data-is-expanded=false] .swal2-popup {
     width: 28px !important; 
     height: 28px !important;
   }
+

@@ -104,7 +104,7 @@ export default {
                 symbol:     "ETH",
                 decimals:   18
             },
-            rpcUrls: ["https://linea-mainnet.infura.io/v3"],
+            rpcUrls: ["https://rpc.linea.build"],
             blockExplorerUrls: [ "https://lineascan.build/"]
         }
     }
