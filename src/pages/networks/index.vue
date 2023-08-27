@@ -1,6 +1,6 @@
 
 <script setup>
-import { inject, onBeforeMount, onMounted, ref, toValue, watch } from 'vue';
+import { onBeforeMount, ref } from 'vue';
 import { useWalletStore } from '../../store/walletStore';
 import Utils from '../../classes/Utils';
 import WalletLayout from '../../layouts/WalletLayout.vue';
@@ -10,7 +10,6 @@ import Icon from '../../components/common/Icon.vue';
 import { Modal as bsModal } from 'bootstrap';
 import MainBtn from "../../components/common/MainBtn.vue"
 
-const $emits = defineEmits(['initialized','change'])
 const initialized = ref(false)
 const activeNetInfo = ref({})
 const allNetworks = ref({})
@@ -152,7 +151,7 @@ const resetNetworks = async () => {
                         />
                     </div>
                     <div class="ps-2">
-                        <button class="btn btn-primary rounded-pill v-center">
+                        <button to="/networks/add" class="btn btn-primary rounded-pill v-center">
                             <Icon name="ion:add-sharp" :size="18" />
                             <div class="px-1">Add</div>
                         </button>
@@ -173,7 +172,7 @@ const resetNetworks = async () => {
                             />
                             <div class="no-select">
                                 <div>{{ item.chainName }} &nbsp;
-                                    <span class='fs-12 hint'>0x{{parseInt(item.chainId, 16)}} </span>
+                                    <span class='fs-12 hint'>{{item.chainId}} </span>
                                 </div>
                                 
                             </div>

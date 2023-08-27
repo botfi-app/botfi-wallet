@@ -98,14 +98,15 @@ onBeforeMount(() => {
                                 :to="`/networks?r=${Utils.getUriPath()}`"
                             >
                                 <div class="text-break">
-                                    {{ walletStore.userActiveNetwork.chainName }} ( {{ "0x" + parseInt( walletStore.userActiveNetwork.chainId, 16) }} )
+                                    {{ walletStore.userActiveNetwork.chainName }} ( {{ walletStore.userActiveNetwork.chainId }} )
                                 </div>
                                 <button class="btn btn-secondary p-2 rounded ms-2" >
-                                    <img 
+                                    <Image 
                                         :width="26" 
                                         :height="26" 
                                         class="rounded"
                                         :src="Utils.getTokenIconUrl( walletStore.userActiveNetwork.symbol)" 
+                                        :placeholder="walletStore.userActiveNetwork.symbol"
                                     />
                                 </button>
                             </router-link>
