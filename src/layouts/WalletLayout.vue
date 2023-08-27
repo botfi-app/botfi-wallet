@@ -6,7 +6,8 @@ import MainLayout from './MainLayout.vue';
 
 
 const props = defineProps({
-    title: { type: String, default: ''}
+    title: { type: String, default: ''},
+    pageError: { type: String, default: ''},
 })
 
 const walletStore = useWalletStore()
@@ -28,6 +29,7 @@ onBeforeMount(() => {
     <MainLayout 
         :has-back-btn="false"
         :title="props.title"
+        :page-error="props.pageError"
         v-if="initialized"
     >    
         <slot />

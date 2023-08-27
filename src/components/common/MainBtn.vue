@@ -21,6 +21,8 @@ onBeforeMount(() => {
 onBeforeUnmount( () => {
   let _mBtn = mainBtn.value
   
+  ///console.log("_mBtn===>",_mBtn)
+
   if(_mBtn){
     _mBtn.disable()
     _mBtn.setOnClick(null)

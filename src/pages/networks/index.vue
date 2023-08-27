@@ -9,7 +9,9 @@ import Image from '../../components/common/Image.vue';
 import Icon from '../../components/common/Icon.vue';
 import { Modal as bsModal } from 'bootstrap';
 import MainBtn from "../../components/common/MainBtn.vue"
+import { useRouter } from 'vue-router';
 
+const router = useRouter()
 const initialized = ref(false)
 const activeNetInfo = ref({})
 const allNetworks = ref({})
@@ -149,10 +151,12 @@ const resetNetworks = async () => {
                         />
                     </div>
                     <div class="ps-2">
-                        <button to="/networks/add" class="btn btn-primary rounded-pill v-center">
-                            <Icon name="ion:add-sharp" :size="18" />
-                            <div class="px-1">Add</div>
-                        </button>
+                        <router-link to="/networks/add" class="no-underline">
+                            <button class="btn btn-primary rounded-pill v-center">
+                                <Icon name="ion:add-sharp" :size="18" />
+                                <div class="px-1">Add</div>
+                            </button>
+                        </router-link>
                     </div>
                 </div>
                 <ul class="list-group list-group-flush w-full no-select">

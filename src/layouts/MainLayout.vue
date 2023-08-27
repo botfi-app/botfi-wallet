@@ -8,7 +8,8 @@ const botUtils = inject("botUtils")
 
 const props = defineProps({
     title: { type: String, default: "" },
-    centerContent:  { type: Boolean, default: false }
+    centerContent:  { type: Boolean, default: false },
+    pageError: { type: String, default: '' }
 })
 
 const appMain        = ref()
@@ -60,7 +61,12 @@ const computeAppHeight = () => {
         <div :class="`app-content ${props.centerContent ? 'center-content' : ''}`" 
             ref="appContent"
         >
-            <slot />
+            <template v-if="pageError != ''">
+                <PageError :text="pageError" />  
+            </template>
+            <template v-else>
+                <slot />
+            </template>
         </div>
     </div>
 </template>

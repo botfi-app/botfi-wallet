@@ -27,6 +27,7 @@ declare module '@vue/runtime-core' {
     NetAndAccountSelect: typeof import('./src/components/modals/NetAndAccountSelect.vue')['default']
     NetworkAndAccount: typeof import('./src/components/modals/NetworkAndAccount.vue')['default']
     NetworkSelect: typeof import('./src/components/modals/network-select.vue')['default']
+    PageError: typeof import('./src/components/common/PageError.vue')['default']
     Pin: typeof import('./src/components/common/Pin.vue')['default']
     Pincode: typeof import('./src/components/common/Pincode.vue')['default']
     PinCode: typeof import('./src/components/common/PinCode.vue')['default']

@@ -194,6 +194,12 @@ html[data-is-expanded=false] .swal2-popup {
     align-items: center;
 }
 
+.center-vh {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .modal-content {
     border-radius: 14px !important;
     overflow-x: hidden;
