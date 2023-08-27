@@ -21,7 +21,9 @@ export default class Wallet {
                 staticNetwork: netInfo.chainId
             }
 
-            let rpc = netInfo.rpcUrls[0]
+            //console.log("netInfo===>", netInfo)
+
+            let rpc = netInfo.rpc[0]
 
             this.provider = new ethers.JsonRpcProvider(rpc, null, opts)
 

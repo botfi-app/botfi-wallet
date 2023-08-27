@@ -3,9 +3,9 @@
 
 //$secondary: #FAB612;
 $success: #69f0ae;
-$info: #03a9f4;
+$info:    #03a9f4;
 $warning: #ffc107;
-$danger: #ff1744;
+$danger:  #ec407a;
  
 
 @import "~/bootswatch/dist/cosmo/variables";
@@ -15,8 +15,8 @@ $danger: #ff1744;
 
 body {
     overflow-x: hidden !important;
-    overscroll-behavior-y: contain !important;
     scroll-behavior: smooth !important;
+    overflow-y: auto;
     font-family: -apple-system,BlinkMacSystemFont,avenir next,avenir,helvetica neue,helvetica,ubuntu,roboto,noto,segoe ui,arial,sans-serif;
 }
 
@@ -203,6 +203,12 @@ html[data-is-expanded=false] .swal2-popup {
 .modal-content {
     border-radius: 14px !important;
     overflow-x: hidden;
+    background: var(--bs-body-bg);
+    
+    .modal-header {
+        background: rgba(0,0,0, 0.1) !important;
+        background-blend-mode: overlay;
+    }
 
     .modal-body, .modal-footer {
         border-bottom-left-radius: 14px;
@@ -220,7 +226,24 @@ a:hover {
 .list-group {
     .list-group-item {
         &:hover {
-            background: rgba(0,0,0,0.1);
+            background: rgba(0,0,0,0.06);
+            background-blend-mode: overlay;
         }
     }
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+  appearance: textfied;
+}
+
+.text-danger {
+    color: $danger;
 }

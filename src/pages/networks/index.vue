@@ -46,7 +46,7 @@ const onItemClick = async (item) => {
     }
 
     selectedItem.value = item 
-    modalTitle.value = `${item.chainName}`        
+    modalTitle.value = `<span class='text-primary'>${item.name}</span>`        
     _modal.show()
 }
 
@@ -173,7 +173,7 @@ const resetNetworks = async () => {
                                 class="me-2 text-primary"
                             />
                             <div class="no-select">
-                                <div>{{ item.chainName }} &nbsp;
+                                <div>{{ item.name }} &nbsp;
                                     <span class='fs-12 hint'>{{item.chainId}} </span>
                                 </div>
                                 
@@ -182,9 +182,9 @@ const resetNetworks = async () => {
                         <Image 
                             :width="28"
                             :height="28"
-                            :src="Utils.getTokenIconUrl(item.symbol)" 
+                            :src="Utils.getTokenIconUrl(item.shortName)" 
                             alt=""
-                            :placeholder="item.symbol.charAt(0)"
+                            :placeholder="item.shortName.charAt(0)"
                             class="rounded-circle mselect-icon"
                         />
                     </li>
@@ -226,7 +226,7 @@ const resetNetworks = async () => {
                         @click.prevent="removeNetwork"
                     >
                         <div>Remove Network</div>
-                        <Icon name="fluent:delete-28-regular" class='text-primary' :size="24" />
+                        <Icon name="fluent:delete-28-regular" class='text-danger' :size="24" />
                     </li>
                 </ul>
             </template>

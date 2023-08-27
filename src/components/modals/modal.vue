@@ -24,9 +24,15 @@ const initModal = () => {
 
 onBeforeUnmount(async () => {
     _modal.hide()
+    cleanupModal()
+})
+
+const cleanupModal = () => {
     let backdrop = document.querySelector(".modal-backdrop")
     if(backdrop) backdrop.remove()
-})
+    document.body.style = ''
+    _modal._backdrop.hide()
+}
 </script>
 <template>
    <div class="modal" :id="props.id" tabindex="-1">

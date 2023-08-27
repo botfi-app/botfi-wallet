@@ -43,7 +43,7 @@ onBeforeMount(() => {
         <div v-if="initialized" class="d-flex justify-content-center  align-items-center">
             <div>{{  Utils.maskAddress( walletStore.activeWalletFull ) }}</div>
             <div v-if="walletStore.userActiveNetwork != null">
-                <span class="px-1">|</span>{{ walletStore.userActiveNetwork.symbol }}
+                <span class="px-1">|</span>{{ walletStore.userActiveNetwork.shortName.toUpperCase() }}
             </div> 
         </div>
     </button>
@@ -98,15 +98,15 @@ onBeforeMount(() => {
                                 :to="`/networks?r=${Utils.getUriPath()}`"
                             >
                                 <div class="text-break">
-                                    {{ walletStore.userActiveNetwork.chainName }} ( {{ walletStore.userActiveNetwork.chainId }} )
+                                    {{ walletStore.userActiveNetwork.name }} ( {{ walletStore.userActiveNetwork.chainId }} )
                                 </div>
                                 <button class="btn btn-secondary p-2 rounded ms-2" >
                                     <Image 
                                         :width="26" 
                                         :height="26" 
                                         class="rounded"
-                                        :src="Utils.getTokenIconUrl( walletStore.userActiveNetwork.symbol)" 
-                                        :placeholder="walletStore.userActiveNetwork.symbol"
+                                        :src="Utils.getTokenIconUrl( walletStore.userActiveNetwork.shortName)" 
+                                        :placeholder="walletStore.userActiveNetwork.shortName"
                                     />
                                 </button>
                             </router-link>

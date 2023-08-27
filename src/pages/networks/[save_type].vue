@@ -7,7 +7,6 @@ import { useWalletStore } from '../../store/walletStore';
 import Utils from '../../classes/Utils';
 import WalletLayout from '../../layouts/WalletLayout.vue';
 import NativeBackBtn from '../../components/common/NativeBackBtn.vue';
-import MainBtn from "../../components/common/MainBtn.vue"
 import { useRoute } from 'vue-router';
 
 const initialized   = ref(false)
@@ -17,11 +16,17 @@ const walletStore   = useWalletStore()
 const route         = useRoute()
 const isLoading     = ref(false)
 const pageTitle     = ref("")
-const formData      = ref({})
+const formData      = ref({
+    chainName: "",
+    nativeCurrency: { symbol: ""},
+    rpc:      [],
+    explorer: []
+})
 const saveType      = ref("")
 const networkId     = ref(null)
 const pageError     = ref("")
 const isEdit        = ref(false)
+const formError     = ref("")
 
 onBeforeMount(() => {
     initialize()
@@ -36,7 +41,9 @@ const initialize = async () => {
         activeNetInfo.value = userNetworks.networks[userNetworks.default]
         allNetworks.value = userNetworks.networks
 
-        if( saveType.value == 'edit') {
+        pageTitle.value = "Add Network"
+
+        if(saveType.value == 'edit') {
             
             let netId = route.query.chainId || ""
 
@@ -46,16 +53,28 @@ const initialize = async () => {
             }
 
             isEdit.value = true
+
+            formData.value = allNetworks[netId]
+
+            pageTitle.value = `Edit Network: ${formData.value.name}`
         }
 
-        
-
-        initialized.value = true
 
     } catch(e){
         Utils.logError(e)
+        pageError.value = Utils.generalErrorMsg
     } finally {
         initialized.value = true
+    }
+}
+
+const onSave = async () => {
+    try {
+
+
+    } catch(e){
+        Utils.logError(e)
+        Utils.errorAlert(Utils.generalErrorMsg)
     }
 }
 </script>
@@ -70,19 +89,69 @@ const initialize = async () => {
         <NativeBackBtn />
 
         <div class="w-400">
-            <Navbar 
-                :title="pageTitle"
-            />
-
+            <div class="d-flex justify-content-between flex-nowrap m-3 mb-4 align-items-center">
+                <div class="fw-semibold fs-6 pe-2 text-truncate">{{pageTitle}}</div>
+                <div class="ps-2">
+                    <button class="btn btn-primary rounded-pill px-3" @click.prevent="onSave">
+                        Save
+                    </button>
+                </div>
+            </div>
             <div class="form-group px-3">
+
                 <div class="form-floating mb-3">
                     <input 
+                        v-model="formData.name"
                         type="text" 
                         class="form-control rounded" 
-                        id="network-name" 
+                        id="chain_name" 
                         placeholder="eg. Ethereum Mainnet"
                     />
-                    <label for="network-name">Network Name</label>
+                    <label for="chain_name">Network Name</label>
+                </div>
+
+                <div class="form-floating mb-3">
+                    <input 
+                        v-model="formData.rpc[0]"
+                        type="text" 
+                        class="form-control rounded" 
+                        id="rpc" 
+                        placeholder="Network RPC URL"
+                    />
+                    <label for="rpc">RPC URL</label>
+                </div>
+
+                <div class="form-floating mb-3">
+                    <input 
+                        v-model="formData.chainId"
+                        type="number" 
+                        class="form-control rounded" 
+                        id="chain_id" 
+                        placeholder="eg. 1 for Ethereum"
+                        :disabled="isEdit"
+                        :readonly="isEdit"
+                    />
+                    <label for="chain_id">Chain ID</label>
+                </div>
+                <div class="form-floating mb-3">
+                    <input 
+                        v-model="formData.nativeCurrency.symbol"
+                        type="text" 
+                        class="form-control rounded" 
+                        id="currency_symbol" 
+                        placeholder="eg. ETH"
+                    />
+                    <label for="currency_symbol">Currency Symbol</label>
+                </div>
+                <div class="form-floating mb-3">
+                    <input 
+                        v-model="formData.explorer[1]"
+                        type="text" 
+                        class="form-control rounded" 
+                        id="explorer" 
+                        placeholder="eg. etherscan.io"
+                    />
+                    <label for="explorer">Block Explorer URL</label>
                 </div>
             </div>
         </div>

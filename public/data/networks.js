@@ -5,107 +5,115 @@ export default {
     networks: {
 
         1: { 
-            chainName: "Ethereum",
+            name: "Ethereum",
             chainId: 1,
-            symbol: "ETH",
+            chain: "ETH",
+            shortName: "eth",
             nativeCurrency: {
-                name:       "Ethereum",
+                name:       "Ether",
                 symbol:     "ETH",
                 decimals:   18
             },
-            rpcUrls: ["https://eth.llamarpc.com"],
-            blockExplorerUrls: [ "https://etherscan.io"]
+            rpc: ["https://eth.llamarpc.com"],
+            explorers: [ "https://Ethercan.io"]
         },
 
         137: {
-            chainName: "Polygon",
+            name: "Polygon",
             chainId: 137,
-            symbol: "MATIC",
+            chain: "MATIC",
+            shortName: "matic",
             nativeCurrency: {
-                name:       "Polygon",
+                name:       "MATIC",
                 symbol:     "MATIC",
                 decimals:   18
             },
-            rpcUrls: ["https://polygon.llamarpc.com"],
-            blockExplorerUrls: [ "https://polygonscan.com"]
+            rpc: ["https://polygon.llamarpc.com"],
+            explorers: [ "https://polygonscan.com"]
         },
 
         56: {
-            chainName: "BNBChain",
+            name: "BNBChain",
             chainId: 56,
-            symbol: "BNB",
+            chain: "BSC",
+            shortName: "bnb",
             nativeCurrency: {
                 name:       "BNB",
                 symbol:     "BNB",
                 decimals:   18
             },
-            rpcUrls: ["https://bsc-dataseed.bnbchain.org", "https://bsc-dataseed1.defibit.io", "https://bsc-dataseed1.ninicoin.io"],
-            blockExplorerUrls: [ "https://bscscan.com"]
+            rpc: ["https://bsc-dataseed.bnbchain.org", "https://bsc-dataseed1.defibit.io", "https://bsc-dataseed1.ninicoin.io"],
+            explorers: [ "https://bscscan.com"]
         },
 
         42161: {
-            chainName: "Arbitrum One",
+            name: "Arbitrum One",
             chainId: 42161,
-            symbol: "ARB",
+            chain: "ETH",
+            shortName: "arb",
             nativeCurrency: {
-                name:       "Ethereum",
+                name:       "Ether",
                 symbol:     "ETH",
                 decimals:   18
             },
-            rpcUrls: ["https://arb1.arbitrum.io/rpc"],
-            blockExplorerUrls: [ "https://arbiscan.io/"]
+            rpc: ["https://arb1.arbitrum.io/rpc"],
+            explorers: [ "https://arbiscan.io/"]
         },
 
         324: {
-            chainName: "zkSync Era Mainnet",
+            name: "zkSync Era Mainnet",
             chainId: 324,
-            symbol: "ZKSYNC",
+            chain: "ETH",
+            shortName: 'zksync',
             nativeCurrency: {
-                name:       "Ethereum",
+                name:       "Ether",
                 symbol:     "ETH",
                 decimals:   18
             },
-            rpcUrls: ["https://mainnet.era.zksync.io"],
-            blockExplorerUrls: [ "https://explorer.zksync.io/"]
+            rpc: ["https://mainnet.era.zksync.io"],
+            explorers: [ "https://explorers.zksync.io/"]
         },
 
         10: {
-            chainName: "Optimism",
+            name: "OP Mainnet",
             chainId: 10,
-            symbol: "OP",
+            chain: "ETH",
+            shortName: "op",
             nativeCurrency: {
-                name:       "Ethereum",
+                name:       "Ether",
                 symbol:     "ETH",
                 decimals:   18
             },
-            rpcUrls: ["https://mainnet.optimism.io"],
-            blockExplorerUrls: [ "https://explorer.optimism.io"]
+            rpc: ["https://mainnet.optimism.io"],
+            explorers: [ "https://explorers.optimism.io"]
         },
 
         8453: {
-            chainName: "Base Mainnet",
+            name: "Base Mainnet",
             chainId: 8453,
-            symbol: "BASE",
+            chain: "ETH",
+            shortName: "base",
             nativeCurrency: {
-                name:       "Ethereum",
+                name:       "Ether",
                 symbol:     "ETH",
                 decimals:   18
             },
-            rpcUrls: ["https://mainnet.base.org"],
-            blockExplorerUrls: [ "https://basescan.org"]
+            rpc: ["https://mainnet.base.org"],
+            explorers: [ "https://basescan.org"]
         },
 
         59144: {
-            chainName: "Linea Mainnet",
+            name: "Linea Mainnet",
             chainId: 59144,
-            symbol: "LINEA",
+            chain: "ETH",
+            shortName: "linea",
             nativeCurrency: {
-                name:       "Ethereum",
+                name:       "Ether",
                 symbol:     "ETH",
                 decimals:   18
             },
-            rpcUrls: ["https://rpc.linea.build"],
-            blockExplorerUrls: [ "https://lineascan.build/"]
+            rpc: ["https://rpc.linea.build"],
+            explorers: [ "https://lineascan.build/"]
         }
     }
 }
