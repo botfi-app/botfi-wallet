@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import Pages from 'vite-plugin-pages'
+import AutoImport  from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
 import path from "path"
 import viteCompression from 'vite-plugin-compression';
@@ -19,7 +20,10 @@ export default defineConfig({
       }
     }),
     
-    Pages(),
+    AutoImport(),
+    Pages({
+      importMode: 'async'
+    }),
     Icons({ compiler: 'vue3' }),
     Components({
       directoryAsNamespace: false,

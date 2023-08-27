@@ -29,8 +29,6 @@ const initialize = async () => {
     allNetworks.value = userNetworks.networks
     selectedItem.value = userNetworks.networks[1]
     
-    $emits("change", activeNetInfo.value)
-
     initialized.value = true
 }
 

@@ -2,7 +2,6 @@
  * BotFi (https://botfi.app)
  * @author BotFi <hello@botfi.app>
  */
-import SimpleCrypto from "simple-crypto-js"
 
 const enc = (new TextEncoder())
 const dec = new TextDecoder();
