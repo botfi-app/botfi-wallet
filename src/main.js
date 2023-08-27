@@ -2,6 +2,7 @@ import { createApp } from 'vue'
 import "./assets/scss/app.scss"
 import App from './App.vue'
 import 'bootstrap/js/src/modal'
+import { Popover } from 'bootstrap'
 import router from "./router"
 import { createPinia } from 'pinia'
 import telegram from './plugins/telegram'
@@ -12,11 +13,6 @@ const pinia = createPinia()
 
 const app = createApp(App)
 
-
-/*document.addEventListener("touchmove", e=> {
-    e.preventDefault();
-}, { passive: false });
-*/
 
 router.beforeResolve(() => {
     const appDom = document.querySelector("#app")
@@ -34,7 +30,7 @@ router.afterEach(() => {
         appDom.classList.remove("hidden");
 
         [...document.querySelectorAll('[data-simplebar]')]
-            .forEach(el => new SimpleBar(el));
+            .map(el => new SimpleBar(el));
 
     }, 200);
 })

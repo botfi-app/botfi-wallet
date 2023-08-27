@@ -19,6 +19,8 @@ onMounted(() => {
     pRef.classList.add([ "text-center"])
     pRef.style.background = pBg.value
     pRef.style.color = pColor.value
+
+    //console.log($attrs)
 })
 
 const onImgLoad = () => {

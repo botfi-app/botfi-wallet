@@ -13,9 +13,6 @@ $danger: #ff1744;
 @import "~/bootswatch/dist/cosmo/bootswatch";
 
 
-@import "./micromodal.scss";
-
-
 body {
     overflow-x: hidden !important;
     overscroll-behavior-y: contain !important;
@@ -57,7 +54,7 @@ body {
 }
 
 .w-400 {
-    width: 95%;
+    width: 100%;
     max-width: 400px;
     margin-right: auto !important;
     margin-left: auto !important;
@@ -66,11 +63,26 @@ body {
 .w-full, .full-width { width: 100% !important; }
 .h-full { height: 100% !important; }
 
-input.form-control {
+input.form-control, textarea.form-control {
+    
     border-width: 2px;
+   
+    &::placeholder
+    { 
+       color: var(--bs-bg-color);
+       opacity: 0.2;
+       transition: color 0.5s, opacity 0.5s;
+    }
+
     &:focus {
         border: 2px solid var(--bs-primary);
+        
+        &::placeholder {
+           color: var(--bs-color);
+           opacity: 0.4;
+        }
     }
+
 }
 
 .swal2-popup {
@@ -166,3 +178,43 @@ html[data-is-expanded=false] .swal2-popup {
     height: 28px !important;
   }
 
+.no-select {
+    user-select: none !important;
+    -webkit-user-select: none !important;
+    //cursor: default !important;
+}
+
+
+.fs-12 {
+    font-size: 12px;
+}
+
+.v-center {
+    display: flex;
+    align-items: center;
+}
+
+.modal-content {
+    border-radius: 14px !important;
+    overflow-x: hidden;
+
+    .modal-body, .modal-footer {
+        border-bottom-left-radius: 14px;
+        border-bottom-right-radius: 14px;
+        overflow-x: hidden;
+    }
+}
+
+.no-underline{ text-decoration: none !important;}
+
+a:hover {
+    color: var(--bs-primary-text) !important;
+}
+
+.list-group {
+    .list-group-item {
+        &:hover {
+            background: rgba(0,0,0,0.1);
+        }
+    }
+}

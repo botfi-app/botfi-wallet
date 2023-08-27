@@ -28,8 +28,8 @@ export default class Utils {
             position,
             buttonsStyling: false,
             customClass: {
-                confirmButton: 'btn mx-1 btn-lg shadow-lg px-5 btn-primary rounded-pill',
-                cancelButton: 'btn btn-lg mx-1 px-5 btn-info rounded-pill',
+                confirmButton: 'btn mx-1 shadow-lg px-5 btn-primary rounded-pill',
+                cancelButton: 'btn  mx-1 px-5 btn-info rounded-pill',
                 popup: 'shadow-lg',
                 htmlContainer: "",
             },
@@ -183,6 +183,7 @@ export default class Utils {
 
     static getTokenIconUrl(symbol) {
         symbol = this.getTokenIconName(symbol)
+        //console.log("symbol===>", symbol)
         return `/images/crypto/${symbol.toLowerCase()}.svg`
     }
 

@@ -208,6 +208,11 @@ export const useWalletStore = defineStore('walletStore', () => {
         return Status.success()
     }
 
+    const getUserNetsKey = () => {
+        let uid = botUtils.getUid()
+        return `${uid}_user_networks`
+    }
+
     const fetchDefaultNetworks = async (force=false) => {
 
         let $s = $state.value
@@ -227,8 +232,7 @@ export const useWalletStore = defineStore('walletStore', () => {
 
     const getUserNetworks = async () => {
 
-        let uid = botUtils.getUid()
-        let key = `${uid}_user_networks`
+        let key = getUserNetsKey()
         let $s  = $state.value
 
         if($s.userNetworkInfo != null) {
@@ -255,6 +259,7 @@ export const useWalletStore = defineStore('walletStore', () => {
 
     const setActiveNetwork = async (chainId) => {
         
+        let $s = $state.value;
         let walletCore = new Wallet()
 
         //walletInfo 
@@ -275,13 +280,49 @@ export const useWalletStore = defineStore('walletStore', () => {
 
         userNeworkInfo.default = chainId
 
-        $state.value.userNetworkInfo = userNeworkInfo
+        localStorage.setItem(getUserNetsKey(), JSON.stringify(userNeworkInfo))
 
-        let uid = botUtils.getUid()
-
-        localStorage.setItem(`${uid}_user_networks`, JSON.stringify(userNeworkInfo))
+        $s.userNetworkInfo = userNeworkInfo
+        $s.userActiveNetwork =  netInfo
 
         return Status.success()
+    }
+
+    const removeNetwork = async (chainId) => {
+
+        let $s = $state.value;
+
+        if(chainId == 1){
+            return Status.error("Cannot delete this network")
+        }
+
+        //walletInfo 
+        //let walletInfo = await getActiveWalletInfo()
+
+        let userNeworkInfo = await getUserNetworks()
+
+        delete userNeworkInfo.networks[chainId]
+
+        if(userNeworkInfo.default == chainId){
+            userNeworkInfo.default = 1
+        }
+
+        localStorage.setItem(getUserNetsKey(), JSON.stringify(userNeworkInfo))
+
+        $s.userNetworkInfo = userNeworkInfo
+        $s.userActiveNetwork =  userNeworkInfo.networks[userNeworkInfo.default]
+
+        return Status.successData(userNeworkInfo)
+    }
+
+    const resetNetworks = async () => {
+        
+        localStorage.removeItem( getUserNetsKey() )
+
+        $state.value.userNetworkInfo = null;
+    
+        let userNetworks = await getUserNetworks()
+        return Status.successData(userNetworks)
     }
 
     return {
@@ -303,6 +344,8 @@ export const useWalletStore = defineStore('walletStore', () => {
         getUserNetworks,
         fetchDefaultNetworks,
         setActiveNetwork,
-        userActiveNetwork
+        userActiveNetwork,
+        removeNetwork,
+        resetNetworks
     }
 })

@@ -21,7 +21,6 @@ const initialize = async () => {
 </script>
 <template>
     <main-layout 
-        :showBackBtn="false" 
         title="BotFi Wallet"
         v-if="initialized"
         :center-content="true"

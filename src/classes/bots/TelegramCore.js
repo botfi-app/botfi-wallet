@@ -90,7 +90,7 @@ export default class TelegramCore {
             show:    () => bb.show(),
             hide:    () => bb.hide(),
             disable: (hide=true) => {
-                bb.disable(()=>{})
+                bb.offClick(()=>{})
                 if(hide) bb.hide()
             }
         }

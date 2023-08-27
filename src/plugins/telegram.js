@@ -139,6 +139,12 @@ const ensureTelegramClient = () => {
         cssVars.push(['bs-primary', tinycolor(primaryBtnColor).darken(10).toHexString()])
     }
 
+    if(primaryBtnText != ''){
+            cssVars.push(['bs-primary-text',  primaryBtnColor]);
+            cssStyles += ` .text-primary { color: ${primaryBtnColor} !important; }
+        }`
+    }
+
     if(bgColor != ''){
 
         let _bg = tinycolor(bgColor)
@@ -152,9 +158,10 @@ const ensureTelegramClient = () => {
                 ["bs-body-color-rgb", _tc.toRgbString() ],
                 ['bs-modal-bg', _bg.clone().darken(1)],
                 ['bs-card-bg', _bg.clone().darken(1)],
+                ['bs-bg-dark-5', _bg.clone().darken(5)]
             ]
         )
-
+    
         
         if(scheme == 'dark'){
             cssStyles += `

@@ -28,8 +28,8 @@ const initialize = async => {
                     <div class="d-flex justify-content-between align-items-center mt-3 mb-2">
                         <div class="d-flex align-items-center">
                             <ProfilePhoto :user-id="`${userInfo.id}`" :size="24" />
-                            <div class="ps-2 d-flex">
-                                <div class="fs-12 text-muted hint pe-1">Hi, </div>
+                            <div class="ps-2 d-flex align-items-center">
+                                <div class="text-muted hint pe-1">Hi, </div>
                                 <div class="text-truncate">{{ name }}</div>
                             </div>
                         </div>

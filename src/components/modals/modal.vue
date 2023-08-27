@@ -1,62 +1,51 @@
 <script setup>
-import { onBeforeMount, onMounted, ref } from 'vue';
-import MicroModal from 'micromodal';  // es6 module
+import { onBeforeMount, onBeforeUnmount, onMounted, ref } from 'vue';
+import { Modal } from 'bootstrap'
 
 const $emit = defineEmits(["close", "show"])
 
 const props = defineProps({
     id:       { type: String, required: true },
     title:    { type: String, default: ""},
-    maxHeight:   { type: String, default: "" },
-    hasHeader: { type: Boolean, default: true }
+    hasHeader: { type: Boolean, default: true },
+    hasFooter: { type: Boolean, default: true },
+    size: { type: String, default: '' }
 })
 
-//const bs = document.body.style
-
-const styles = ref({})
-
-onBeforeMount(() => {
-    if(props.maxHeight.trim() != ''){
-        styles.value['max-height'] = props.maxHeight
-    }
-})
+let _modal = null
 
 onMounted(() => {
-    setTimeout(() => initModal(), 1000)
+    setTimeout(() => initModal(), 200)
 })
 
 const initModal = () => {
-    MicroModal.init({
-       // disableScroll: true,
-        onShow: m => {
-            $emit("show", m)
-        },
-        onClose: m => { 
-            $emit("close", m)
-        }
-    })
+   _modal = new Modal(`#${props.id}`)
 }
+
+onBeforeUnmount(async () => {
+    _modal.hide()
+    let backdrop = document.querySelector(".modal-backdrop")
+    if(backdrop) backdrop.remove()
+})
 </script>
 <template>
-    <div class="m_modal micromodal-slide w-full px-0" :id="props.id" aria-hidden="true">
-        <div class="modal__overlay" tabindex="-1" data-micromodal-close>
-            <div :class="`modal__container shadow-lg w-full px-0 ${props.size}`" 
-                role="dialog" 
-                aria-modal="true" 
-                aria-labelledby="modal-1-title"
-                :style="styles"
-            >
-                <header class="modal__header" v-if="props.hasHeader">
-                    <h2 class="modal__title" id="modal-1-title">
-                        {{ props.title }}
-                    </h2>
-                    <button class="modal__close" aria-label="Close modal" data-micromodal-close></button>
-                </header>
-                <main 
-                    class="modal__content w-full" 
-                >
-                    <slot />
-                </main>
+   <div class="modal" :id="props.id" tabindex="-1">
+        <div :class="`modal-dialog ${props.size}`">
+            <div class="modal-content">
+                <div class="modal-header" v-if="hasHeader">
+                    <slot name="header">
+                        <h5 class="modal-title" v-html="props.title"></h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </slot>
+                </div>
+                <div class="modal-body p-0">
+                    <slot name="body"></slot>
+                </div>
+                <div class="modal-footer" v-if="hasFooter">
+                    <slot name="footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </slot>
+                </div>
             </div>
         </div>
     </div>

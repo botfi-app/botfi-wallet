@@ -8,8 +8,6 @@ const botUtils = inject("botUtils")
 
 const props = defineProps({
     title: { type: String, default: "" },
-    showBackBtn: { type: Boolean, default: false },
-    onBackBtnClick: { type: Function, default: null },
     centerContent:  { type: Boolean, default: false }
 })
 
@@ -59,12 +57,6 @@ const computeAppHeight = () => {
 </script>
 <template>
     <div class="app-main" ref="appMain">
-        <Navbar 
-            v-if="!hasNativeNav" 
-            :title="props.title"
-            :has-back-btn="props.showBackBtn"  
-            :on-back-btn-click="props.onBackBtnClick"
-        />
         <div :class="`app-content ${props.centerContent ? 'center-content' : ''}`" 
             ref="appContent"
         >
