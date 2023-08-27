@@ -57,6 +57,8 @@ const initialize = async () => {
             formData.value = allNetworks[netId]
 
             pageTitle.value = `Edit Network: ${formData.value.name}`
+
+            networkId.value = netId
         }
 
 
@@ -69,8 +71,49 @@ const initialize = async () => {
 }
 
 const onSave = async () => {
+
+    let loader;
+
     try {
 
+        let fd = formData.value
+
+        let rpc = fd.rpc[0].trim()
+
+        if(formData.name.trim() == ''){
+            return Utils.mAlert("A valid name is required")
+        }
+
+        if(rpc == '' || !Utils.isValidUrl(rpc)){
+            return Utils.mAlert("A valid rpc url is required")
+        }
+
+        //chainId 
+        let chainId = (fd.chainId || "").trim()
+
+        if(chainId == "" || parseInt(chainId) <= 0){
+            return Utils.mAlert("A valid chain ID value is required")
+        }
+
+        // explorer
+        let explorer = (fd.explorer[0] || "").trim()
+
+        if(explorer != ""){
+            if(!Utils.isValidUrl(explorer)){
+                return Utils.mAlert("A valid explorer url is required")
+            }
+        }
+
+        //lets get the chain info 
+        loader = Utils.loader("Saving Network")
+
+        let netInfoStatus = await walletStore.fetchNetworkInfo(rpc)
+
+        if(netInfoStatus.isError()){
+            return Utils.mAlert(netInfoStatus.getMessage())
+        }
+
+        let netInfo = netInfoStatus.getData()
 
     } catch(e){
         Utils.logError(e)

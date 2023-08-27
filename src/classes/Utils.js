@@ -190,4 +190,18 @@ export default class Utils {
     static getUriPath() {
         return window.location.pathname
     }
+
+    static isValidUrl(_str) {
+        
+        let url;
+        
+        try {
+          url = new URL(_str);
+        } catch (_) {
+          return false;  
+        }
+      
+        return url.protocol === "http:" || url.protocol === "https:";
+    }
+
 }
