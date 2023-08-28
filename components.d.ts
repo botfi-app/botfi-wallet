@@ -37,7 +37,7 @@ declare module '@vue/runtime-core' {
     SearchForm: typeof import('./src/components/common/SearchForm.vue')['default']
     SidePanel: typeof import('./src/components/wallet/SidePanel.vue')['default']
     TabBar: typeof import('./src/components/wallet/TabBar.vue')['default']
-    Toast: typeof import('./src/components/common/Toast.vue')['default']
+    Toast: typeof import('./src/components/Toast.vue')['default']
     TokenIcon: typeof import('./src/components/common/TokenIcon.vue')['default']
     TopBackBtn: typeof import('./src/components/header/TopBackBtn.vue')['default']
     TopLogo: typeof import('./src/components/header/TopLogo.vue')['default']

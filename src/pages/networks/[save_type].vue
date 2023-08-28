@@ -17,16 +17,17 @@ const route         = useRoute()
 const isLoading     = ref(false)
 const pageTitle     = ref("")
 const formData      = ref({
-    chainName: "",
+    name: "",
     nativeCurrency: { symbol: ""},
-    rpc:      [],
-    explorer: []
+    chainId:   null,
+    rpc:      [''],
+    explorer: ['']
 })
 const saveType      = ref("")
 const networkId     = ref(null)
 const pageError     = ref("")
 const isEdit        = ref(false)
-const formError     = ref("")
+const setAsDefault  = ref(false)
 
 onBeforeMount(() => {
     initialize()
@@ -78,9 +79,10 @@ const onSave = async () => {
 
         let fd = formData.value
 
-        let rpc = fd.rpc[0].trim()
+        let rpc = (fd.rpc[0] || "").trim()
+        let currencySymbol = (fd.nativeCurrency.symbol || "").trim();
 
-        if(formData.name.trim() == ''){
+        if(fd.name.trim() == ''){
             return Utils.mAlert("A valid name is required")
         }
 
@@ -88,11 +90,14 @@ const onSave = async () => {
             return Utils.mAlert("A valid rpc url is required")
         }
 
-        //chainId 
-        let chainId = (fd.chainId || "").trim()
+        if(!fd.chainId || parseInt(fd.chainId) <= 0){
+            return Utils.mAlert("Chain ID requires a valid numeric value")
+        }
 
-        if(chainId == "" || parseInt(chainId) <= 0){
-            return Utils.mAlert("A valid chain ID value is required")
+        let chainId = parseInt(fd.chainId)
+
+        if(currencySymbol == ""){
+            return Utils.mAlert("Currency Symbol requires a valid value")
         }
 
         // explorer
@@ -115,9 +120,22 @@ const onSave = async () => {
 
         let netInfo = netInfoStatus.getData()
 
+        if(netInfo.chainId != chainId){
+            return Utils.mAlert(`The RPC node returned a different chain id: ${netInfo.chainId}`)
+        }
+
+        let saveStatus = await walletStore.saveNetwork(formData, setAsDefault.value)
+        
+        if(saveStatus.isError()){
+            return Utils.mAlert(saveStatus.getMessage())
+        }
+
+        Utils.toast("Network Saved")
     } catch(e){
         Utils.logError(e)
         Utils.errorAlert(Utils.generalErrorMsg)
+    } finally {
+        if(loader) loader.close()
     }
 }
 </script>
@@ -132,15 +150,17 @@ const onSave = async () => {
         <NativeBackBtn />
 
         <div class="w-400">
-            <div class="d-flex justify-content-between flex-nowrap m-3 mb-4 align-items-center">
-                <div class="fw-semibold fs-6 pe-2 text-truncate">{{pageTitle}}</div>
-                <div class="ps-2">
-                    <button class="btn btn-primary rounded-pill px-3" @click.prevent="onSave">
-                        Save
-                    </button>
+            <div class="fixed-topnav">
+                <div class="d-flex body-bg justify-content-between flex-nowrap p-3 align-items-center">
+                    <div class="fw-semibold fs-6 pe-2 text-truncate">{{pageTitle}}</div>
+                    <div class="ps-2">
+                        <button class="btn btn-primary rounded-pill px-3" @click.prevent="onSave">
+                            Save
+                        </button>
+                    </div>
                 </div>
             </div>
-            <div class="form-group px-3">
+            <div class="form-group px-3 pb-2">
 
                 <div class="form-floating mb-3">
                     <input 
@@ -193,8 +213,21 @@ const onSave = async () => {
                         class="form-control rounded" 
                         id="explorer" 
                         placeholder="eg. etherscan.io"
+                        :autocapitalize="false"
                     />
                     <label for="explorer">Block Explorer URL</label>
+                </div>
+                <div class="form-check">
+                    <input 
+                        v-model="setAsDefault" 
+                        class="form-check-input" 
+                        type="checkbox" 
+                        value="" 
+                        id="set-default"
+                    >
+                    <label class="form-check-label" for="set-default">
+                        Set as Default
+                    </label>
                 </div>
             </div>
         </div>

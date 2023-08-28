@@ -9,7 +9,7 @@ export const useWalletStore = defineStore('walletStore', () => {
 
     const botUtils = inject("botUtils")
 
-    const $state = ref({
+    const defaultState = {
         walletCore:             null,
         password:               "",
         defaultWallet:          null,
@@ -18,7 +18,9 @@ export const useWalletStore = defineStore('walletStore', () => {
         userActiveNetwork:      null,
         userNetworkInfo:        null,
         defaultNetworkInfo:     null
-    }); 
+    }
+
+    const $state = ref(defaultState); 
 
 
     const defaultWallet     = computed(()       =>    $state.value.defaultWallet )
@@ -62,9 +64,9 @@ export const useWalletStore = defineStore('walletStore', () => {
         
         let _ppass = processPassword(pass)
 
-        let userId = getUserInfo().id;
+        let uid = botUtils.getUid()
 
-        let defaultWalletStatus = await KeyStore.getDefaultWallet(userId, _ppass)
+        let defaultWalletStatus = await KeyStore.getDefaultWallet(uid, _ppass)
         
         if(defaultWalletStatus.isError()){
 
@@ -80,7 +82,7 @@ export const useWalletStore = defineStore('walletStore', () => {
         setState("defaultWallet", defaultWalletStatus.getData())
 
         // lets now fetch the accounts
-        let accountsStatus = await KeyStore.getWallets(userId, _ppass)
+        let accountsStatus = await KeyStore.getWallets(uid, _ppass)
 
         if(accountsStatus.isError()){
             return accountsStatus
@@ -95,6 +97,11 @@ export const useWalletStore = defineStore('walletStore', () => {
     } //end do login 
 
 
+    const getActiveWalletKey = () => {
+        let uid = botUtils.getUid()
+        return `${uid}_active_wallet`
+    }
+
     const setActiveWallet = (addr) => {
 
         addr = addr.toLowerCase()
@@ -103,7 +110,7 @@ export const useWalletStore = defineStore('walletStore', () => {
 
         setState('activeWallet', addr)
 
-        localStorage.setItem(`${getUserInfo().id}_active_wallet`, addr)
+        localStorage.setItem(getActiveWalletKey(), addr)
     }
 
     const getActiveWalletInfo = () => {
@@ -111,7 +118,7 @@ export const useWalletStore = defineStore('walletStore', () => {
         let _swalletAddr = activeWallet.value || ""
         
         if(_swalletAddr.length == ''){
-            _swalletAddr = localStorage.getItem(`${getUserInfo().id}_active_wallet`) || ''
+            _swalletAddr = localStorage.getItem(getActiveWalletKey()) || ''
         }
 
         if(_swalletAddr == ''){
@@ -149,15 +156,15 @@ export const useWalletStore = defineStore('walletStore', () => {
     }
 
     const hasDefaultWallet = () => {
-        return KeyStore.hasDefaultWallet(getUserInfo().id)
+        return KeyStore.hasDefaultWallet(botUtils.getUid())
     }
 
     const saveDefaultWallet = async (_walletInfo) => {
         
-        let userId = getUserInfo().id;
+        let uid = botUtils.getUid()
 
         let saveStatus = await KeyStore.saveDefaultWallet(
-                            userId,
+                            uid,
                             processPassword(password), 
                             toRaw(_walletInfo)
                         )
@@ -176,14 +183,13 @@ export const useWalletStore = defineStore('walletStore', () => {
         
         let pass = processPassword(toValue(password))
 
-        
         if(pass == "") {
             return Status.error("Pasword is required")
         }
 
-        let userId = getUserInfo().id;
+        let uid = botUtils.getUid()
 
-        let walletsStatus = await KeyStore.getWallets(userId, toValue(pass))
+        let walletsStatus = await KeyStore.getWallets(uid, toValue(pass))
 
         if(walletsStatus.isError()){
             return walletsStatus
@@ -196,14 +202,14 @@ export const useWalletStore = defineStore('walletStore', () => {
 
     const resetWallets = async () => {
 
-        let userId = getUserInfo().id;
+        let uid = botUtils.getUid()
 
-        await KeyStore.resetWallets(userId)
+        await KeyStore.resetWallets(uid)
         
-        $state.value = {
-            wallets: {},
-            defaultWallet: null 
-        }
+        localStorage.removeItem(getActiveWalletKey())
+        localStorage.removeItem( getUserNetsKey() )
+
+        $state.value = defaultState
 
         return Status.success()
     }
@@ -221,7 +227,7 @@ export const useWalletStore = defineStore('walletStore', () => {
             return $s.defaultNetworkInfo
         }
 
-        let results = await import("/data/networks.js?url")
+        let results = await import(`/data/networks.js?url=1&r=${Date.now()}`)
            
         let data = results.default;
 
@@ -238,6 +244,8 @@ export const useWalletStore = defineStore('walletStore', () => {
         if($s.userNetworkInfo != null) {
             return $s.userNetworkInfo
         }
+
+       // console.log("Hmmm===>>>")
        
         let userNetworksStr = (localStorage.getItem(key) || "").trim()
         let userNetworkInfo;
@@ -296,9 +304,6 @@ export const useWalletStore = defineStore('walletStore', () => {
             return Status.error("Cannot delete this network")
         }
 
-        //walletInfo 
-        //let walletInfo = await getActiveWalletInfo()
-
         let userNeworkInfo = await getUserNetworks()
 
         delete userNeworkInfo.networks[chainId]
@@ -317,12 +322,60 @@ export const useWalletStore = defineStore('walletStore', () => {
 
     const resetNetworks = async () => {
         
-        localStorage.removeItem( getUserNetsKey() )
+        let $s = $state.value;
+        $s.userNetworkInfo = null;
+        $s.userActiveNetwork = null
 
-        $state.value.userNetworkInfo = null;
+        let key = getUserNetsKey()
+
+        localStorage.removeItem( key )
     
-        let userNetworks = await getUserNetworks()
-        return Status.successData(userNetworks)
+        let userNetworkInfo = await fetchDefaultNetworks(true)
+        
+        localStorage.setItem(key, JSON.stringify(userNetworkInfo))
+
+        $s.userNetworkInfo = userNetworkInfo
+        $s.userActiveNetwork =  userNetworkInfo.networks[userNetworkInfo.default]
+
+        return Status.successData(userNetworkInfo)
+    }
+
+    const fetchNetworkInfo = async (rpc) => {
+
+        let walletCore = new Wallet()
+
+        //walletInfo 
+        //let walletInfo = await getActiveWalletInfo()
+        
+        let connectStatus = await walletCore.connect(
+                                {rpc: [rpc] }
+                            )
+
+        if(connectStatus.isError()) {
+            return connectStatus
+        }
+
+        return walletCore.getNetwork()
+    }
+
+    const saveNetwork = async (netInfo, setDefault=false) => {
+
+        $s = $state.value;
+
+        let userNeworkInfo = await getUserNetworks()
+
+        let networks = userNeworkInfo.networks
+
+        networks[netInfo.chainId] = netInfo;
+
+        $s.userNetworkInfo = networks
+
+        if(setDefault){
+            userNeworkInfo.default = netInfo.chainId
+            $s.userActiveNetwork = netInfo
+        }
+
+        return Status.success()
     }
 
     return {
@@ -346,6 +399,8 @@ export const useWalletStore = defineStore('walletStore', () => {
         setActiveNetwork,
         userActiveNetwork,
         removeNetwork,
-        resetNetworks
+        resetNetworks,
+        fetchNetworkInfo,
+        saveNetwork
     }
 })

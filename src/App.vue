@@ -1,6 +1,7 @@
 <script setup>
 import { onMounted, provide, ref } from "vue";
 import BotFiProvider from "./layouts/BotFiProvider.vue";
+import Toast from "./components/Toast.vue";
 
 //leave-active-class="animate__animated animate__zoomOut animate__fastest"
 </script>
@@ -14,6 +15,8 @@ import BotFiProvider from "./layouts/BotFiProvider.vue";
       <component :is="Component" :key="route.path"  />
     </transition>
   </router-view>
+  
+  <toast />
 </template>
 
 <style scoped>

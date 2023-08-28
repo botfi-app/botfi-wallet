@@ -74,8 +74,8 @@ const resetWallets = async () => {
                         title: "Reset Wallets?",
                         focusCancel: true,
                         customClass: {
-                            confirmButton: "btn btn-lg px-5 btn-danger mx-1 rounded-pill",
-                            cancelButton: "btn btn-lg px-5 btn-info mx-1 rounded-pill shadow-lg"
+                            confirmButton: "btn px-5 btn-danger mx-1 rounded-pill",
+                            cancelButton: "btn px-5 btn-info mx-1 rounded-pill shadow-lg"
                         }
 
                     })

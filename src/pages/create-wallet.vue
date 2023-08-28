@@ -115,9 +115,11 @@ const onSave = async () => {
      
         <div class="w-400">
             
+            <NativeBackBtn  />
+
             <loading-view :isLoading="isLoading">
 
-                <div class="d-flex flex-column w-400 pb-5 align-items-center">
+                <div class="d-flex flex-column px-3 pb-5 align-items-center">
                     
                     <top-logo />
                     
@@ -167,13 +169,13 @@ const onSave = async () => {
                     </div>
                     <div class="d-flex flex-row pb-4 w-full">
                         <button
-                            class="btn btn-secondary btn-lg rounded-pill mx-1 w-full" 
+                            class="btn btn-secondary rounded-pill mx-1 w-full" 
                             @click="isPhraseHidden=!isPhraseHidden"
                         >
                             {{ isPhraseHidden ? "Reveal" : "Hide" }}
                         </button>
                         <button 
-                            class="btn btn-info btn-lg rounded-pill mx-1 w-full"
+                            class="btn btn-info rounded-pill mx-1 w-full"
                             id="copy-btn"
                             :data-clipboard-text="seedPhraseArray.join(' ')"
                         >
@@ -181,8 +183,8 @@ const onSave = async () => {
                         </button>
                     </div>
 
-                    <div class="mt-4 w-full">
-                        <button @click.prevent="onSave" class="btn btn-lg rounded-pill btn-primary w-full">
+                    <div class=" w-full">
+                        <button @click.prevent="onSave" class="btn rounded-pill btn-primary w-full">
                             Continue
                         </button>
                     </div>

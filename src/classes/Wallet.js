@@ -54,10 +54,12 @@ export default class Wallet {
         }
     }
 
+    notConnectedError = () => Status.error("Wallet not connected")
+                                .setCode(ErrorCodes.WALLET_NOT_CONNECTED)
 
     setWallet(privateKey) {
         if(!this.provider){
-            return Status.errorPromise("Wallet not initialized")
+            return this.notConnectedError()
         }
 
         this.signer = new ethersWallet(privateKey, this.provider)
@@ -78,4 +80,24 @@ export default class Wallet {
         }
     }
 
+    async getNetwork() {
+
+        try {
+
+            if(!this.provider){
+                return this.notConnectedError()
+            }
+
+            let { chainId: chainIdBigInt, name } = await this.provider.getNetwork()
+
+            //console.log("netInfo==>", chainId)
+            let chainId = Number(chainIdBigInt)
+
+            return Status.successData({ chainId, name })
+            
+        } catch(e){
+            Utils.logError("Wallet#getNetwork:", e)
+            return Status.error("Failed to get network info")
+        }
+    }
 }

@@ -21,10 +21,6 @@ body {
 }
 
 
-.btn-secondary {
-    color: rgba(#fff, 0.9);
-}
-
 .app-main {
     width: 100%;
     max-width: 800px;
@@ -246,4 +242,16 @@ input[type=number] {
 
 .text-danger {
     color: $danger;
+}
+
+.fixed-topnav {
+    position:sticky;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    z-index: 100;
+}
+
+.body-bg {
+    background: var(--bs-body-bg) !important;
 }

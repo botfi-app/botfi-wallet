@@ -4,7 +4,8 @@ import { onBeforeMount, ref, watch } from "vue"
 import { useRouter, useRoute } from 'vue-router';
 import { useWalletStore } from "../store/walletStore";
 import Utils from "../classes/Utils";
-import MainBtn from "../components/common/MainBtn.vue";
+import { isStrongPassword } from "validator"
+import NativeBackBtn from "../components/common/NativeBackBtn.vue";
 
 const router = useRouter()
 const route  = useRoute()
@@ -60,9 +61,10 @@ const onSave = async () => {
 
         let p1 = pin1.value.toString()
 
-        if(p1.trim() == '' || p1.length < 4 || !/[0-9]+/.test(p1)){
+        if(p1.trim() == '' || p1.length < 5 || !/[0-9]+/.test(p1)){
             return Utils.errorAlert("A valid numeric value is required")
         }
+        
 
         p1 = parseInt(p1)
         let p2 = parseInt(pin2.value)
@@ -72,8 +74,18 @@ const onSave = async () => {
             return Utils.errorAlert("Pin codes do not match")
         }
 
-        if(isPinSequential(p1)){
-            return Utils.errorAlert("Weak pin code")
+        //{ minLength: 8, minLowercase: 1, minUppercase: 1, minNumbers: 1, minSymbols: 1, returnScore: false, pointsPerUnique: 1, pointsPerRepeat: 0.5, pointsForContainingLower: 10, pointsForContainingUpper: 10, pointsForContainingNumber: 10, pointsForContainingSymbol: 10 }
+
+        let strongPinOpts = {
+            minLength: 5, 
+            minLowercase:0, 
+            minUppercase: 0,
+            minNumbers: 5 ,
+            minSymbols: 0
+        }
+
+        if(!isStrongPassword(p1.toString(), strongPinOpts)){
+            return passwordError.value = "Pin code not strong"
         }
     
         if(!(hasAgreedNoPinOnServer.value && hasAgreedNoPinReset.value)){
@@ -104,6 +116,8 @@ const onSave = async () => {
         <div class="d-flex flex-column w-400 pb-5 align-items-center">
             
             <top-logo />
+            
+            <NativeBackBtn  />
 
             <div>
                 <PinCode 
@@ -118,7 +132,7 @@ const onSave = async () => {
                 />
             </div>
 
-            <div class="form-check mx-5 my-4">
+            <div class="form-check mx-4 my-4">
                 <input 
                     v-model="hasAgreedNoPinOnServer"
                     class="form-check-input" 
@@ -130,7 +144,7 @@ const onSave = async () => {
                 </label>
             </div>
 
-            <div class="form-check mx-5 mb-4">
+            <div class="form-check mx-4 mb-4">
                 <input 
                     v-model="hasAgreedNoPinReset"
                     class="form-check-input" 
@@ -142,8 +156,8 @@ const onSave = async () => {
                 </label>
             </div>
 
-            <div class="mt-4 w-full px-5">
-                <button @click.prevent="onSave" class="btn btn-lg rounded-pill btn-primary w-full">
+            <div class="mt-4 w-full px-4">
+                <button @click.prevent="onSave" class="btn rounded-pill btn-primary w-full">
                     Continue
                 </button>
             </div>

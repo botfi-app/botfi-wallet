@@ -21,7 +21,7 @@ const modalTitle  = ref("")
 const selectedItem = ref(null) 
 const modalId = ref('net-opt-modal-'+Date.now())
 let _modal = null
-
+const dataState = ref(Date.now())
 
 
 const initialize = async () => {
@@ -31,6 +31,8 @@ const initialize = async () => {
     allNetworks.value = userNetworks.networks
     selectedItem.value = userNetworks.networks[1]
     
+    dataState.value = Date.now()
+
     initialized.value = true
 }
 
@@ -59,6 +61,8 @@ const setDefaultNetwork = async () => {
     if(resultStatus.isError()){
         return Utils.mAlert(resultStatus.getMessage())
     }
+    
+    dataState.value = Date.now()
 
     _modal.hide()
 }
@@ -96,6 +100,8 @@ const removeNetwork = async () => {
     activeNetInfo.value = resultData.networks[resultData.default]
     allNetworks.value   = resultData.networks
 
+    dataState.value = Date.now()
+
     _modal.hide()
 }
 
@@ -128,7 +134,9 @@ const resetNetworks = async () => {
 
     console.log(allNetworks.value)
 
-    _modal.hide()
+    dataState.value = Date.now()
+    
+    if(_modal) _modal.hide()
 }
 </script>
 <template>
@@ -140,7 +148,7 @@ const resetNetworks = async () => {
 
         <NativeBackBtn />
 
-        <div class="w-400">
+        <div class="w-400 mb-5">
             
             <loading-view :isLoading="isLoading">
                 <div class="d-flex p-2 align-items-center flex-nowrap">
@@ -159,8 +167,9 @@ const resetNetworks = async () => {
                         </router-link>
                     </div>
                 </div>
-                <ul class="list-group list-group-flush w-full no-select">
-                    <li v-for="(item,index) in allNetworks" 
+                <ul class="list-group list-group-flush w-full no-select" :key="dataState">
+                    <li v-if="allNetworks != null"
+                        v-for="(item,index) in allNetworks" 
                         class="list-group-item list-group-item-action py-4 d-flex justify-content-between align-items-center"
                         :key="index"
                         role="button" 
@@ -169,7 +178,8 @@ const resetNetworks = async () => {
                         <div class="d-flex">
                             <Icon name="clarity:check-line" 
                                 :size="24"
-                                v-if="walletStore.userActiveNetwork.chainId == item.chainId"
+                                v-if="walletStore.userActiveNetwork != null && 
+                                      walletStore.userActiveNetwork.chainId == item.chainId"
                                 class="me-2 text-primary"
                             />
                             <div class="no-select">

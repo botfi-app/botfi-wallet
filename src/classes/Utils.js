@@ -9,6 +9,7 @@ import "sweetalert2/src/sweetalert2.scss"
 ///import EventBus from './EventBus'
 ///import { inject } from "vue";
 import Status from './Status'
+import { Toast } from 'bootstrap';
 
 export default class Utils {
 
@@ -31,7 +32,7 @@ export default class Utils {
                 confirmButton: 'btn mx-1 shadow-lg px-5 btn-primary rounded-pill',
                 cancelButton: 'btn  mx-1 px-5 btn-info rounded-pill',
                 popup: 'shadow-lg',
-                htmlContainer: "",
+                htmlContainer: "body-bg",
             },
             ...extraOpts
         })
@@ -149,21 +150,12 @@ export default class Utils {
         this.mAlert(text)
     }
 
-    static toast(title) {
-        Swal.fire({
-            title,
-            toast:              true,
-            position:           'bottom',
-            showConfirmButton:  false,
-            timer:              3000,
-            timerProgressBar:   true,
-            backdrop        :   false,
-            showCloseButton:  true,
-            /*didOpen: (toast) => {
-              toast.addEventListener('mouseenter', Swal.stopTimer)
-              toast.addEventListener('mouseleave', Swal.resumeTimer)
-            }*/
-        })
+    static toast(text, autoclose=true) {
+        let $t = document.getElementById("main-toast")
+        $t.querySelector(".toast-body").textContent = text
+        let toast = Toast.getOrCreateInstance($t, { delay: 3_000 })
+        $t.style.visibility = 'visible';
+        toast.show()
     }
     
     static getTokenIconName(symbol) {
@@ -192,7 +184,7 @@ export default class Utils {
     }
 
     static isValidUrl(_str) {
-        
+
         let url;
         
         try {

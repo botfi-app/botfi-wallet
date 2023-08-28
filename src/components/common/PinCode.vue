@@ -24,7 +24,7 @@ const handleInput = (e) => {
     
     if(/[0-9]+/i.test(e.key)) {
         
-        if(index < 3){
+        if(index < 4){
             t.blur()
            document.querySelector(`#${idStr}-`+(index+1)).focus()
         }
@@ -75,7 +75,7 @@ watch(pinValues, () => {
             <label class="fw-bold text-muted">{{ props.label }}</label>
         </div>
         <div class="d-flex flex-row justify-content-center">
-            <template v-for="index in Array(4).keys()" :key="index">
+            <template v-for="index in Array(5).keys()" :key="index">
                 <div>
                     <input
                         type="text"
@@ -101,8 +101,8 @@ watch(pinValues, () => {
 </template>
 <style lang="scss">
     .pin-input{
-        width: 65px;
-        height: 60px;
+        width: 50px;
+        height: 50px;
         margin: 5px;
         font-size: 18px;
         font-weight: bold

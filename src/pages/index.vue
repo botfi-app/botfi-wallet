@@ -29,18 +29,22 @@ const initialize = async () => {
         
             <top-logo />
 
-            <div class="my-10 d-flex flex-column w-full align-items-center w-full">
+            <div class="my-5 d-flex flex-column w-full align-items-center w-full">
                 <router-link 
                     to="/set-pin?next=create-wallet" 
-                    class="btn w-full btn-primary btn-lg rounded-pill my-2"
+                    class="my-2 no-underline  w-full"
                 >
-                    Create Wallet
+                    <button class="btn w-full btn-primary rounded-pill ">
+                        Create Wallet
+                    </button>
                 </router-link>
                 <router-link  
                     to="/set-pin?next=import-wallet" 
-                    class="btn w-full btn-lg btn-secondary rounded-pill mb-5"
+                    class="my-2 no-underline  w-full"
                 >
-                    Import Wallet
+                    <button class="btn w-full btn-success rounded-pill">
+                        Import Wallet
+                    </button>
                 </router-link>
             </div>
         </div>
