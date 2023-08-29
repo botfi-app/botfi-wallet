@@ -277,6 +277,8 @@ export const useWalletStore = defineStore('walletStore', () => {
 
         let netInfo = userNeworkInfo.networks[chainId]
 
+        //console.log("netInfo===>", netInfo)
+
         let connectStatus = await walletCore.connect(
                                 netInfo,
                                 walletInfo.wallet.privateKey 
@@ -360,20 +362,24 @@ export const useWalletStore = defineStore('walletStore', () => {
 
     const saveNetwork = async (netInfo, setDefault=false) => {
 
-        $s = $state.value;
+        netInfo = toValue(netInfo)
+
+        let $s = $state.value;
 
         let userNeworkInfo = await getUserNetworks()
+        
+        let chainId = parseInt(netInfo.chainId)
 
-        let networks = userNeworkInfo.networks
-
-        networks[netInfo.chainId] = netInfo;
-
-        $s.userNetworkInfo = networks
+        userNeworkInfo.networks[chainId] = netInfo;
 
         if(setDefault){
-            userNeworkInfo.default = netInfo.chainId
+            userNeworkInfo.default = chainId
             $s.userActiveNetwork = netInfo
         }
+
+        localStorage.setItem(getUserNetsKey(), JSON.stringify(userNeworkInfo))
+
+        $s.userNetworkInfo = userNeworkInfo
 
         return Status.success()
     }

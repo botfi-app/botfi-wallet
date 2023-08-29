@@ -17,15 +17,13 @@ export default class Wallet {
 
         try {
             
-            let opts = {
-                staticNetwork: netInfo.chainId
-            }
-
-            //console.log("netInfo===>", netInfo)
+            //let opts = {
+            //    staticNetwork: netInfo.chainId
+            //}
 
             let rpc = netInfo.rpc[0]
 
-            this.provider = new ethers.JsonRpcProvider(rpc, null, opts)
+            this.provider = new ethers.JsonRpcProvider(rpc)
 
             if(wallet != null){
                 let setWalletStatus = await this.setWallet(wallet)

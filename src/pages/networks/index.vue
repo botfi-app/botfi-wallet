@@ -54,6 +54,8 @@ const onItemClick = async (item) => {
 
 const setDefaultNetwork = async () => {
    
+    //console.log("selectedItem.value===>", selectedItem.value)
+
     let loader = Utils.loader("Setting Default Network")
     let resultStatus = await walletStore.setActiveNetwork(selectedItem.value.chainId)
     loader.close()
@@ -138,6 +140,15 @@ const resetNetworks = async () => {
     
     if(_modal) _modal.hide()
 }
+
+const onEditItemClick  = () => {
+    if(_modal) _modal.hide()
+    router.push(`/networks/edit?chainId=${selectedItem.value.chainId}`)
+}
+
+const onSearch = async (keyword) => {
+    console.log(keyword)
+}
 </script>
 <template>
     <WalletLayout
@@ -156,6 +167,7 @@ const resetNetworks = async () => {
                     <div class="flex-grow-1">
                         <search-form 
                             placeholder="Search"
+                            @change="onSearch"
                         />
                     </div>
                     <div class="ps-2">
@@ -192,9 +204,9 @@ const resetNetworks = async () => {
                         <Image 
                             :width="28"
                             :height="28"
-                            :src="Utils.getTokenIconUrl(item.shortName)" 
+                            :src="item.icon" 
                             alt=""
-                            :placeholder="item.shortName.charAt(0)"
+                            :placeholder="item.name.charAt(0)"
                             class="rounded-circle mselect-icon"
                         />
                     </li>
@@ -226,6 +238,7 @@ const resetNetworks = async () => {
                     </li>
                     <li class="list-group-item list-group-item-action py-4 d-flex justify-content-between align-items-center"
                         role="button"
+                        @click="onEditItemClick"
                     >
                         <div>Edit Network</div>
                         <Icon name="basil:edit-outline" class='text-primary' :size="24" />

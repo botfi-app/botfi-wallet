@@ -16,15 +16,17 @@ const walletStore   = useWalletStore()
 const route         = useRoute()
 const isLoading     = ref(false)
 const pageTitle     = ref("")
+const subTitle     = ref("")
+
 const formData      = ref({
     name: "",
     nativeCurrency: { symbol: ""},
     chainId:   null,
     rpc:      [''],
-    explorer: ['']
+    explorers: ['']
 })
 const saveType      = ref("")
-const networkId     = ref(null)
+const netChainId    = ref(null)
 const pageError     = ref("")
 const isEdit        = ref(false)
 const setAsDefault  = ref(false)
@@ -46,20 +48,24 @@ const initialize = async () => {
 
         if(saveType.value == 'edit') {
             
-            let netId = route.query.chainId || ""
+            let chainId = route.query.chainId || ""
 
-            if(netId == "" || !(netId in allNetworks.value)){
-                pageError.value = `A valid network id is required`
+            if(!/[0-9]+/.test(chainId) || !(chainId in allNetworks.value)){
+                pageError.value = `A valid chain id is required`
                 return false;
             }
 
             isEdit.value = true
 
-            formData.value = allNetworks[netId]
+            chainId = parseInt(chainId)
 
-            pageTitle.value = `Edit Network: ${formData.value.name}`
+            formData.value = allNetworks.value[chainId]
 
-            networkId.value = netId
+            pageTitle.value = "Edit Network"
+            subTitle.value = formData.value.name
+
+            netChainId.value = chainId
+
         }
 
 
@@ -101,7 +107,7 @@ const onSave = async () => {
         }
 
         // explorer
-        let explorer = (fd.explorer[0] || "").trim()
+        let explorer = (fd.explorers[0] || "").trim()
 
         if(explorer != ""){
             if(!Utils.isValidUrl(explorer)){
@@ -124,7 +130,9 @@ const onSave = async () => {
             return Utils.mAlert(`The RPC node returned a different chain id: ${netInfo.chainId}`)
         }
 
-        let saveStatus = await walletStore.saveNetwork(formData, setAsDefault.value)
+        formData.value.chainId = chainId
+
+        let saveStatus = await walletStore.saveNetwork(formData.value, setAsDefault.value)
         
         if(saveStatus.isError()){
             return Utils.mAlert(saveStatus.getMessage())
@@ -152,7 +160,15 @@ const onSave = async () => {
         <div class="w-400">
             <div class="fixed-topnav">
                 <div class="d-flex body-bg justify-content-between flex-nowrap p-3 align-items-center">
-                    <div class="fw-semibold fs-6 pe-2 text-truncate">{{pageTitle}}</div>
+                    <div>
+                        <div class="fw-semibold fs-6 pe-2">
+                            {{ pageTitle }}
+                        </div>
+                        <div class="mt-1 fw-semibold fs-12 text-truncate" v-if="subTitle != ''">
+                            {{ subTitle }}
+                        </div>
+                    </div>
+                   
                     <div class="ps-2">
                         <button class="btn btn-primary rounded-pill px-3" @click.prevent="onSave">
                             Save
@@ -167,6 +183,9 @@ const onSave = async () => {
                         v-model="formData.name"
                         type="text" 
                         class="form-control rounded" 
+                        :autocapitalize="false"
+                        :autocomplete="false"
+                        :autocorrect="false"
                         id="chain_name" 
                         placeholder="eg. Ethereum Mainnet"
                     />
@@ -178,6 +197,9 @@ const onSave = async () => {
                         v-model="formData.rpc[0]"
                         type="text" 
                         class="form-control rounded" 
+                        :autocapitalize="false"
+                        :autocomplete="false"
+                        :autocorrect="false"
                         id="rpc" 
                         placeholder="Network RPC URL"
                     />
@@ -186,13 +208,19 @@ const onSave = async () => {
 
                 <div class="form-floating mb-3">
                     <input 
-                        v-model="formData.chainId"
+                        v-model.number="formData.chainId"
                         type="number" 
+                        inputmode="numeric" 
+                        :autocapitalize="false"
+                        :autocomplete="false"
+                        :autocorrect="false"
+                        pattern="[0-9]*"
+                        @keypress="Utils.onlyNumber($event)"
                         class="form-control rounded" 
                         id="chain_id" 
                         placeholder="eg. 1 for Ethereum"
-                        :disabled="isEdit"
-                        :readonly="isEdit"
+                        :disabled="isEdit && netChainId==1"
+                        :readonly="isEdit && netChainId==1"
                     />
                     <label for="chain_id">Chain ID</label>
                 </div>
@@ -208,7 +236,7 @@ const onSave = async () => {
                 </div>
                 <div class="form-floating mb-3">
                     <input 
-                        v-model="formData.explorer[1]"
+                        v-model="formData.explorers[0]"
                         type="text" 
                         class="form-control rounded" 
                         id="explorer" 

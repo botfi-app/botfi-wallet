@@ -33,10 +33,15 @@ const onImgLoad = () => {
     <div v-bind="{
         ...$attrs,
         }" 
-        v-if="!imgLoaded" 
+        v-if="($attrs.src || '') == '' || !imgLoaded" 
         ref="placeholderRef"
+        :class="`${$attrs.class || ''} fw-semibold fs-14 d-flex align-items-center justify-content-center`"
+        :style="{
+            width: (($attrs.width) ? $attrs.width + 'px' : '100%'),
+            height: (($attrs.height) ? $attrs.height + 'px' : '100%')
+        }"
     >
-        {{ props.placeholder.toUpperCase() }}
+        <div>{{ props.placeholder.charAt(0).toUpperCase() }}</div>
     </div>
     <img 
         v-bind="$attrs"

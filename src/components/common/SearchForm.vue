@@ -18,7 +18,7 @@ const handleInputState = (type) => {
         : _sfc.remove('focus')
 }
 
-const handleOnChange = async (e) => {
+const handleOnChange = async () => {
     emits("change", keyword.value)
 }
 </script>

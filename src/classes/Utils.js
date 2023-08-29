@@ -152,10 +152,12 @@ export default class Utils {
 
     static toast(text, autoclose=true) {
         let $t = document.getElementById("main-toast")
-        $t.querySelector(".toast-body").textContent = text
-        let toast = Toast.getOrCreateInstance($t, { delay: 3_000 })
-        $t.style.visibility = 'visible';
-        toast.show()
+        $t.querySelector(".text").textContent = text
+        $t.classList.remove("hide")
+
+        if(autoclose){
+            setTimeout(() => { $t.classList.add("hide") }, 3_000)
+        }
     }
     
     static getTokenIconName(symbol) {
@@ -196,4 +198,9 @@ export default class Utils {
         return url.protocol === "http:" || url.protocol === "https:";
     }
 
+    static onlyNumber(evt) {  
+        if (evt.which < 48 || evt.which > 57){
+            evt.preventDefault();
+        }
+    }
 }

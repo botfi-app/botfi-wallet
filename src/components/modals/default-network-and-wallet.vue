@@ -35,15 +35,20 @@ onBeforeMount(() => {
 </script>
 <template>
     <button 
-        class="btn btn-primary rounded-pill" 
+        class="btn btn-primary rounded-pill fs-14" 
         :data-micromodal-trigger="modalId"
         data-bs-toggle="modal" 
         :data-bs-target="`#${modalId}`"
     >   
-        <div v-if="initialized" class="d-flex justify-content-center  align-items-center">
+        <div v-if="initialized"
+            class="d-flex justify-content-center align-items-center flex-nowrap"
+        >
             <div>{{  Utils.maskAddress( walletStore.activeWalletFull ) }}</div>
-            <div v-if="walletStore.userActiveNetwork != null">
-                <span class="px-1">|</span>{{ walletStore.userActiveNetwork.shortName.toUpperCase() }}
+            <div v-if="walletStore.userActiveNetwork != null" class="d-flex flex-nowrap align-items-center">
+                <div class="px-1">|</div>
+                <div style="max-width: 65px" class="text-truncate">
+                    {{ walletStore.userActiveNetwork.name }}
+                </div>
             </div> 
         </div>
     </button>
@@ -104,15 +109,15 @@ onBeforeMount(() => {
                                     <Image 
                                         :width="26" 
                                         :height="26" 
-                                        class="rounded"
-                                        :src="Utils.getTokenIconUrl( walletStore.userActiveNetwork.shortName)" 
-                                        :placeholder="walletStore.userActiveNetwork.shortName"
+                                        class="rounded-circle"
+                                        :src="walletStore.userActiveNetwork.icon" 
+                                        :placeholder="walletStore.userActiveNetwork.name"
                                     />
                                 </button>
                             </router-link>
                         </div>
-                        <div class="mt-5">
-                            <button data-micromodal-close class="btn btn-primary full-width btn-lg rounded-pill">
+                        <div class="mt-4">
+                            <button data-bs-dismiss="modal" class="btn btn-primary full-width rounded-pill">
                                 Close
                             </button>
                         </div>

@@ -255,3 +255,11 @@ input[type=number] {
 .body-bg {
     background: var(--bs-body-bg) !important;
 }
+
+.fs-14 { font-size: 14px !important;}
+
+.text-truncate {
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+}

@@ -1,17 +1,21 @@
+<script setup>
+import { ref } from 'vue';
+
+const  mainToast = ref()
+
+const closeToast = async () => {
+    mainToast.value.classList.add("hide")
+}
+</script>
 <template>
     <Teleport to="body">
         <div id="main-toast" 
             ref="mainToast"
-            class="toast align-items-center mx-2"
-            style="visibility: hidden;" 
-            role="alert" 
-            aria-live="polite"
-            aria-atomic="true"
-            ata-bs-delay="3_000"
+            class="hide"
         >
-            <div class="d-flex p-2 rounded shadow">
-                <div class="toast-body fw-bold"></div>
-                <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            <div class="tst-body d-flex align-items-center justify-content-between shadow rounded">
+                <div class="text  fw-semibold text-truncate pe-2"></div>
+                <button type="button" @click="closeToast" class="btn-close me-2"></button>
             </div>
         </div>
     </Teleport>
@@ -20,18 +24,24 @@
 #main-toast {
     position: fixed;
     bottom: 10px !important;
-    left: 0px;
-    right: 0px;
+    left: 8px;
+    right: 8px;
     z-index: 9999 !important;
     background: var(--bs-body-bg);
+    transition: all .4s ease-in-out;
 
-    > div {
+    &.hide {
+        display: none;
+    }
+
+    .tst-body {
+        height: 50px;
+        max-width: 100%;
+        width: 400px;
         padding: 10px;
         background: rgba(0,0,0, 0.5);
-
-        .toast-body {
-            color: rgba(255,255, 255, 0.8) !important;
-        }
+        color: rgba(255,255, 255, 0.8) !important;
+        margin: 0 auto;
     }
 }
 </style>

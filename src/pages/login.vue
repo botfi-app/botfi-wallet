@@ -30,8 +30,6 @@ const handleLogin = async () => {
     
     let p = pin.value.toString().trim()
 
-    console.log(p)
-
     if(p == '' || p.length < 4){
         return Utils.errorAlert("Pin code is required")
     }
@@ -117,7 +115,7 @@ const resetWallets = async () => {
 
             <div class="my-5 px-5 d-flex flex-column align-items-center w-full">
                 <button
-                    class="btn btn-lg w-full  rounded-pill shadow btn-primary mb-4"
+                    class="btn w-full  rounded-pill shadow btn-primary mb-4"
                     @click.prevent="handleLogin"
                 >
                     Login

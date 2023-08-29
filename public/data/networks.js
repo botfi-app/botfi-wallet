@@ -15,7 +15,8 @@ export default {
                 decimals:   18
             },
             rpc: ["https://eth.llamarpc.com"],
-            explorers: [ "https://Ethercan.io"]
+            explorers: [ "https://Ethercan.io"],
+            icon: "/images/crypto/eth.svg"
         },
 
         137: {
@@ -29,7 +30,8 @@ export default {
                 decimals:   18
             },
             rpc: ["https://polygon.llamarpc.com"],
-            explorers: [ "https://polygonscan.com"]
+            explorers: [ "https://polygonscan.com"],
+            icon: "/images/crypto/matic.svg"
         },
 
         56: {
@@ -43,7 +45,8 @@ export default {
                 decimals:   18
             },
             rpc: ["https://bsc-dataseed.bnbchain.org", "https://bsc-dataseed1.defibit.io", "https://bsc-dataseed1.ninicoin.io"],
-            explorers: [ "https://bscscan.com"]
+            explorers: [ "https://bscscan.com"],
+            icon: "/images/crypto/bnb.svg"
         },
 
         42161: {
@@ -57,7 +60,8 @@ export default {
                 decimals:   18
             },
             rpc: ["https://arb1.arbitrum.io/rpc"],
-            explorers: [ "https://arbiscan.io/"]
+            explorers: [ "https://arbiscan.io/"],
+            icon: "/images/crypto/arb.svg"
         },
 
         324: {
@@ -71,7 +75,8 @@ export default {
                 decimals:   18
             },
             rpc: ["https://mainnet.era.zksync.io"],
-            explorers: [ "https://explorers.zksync.io/"]
+            explorers: [ "https://explorers.zksync.io/"],
+            icon: "/images/crypto/zksync.svg"
         },
 
         10: {
@@ -85,7 +90,8 @@ export default {
                 decimals:   18
             },
             rpc: ["https://mainnet.optimism.io"],
-            explorers: [ "https://explorers.optimism.io"]
+            explorers: [ "https://explorers.optimism.io"],
+            icon: "/images/crypto/op.svg"
         },
 
         8453: {
@@ -99,7 +105,8 @@ export default {
                 decimals:   18
             },
             rpc: ["https://mainnet.base.org"],
-            explorers: [ "https://basescan.org"]
+            explorers: [ "https://basescan.org"],
+            icon: "/images/crypto/base.svg"
         },
 
         59144: {
@@ -113,7 +120,8 @@ export default {
                 decimals:   18
             },
             rpc: ["https://rpc.linea.build"],
-            explorers: [ "https://lineascan.build/"]
+            explorers: [ "https://lineascan.build/"],
+            icon: "/images/crypto/linea.svg"
         }
     }
 }

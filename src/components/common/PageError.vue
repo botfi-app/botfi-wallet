@@ -20,7 +20,7 @@ const router = useRouter()
                 Oops!
             </h1>
             <h5  style="--bs-text-opacity: .5;"
-                class=" fs-5 text-center text-dark-emphasis"
+                class=" fs-5 text-center text-dark-emphasis px-4"
             >
                 {{ props.text }}
             </h5>
