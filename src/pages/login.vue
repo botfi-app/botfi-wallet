@@ -121,7 +121,7 @@ const resetWallets = async () => {
                     Login
                 </button>
                 <button 
-                    class="btn-none text-danger w-full btn mb-2"
+                    class="btn-none text-danger w-full btn btn-md mb-2"
                     @click="resetWallets"
                 >
                     Reset Wallets

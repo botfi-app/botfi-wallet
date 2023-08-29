@@ -22,7 +22,8 @@ const selectedItem = ref(null)
 const modalId = ref('net-opt-modal-'+Date.now())
 let _modal = null
 const dataState = ref(Date.now())
-
+const filteredData = ref({})
+const networksDataToRender = ref({})
 
 const initialize = async () => {
 
@@ -30,7 +31,7 @@ const initialize = async () => {
     activeNetInfo.value = userNetworks.networks[userNetworks.default]
     allNetworks.value = userNetworks.networks
     selectedItem.value = userNetworks.networks[1]
-    
+
     dataState.value = Date.now()
 
     initialized.value = true
@@ -77,9 +78,11 @@ const removeNetwork = async () => {
         return Utils.errorAlert("Cannot delete this networl")
     }
 
+    let _selected = selectedItem.value
+
     let confirm = await Utils.getSwal().fire({
                     title: "Remove Network",
-                    text: `Confirm the removal of '${selectedItem.value.chainName}'`,
+                    text: `Confirm the removal of '${_selected.name} (${_selected.chainId})'`,
                     showConfirmButton: true,
                     showCancelButton: true,
                     confirmButtonText: "Confirm"
@@ -116,6 +119,7 @@ const resetNetworks = async () => {
                     showCancelButton: true,
                     confirmButtonText: "Continue"
                 })
+    //console.log(confirm)
 
     if(!confirm.isConfirmed) return false;
 
@@ -134,7 +138,7 @@ const resetNetworks = async () => {
     activeNetInfo.value = resultData.networks[resultData.default]
     allNetworks.value   = resultData.networks
 
-    console.log(allNetworks.value)
+   // console.log(allNetworks.value)
 
     dataState.value = Date.now()
     
@@ -146,8 +150,8 @@ const onEditItemClick  = () => {
     router.push(`/networks/edit?chainId=${selectedItem.value.chainId}`)
 }
 
-const onSearch = async (keyword) => {
-    console.log(keyword)
+const onSearch = async (keyword, filteredData) => {
+   networksDataToRender.value = filteredData
 }
 </script>
 <template>
@@ -161,13 +165,15 @@ const onSearch = async (keyword) => {
 
         <div class="w-400 mb-5">
             
-            <loading-view :isLoading="isLoading">
+            <loading-view :isLoading="isLoading" :key="dataState">
                 <div class="d-flex p-2 align-items-center flex-nowrap">
                     <div class="fw-semibold fs-6 pe-2">Networks</div>
                     <div class="flex-grow-1">
                         <search-form 
                             placeholder="Search"
                             @change="onSearch"
+                            :dataToFilter="allNetworks"
+                            :filterKeys="['name', 'shortName']"
                         />
                     </div>
                     <div class="ps-2">
@@ -179,9 +185,9 @@ const onSearch = async (keyword) => {
                         </router-link>
                     </div>
                 </div>
-                <ul class="list-group list-group-flush w-full no-select" :key="dataState">
-                    <li v-if="allNetworks != null"
-                        v-for="(item,index) in allNetworks" 
+                <ul class="list-group list-group-flush w-full no-select">
+                    <li v-if="networksDataToRender != null"
+                        v-for="(item,index) in networksDataToRender" 
                         class="list-group-item list-group-item-action py-4 d-flex justify-content-between align-items-center"
                         :key="index"
                         role="button" 

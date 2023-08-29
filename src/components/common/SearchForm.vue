@@ -1,15 +1,21 @@
 <script setup>
-import { ref, watch } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 
 
 const props = defineProps({
-    placeholder: { type: String, default: 'Search' }
+    placeholder: { type: String, default: 'Search' },
+    dataToFilter: { type: null, default: [] },
+    filterKeys: { type: Array, required: true }
 })
 
 const emits = defineEmits(['change'])
 
 const keyword = ref("")
 const searchForm = ref()
+
+onMounted(() => {
+    handleOnChange()
+})
 
 const handleInputState = (type) => {
     let _sfc = searchForm.value.classList;
@@ -19,7 +25,45 @@ const handleInputState = (type) => {
 }
 
 const handleOnChange = async () => {
-    emits("change", keyword.value)
+
+    let _p = props;
+    let _k = keyword.value.toLowerCase().trim()
+
+    if(_p.dataToFilter == null){
+        emits("change", keyword.value, null)
+        return;
+    }
+
+    if(_k == ''){
+        emits("change", keyword.value, _p.dataToFilter)
+        return; 
+    }
+
+    let filteredData =  Array.isArray(_p.dataToFilter) ? [] : {}
+
+    Object.keys(_p.dataToFilter).forEach(key => {
+        
+        let item = _p.dataToFilter[key]
+
+        if(!_p.filterKeys || _p.filterKeys.length == 0){
+
+            if(item.toString().trim().toLowerCase().startsWith(_k)){
+                filteredData[key] = item
+            }
+
+        } else {
+            for(let fkey of _p.filterKeys){
+
+                let v = (item[fkey] || '').toLowerCase()
+                
+                if(v.startsWith(_k)){
+                    filteredData[key] = item
+                }
+            }
+        }
+    })
+
+    emits("change", keyword.value, filteredData)
 }
 </script>
 <template>
