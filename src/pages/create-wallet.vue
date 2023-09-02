@@ -40,7 +40,7 @@ const initialize = async () => {
 
 onBeforeMount(async () => {
     
-    if(walletStore.hasDefaultWallet()){
+    if((await walletStore.hasDefaultWallet())) {
         isLoading.value = false
         return router.push("/login")
     }
@@ -85,7 +85,9 @@ const onSave = async () => {
 
         let loader = Utils.loader("Saving on device")
 
-        let saveStatus =  await Utils.runBlocking(() => walletStore.saveDefaultWallet(toValue(walletInfo)))
+        let saveStatus =   await Utils.runBlocking(
+                                () => walletStore.saveDefaultWallet(toValue(walletInfo))
+                            )
 
         loader.close()
 

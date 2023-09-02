@@ -1,10 +1,12 @@
 <script setup>
-import { inject, onBeforeMount, onBeforeUnmount, onMounted, ref } from 'vue';
+import { onBeforeMount, ref } from 'vue';
 import Utils from '../../classes/Utils';
 import { useWalletStore } from '../../store/walletStore';
-import modal from './modal.vue';
+import Modal from './Modal.vue';
+import { useNetworks } from '../../composables/useNetworks';
 
 const walletStore = useWalletStore()
+const { isNetReady, activeNetwork } = useNetworks()
 const initialized = ref(false)
 const activeWalletInfo = ref({})
 const pageError = ref("") 
@@ -17,7 +19,7 @@ const initialize = async () => {
         isPageLoading.value = true 
 
         activeWalletInfo.value = walletStore.getActiveWalletInfo()
-        await walletStore.getUserNetworks()
+        //await networks.getUserNetworks()
 
     } catch(e){
         pageError.value = Utils.generalErrorMsg
@@ -32,6 +34,7 @@ onBeforeMount(() => {
     initialize()
 })
 
+
 </script>
 <template>
     <button 
@@ -44,15 +47,17 @@ onBeforeMount(() => {
             class="d-flex justify-content-center align-items-center flex-nowrap"
         >
             <div>{{  Utils.maskAddress( walletStore.activeWalletFull ) }}</div>
-            <div v-if="walletStore.userActiveNetwork != null" class="d-flex flex-nowrap align-items-center">
+            <div v-if="isNetReady" 
+                class="d-flex flex-nowrap align-items-center"
+            >
                 <div class="px-1">|</div>
                 <div style="max-width: 65px" class="text-truncate">
-                    {{ walletStore.userActiveNetwork.name }}
+                    {{ activeNetwork.name }}
                 </div>
             </div> 
         </div>
     </button>
-    <modal
+    <Modal
         :id="modalId"
         title=""
         :has-header="false"
@@ -77,15 +82,24 @@ onBeforeMount(() => {
                                 <label class="fw-bold text-opacity-50">Wallet</label>
                                 <button class="btn btn-none text-primary">Change</button>
                             </div>
-                            <a href="#" 
-                                class="active-wallet-addr p-2 mt-2 border rounded d-flex justify-content-center align-items-center no-underline"
-                                @click.prevent
-                            >
-                                <div class="text-break">{{ walletStore.activeWalletFull }}</div>
+                            <div class="
+                                active-wallet-addr 
+                                p-2 mt-2 border 
+                                rounded d-flex 
+                                justify-content-center 
+                                align-items-center 
+                                no-underline"
+                            >   
+                                <router-link  
+                                    :to="`/wallet/addresses?r=${Utils.getUriPath()}`" 
+                                    class="btn btn-none text-start text-break"
+                                >
+                                    {{ walletStore.activeWalletFull }}
+                                </router-link>
                                 <button class="btn btn-primary p-2 rounded ms-2" >
                                     <Icon name='solar:copy-bold-duotone' :size="24" />
                                 </button>
-                            </a>
+                            </div>
                         </div>
                         <div class="mt-4">
                             <div class="d-flex justify-content-between align-items-center">
@@ -99,19 +113,19 @@ onBeforeMount(() => {
                             </div>
                             <router-link
                                 class="active-wallet-addr p-2 mt-2 border rounded d-flex justify-content-between  align-items-center no-underline"
-                                v-if="walletStore.userActiveNetwork != null"
+                                v-if="isNetReady"
                                 :to="`/networks?r=${Utils.getUriPath()}`"
                             >
                                 <div class="text-break">
-                                    {{ walletStore.userActiveNetwork.name }} ( {{ walletStore.userActiveNetwork.chainId }} )
+                                    {{ activeNetwork.name }} ( {{ activeNetwork.chainId }} )
                                 </div>
                                 <button class="btn btn-secondary p-2 rounded ms-2" >
                                     <Image 
                                         :width="26" 
                                         :height="26" 
                                         class="rounded-circle"
-                                        :src="walletStore.userActiveNetwork.icon" 
-                                        :placeholder="walletStore.userActiveNetwork.name"
+                                        :src="activeNetwork.icon" 
+                                        :placeholder="activeNetwork.name"
                                     />
                                 </button>
                             </router-link>
@@ -125,7 +139,7 @@ onBeforeMount(() => {
                 </div>
             </loading-view>
         </template>
-    </modal>
+    </Modal>
 </template>
 <style lang="scss">
 .active-wallet-addr {

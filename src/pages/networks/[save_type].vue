@@ -8,15 +8,14 @@ import Utils from '../../classes/Utils';
 import WalletLayout from '../../layouts/WalletLayout.vue';
 import NativeBackBtn from '../../components/common/NativeBackBtn.vue';
 import { useRoute } from 'vue-router';
+import { useNetworks } from '../../composables/useNetworks';
 
 const initialized   = ref(false)
-const activeNetInfo = ref({})
-const allNetworks   = ref({})
-const walletStore   = useWalletStore()
+const net           = useNetworks()
+const {  allNetworks } = net;
 const route         = useRoute()
-const isLoading     = ref(false)
 const pageTitle     = ref("")
-const subTitle     = ref("")
+const subTitle      = ref("")
 
 const formData      = ref({
     name: "",
@@ -40,9 +39,9 @@ const initialize = async () => {
         pageError.value = ""
         saveType.value = route.params.save_type
 
-        let userNetworks = await walletStore.getUserNetworks()    
-        activeNetInfo.value = userNetworks.networks[userNetworks.default]
-        allNetworks.value = userNetworks.networks
+        await net.getUserNetworks()    
+
+        let allNets = allNetworks.value
 
         pageTitle.value = "Add Network"
 
@@ -50,7 +49,7 @@ const initialize = async () => {
             
             let chainId = route.query.chainId || ""
 
-            if(!/[0-9]+/.test(chainId) || !(chainId in allNetworks.value)){
+            if(!/[0-9]+/.test(chainId) || !(chainId in allNets)){
                 pageError.value = `A valid chain id is required`
                 return false;
             }
@@ -59,7 +58,7 @@ const initialize = async () => {
 
             chainId = parseInt(chainId)
 
-            formData.value = allNetworks.value[chainId]
+            formData.value = allNets[chainId]
 
             pageTitle.value = "Edit Network"
             subTitle.value = formData.value.name
@@ -118,7 +117,7 @@ const onSave = async () => {
         //lets get the chain info 
         loader = Utils.loader("Saving Network")
 
-        let netInfoStatus = await walletStore.fetchNetworkInfo(rpc)
+        let netInfoStatus = await net.fetchNetworkInfo(rpc)
 
         if(netInfoStatus.isError()){
             return Utils.mAlert(netInfoStatus.getMessage())
@@ -132,7 +131,7 @@ const onSave = async () => {
 
         formData.value.chainId = chainId
 
-        let saveStatus = await walletStore.saveNetwork(formData.value, setAsDefault.value)
+        let saveStatus = await net.saveNetwork(formData.value, setAsDefault.value)
         
         if(saveStatus.isError()){
             return Utils.mAlert(saveStatus.getMessage())

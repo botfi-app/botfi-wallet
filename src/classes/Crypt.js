@@ -32,7 +32,7 @@ export default class Crypt {
             {
               name: "PBKDF2",
               salt,
-              iterations: 210_000,
+              iterations: 500_000,
               hash: "SHA-256",
             },
             keyMaterial,

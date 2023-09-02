@@ -113,9 +113,43 @@ export default class TelegramCore {
         }
     }
     
-    expand = () => this.webApp.expand()
+    expand = () => this.webApp.expand();
     
-    isExpanded = () => this.webApp.isExpanded
+    isExpanded = () => this.webApp.isExpanded;
 
-    getViewportHeight = () => this.webApp.viewportHeight
+    getViewportHeight = () => this.webApp.viewportHeight;
+
+    // cloud store
+    cloudStore() {
+
+        let cs = this.webApp.CloudStorage || null
+        let isSupported = (cs != null)
+
+        cs.setItem("hello", "Booom", function() {
+            console.log("Saved=========>")
+        });
+
+        cs.getKeys(function(keys){ console.log("keeeeys====>", keys)})
+
+        return {
+            isSupported: () => isSupported,
+            setItem: async (key, value) => {
+                if(!isSupported) return;
+                cs.setItem(key, value)
+                return true
+            },
+            getItem: async (key) => {
+                if(!isSupported) return null;
+                //return cs.getItem(key)
+                return false
+            },
+            removeItem: async (key) => {
+                if(!isSupported) return false;
+                //return cs.removeItem(key)
+                return false
+            }
+        }
+    }
+
+
 }

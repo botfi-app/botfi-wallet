@@ -3,7 +3,6 @@ import { inject, onBeforeMount, ref, watch } from 'vue';
 import { useWalletStore } from "../store/walletStore"
 import { useRouter } from 'vue-router';
 import Utils from '../classes/Utils'
-import { useToast } from '../composables/useToast';
 import Pincode from '../components/common/Pincode.vue';
 
 const initialized = ref(false)
@@ -15,9 +14,9 @@ onBeforeMount(() => {
     initialize()
 })
 
-const initialize = () => {
+const initialize = async () => {
 
-    if(!walletStore.hasDefaultWallet()){
+    if(!(await walletStore.hasDefaultWallet())){
         router.push('/')
     }
 

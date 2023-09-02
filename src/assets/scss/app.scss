@@ -96,21 +96,8 @@ html[data-is-expanded=false] .swal2-popup {
 }
 
 .form-check{
-    display: flex;
+  
     
-    .form-check-input {
-        margin-right: 6px; 
-       flex-grow: 0;
-       flex-shrink: 0;
-       width: 20px;
-       height: 20px;
-       border-width: 2px;
-    }
-
-    .form-check-label {
-        position: relative;
-        top: 3px;
-    }
 }
 
 .btn-soft-info {

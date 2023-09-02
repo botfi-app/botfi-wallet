@@ -18,12 +18,15 @@ const hasAgreedNoPinReset    = ref(false)
 const hasAgreedNoPinOnServer = ref(false)
 const isLoading = ref(false)
 
-onBeforeMount(() => {
+onBeforeMount( async () => {
+
+    console.log("getNextPage()===>", getNextPage())
+
     if(getNextPage() == ""){
        return router.push("/")
     }
 
-    if(getNextPage() == "create-wallet" &&  walletStore.hasDefaultWallet()){
+    if(getNextPage() == "create-wallet" &&  (await walletStore.hasDefaultWallet())){
         return router.push("/login")
     }
 

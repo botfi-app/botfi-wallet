@@ -1,7 +1,6 @@
 
 <script setup>
 import { onBeforeMount, ref } from 'vue';
-import { useWalletStore } from '../../store/walletStore';
 import Utils from '../../classes/Utils';
 import WalletLayout from '../../layouts/WalletLayout.vue';
 import NativeBackBtn from '../../components/common/NativeBackBtn.vue';
@@ -10,30 +9,22 @@ import Icon from '../../components/common/Icon.vue';
 import { Modal as bsModal } from 'bootstrap';
 import MainBtn from "../../components/common/MainBtn.vue"
 import { useRouter } from 'vue-router';
+import { useNetworks } from '../../composables/useNetworks';
+import Modal from '../../components/modals/Modal.vue';
 
+const net = useNetworks()
+const { isNetReady, allNetworks, activeNetwork } = net;
 const router = useRouter()
 const initialized = ref(false)
-const activeNetInfo = ref({})
-const allNetworks = ref({})
-const walletStore = useWalletStore()
 const isLoading   = ref(false)
 const modalTitle  = ref("")
 const selectedItem = ref(null) 
 const modalId = ref('net-opt-modal-'+Date.now())
 let _modal = null
 const dataState = ref(Date.now())
-const filteredData = ref({})
 const networksDataToRender = ref({})
 
 const initialize = async () => {
-
-    let userNetworks = await walletStore.getUserNetworks()    
-    activeNetInfo.value = userNetworks.networks[userNetworks.default]
-    allNetworks.value = userNetworks.networks
-    selectedItem.value = userNetworks.networks[1]
-
-    dataState.value = Date.now()
-
     initialized.value = true
 }
 
@@ -47,7 +38,7 @@ const onItemClick = async (item) => {
     if(_modal == null){
         _modal = bsModal.getOrCreateInstance('#'+modalId.value)
     }
-
+    
     selectedItem.value = item 
     modalTitle.value = `<span class='text-primary'>${item.name}</span>`        
     _modal.show()
@@ -58,7 +49,7 @@ const setDefaultNetwork = async () => {
     //console.log("selectedItem.value===>", selectedItem.value)
 
     let loader = Utils.loader("Setting Default Network")
-    let resultStatus = await walletStore.setActiveNetwork(selectedItem.value.chainId)
+    let resultStatus = await net.setActiveNetwork(selectedItem.value.chainId)
     loader.close()
 
     if(resultStatus.isError()){
@@ -72,13 +63,11 @@ const setDefaultNetwork = async () => {
 
 const removeNetwork = async () => {
 
-    let netInfo = selectedItem.value
+    let _selected = selectedItem.value
 
-    if(netInfo.chainId == 1){
+    if(_selected.chainId == 1){
         return Utils.errorAlert("Cannot delete this networl")
     }
-
-    let _selected = selectedItem.value
 
     let confirm = await Utils.getSwal().fire({
                     title: "Remove Network",
@@ -92,18 +81,13 @@ const removeNetwork = async () => {
     
     let loader = Utils.loader("Removing Network")
 
-    let resultStatus = await walletStore.removeNetwork(netInfo.chainId)
+    let resultStatus = await net.removeNetwork(_selected.chainId)
 
     loader.close()
 
     if(resultStatus.isError()){
         return Utils.mAlert(resultStatus.getMessage())
     }
-
-    let resultData = resultStatus.getData()
-
-    activeNetInfo.value = resultData.networks[resultData.default]
-    allNetworks.value   = resultData.networks
 
     dataState.value = Date.now()
 
@@ -125,20 +109,13 @@ const resetNetworks = async () => {
 
     let loader = Utils.loader("Resetting Networks")
 
-    let resultStatus = await walletStore.resetNetworks()
+    let resultStatus = await net.resetNetworks()
 
     loader.close()
 
     if(resultStatus.isError()){
         return Utils.mAlert(resultStatus.getMessage())
     }
-
-    let resultData = resultStatus.getData()
-
-    activeNetInfo.value = resultData.networks[resultData.default]
-    allNetworks.value   = resultData.networks
-
-   // console.log(allNetworks.value)
 
     dataState.value = Date.now()
     
@@ -158,7 +135,7 @@ const onSearch = async (keyword, filteredData) => {
     <WalletLayout
         title="Networks"
         :show-nav="false"
-        v-if="initialized"
+        v-if="isNetReady"
     >   
 
         <NativeBackBtn />
@@ -196,8 +173,8 @@ const onSearch = async (keyword, filteredData) => {
                         <div class="d-flex">
                             <Icon name="clarity:check-line" 
                                 :size="24"
-                                v-if="walletStore.userActiveNetwork != null && 
-                                      walletStore.userActiveNetwork.chainId == item.chainId"
+                                v-if="activeNetwork != null && 
+                                      activeNetwork.chainId == item.chainId"
                                 class="me-2 text-primary"
                             />
                             <div class="no-select">
@@ -226,7 +203,7 @@ const onSearch = async (keyword, filteredData) => {
                 :onClick="resetNetworks"
             />
         </div>
-        <modal
+        <Modal
             :id="modalId"
             :title="modalTitle"
             :has-header="true"
@@ -234,7 +211,9 @@ const onSearch = async (keyword, filteredData) => {
             size="modal-sm"
         >
             <template #body>
-                <ul class="list-group list-group-flush w-full no-select">
+                <ul class="list-group list-group-flush w-full no-select"
+                    v-if="selectedItem"
+                >
                     <li class="list-group-item list-group-item-action py-4 d-flex justify-content-between align-items-center"
                         role="button"
                         @click.prevent="setDefaultNetwork"
@@ -259,6 +238,6 @@ const onSearch = async (keyword, filteredData) => {
                     </li>
                 </ul>
             </template>
-        </modal>
+        </Modal>
     </WalletLayout>
 </template>

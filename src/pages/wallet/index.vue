@@ -1,8 +1,8 @@
 <script setup>
 import { inject, onBeforeMount, ref } from 'vue';
-import WalletLayout from '../layouts/WalletLayout.vue';
-import ProfilePhoto from '../components/common/ProfilePhoto.vue';
-import DefaultNetAndWallet from '../components/modals/default-network-and-wallet.vue';
+import WalletLayout from '../../layouts/WalletLayout.vue';
+import ProfilePhoto from '../../components/common/ProfilePhoto.vue';
+import DefaultNetAndWallet from '../../components/modals/DefaultNetAndWallet.vue';
 
 const botUtils = inject("botUtils")
 const userInfo = ref({})

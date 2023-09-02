@@ -1,7 +1,4 @@
 <script setup>
-import { onMounted, provide, ref } from "vue";
-import BotFiProvider from "./layouts/BotFiProvider.vue";
-import Toast from "./components/Toast.vue";
 
 //leave-active-class="animate__animated animate__zoomOut animate__fastest"
 </script>

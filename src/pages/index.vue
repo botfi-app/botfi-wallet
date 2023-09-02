@@ -12,7 +12,8 @@ onBeforeMount(() => {
 })
 
 const initialize = async () => {
-    if(walletStore.hasDefaultWallet()){
+
+    if((await walletStore.hasDefaultWallet())){
         await router.push('/login')
     }
 

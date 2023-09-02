@@ -18,7 +18,11 @@ export default class Utils {
     static openAppFromChatPlatform = "open the app from a chat platform such as telegram"
 
     static logError(msg, err){
-        console.log(msg, err)
+        console.log(msg)
+        if(err){
+            console.log(err)
+            console.log(err.stack)
+        }
     }
 
     static getSwal(extraOpts = {}) {
