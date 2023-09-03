@@ -26,13 +26,13 @@ const importWallet = () => {
 
 }
 
-const onItemClick = async (item, index) => {
+const onItemClick = async (item, key) => {
    
    if(menuModalInst.value == null){
         menuModalInst.value = bsModal.getOrCreateInstance('#'+menuModalId.value)
    }
    
-   item["index"] = index
+   item["key"] = key
 
    selectedItem.value = item 
    menuModalTitle.value = `<div class='px-2' style='line-height:15px;'>
@@ -120,11 +120,11 @@ const removeWallet = async () => {
                 </div>
                 <ul class="list-group list-group-flush w-full no-select">
                     <li v-if="dataToRender != null"
-                        v-for="(item,index) in dataToRender" 
+                        v-for="(item,key) in dataToRender" 
                         class="list-group-item list-group-item-action py-4 center-vh"
-                        :key="index"
+                        :key="key"
                         role="button" 
-                        @click="onItemClick(item, index)"
+                        @click="onItemClick(item, key)"
                     >
 
                         <div class="pe-2">
@@ -140,7 +140,7 @@ const removeWallet = async () => {
                           
                             <div class="no-select">
                                 <span class="text-break fs-14">
-                                    {{ item.address }}
+                                    {{ item.address }} 
                                 </span>
                                 <span 
                                     class='fs-12 hint ms-2'

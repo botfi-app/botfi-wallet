@@ -232,8 +232,8 @@ export const useWalletStore = defineStore('walletStore', () => {
             return Status.error("Cannot remove active wallet")
         }
 
-        if(!item.imported && item.index == 1){
-            return Status.error("Wallet cannot be removed")
+        if(!item.imported && item.wIndex == 0){
+            return Status.error("Default wallet cannot be removed")
         }
 
         let removeStatus = await keyStore.removeWallet(addr)

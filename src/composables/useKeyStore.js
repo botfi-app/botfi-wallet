@@ -87,7 +87,7 @@ export const useKeystore = () => {
             let walletAcctData = {
                 address:    walletInfo.address, 
                 privateKey: walletInfo.privateKey,
-                index:      0,
+                walletIndex:      0,
                 imported:   false
             }
 
@@ -122,7 +122,7 @@ export const useKeystore = () => {
 
     const saveWallet = async (password, opts = {})  => {
 
-        let { name = "", address, privateKey, index = 0, imported} = opts;
+        let { name = "", address, privateKey, walletIndex, imported} = opts;
 
         let wallets = await DB.getItem(WALLETS_KEY, true)
 
@@ -140,7 +140,7 @@ export const useKeystore = () => {
             name, 
             pk: encryptedPk,
             address,
-            index, 
+            wIndex: walletIndex, 
             imported
         }
 
@@ -168,24 +168,23 @@ export const useKeystore = () => {
 
             let dwallet = defaultWalletStatus.getData()
 
-            let index = dwallet.lastIndex + 1;
+            let walletIndex = dwallet.lastIndex + 1;
 
-            //console.log("dwallet.phrase===>", dwallet)
             let wallet =  ethersWallet.fromPhrase(dwallet.phrase)
 
-            let childWallet = wallet.deriveChild(index)
+            let childWallet = wallet.deriveChild(walletIndex)
 
             let walletAcctData = {
                 name:       walletName,
                 address:    childWallet.address, 
                 privateKey: childWallet.privateKey,
-                index,
+                walletIndex,
                 imported:   false
             }
 
             let saveWalletStatus = await saveWallet(password, walletAcctData)
 
-            let newDefaultWallet = { phrase: dwallet.phrase, lastIndex: index }
+            let newDefaultWallet = { phrase: dwallet.phrase, lastIndex: walletIndex }
 
             if(saveWalletStatus.isSuccess()) {
                 let encryptedData = await Crypt.encrypt(password, newDefaultWallet)
