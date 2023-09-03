@@ -245,6 +245,24 @@ export const useWalletStore = defineStore('walletStore', () => {
         return removeStatus
     }
 
+    const updateWalletName = async (addr, newName) => {
+
+        //lets get the item obj
+        let item = getWalletByAddr(addr)
+
+        if(item == null){
+            return Status.error("Wallet not found")
+        }
+
+        let removeStatus = await keyStore.updateWalletName(addr, newName)
+
+        if(!removeStatus.isError()){
+            await updateWallets()
+        }
+
+        return removeStatus
+    }
+
     return {
         hasDefaultWallet,
         updateWallets,
@@ -262,6 +280,7 @@ export const useWalletStore = defineStore('walletStore', () => {
         logout,
         deriveChildWallet,
         lastChildWalletIndex,
-        removeWallet
+        removeWallet,
+        updateWalletName
     }
 })

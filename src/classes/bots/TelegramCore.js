@@ -12,6 +12,13 @@ export default class TelegramCore {
         this.webApp = _tgram.WebApp || null;
     }
 
+    isMinVersion(version) {
+        return (this.webApp && 
+                this.webApp.platform != 'unknown' &&
+                parseFloat(this.webApp.version) >= version
+            )
+    }
+
     // get account 
     getUserInfo() {
         
@@ -75,10 +82,9 @@ export default class TelegramCore {
     }
 
     backBtn (onClick = null) {
-        let _isSupported =  (this.webApp != null && 
-                            this.webApp.platform != 'unknown' &&
-                            this.webApp.isVersionAtLeast(6.1)
-                        )
+        
+        let _isSupported =  (this.isMinVersion(6.1))
+
         if(!_isSupported){
             return this.notSupported()
         }
@@ -98,10 +104,7 @@ export default class TelegramCore {
 
     nativeAlert(text, onClose = (() => {})) {
 
-        let _isSupported =  ( this.webApp != null && 
-                              this.webApp.platform != 'unknown' &&
-                              this.webApp.isVersionAtLeast(6.2)
-                            )
+        let _isSupported =  ( this.isMinVersion(6.2))
 
         if(!_isSupported){
             return this.notSupported()
@@ -122,8 +125,13 @@ export default class TelegramCore {
     // cloud store
     cloudStore() {
 
-        let cs = this.webApp.CloudStorage || null
-        let isSupported = (cs != null)
+        let isSupported =  (this.isMinVersion(6.9))
+
+        if(!isSupported){
+            return this.notSupported()
+        }
+
+        let cs = this.webApp.CloudStorage 
 
         cs.setItem("hello", "Booom", function() {
             console.log("Saved=========>")

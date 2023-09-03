@@ -48,5 +48,6 @@ declare module '@vue/runtime-core' {
     TopLogo: typeof import('./src/components/header/TopLogo.vue')['default']
     ValidPasswordHints: typeof import('./src/components/common/ValidPasswordHints.vue')['default']
     WalletLayout: typeof import('./src/layouts/WalletLayout.vue')['default']
+    WalletNameEditor: typeof import('./src/components/modals/WalletNameEditor.vue')['default']
   }
 }

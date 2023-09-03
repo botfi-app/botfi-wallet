@@ -19,7 +19,7 @@ export const useDB = () => {
 
         localStorage.setItem(_k, _v)  
         
-        if(enableCloud){
+        if(enableCloud && cloudStore.isSupported()){
             await cloudStore.setItem(_k, _v)
         }
 
@@ -32,7 +32,7 @@ export const useDB = () => {
         
         let _v = localStorage.getItem(_k) || null 
 
-        if(_v == null && enableCloud){
+        if(_v == null && enableCloud && cloudStore.isSupported()){
             _v = await cloudStore.getItem(_k)
         }
 
@@ -45,7 +45,7 @@ export const useDB = () => {
         let _k = getKey(key)
         localStorage.removeItem(_k)
 
-        if(enableCloud){
+        if(enableCloud && cloudStore.isSupported()){
             cloudStore.removeItem(_k)
         }
     }

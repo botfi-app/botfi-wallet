@@ -220,6 +220,29 @@ export const useKeystore = () => {
         return Status.success()
     }
 
+    const updateWalletName = async (addr, newName) => {
+
+        let walletsStatus = await getWallets()
+
+        if(walletsStatus.isError()){
+            return walletsStatus
+        }
+
+        let wallets = walletsStatus.getData()
+
+        for(let index in wallets){
+            let item = wallets[index]
+
+            if(item.address.toLowerCase() == addr.toLowerCase()){
+                item.name = newName
+                break;
+            }
+        }
+
+        await DB.setItem(WALLETS_KEY, wallets, true)
+
+        return Status.success()
+    }
 
     return {
         getDefaultWallet,
@@ -229,6 +252,7 @@ export const useKeystore = () => {
         saveWallet,
         getWallets,
         deriveChildWallet,
-        removeWallet
+        removeWallet,
+        updateWalletName
     }
 }

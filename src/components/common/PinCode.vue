@@ -37,12 +37,15 @@ const handleInput = (e) => {
 
     } else if(['Backspace', 'Delete'].includes(e.key)){
 
+        let oldValue = pinValues.value[index].toString().trim()
+
         pinValues.value[index] = ""
         
-        if(index > 0){
+        if(index > 0 && oldValue == ''){
             t.blur()
             document.querySelector(`#${idStr}-`+(index-1)).focus()
         }
+
     } else {
         e.target.value = ''
         return false
