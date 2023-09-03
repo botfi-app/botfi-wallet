@@ -12,7 +12,6 @@ const props = defineProps({
 
 const emits = defineEmits(["success"])
 
-const modalTitle = ref("")
 const itemAddr = ref("")
 const walletStore = useWalletStore()
 const walletName = ref("")
@@ -21,12 +20,7 @@ onUpdated(() => {
     if(props.data.address != itemAddr.value){
         
         itemAddr.value = props.data.address
-        
-        modalTitle.value = `<div class='px-2' style='line-height:15px;'>
-                                <span class='fs-12 text-break'>${props.data.address}</span>
-                                <span class='ms-1 fs-12 hint'>${props.data.name}</span>
-                            </div>` 
-
+  
         walletName.value = props.data.name;
     }
 })
@@ -62,7 +56,7 @@ const doEditName = async () => {
         
     } catch(e){
         if(loader) loader.close()
-        Utils.logError("NewWalletModal#createWallet:", e)
+        Utils.logError("WalletNameEditor#doEditName:", e)
         Utils.mAlert(Utils.generalErrorMsg)
     }
 }
@@ -70,7 +64,7 @@ const doEditName = async () => {
 <template>
     <Modal
         :id="id"
-        :title="modalTitle"
+        title="Wallet Name Editor"
         :has-header="true"
         :has-footer="false"
         size="modal-sm"
@@ -88,6 +82,19 @@ const doEditName = async () => {
                             :autocorrect="false"
                         />
                         <label for="wallet_name">Wallet Name</label>
+                    </div>
+                    <div class="form-floating mb-3 rounded">
+                        <input type="text" 
+                           :value="props.data.address"
+                            class="form-control rounded" 
+                            id="w_address" 
+                            :autocapitalize="false"
+                            :autocomplete="false"
+                            :autocorrect="false"
+                            :disabled="true"
+                            :readonly="true"
+                        />
+                        <label for="w_address">Address</label>
                     </div>
                     <div class="my-3">
                         <button @click.prevent="doEditName"

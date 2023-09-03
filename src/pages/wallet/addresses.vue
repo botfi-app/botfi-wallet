@@ -35,9 +35,15 @@ const onItemClick = async (item, key) => {
    item["key"] = key
 
    selectedItem.value = item 
-   menuModalTitle.value = `<div class='px-2' style='line-height:15px;'>
-                                <span class='fs-12 text-break'>${item.address}</span>
-                                <span class='ms-1 fs-12 hint'>${item.name}</span>
+
+   let iconDom = document.getElementById(`addr-icon-${item.address}`).outerHTML;
+
+   menuModalTitle.value = `<div class='center-vh'>
+                                <div class="d-inline mt-1">${iconDom}</div>
+                                <div class='ps-3 pe-2' style='line-height:18px;'>
+                                    <span class='fs-14 text-break'>${item.address}</span>
+                                    <span class='ms-1 fs-14 hint'>${item.name}</span>
+                                </div>
                             </div>`        
    menuModalInst.value.show()
 }
@@ -84,6 +90,17 @@ const removeWallet = async () => {
 
     dataState.value = Date.now()
     menuModalInst.value.hide()
+}
+
+const copyAddress = async (addr) => {
+
+    let status = await Utils.copyToClipboard(addr)
+    
+    if(status == 'copied'){
+        Utils.toast("Address copied")
+    } else {
+        Utils.toast("Address copy failed")
+    }
 }
 </script>
 <template>
@@ -134,6 +151,7 @@ const removeWallet = async () => {
                                 :square="true"
                                 variant="ring"
                                 class="rounded"
+                                :id="`addr-icon-${item.address}`"
                             />
                         </div>
                         <div class="d-flex center-vh">
@@ -173,6 +191,13 @@ const removeWallet = async () => {
                 @success="dataState = Date.now()"
             />
 
+            <WalletNameEditor
+                v-if="selectedItem"
+                :id="walletEditorModalId"
+                :data="selectedItem"
+                
+            />
+
             <Modal
                 :id="menuModalId"
                 :title="menuModalTitle"
@@ -188,12 +213,31 @@ const removeWallet = async () => {
                             role="button"
                             @click.prevent="setActiveWallet"
                         >
-                            <div>Set as Default</div>
+                            <div>Set as Active</div>
                             <Icon name="solar:star-circle-bold-duotone" 
                                 class='text-primary' 
                                 :size="28" 
                             />
                         </li>
+                        <li class="list-group-item list-group-item-action py-4 d-flex justify-content-between align-items-center"
+                            role="button"
+                            @click.prevent="copyAddress(selectedItem.address)"
+                        >
+                            <div>Copy Address</div>
+                            <Icon name="solar:copy-bold-duotone" 
+                                class='text-primary' 
+                                :size="26" 
+                            />
+                        </li>
+                        
+                        <li class="list-group-item list-group-item-action py-4 d-flex justify-content-between align-items-center"
+                            role="button"
+                            @click="editItemName"
+                        >
+                            <div>Reveal Private Key</div>
+                            <Icon name="solar:safe-square-bold-duotone" class='text-primary' :size="28" />
+                        </li>
+
                         <li class="list-group-item list-group-item-action py-4 d-flex justify-content-between align-items-center"
                             role="button"
                             @click="editItemName"

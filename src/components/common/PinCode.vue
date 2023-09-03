@@ -37,7 +37,7 @@ const handleInput = (e) => {
 
     } else if(['Backspace', 'Delete'].includes(e.key)){
 
-        let oldValue = pinValues.value[index].toString().trim()
+        let oldValue = (pinValues.value[index] || '').toString().trim()
 
         pinValues.value[index] = ""
         

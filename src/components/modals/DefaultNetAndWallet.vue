@@ -72,14 +72,13 @@ const copyAddr = async () => {
                             <div class="
                                 active-wallet-addr 
                                 p-2 mt-2 border 
-                                rounded d-flex 
-                                justify-content-center 
-                                align-items-center 
+                                rounded 
+                                center-vh
                                 no-underline"
                             >   
                                 <router-link  
                                     :to="`/wallet/addresses?r=${Utils.getUriPath()}`" 
-                                    class="btn btn-none text-start text-break fs-14"
+                                    class="btn btn-none text-start text-break px-0 fs-15"
                                 >
                                     <span>{{ activeWallet.address }}</span>
                                     <span class="ms-2 fs-12 muted hint"
@@ -104,11 +103,18 @@ const copyAddr = async () => {
                                 </router-link>
                             </div>
                             <router-link
-                                class="active-wallet-addr p-2 mt-2 border rounded d-flex justify-content-between  align-items-center no-underline"
+                                class="
+                                    active-wallet-addr 
+                                    p-2 mt-2 border 
+                                    rounded d-flex 
+                                    justify-content-between  
+                                    align-items-center 
+                                    no-underline
+                                "
                                 v-if="isNetReady"
                                 :to="`/networks?r=${Utils.getUriPath()}`"
                             >
-                                <div class="text-break">
+                                <div class="text-break ">
                                     {{ activeNetwork.name }} ( {{ activeNetwork.chainId }} )
                                 </div>
                                 <button class="btn btn-secondary p-2 rounded ms-2" >

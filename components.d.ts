@@ -10,6 +10,7 @@ export {}
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
     AccountSelect: typeof import('./src/components/wallet/AccountSelect.vue')['default']
+    AddressesMenus: typeof import('./src/components/modals/AddressesMenus.vue')['default']
     AddWallet: typeof import('./src/components/modals/AddWallet.vue')['default']
     Avatar: typeof import('./src/components/common/Avatar.vue')['default']
     BotFiProvider: typeof import('./src/layouts/BotFiProvider.vue')['default']
@@ -22,7 +23,7 @@ declare module '@vue/runtime-core' {
     LoadingView: typeof import('./src/layouts/LoadingView.vue')['default']
     MainBtn: typeof import('./src/components/common/MainBtn.vue')['default']
     MainLayout: typeof import('./src/layouts/MainLayout.vue')['default']
-    Modal: typeof import('./src/components/modals/modal.vue')['default']
+    Modal: typeof import('./src/components/modals/Modal.vue')['default']
     ModalSelect: typeof import('./src/components/modals/modal-select.vue')['default']
     NativeBackBtn: typeof import('./src/components/common/NativeBackBtn.vue')['default']
     Nav: typeof import('./src/components/header/Nav.vue')['default']
