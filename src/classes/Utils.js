@@ -3,13 +3,9 @@
  * @author BotFi <hello@botfi.app>
  */
 
-import { useRoute,  useRouter } from "vue-router";
 import Swal from 'sweetalert2'
 import "sweetalert2/src/sweetalert2.scss"
-///import EventBus from './EventBus'
-///import { inject } from "vue";
 import Status from './Status'
-import { Toast } from 'bootstrap';
 
 export default class Utils {
 
@@ -206,5 +202,42 @@ export default class Utils {
         if (evt.which < 48 || evt.which > 57){
             evt.preventDefault();
         }
+    }
+
+    static async copyToClipboard(text) {
+        try{
+            if("clipboard" in navigator){
+                await navigator.clipboard.writeText(text);
+            }
+            else if("execCommand" in document){
+                var input = document.createElement('textarea');
+                input.innerHTML = text;
+                document.body.appendChild(input);
+                input.select();
+                var result = document.execCommand('copy');
+                document.body.removeChild(input);
+                return result;
+            } else {
+                return "failed"
+            }
+
+            return "copied"
+        } catch(e){
+            return "failed"
+        }
+    }
+
+    static arrayRandom(arr) {
+        return  arr[Math.floor(Math.random() * arr.length)]
+    }
+
+    static async toAsyncCall(callback) {
+        return (new Promise((resolve, reject) => {
+            try {
+                resolve(callback())
+            } catch(e){
+                reject(e)
+            }
+        }))
     }
 }

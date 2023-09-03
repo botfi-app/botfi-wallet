@@ -47,6 +47,13 @@ onBeforeMount(() => {
             v-if="imgSrc != ''" ref="imgRef" class="profile-photo shadow-lg" 
             @error="imgSrc=''"
         /> 
-        <Avatar :name="props.userId" v-else :size="28" class="" />
+        <Avatar 
+            v-else 
+            :name="props.userId" 
+            :size="28"
+            variant="ring" 
+            class="rounded" 
+            :square="true"
+        />
     </div>
 </template>

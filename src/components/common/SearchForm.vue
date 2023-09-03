@@ -15,6 +15,7 @@ const searchForm = ref()
 
 onMounted(() => {
     handleOnChange()
+    console.log(props)
 })
 
 const handleInputState = (type) => {

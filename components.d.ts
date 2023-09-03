@@ -10,9 +10,11 @@ export {}
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
     AccountSelect: typeof import('./src/components/wallet/AccountSelect.vue')['default']
+    AddWallet: typeof import('./src/components/modals/AddWallet.vue')['default']
     Avatar: typeof import('./src/components/common/Avatar.vue')['default']
     BotFiProvider: typeof import('./src/layouts/BotFiProvider.vue')['default']
     ChainSelect: typeof import('./src/components/wallet/ChainSelect.vue')['default']
+    CreateWallet: typeof import('./src/components/modals/CreateWallet.vue')['default']
     DefaultNetAndWallet: typeof import('./src/components/modals/DefaultNetAndWallet.vue')['default']
     DefaultNetworkAndWallet: typeof import('./src/components/modals/default-network-and-wallet.vue')['default']
     Icon: typeof import('./src/components/common/Icon.vue')['default']
@@ -29,6 +31,7 @@ declare module '@vue/runtime-core' {
     NetworkAndAccount: typeof import('./src/components/modals/NetworkAndAccount.vue')['default']
     NetworkAndWallets: typeof import('./src/components/modals/NetworkAndWallets.vue')['default']
     NetworkSelect: typeof import('./src/components/modals/network-select.vue')['default']
+    NewWalletModal: typeof import('./src/components/modals/NewWalletModal.vue')['default']
     PageError: typeof import('./src/components/common/PageError.vue')['default']
     Pin: typeof import('./src/components/common/Pin.vue')['default']
     Pincode: typeof import('./src/components/common/Pincode.vue')['default']

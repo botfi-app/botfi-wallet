@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import {ref, computed, toValue, toRaw, inject } from 'vue'
+import {ref, computed, toValue, toRaw, inject, onBeforeMount } from 'vue'
 import Status from '../classes/Status';
 import Wallet from '../classes/Wallet';
 import { useKeystore } from '../composables/useKeyStore';
@@ -9,7 +9,7 @@ import { useNetworks } from '../composables/useNetworks';
 
 export const useWalletStore = defineStore('walletStore', () => {
 
-    const ACTIVE_WALLET = '_active_wallet'
+    const ACTIVE_WALLET_ADDR = '_active_wallet_addr'
 
 
     const botUtils = inject("botUtils")
@@ -21,27 +21,20 @@ export const useWalletStore = defineStore('walletStore', () => {
         walletCore:             null,
         password:               "",
         defaultWallet:          null,
-        wallets:                {},
-        activeWallet:           null
+        wallets:                [],
+        activeWalletAddr:      null
     }
 
     const $state = ref(defaultState); 
 
 
-    const defaultWallet     = computed(()       =>    $state.value.defaultWallet )
-    const wallets           = computed(()       =>    $state.value.wallets )
-    const password          = computed(()       =>    $state.value.password )
-    const activeWallet      = computed(()       =>    $state.value.activeWallet)
-    const activeWalletFull  = computed(()       =>    '0x' + $state.value.activeWallet)
+    const defaultWallet          = computed(()       =>    $state.value.defaultWallet )
+    const wallets                = computed(()       =>    $state.value.wallets )
+    const password               = computed(()       =>    $state.value.password )
+    const activeWallet           = computed(()       =>    getWalletByAddr($state.value.activeWalletAddr))
+    const lastChildWalletIndex   = computed(()       =>    defaultWallet.lastIndex)
     
-  
-    const setState = (key, value) => $state.value[key] = value
 
-    const setPassword = (pass) => {
-        setState("password", pass)
-    }
-
-    
     const processPassword = (_pass="") => {
 
         _pass = toValue(_pass).toString().trim()
@@ -51,15 +44,21 @@ export const useWalletStore = defineStore('walletStore', () => {
         return `${botUtils.getUid()}_${_pass}`
     }
 
+    const setPassword = (pass) => {
+        $state.value.password = processPassword(pass)
+    }
+    
     const getPassword = async () => {
         return password.value.toString().trim()
     }
     
     const doLogin = async (pass) => {
         
-        let _ppass = processPassword(pass)
+        let $s = $state.value
 
-        let defaultWalletStatus = await keyStore.getDefaultWallet(_ppass)
+        let _password = processPassword(pass)
+
+        let defaultWalletStatus = await keyStore.getDefaultWallet(_password)
         
         if(defaultWalletStatus.isError()){
 
@@ -72,59 +71,61 @@ export const useWalletStore = defineStore('walletStore', () => {
             return defaultWalletStatus
         }
 
-        setState("defaultWallet", defaultWalletStatus.getData())
+        $s.defaultWallet = defaultWalletStatus.getData()
 
         // lets now fetch the accounts
-        let accountsStatus = await keyStore.getWallets(_ppass)
+        let accountsStatus = await keyStore.getWallets(_password)
 
         if(accountsStatus.isError()){
             return accountsStatus
         }
 
-        setState("wallets", accountsStatus.getData());
-        setState("password", pass)
+        $s.wallets = accountsStatus.getData()
+        $s.password = _password
 
-        getActiveWalletInfo()
+        await getActiveWalletInfo()
       
         return Status.successPromise()
     } //end do login 
 
-
+    const getWalletByAddr =  (addr) => {
+        let index = wallets.value.findIndex((item) => item.address == addr)
+        return (index== -1) ? null : wallets.value[index]
+    }
 
     const setActiveWallet = async (addr) => {
-        
-        addr = addr.toLowerCase()
-
-        if(addr.startsWith("0x")) addr = addr.substring(2)
-
-        setState('activeWallet', addr)
-
-        await DB.setItem(ACTIVE_WALLET, addr)
+        let $s = $state.value
+        $s.activeWalletAddr = addr 
+        await DB.setItem(ACTIVE_WALLET_ADDR, addr)
+        return Status.success()
     }
+
 
     const getActiveWalletInfo = async () => {
         
-        let _swalletAddr = activeWallet.value || ""
+        let $s = $state.value 
         
-        if(_swalletAddr.length == ''){
-            _swalletAddr = (await DB.getItem(ACTIVE_WALLET)) || ''
+        if($s.activeWalletAddr == null){
+
+            let addr = (await DB.getItem(ACTIVE_WALLET_ADDR)) || null 
+            
+            if(addr == null) {
+                
+                let lastWallet = wallets.value.at(-1) || null 
+                
+                if(lastWallet != null){
+                    addr = lastWallet.address;
+                }
+            }
+
+            if(addr == null) return null;
+            
+            await DB.setItem(ACTIVE_WALLET_ADDR, addr )
+
+           $s.activeWalletAddr = addr
         }
-
-        if(_swalletAddr == ''){
-            _swalletAddr = Object.keys(wallets.value)[0]
-        }
-
-        if(_swalletAddr.startsWith("0x")){
-            _swalletAddr = _swalletAddr.substring(2)
-        }
-
-        _swalletAddr = _swalletAddr.toLowerCase()
-
-        let w = wallets.value[_swalletAddr];
-
-        await setActiveWallet( w.wallet.address )
-
-        return wallets.value[_swalletAddr]
+        
+        return wallets.value[$s.activeWalletAddr]
     }
  
     const isLoggedIn = () => {
@@ -149,9 +150,9 @@ export const useWalletStore = defineStore('walletStore', () => {
     }
 
     const saveDefaultWallet = async (_walletInfo) => {
-        
+
         let saveStatus = await keyStore.saveDefaultWallet(
-                            processPassword(password), 
+                            password.value, 
                             toRaw(_walletInfo)
                         )
 
@@ -159,37 +160,35 @@ export const useWalletStore = defineStore('walletStore', () => {
             return saveStatus
         }
 
-        setState("defaultWallet", saveStatus.getData())
+        $state.value.defaultWallet = saveStatus.getData()
        
-        updateWallets();
+        await updateWallets();
+        await getActiveWalletInfo()
 
         return saveStatus
     }
 
     const updateWallets = async () => {
-        
-        let pass = processPassword(toValue(password))
 
-        if(pass == "") {
-            return Status.error("Pasword is required")
-        }
+        if(password.value == '') return;
 
-        let walletsStatus = await keyStore.getWallets(toValue(pass))
+        let walletsStatus = await keyStore.getWallets(password.value)
 
         if(walletsStatus.isError()){
             return walletsStatus
         }
 
-        setState("wallets", walletsStatus.getData())
+        $state.value.wallets =  walletsStatus.getData() || []
 
         return walletsStatus
     }
 
+    
     const resetWallets = async () => {
 
         await keyStore.resetWallets()
         
-        await DB.removeItem(ACTIVE_WALLET)
+        await DB.removeItem(ACTIVE_WALLET_ADDR)
         
         await networks.clearNetworks()
 
@@ -198,6 +197,53 @@ export const useWalletStore = defineStore('walletStore', () => {
         return Status.success()
     }
 
+    const deriveChildWallet = async (walletName) => {
+
+        let $s = $state.value;
+
+        let resultStatus = await keyStore.deriveChildWallet(
+                            password.value, 
+                            walletName
+                        )
+
+        if(resultStatus.isError()){
+            return resultStatus
+        }
+
+        $s.defaultWallet = resultStatus.getData()
+
+        await updateWallets()
+
+        return resultStatus;
+    }
+
+    const removeWallet  = async (addr) => {
+
+        let $s = $state.value
+
+        //lets get the item obj
+        let item = getWalletByAddr(addr)
+
+        if(item == null){
+            return Status.error("Wallet not found")
+        }
+
+        if($s.activeWalletAddr == addr){
+            return Status.error("Cannot remove active wallet")
+        }
+
+        if(!item.imported && item.index == 1){
+            return Status.error("Wallet cannot be removed")
+        }
+
+        let removeStatus = await keyStore.removeWallet(addr)
+
+        if(!removeStatus.isError()){
+            await updateWallets()
+        }
+
+        return removeStatus
+    }
 
     return {
         hasDefaultWallet,
@@ -207,13 +253,15 @@ export const useWalletStore = defineStore('walletStore', () => {
         saveDefaultWallet,
         setActiveWallet,
         activeWallet,
-        activeWalletFull,
         getActiveWalletInfo,
         getPassword,
         setPassword,
         doLogin,
         isLoggedIn,
         resetWallets,
-        logout
+        logout,
+        deriveChildWallet,
+        lastChildWalletIndex,
+        removeWallet
     }
 })

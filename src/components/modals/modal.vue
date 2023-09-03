@@ -1,5 +1,5 @@
 <script setup>
-import { onBeforeMount, onBeforeUnmount, onMounted, ref } from 'vue';
+import {  onBeforeUnmount, onMounted, ref } from 'vue';
 import { Modal } from 'bootstrap'
 
 const $emit = defineEmits(["close", "show"])
@@ -13,13 +13,21 @@ const props = defineProps({
 })
 
 let _modal = null
+let modalEl = ref()
 
 onMounted(() => {
     setTimeout(() => initModal(), 200)
 })
 
 const initModal = () => {
-   _modal = new Modal(`#${props.id}`)
+
+    let mEl = modalEl.value;
+
+   _modal = new Modal(mEl)
+
+    mEl.addEventListener("hidden.bs.modal", () => {
+        cleanupModal()
+    })
 }
 
 onBeforeUnmount(async () => {
@@ -35,7 +43,7 @@ const cleanupModal = () => {
 }
 </script>
 <template>
-   <div class="modal" :id="props.id" tabindex="-1">
+   <div class="modal" :id="props.id" ref="modalEl" tabindex="-1">
         <div :class="`modal-dialog ${props.size}`">
             <div class="modal-content">
                 <div class="modal-header" v-if="hasHeader">

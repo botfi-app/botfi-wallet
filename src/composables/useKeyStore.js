@@ -3,7 +3,7 @@
  * @author BotFi <hello@botfi.app>
  */
 
-import { getAddress } from "ethers"
+import { getAddress, Wallet as ethersWallet } from "ethers"
 import Utils from "../classes/Utils"
 import Status from "../classes/Status"
 import { toValue } from "vue"
@@ -18,13 +18,13 @@ export const useKeystore = () => {
     
     const DEFAULT_WALLET_KEY = `__botfi_dw_info`
     const WALLETS_KEY = `__botfi_wallets`
-
+    
 
     const getDefaultWallet = async (password) => {
         try {
             
             if(password == ''){
-                return Status.error("Passowrd is required")
+                return Status.error("Password is required")
                              .setCode(ErrorCodes.PASSWORD_REQUIRED)
             }
 
@@ -43,13 +43,9 @@ export const useKeystore = () => {
 
             } catch(e){
                 
-                if(e.code == "INVALID_ARGUMENT" && e.argument == "password"){
-                    return Status.error("Invalid password")
-                }
-
                 Utils.logError(`useKeyStore#getDefaultWallet:`, e)
                 
-                return Status.error("Failed to decrypt wallet")
+                return Status.error("Wallet decryption failed, check password & try again")
                              .setCode(ErrorCodes.WALLET_DECRYPTION_ERROR)
             }
 
@@ -84,7 +80,7 @@ export const useKeystore = () => {
 
             let phrase = walletInfo.mnemonic.phrase
 
-            let encryptedData = await Crypt.encrypt(password, phrase)
+            let encryptedData = await Crypt.encrypt(password, { phrase, lastIndex: 0 })
 
             await DB.setItem(DEFAULT_WALLET_KEY, encryptedData, true)
 
@@ -110,39 +106,17 @@ export const useKeystore = () => {
         }
     }
 
-    const getWallets = async (password) => {
+    const getWallets = async () => {
 
-        password = toValue(password)
+        //password = toValue(password)
 
-        let walletsObj = await DB.getItem(WALLETS_KEY, true)
+        let walletsArr = await DB.getItem(WALLETS_KEY, true)
 
-        if(walletsObj == null){
-            return Status.successData({})
+        if(walletsArr == null){
+            return Status.successData([])
         }
 
-        if(Object.keys(walletsObj).length == 0){
-            return Status.successData({})
-        }
-
-        for(let key of Object.keys(walletsObj)){
-            try {
-
-                let item = walletsObj[key]
-
-                let decryptedWallet = await Crypt.decrypt(password, item.wallet)
-
-                walletsObj[key].wallet =  decryptedWallet
-
-                if(item.name == ''){
-                    walletsObj[key].name = decryptedWallet.address;
-                }
-            } catch(e){ 
-                console.log("useKeyStore#getWallets:", key, e)
-                continue; 
-            }
-        }
-
-        return Status.successData(walletsObj)
+        return Status.successData(walletsArr)
     }
 
 
@@ -153,35 +127,100 @@ export const useKeystore = () => {
         let wallets = await DB.getItem(WALLETS_KEY, true)
 
         if(wallets == null){
-            wallets = {}
+            wallets = []
         }
 
         address = getAddress(address)
 
-        let walletInfo = {
-            address, 
-            privateKey
-        }
-
         password = toValue(password)
         
-        let encryptedWallet = await Crypt.encrypt(password, walletInfo)
+        let encryptedPk = await Crypt.encrypt(password, privateKey)
 
         let dataToSave = {
             name, 
-            wallet: encryptedWallet,
+            pk: encryptedPk,
+            address,
             index, 
             imported
         }
 
-        let key = address.toLowerCase().substring(2);
-
-        wallets[key] = dataToSave
+        wallets.unshift(dataToSave)
 
         await DB.setItem(WALLETS_KEY, wallets, true)
  
         return Status.successPromise()
     }
+
+    // derive wallet
+    const deriveChildWallet = async (password, walletName) => {
+        try {
+
+            password = toValue(password)
+
+            //console.log("password===>", password)
+
+            // lets get default wallet 
+            let defaultWalletStatus = await getDefaultWallet(password)
+
+            if(defaultWalletStatus.isError()){
+                return defaultWalletStatus
+            }
+
+            let dwallet = defaultWalletStatus.getData()
+
+            let index = dwallet.lastIndex + 1;
+
+            //console.log("dwallet.phrase===>", dwallet)
+            let wallet =  ethersWallet.fromPhrase(dwallet.phrase)
+
+            let childWallet = wallet.deriveChild(index)
+
+            let walletAcctData = {
+                name:       walletName,
+                address:    childWallet.address, 
+                privateKey: childWallet.privateKey,
+                index,
+                imported:   false
+            }
+
+            let saveWalletStatus = await saveWallet(password, walletAcctData)
+
+            let newDefaultWallet = { phrase: dwallet.phrase, lastIndex: index }
+
+            if(saveWalletStatus.isSuccess()) {
+                let encryptedData = await Crypt.encrypt(password, newDefaultWallet)
+                await DB.setItem(DEFAULT_WALLET_KEY, encryptedData, true)
+            }
+
+            return Status.successData(newDefaultWallet)
+            
+        } catch(e){
+            ///Utils.logError("useKeyStore#deriveChildWallet:",e)
+            console.log(e, e.stack)
+            return Utils.generalErrorStatus
+        }
+    } 
+
+
+    const removeWallet = async (addr) => {
+
+        let walletsStatus = await getWallets()
+
+        if(walletsStatus.isError()){
+            return walletsStatus
+        }
+
+        let wallets = walletsStatus.getData()
+
+        let newWallets = wallets.filter(v => v.address.toLowerCase() != addr.toLowerCase())
+
+        //console.log("newWallets===>", newWallets)
+        
+        await DB.setItem(WALLETS_KEY, newWallets, true)
+
+        return Status.success()
+    }
+
 
     return {
         getDefaultWallet,
@@ -189,6 +228,8 @@ export const useKeystore = () => {
         hasDefaultWallet,
         saveDefaultWallet,
         saveWallet,
-        getWallets
+        getWallets,
+        deriveChildWallet,
+        removeWallet
     }
 }
