@@ -77,7 +77,7 @@ watch(pinValues, () => {
         <div class="px-2 mt-2">
             <label class="fw-bold text-muted">{{ props.label }}</label>
         </div>
-        <div class="d-flex flex-row justify-content-center">
+        <div class="d-flex flex-row">
             <template v-for="index in Array(5).keys()" :key="index">
                 <div>
                     <input

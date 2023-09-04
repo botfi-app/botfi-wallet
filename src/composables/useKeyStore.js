@@ -85,10 +85,11 @@ export const useKeystore = () => {
             await DB.setItem(DEFAULT_WALLET_KEY, encryptedData, true)
 
             let walletAcctData = {
-                address:    walletInfo.address, 
-                privateKey: walletInfo.privateKey,
-                walletIndex:      0,
-                imported:   false
+                name:           "Default",
+                address:        walletInfo.address, 
+                privateKey:     walletInfo.privateKey,
+                walletIndex:    0,
+                imported:       false
             }
 
             let saveWalletStatus = await saveWallet(password, walletAcctData)
@@ -244,6 +245,22 @@ export const useKeystore = () => {
         return Status.success()
     }
 
+    const decryptWallet = async (walletObj, password) => {
+        try {
+
+           let  decryptedData = await Crypt.decrypt(password, walletObj.privateKey)
+
+           walletObj.decryptedPrivateKey = decryptedData
+
+           return Status.successData(decryptedData)
+
+        } catch(e){
+            Utils.console("KeyStore#decryptWallet:", e)
+            return Status.error("Wallet decryption failed, check password & try again")
+                             .setCode(ErrorCodes.WALLET_DECRYPTION_ERROR)
+        }
+    }
+
     return {
         getDefaultWallet,
         resetWallets,
@@ -253,6 +270,7 @@ export const useKeystore = () => {
         getWallets,
         deriveChildWallet,
         removeWallet,
-        updateWalletName
+        updateWalletName,
+        decryptWallet
     }
 }

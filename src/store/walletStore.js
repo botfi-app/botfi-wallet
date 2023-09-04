@@ -263,6 +263,26 @@ export const useWalletStore = defineStore('walletStore', () => {
         return removeStatus
     }
 
+    const getPrivateKeyByAddr = async (addr, password) => {
+        
+        password = toValue(password).trim()
+
+        if(password == ""){
+            return Status.error("Pin code is required")
+        }
+
+        let pass = processPassword(password)
+
+        //lets get the item obj
+        let item = getWalletByAddr(addr)
+
+        if(item == null){
+            return Status.error("Wallet not found")
+        }
+        
+        return keyStore.decryptWallet(item)
+    }
+
     return {
         hasDefaultWallet,
         updateWallets,

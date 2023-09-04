@@ -240,4 +240,12 @@ export default class Utils {
             }
         }))
     }
+
+
+    static async waitInSecs(timeInSecs) {
+        return (new Promise((resolve) => {
+            setTimeout(() => resolve(true), timeInSecs * 1000)
+        }))
+    }
+
 }

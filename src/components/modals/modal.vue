@@ -1,6 +1,6 @@
 <script setup>
 import {  onBeforeUnmount, onMounted, ref } from 'vue';
-import { Modal } from 'bootstrap'
+import { Modal as bsModal } from 'bootstrap'
 
 const $emit = defineEmits(["close", "show"])
 
@@ -20,10 +20,9 @@ onMounted(() => {
 })
 
 const initModal = () => {
-
     let mEl = modalEl.value;
-
-   _modal = new Modal(mEl)
+   
+    _modal = new bsModal(mEl)
 
     mEl.addEventListener("hidden.bs.modal", () => {
         cleanupModal()
@@ -32,14 +31,16 @@ const initModal = () => {
 
 onBeforeUnmount(async () => {
     _modal.hide()
-    cleanupModal()
 })
 
 const cleanupModal = () => {
-    let backdrop = document.querySelector(".modal-backdrop")
-    if(backdrop) backdrop.remove()
-    document.body.style = ''
-    _modal._backdrop.hide()
+    //let backdrop = document.querySelector(".modal-backdrop")
+    //if(backdrop){
+     //    backdrop.classList
+   // }
+    
+    //document.body.style = ''
+    ///_modal._backdrop.hide()
 }
 </script>
 <template>
@@ -48,8 +49,17 @@ const cleanupModal = () => {
             <div class="modal-content">
                 <div class="modal-header" v-if="hasHeader">
                     <slot name="header">
-                        <h5 class="modal-title" v-html="props.title"></h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <div class="w-full d-flex justify-content-between align-items-center">
+                            <h5 class="modal-title m-0 p-0" v-html="props.title"></h5>
+                            <div class="pe-1">
+                                <button 
+                                    type="button" 
+                                    class="btn-close" 
+                                    data-bs-dismiss="modal" 
+                                    aria-label="Close"
+                                />
+                            </div>
+                        </div>
                     </slot>
                 </div>
                 <div class="modal-body p-0">

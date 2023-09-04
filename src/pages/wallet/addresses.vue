@@ -5,8 +5,10 @@ import { useWalletStore } from '../../store/walletStore';
 import { ref, watch } from 'vue'
 import Avatar from '../../components/common/Avatar.vue';
 import NewWalletModal from '../../components/modals/NewWalletModal.vue';
+import WalletNameEditor from '../../components/modals/WalletNameEditor.vue';
 import { Modal as bsModal } from 'bootstrap'
 import Utils from '../../classes/Utils';
+import RevealPrivateKey from '../../components/modals/RevealPrivateKey.vue';
 
 const walletStore = useWalletStore()
 const isLoading   = ref(false)
@@ -17,6 +19,8 @@ const newWalletModalId = ref("new-wallet-modal-"+Date.now())
 const dataState = ref(Date.now())
 const dataToRender = ref(null)
 const menuModalInst = ref(null)
+const walletNameEditorModalId = ref("wallet-name-editor-modal-"+Date.now())
+const revealPKModalId = ref("reveal-pk-modal-"+Date.now())
 
 const onSearch = async (keyword, filteredData) => {
    dataToRender.value = filteredData
@@ -25,6 +29,8 @@ const onSearch = async (keyword, filteredData) => {
 const importWallet = () => {
 
 }
+
+
 
 const onItemClick = async (item, key) => {
    
@@ -42,7 +48,7 @@ const onItemClick = async (item, key) => {
                                 <div class="d-inline mt-1">${iconDom}</div>
                                 <div class='ps-3 pe-2' style='line-height:18px;'>
                                     <span class='fs-14 text-break'>${item.address}</span>
-                                    <span class='ms-1 fs-14 hint'>${item.name}</span>
+                                    <span class='ms-1 fs-12 hint font-monospace'>${item.name}</span>
                                 </div>
                             </div>`        
    menuModalInst.value.show()
@@ -63,8 +69,14 @@ const setActiveWallet = async () => {
     menuModalInst.value.hide()
 }
 
-const editItemName = () => {
+const editItemName = async () => {
+    menuModalInst.value.hide()
+    bsModal.getOrCreateInstance('#'+walletNameEditorModalId.value).show()
+}
 
+const handleRevealPrivateKey = () => {
+    menuModalInst.value.hide()
+    bsModal.getOrCreateInstance('#'+revealPKModalId.value).show()
 }
 
 const removeWallet = async () => {
@@ -161,7 +173,7 @@ const copyAddress = async (addr) => {
                                     {{ item.address }} 
                                 </span>
                                 <span 
-                                    class='fs-12 hint ms-2'
+                                    class='fs-12 hint ms-2 font-monospace'
                                     v-if="item.address != item.name"
                                 >
                                     {{item.name}} 
@@ -193,9 +205,18 @@ const copyAddress = async (addr) => {
 
             <WalletNameEditor
                 v-if="selectedItem"
-                :id="walletEditorModalId"
+                :id="walletNameEditorModalId"
                 :data="selectedItem"
-                
+                @success="dataState = Date.now()"
+                :key="selectedItem.address"
+            />
+
+            <RevealPrivateKey
+                v-if="selectedItem"
+                :id="revealPKModalId"
+                :data="selectedItem"
+                @success="dataState = Date.now()"
+                :key="selectedItem.address"
             />
 
             <Modal
@@ -232,7 +253,7 @@ const copyAddress = async (addr) => {
                         
                         <li class="list-group-item list-group-item-action py-4 d-flex justify-content-between align-items-center"
                             role="button"
-                            @click="editItemName"
+                            @click="handleRevealPrivateKey"
                         >
                             <div>Reveal Private Key</div>
                             <Icon name="solar:safe-square-bold-duotone" class='text-primary' :size="28" />
@@ -243,7 +264,7 @@ const copyAddress = async (addr) => {
                             @click="editItemName"
                         >
                             <div>Edit Name</div>
-                            <Icon name="basil:edit-outline" class='text-primary' :size="24" />
+                            <Icon name="icon-park-twotone:edit-two" class='text-primary' :size="24" />
                         </li>
                         <li class="list-group-item list-group-item-action py-4 d-flex justify-content-between align-items-center"
                             v-if="selectedItem.chainId != 1"
@@ -251,7 +272,7 @@ const copyAddress = async (addr) => {
                             @click.prevent="removeWallet"
                         >
                             <div>Remove Wallet</div>
-                            <Icon name="fluent:delete-28-regular" class='text-danger' :size="24" />
+                            <Icon name="ant-design:delete-twotone" class='text-danger' :size="24" />
                         </li>
                     </ul>
                 </template>

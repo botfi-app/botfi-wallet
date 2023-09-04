@@ -1,7 +1,6 @@
 import { createApp } from 'vue'
 import "./assets/scss/app.scss"
 import App from './App.vue'
-import 'bootstrap/js/src/modal'
 import router from "./router"
 import { createPinia } from 'pinia'
 import telegram from './plugins/telegram'

@@ -81,7 +81,7 @@ const copyAddr = async () => {
                                     class="btn btn-none text-start text-break px-0 fs-15"
                                 >
                                     <span>{{ activeWallet.address }}</span>
-                                    <span class="ms-2 fs-12 muted hint"
+                                    <span class="ms-2 fs-12 muted hint font-monospace"
                                         v-if="activeWallet.name != '' && activeWallet.address != activeWallet.name"
                                     >
                                         {{ activeWallet.name }}

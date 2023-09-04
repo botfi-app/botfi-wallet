@@ -38,6 +38,7 @@ declare module '@vue/runtime-core' {
     Pincode: typeof import('./src/components/common/Pincode.vue')['default']
     PinCode: typeof import('./src/components/common/PinCode.vue')['default']
     ProfilePhoto: typeof import('./src/components/common/ProfilePhoto.vue')['default']
+    RevealPrivateKey: typeof import('./src/components/modals/RevealPrivateKey.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SearchForm: typeof import('./src/components/common/SearchForm.vue')['default']
