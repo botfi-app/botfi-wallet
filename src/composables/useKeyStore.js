@@ -248,14 +248,16 @@ export const useKeystore = () => {
     const decryptWallet = async (walletObj, password) => {
         try {
 
-           let  decryptedData = await Crypt.decrypt(password, walletObj.privateKey)
+           let  decryptedData = await Crypt.decrypt(password, walletObj.pk)
 
-           walletObj.decryptedPrivateKey = decryptedData
+           walletObj.decryptedPk = decryptedData
 
-           return Status.successData(decryptedData)
+           //console.log(walletObj)
+
+           return Status.success("", walletObj)
 
         } catch(e){
-            Utils.console("KeyStore#decryptWallet:", e)
+            Utils.logError("KeyStore#decryptWallet:", e)
             return Status.error("Wallet decryption failed, check password & try again")
                              .setCode(ErrorCodes.WALLET_DECRYPTION_ERROR)
         }

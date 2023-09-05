@@ -263,7 +263,7 @@ export const useWalletStore = defineStore('walletStore', () => {
         return removeStatus
     }
 
-    const getPrivateKeyByAddr = async (addr, password) => {
+    const decryptPrivateKey = async (addr, password) => {
         
         password = toValue(password).trim()
 
@@ -280,7 +280,9 @@ export const useWalletStore = defineStore('walletStore', () => {
             return Status.error("Wallet not found")
         }
         
-        return keyStore.decryptWallet(item)
+        //console.log("item===>", item)
+
+        return keyStore.decryptWallet(item, pass)
     }
 
     return {
@@ -301,6 +303,7 @@ export const useWalletStore = defineStore('walletStore', () => {
         deriveChildWallet,
         lastChildWalletIndex,
         removeWallet,
-        updateWalletName
+        updateWalletName,
+        decryptPrivateKey
     }
 })

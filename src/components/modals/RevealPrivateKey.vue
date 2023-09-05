@@ -19,15 +19,50 @@ const privateKey  = ref("")
 
 const revealPk = async () => {
 
-    let _p = pin.value.toString().trim()
+    let loader;
 
-    if(_p == ""){
-        return Utils.mAlert("Pin code is required")
+    try{
+
+        let _p = pin.value.toString().trim()
+
+        //console.log("_p===>", _p)
+
+        if(_p == ""){
+            return Utils.mAlert("Pin code is required")
+        }
+
+        let addr = props.data.address
+
+        loader = Utils.loader("Decrypting Wallet")
+
+        let resultStatus = await walletStore.decryptPrivateKey(addr, _p)
+
+        loader.close()
+
+        if(resultStatus.isError()){
+            return Utils.mAlert(resultStatus.getMessage())
+        }
+
+        let walletInfo = resultStatus.getData() || {}
+
+        //console.log("resultStatus===>", resultStatus)
+
+        privateKey.value = walletInfo.decryptedPk || ""
+
+    } catch(e){
+        Utils.logError("RevealPrivateKey#revealPk", e)
+        Utils.mAlert(Utils.generalErrorMsg)
+        if(loader) loader.close()
     }
+    
+}
 
-    let addr = props.data.address
-
-    let resultStatus = await walletStore.getPrivateKey(addr, _p)
+const doCopy = async () => {    
+    if((await Utils.copyToClipboard(privateKey.value)) == 'copied'){
+        Utils.toast("Private key copied")
+    } else {
+        Utils.toast("Failed to copy private key")
+    }
 }
 </script>
 <template>
@@ -37,18 +72,20 @@ const revealPk = async () => {
         :has-header="true"
         :has-footer="false"
         size="modal-sm"
-        >
+    >
             <template #body>
-                <div class='m-2 my-3 pb-3 center-vh'>
+                <div class='px-3 py-2'>
                             
-                    <div v-if="privateKey==''">
+                    <div class="w-full d-flex flex-column align-items-center justify-content-center" 
+                        v-if="privateKey==''"
+                    >
                         <div>
                             <PinCode 
                                 label="Pin"
                                 @change="(v) => pin = v"
                             />
                         </div>
-                        <div class="mt-4 w-full ">
+                        <div class="mt-4 px-2 w-full ">
                             <button @click.prevent="revealPk" 
                                     class="btn rounded-pill btn-primary w-full"
                             >
@@ -56,19 +93,36 @@ const revealPk = async () => {
                             </button>
                         </div>
                     </div>
-                    <div v-else>
-                
+                    <div class="w-full" v-else>
+                        <div class="form-floating mb-3 rounded">
+                            <input 
+                                type="text" 
+                                :value="props.data.address"
+                                class="form-control rounded" 
+                                id="w_address" 
+                                :readonly="true"
+                                :disabled="true"
+                            />
+                            <label for="w_address">
+                                <span class="">Address</span> 
+                                <span class="hint muted fs-12 font-monospace">
+                                    ({{ props.data.name }})
+                                </span>
+                            </label>
+                        </div>
                         <div class="form-floating">
-                            <textarea class="form-control" 
+                            <textarea 
+                                class="form-control rounded" 
                                 placeholder=""
                                 id="textarea_reveal_pk" 
-                                style="height: 100px"
-                                :readonly="true" 
+                                style="min-height: 80px"
+                                :readonly="true"
+                                v-model="privateKey" 
                             />
                             <label for="textarea_reveal_pk">Private Key</label>
                         </div>
                         <div class="my-3">
-                            <button @click.prevent="copyPrivateKey"
+                            <button @click.prevent="doCopy"
                                 class="btn btn-success w-full rounded fw-semibold"
                             >
                                 Copy

@@ -256,7 +256,11 @@ const copyAddress = async (addr) => {
                             @click="handleRevealPrivateKey"
                         >
                             <div>Reveal Private Key</div>
-                            <Icon name="solar:safe-square-bold-duotone" class='text-primary' :size="28" />
+                            <Icon 
+                                name="solar:password-minimalistic-input-bold-duotone"
+                                class='text-primary' 
+                                :size="28" 
+                            />
                         </li>
 
                         <li class="list-group-item list-group-item-action py-4 d-flex justify-content-between align-items-center"
@@ -264,7 +268,10 @@ const copyAddress = async (addr) => {
                             @click="editItemName"
                         >
                             <div>Edit Name</div>
-                            <Icon name="icon-park-twotone:edit-two" class='text-primary' :size="24" />
+                            <Icon name="solar:document-add-bold-duotone" 
+                               class='text-primary' 
+                               :size="24" 
+                            />
                         </li>
                         <li class="list-group-item list-group-item-action py-4 d-flex justify-content-between align-items-center"
                             v-if="selectedItem.chainId != 1"
@@ -272,7 +279,7 @@ const copyAddress = async (addr) => {
                             @click.prevent="removeWallet"
                         >
                             <div>Remove Wallet</div>
-                            <Icon name="ant-design:delete-twotone" class='text-danger' :size="24" />
+                            <Icon name="solar:trash-bin-minimalistic-2-bold-duotone" class='text-danger' :size="24" />
                         </li>
                     </ul>
                 </template>
