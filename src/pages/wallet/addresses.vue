@@ -9,6 +9,7 @@ import WalletNameEditor from '../../components/modals/WalletNameEditor.vue';
 import { Modal as bsModal } from 'bootstrap'
 import Utils from '../../classes/Utils';
 import RevealPrivateKey from '../../components/modals/RevealPrivateKey.vue';
+import ImportWalletByPk from '../../components/modals/ImportWalletByPk.vue';
 
 const walletStore = useWalletStore()
 const isLoading   = ref(false)
@@ -21,16 +22,15 @@ const dataToRender = ref(null)
 const menuModalInst = ref(null)
 const walletNameEditorModalId = ref("wallet-name-editor-modal-"+Date.now())
 const revealPKModalId = ref("reveal-pk-modal-"+Date.now())
+const importWalletModalId = ref("import-wallet-"+Date.now())
 
 const onSearch = async (keyword, filteredData) => {
    dataToRender.value = filteredData
 }
 
 const importWallet = () => {
-
+    bsModal.getOrCreateInstance('#'+importWalletModalId.value).show()
 }
-
-
 
 const onItemClick = async (item, key) => {
    
@@ -217,6 +217,11 @@ const copyAddress = async (addr) => {
                 :data="selectedItem"
                 @success="dataState = Date.now()"
                 :key="selectedItem.address"
+            />
+
+            <ImportWalletByPk 
+                :id="importWalletModalId"
+                @success="dataState = Date.now()"
             />
 
             <Modal

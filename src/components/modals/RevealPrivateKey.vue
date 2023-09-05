@@ -76,7 +76,7 @@ const doCopy = async () => {
             <template #body>
                 <div class='px-3 py-2'>
                             
-                    <div class="w-full d-flex flex-column align-items-center justify-content-center" 
+                    <div class="w-full d-flex flex-column align-items-center justify-content-center pb-3" 
                         v-if="privateKey==''"
                     >
                         <div>

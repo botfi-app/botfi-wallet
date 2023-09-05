@@ -285,6 +285,10 @@ export const useWalletStore = defineStore('walletStore', () => {
         return keyStore.decryptWallet(item, pass)
     }
 
+
+    // import private key 
+    
+
     return {
         hasDefaultWallet,
         updateWallets,
