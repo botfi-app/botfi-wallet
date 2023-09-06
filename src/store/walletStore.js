@@ -289,9 +289,9 @@ export const useWalletStore = defineStore('walletStore', () => {
     // import private key 
     const importWalletFromPrivateKey = async (name, privateKey) => {
         
-        let resultStatus = await keyStore.importWalletFromPrivateKey(
-                                password.value, 
+        let resultStatus = await keyStore.importWalletFromPrivateKey( 
                                 name, 
+                                password.value,
                                 privateKey
                             )
 
@@ -302,7 +302,7 @@ export const useWalletStore = defineStore('walletStore', () => {
         return resultStatus
     }
 
-    
+
     return {
         hasDefaultWallet,
         updateWallets,

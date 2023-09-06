@@ -168,7 +168,7 @@ const copyAddress = async (addr) => {
                         </div>
                         <div class="d-flex center-vh">
                           
-                            <div class="no-select">
+                            <div class="no-select addr-item">
                                 <span class="text-break fs-14">
                                     {{ item.address }} 
                                 </span>
@@ -292,3 +292,8 @@ const copyAddress = async (addr) => {
         </div>
     </WalletLayout>
 </template>
+<style lang="scss" scoped>
+.addr-item { 
+    line-height: 20px !important;
+}
+</style>

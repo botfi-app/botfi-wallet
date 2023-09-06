@@ -274,8 +274,19 @@ export const useKeystore = () => {
             password = toValue(password)
             privateKey = toValue(privateKey).toString().trim()
 
+            if(!privateKey.startsWith("0x")){
+                privateKey = `0x${privateKey}`   
+            }
+
             if(!privateKey || privateKey == ''){
                 return Status.errorPromise("Private key cannot be empty")
+            }
+
+            // lets check if the account exists already
+            let walletsStatus = await getWallets()
+
+            if(walletsStatus.isError()){
+                return walletsStatus
             }
 
             let importedWallet = (new ethersWallet(privateKey)).connect()
@@ -286,6 +297,22 @@ export const useKeystore = () => {
             }
 
             let address = importedWallet.address
+
+
+            let walletsArr = walletsStatus.getData() || []
+
+            let walletExists = false 
+
+            for(let v of walletsArr){
+                if(v.address == address){
+                    walletExists = true;
+                    break
+                }
+            }
+
+            if(walletExists){
+                return Status.error("Wallet already exists")
+            }
 
             let walletAcctData = {
                 name,
