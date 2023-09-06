@@ -9,7 +9,7 @@ import WalletNameEditor from '../../components/modals/WalletNameEditor.vue';
 import { Modal as bsModal } from 'bootstrap'
 import Utils from '../../classes/Utils';
 import RevealPrivateKey from '../../components/modals/RevealPrivateKey.vue';
-import ImportWalletByPk from '../../components/modals/ImportWalletByPk.vue';
+import ImportWallet from '../../components/modals/ImportWallet.vue';
 
 const walletStore = useWalletStore()
 const isLoading   = ref(false)
@@ -219,7 +219,7 @@ const copyAddress = async (addr) => {
                 :key="selectedItem.address"
             />
 
-            <ImportWalletByPk 
+            <ImportWallet
                 :id="importWalletModalId"
                 @success="dataState = Date.now()"
             />

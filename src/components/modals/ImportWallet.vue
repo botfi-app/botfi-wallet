@@ -35,7 +35,7 @@ const importWallet = async () => {
 
         loader = Utils.loader("Importing Wallet")
 
-        let resultStatus = await walletStore.importWalletByPk(name, pk)
+        let resultStatus = await walletStore.importWalletFromPrivateKey(name, pk)
 
         loader.close()
 
@@ -90,7 +90,7 @@ const importWallet = async () => {
                         <label for="txt_import_wallet">Private Key</label>
                     </div>
                     <div class="my-3">
-                        <button @click.prevent="createWallet"
+                        <button @click.prevent="importWallet"
                             class="btn btn-primary w-full rounded fw-semibold"
                         >
                             Import

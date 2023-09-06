@@ -22,6 +22,7 @@ declare module '@vue/runtime-core' {
     Icon: typeof import('./src/components/common/Icon.vue')['default']
     Image: typeof import('./src/components/common/Image.vue')['default']
     ImportPrivateKey: typeof import('./src/components/modals/ImportPrivateKey.vue')['default']
+    ImportWallet: typeof import('./src/components/modals/ImportWallet.vue')['default']
     ImportWalletByPk: typeof import('./src/components/modals/ImportWalletByPk.vue')['default']
     LoadingView: typeof import('./src/layouts/LoadingView.vue')['default']
     MainBtn: typeof import('./src/components/common/MainBtn.vue')['default']

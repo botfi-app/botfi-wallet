@@ -1,4 +1,10 @@
 <script setup>
+/**
+ * BotFi (https://botfi.app)
+ * @author BotFi <hello@botfi.app>
+ */
+
+ 
 import { ref } from 'vue';
 import Utils from '../../classes/Utils';
 import Modal from './Modal.vue';    

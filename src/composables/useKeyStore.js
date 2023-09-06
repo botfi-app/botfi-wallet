@@ -263,6 +263,53 @@ export const useKeystore = () => {
         }
     }
 
+    const importWalletFromPrivateKey = async (
+        name, 
+        password,
+        privateKey
+    ) => {
+        try {
+
+            name = toValue(name).toString().trim()
+            password = toValue(password)
+            privateKey = toValue(privateKey).toString().trim()
+
+            if(!privateKey || privateKey == ''){
+                return Status.errorPromise("Private key cannot be empty")
+            }
+
+            let importedWallet = (new ethersWallet(privateKey)).connect()
+
+            if(importedWallet.privateKey != privateKey){
+                return Status.error("Import failed, kindly check the private key")
+                            .setCode(ErrorCodes.WALLET_IMPORT_BY_PK_FAILED)
+            }
+
+            let address = importedWallet.address
+
+            let walletAcctData = {
+                name,
+                address, 
+                privateKey,
+                walletIndex: -1,
+                imported:   true
+            }
+
+            let saveWalletStatus = await saveWallet(password, walletAcctData)
+
+            if(saveWalletStatus.isError()){
+                return saveWalletStatus
+            }
+
+           return Status.success("", address)
+
+        } catch(e){
+            Utils.logError("KeyStore#importWalletFromPrivateKey:", e)
+            return Status.error("Import failed, kindly check the private key")
+                             .setCode(ErrorCodes.WALLET_IMPORT_BY_PK_FAILED)
+        }
+    }
+
     return {
         getDefaultWallet,
         resetWallets,
@@ -273,6 +320,7 @@ export const useKeystore = () => {
         deriveChildWallet,
         removeWallet,
         updateWalletName,
-        decryptWallet
+        decryptWallet,
+        importWalletFromPrivateKey
     }
 }

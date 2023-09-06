@@ -287,8 +287,22 @@ export const useWalletStore = defineStore('walletStore', () => {
 
 
     // import private key 
-    
+    const importWalletFromPrivateKey = async (name, privateKey) => {
+        
+        let resultStatus = await keyStore.importWalletFromPrivateKey(
+                                password.value, 
+                                name, 
+                                privateKey
+                            )
 
+        if(!resultStatus.isError()){
+            await updateWallets()
+        }
+
+        return resultStatus
+    }
+
+    
     return {
         hasDefaultWallet,
         updateWallets,
@@ -308,6 +322,7 @@ export const useWalletStore = defineStore('walletStore', () => {
         lastChildWalletIndex,
         removeWallet,
         updateWalletName,
-        decryptPrivateKey
+        decryptPrivateKey,
+        importWalletFromPrivateKey
     }
 })
