@@ -43,6 +43,7 @@ const importWallet = async () => {
             return Utils.mAlert(resultStatus.getMessage())
         }
 
+        walletName.value = ''
         privateKey.value = ''
 
         let bsm = bsModal.getOrCreateInstance("#"+props.id)

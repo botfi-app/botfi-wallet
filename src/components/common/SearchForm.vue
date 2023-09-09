@@ -4,6 +4,7 @@ import { onMounted, ref, watch } from 'vue';
 
 const props = defineProps({
     placeholder: { type: String, default: 'Search' },
+    mode: { type: Object, default: {start: true, end: false }},
     dataToFilter: { type: null, default: [] },
     filterKeys: { type: Array, required: true }
 })
@@ -15,20 +16,40 @@ const searchForm = ref()
 
 onMounted(() => {
     handleOnChange()
-    console.log(props)
+    window.setTimeout(() => handleClearBtnVisibility(), 200)
 })
 
 const handleInputState = (type) => {
-    let _sfc = searchForm.value.classList;
+    let clzz =  searchForm.value.classList;
     (type == 'focus')
-        ? _sfc.add('focus')
-        : _sfc.remove('focus')
+        ? clzz.add('focus')
+        : clzz.remove('focus')
+}
+
+const handleClearBtnVisibility = async () => {
+    
+    let clzz = searchForm.value.classList;
+
+    if(keyword.value.trim() == ''){
+        clzz.remove("input-filled")
+    } else {
+        clzz.add("input-filled")
+    }
+}
+
+const clearInput = async () => {
+    keyword.value = ''
+    handleOnChange()
+    handleClearBtnVisibility()
 }
 
 const handleOnChange = async () => {
 
     let _p = props;
     let _k = keyword.value.toLowerCase().trim()
+    let { start: matchStart = true, end: matchEnd = false } = _p.mode
+
+    handleClearBtnVisibility()
 
     if(_p.dataToFilter == null){
         emits("change", keyword.value, null)
@@ -42,24 +63,46 @@ const handleOnChange = async () => {
 
     let filteredData =  Array.isArray(_p.dataToFilter) ? [] : {}
 
-    Object.keys(_p.dataToFilter).forEach(key => {
+    const insertMatched = (_key, _item) => {
+        if(Array.isArray(filteredData)){
+            filteredData.splice(_key, 0, _item)
+        } else {
+            filteredData[_key] = _item
+        }
+    }
+
+    Object.keys(_p.dataToFilter).forEach( key => {
         
         let item = _p.dataToFilter[key]
 
+        if(!item) return;
+
+        //console.log("ite===>", item)
+
         if(!_p.filterKeys || _p.filterKeys.length == 0){
 
-            if(item.toString().trim().toLowerCase().startsWith(_k)){
-                filteredData[key] = item
-            }
+            let itemStr = item.toString().trim().toLowerCase()
+
+            if( (matchStart && itemStr.startsWith(_k)) ||
+                (matchEnd && itemStr.endsWith(_k))
+            ){
+                insertMatched(key, item)
+            } 
 
         } else {
             for(let fkey of _p.filterKeys){
 
                 let v = (item[fkey] || '').toLowerCase()
+
+                //console.log(v)
                 
-                if(v.startsWith(_k)){
-                    filteredData[key] = item
+                if((matchStart && v.startsWith(_k)) || 
+                   (matchEnd && v.endsWith(_k) || v.includes(_k)) 
+                ){
+                    insertMatched(key, item)
                 }
+
+                //console.log("filteredData--->", filteredData)
             }
         }
     })
@@ -69,48 +112,77 @@ const handleOnChange = async () => {
 </script>
 <template>
       <div 
-        class="d-flex  align-items-center flex-nowrap search-form w-full" 
+        class="d-flex  align-items-center flex-nowrap search-form " 
             ref="searchForm"
+            id="mainSearch"
         >
-        <div class="ic-wrapper">
+        <div class="">
             <Icon 
                 name="iconamoon:search-light" 
                 :size="24" 
-                class="ic text-primary " 
+                class="ic ic-left text-primary " 
             />
         </div>
         <input 
             v-model="keyword"
             type="text" 
-            class="form-control form-control-md rounded-pill"  
+            class="form-control form-control-md rounded-pill flex-grow-1 w-full"  
             :placeholder="props.placeholder"
             @focus="handleInputState('focus')"
             @blur="handleInputState('blur')"
             @keyup="handleOnChange"
+            :autocapitalize="false"
+            :autocorrect="false"
         />
+
+        <div class="">
+            <Icon 
+                name="solar:close-circle-bold-duotone" 
+                :size="24" 
+                class="ic ic-right text-primary" 
+                @click.prevent="clearInput"
+            />
+        </div>
     </div>
 </template>
 <style lang="scss">
 
     .search-form{
-        .ic-wrapper {
+        .ic {
             position: absolute;
             opacity: 0.15;
-            .ic {
-                position: relative;
-                left: 10px;
-                color: var(--bs-bg-color);
-            }
-
+            color: var(--bs-bg-color);
             transition: opacity 0.6s;
+        }
+
+        .ic-left{
+            margin-top: -12px;
+            margin-left: 6px;
+        }
+        
+        .ic-right {
+            margin-top: -12px;
+            margin-left: -30px;
+            z-index: 900;
+            cursor: pointer;
+            display: none;
+            user-select: none;
+          
         }
 
         input {
             padding-left: 35px;
         }
 
+        &.input-filled {
+            .ic-right {
+                display: inline-block;
+                opacity: 0.9 !important;
+            }
+        }
+
         &.focus {
-            .ic-wrapper { opacity: 0.9;}
+            .ic { opacity: 0.9;}
         }
     }
 </style>

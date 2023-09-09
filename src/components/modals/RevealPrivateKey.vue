@@ -115,7 +115,7 @@ const doCopy = async () => {
                                 class="form-control rounded mt-1" 
                                 placeholder=""
                                 id="textarea_reveal_pk" 
-                                style="min-height: 90px;"
+                                style="min-height: 100px;"
                                 :readonly="true"
                                 v-model="privateKey" 
                             />

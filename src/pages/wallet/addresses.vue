@@ -134,6 +134,7 @@ const copyAddress = async (addr) => {
                             @change="onSearch"
                             :dataToFilter="walletStore.wallets"
                             :filterKeys="['name', 'address']"
+                            :mode="{start: true, end: true }"
                             :key="`${walletStore.wallets.length}-${walletStore.activeWallet.address}`"
                         />
                     </div>
