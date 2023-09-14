@@ -12,8 +12,7 @@ import { Modal as bsModal } from 'bootstrap'
 import { useTokens } from '../../composables/useTokens';
 
 const props = defineProps({
-    id: String, 
-    title: String
+    id:     String
 })
 
 const emits = defineEmits(["success"])
@@ -21,7 +20,7 @@ const emits = defineEmits(["success"])
 const tokens = useTokens()
 const contractAddr = ref("")
 
-const importCustom = async () => {
+const importCustomToken = async () => {
     
     let loader; 
 
@@ -33,9 +32,9 @@ const importCustom = async () => {
             return Utils.mAlert("a valid ERC-20 contract address required")
         }
 
-        loader = Utils.loader("Importing Token")
+        loader = Utils.loader("Fetching token's metadata")
 
-        let resultStatus = await tokens.importToken(contract)
+        let resultStatus = await tokens.getERC20TokenInfo(contract)
 
         loader.close()
 
@@ -60,7 +59,7 @@ const importCustom = async () => {
 <template>
     <Modal
         :id="id"
-        :title="props.title"
+        title="Add Custom Token"
         :has-header="true"
         :has-footer="false"
         size="modal-sm"
@@ -69,21 +68,21 @@ const importCustom = async () => {
                 <div class='m-2 my-3'>
                     <div class="form-floating mb-3 rounded">
                         <input type="text" 
-                            v-model="walletName"
+                            v-model="contractAddr"
                             class="form-control rounded" 
-                            id="wallet_name" 
-                            placeholder="eg. Alice Wallet"
+                            id="contract_addr" 
+                            placeholder="eg. 0x.."
                             :autocapitalize="false"
                             :autocomplete="false"
                             :autocorrect="false"
                         />
-                        <label for="wallet_name">Wallet Name</label>
+                        <label for="contract_addr">Contract Address</label>
                     </div>
                     <div class="my-3">
-                        <button @click.prevent="createWallet"
+                        <button @click.prevent="importCustomToken"
                             class="btn btn-primary w-full rounded fw-semibold"
                         >
-                            Create
+                            Import Token
                         </button>
                     </div>
                 </div>

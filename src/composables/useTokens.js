@@ -6,6 +6,7 @@
 import { inject, onBeforeMount, toValue } from "vue"
 import { useDB } from "./useDB"
 import { useNetworks } from "./useNetworks"
+import Utils from "../classes/Utils"
 
 export const useTokens = () => {
 
@@ -30,7 +31,7 @@ export const useTokens = () => {
 
         let tokens = await query.toArray()
 
-        console.log("tokens===>", tokens)
+        //console.log("tokens===>", tokens)
         return tokens;
     }
 
@@ -38,8 +39,31 @@ export const useTokens = () => {
 
     }
 
+    const getERC20TokenInfo = async (contract) => {
+        
+        if(Utils.isAddress(contract)){
+            return Status.error("Invalid contract address")
+        }
+
+        
+    } 
+
     const importToken = async (contract) => {
         
+        if(Utils.isAddress(contract)){
+            return Status.error("Invalid contract address")
+        }
+
+        //lets get the web3 conn
+        let web3ConnStatus = await net.getWeb3Conn()
+
+        if(web3ConnStatus.isError){
+            return web3ConnStatus
+        }
+
+        let web3Conn = web3ConnStatus.getData()
+
+        console.log("web3Conn===>", web3Conn)
     }
 
     return {

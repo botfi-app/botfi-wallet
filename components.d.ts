@@ -59,5 +59,6 @@ declare module '@vue/runtime-core' {
     ValidPasswordHints: typeof import('./src/components/common/ValidPasswordHints.vue')['default']
     WalletLayout: typeof import('./src/layouts/WalletLayout.vue')['default']
     WalletNameEditor: typeof import('./src/components/modals/WalletNameEditor.vue')['default']
+    We: typeof import('./src/components/modals/we.vue')['default']
   }
 }

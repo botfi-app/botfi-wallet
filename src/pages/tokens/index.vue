@@ -1,13 +1,12 @@
 <script setup>
 
 import { useRouter } from 'vue-router';
-import { useWalletStore } from '../../store/walletStore';
 import { useTokens } from '../../composables/useTokens';
 import TokenList from '../../components/wallet/TokenList.vue';
-import { onBeforeMount, ref, watch } from 'vue'
-import Avatar from '../../components/common/Avatar.vue';
+import { onBeforeMount, ref } from 'vue'
 import { Modal as bsModal } from 'bootstrap'
 import Utils from '../../classes/Utils';
+import AddTokenModal from '../../components/modals/AddToken.vue';
 
 
 const isLoading     = ref(false)
@@ -15,6 +14,7 @@ const dataState     = ref(Date.now())
 const dataToRender  = ref(null)
 const tokensInst    = useTokens()
 const tokensArr     = ref([])
+const addTokenModalId = ref(`add-token-modal-${Date.now()}`)
 
 onBeforeMount(() => {
     initialize()
@@ -36,6 +36,11 @@ const initialize = async () => {
 
         <NativeBackBtn />
 
+        <AddTokenModal
+            :id="addTokenModalId"
+            @success="dataState = Date.now()"
+        />
+
         <div class="w-400 mb-5">
             
             <loading-view :isLoading="isLoading" :key="dataState">
@@ -54,7 +59,7 @@ const initialize = async () => {
                     <div class="ps-2">
                         <button class="btn btn-primary rounded-pill v-center"
                             data-bs-toggle="modal" 
-                            :data-bs-target="``"
+                            :data-bs-target="`#${addTokenModalId}`"
                         >
                             <Icon name="ion:add-sharp" :size="18" />
                             <div class="px-1">Add</div>

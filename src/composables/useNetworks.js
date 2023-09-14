@@ -13,6 +13,7 @@ export const useNetworks = () => {
     const USER_NETWORKS = "_user_networks"
 
     const DB = useSimpleDB()
+    const web3Conns = []
 
     const $state = ref({
         isReady: false, 
@@ -196,6 +197,34 @@ export const useNetworks = () => {
         await DB.removeItem(USER_NETWORKS)
     }
 
+
+    const getWeb3Conn  = async (netInfo=null) => {
+
+        if(!netInfo){
+            netInfo = await getActiveNetworkInfo()
+        }
+
+        if(netInfo.chainId in web3Conns){
+            return Status.successData(web3Conns[netInfo.chainId])
+        }
+
+        let walletCore = new Wallet()
+
+        let connectStatus = await walletCore.connect(netInfo)
+
+        if(connectStatus.isError()) {
+            return connectStatus
+        }
+
+        let wInfo = connectStatus.getData()
+
+        if(wInfo != null){
+            web3Conns[netInfo.chainId] = wInfo
+        }
+
+        return Status.successData(wInfo)
+    }
+
     return {
         isNetReady,
         getUserNetworks,
@@ -208,6 +237,7 @@ export const useNetworks = () => {
         resetNetworks,
         fetchNetworkInfo,
         saveNetwork,
-        clearNetworks
+        clearNetworks,
+        getWeb3Conn
     }
  }
