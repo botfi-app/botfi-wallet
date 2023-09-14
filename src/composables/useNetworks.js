@@ -4,7 +4,7 @@
  */
 
 import { onBeforeMount, ref, computed, toValue } from "vue"
-import { useDB } from "./useDB"
+import { useSimpleDB } from "./useSimpleDB"
 import Wallet from "../classes/Wallet"
 import Status from "../classes/Status"
 
@@ -12,7 +12,7 @@ export const useNetworks = () => {
     
     const USER_NETWORKS = "_user_networks"
 
-    const DB = useDB()
+    const DB = useSimpleDB()
 
     const $state = ref({
         isReady: false, 
@@ -72,6 +72,11 @@ export const useNetworks = () => {
         $s.isReady = true 
 
         return userNetworkInfo
+    }
+
+    const getActiveNetworkInfo = async () => {
+        await getUserNetworks()
+        return toValue(activeNetwork)
     }
 
     const setActiveNetwork = async (chainId) => {
@@ -194,6 +199,7 @@ export const useNetworks = () => {
     return {
         isNetReady,
         getUserNetworks,
+        getActiveNetworkInfo,
         fetchDefaultNetworks,
         setActiveNetwork,
         activeNetwork,

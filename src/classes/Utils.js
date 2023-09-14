@@ -6,6 +6,7 @@
 import Swal from 'sweetalert2'
 import "sweetalert2/src/sweetalert2.scss"
 import Status from './Status'
+import {prng_alea} from 'esm-seedrandom';
 
 export default class Utils {
 
@@ -227,8 +228,9 @@ export default class Utils {
         }
     }
 
-    static arrayRandom(arr) {
-        return  arr[Math.floor(Math.random() * arr.length)]
+    static arrayRandom(arr, seed="") {
+        let myrng = prng_alea(seed);
+        return  arr[Math.floor(myrng.quick() * arr.length)]
     }
 
     static async toAsyncCall(callback) {

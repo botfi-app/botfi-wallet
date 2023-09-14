@@ -3,7 +3,7 @@ import {ref, computed, toValue, toRaw, inject, onBeforeMount } from 'vue'
 import Status from '../classes/Status';
 import Wallet from '../classes/Wallet';
 import { useKeystore } from '../composables/useKeyStore';
-import { useDB } from '../composables/useDB';
+import { useSimpleDB } from '../composables/useSimpleDB';
 import { useNetworks } from '../composables/useNetworks';
 
 
@@ -14,7 +14,7 @@ export const useWalletStore = defineStore('walletStore', () => {
 
     const botUtils = inject("botUtils")
     const keyStore = useKeystore()
-    const DB = useDB()
+    const DB = useSimpleDB()
     const networks = useNetworks()
 
     const defaultState = {

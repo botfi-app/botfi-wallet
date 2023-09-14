@@ -3,53 +3,39 @@
  * @author BotFi <hello@botfi.app>
  */
 
-import { inject } from "vue"
+import dbConfig from "../config/db"
+import appConfig from "../config/app";
+import { inject, onBeforeMount } from "vue"
+import Dexie from "dexie";
 
 export const useDB = () => {
-    
-    const botUtils = inject("botUtils")
-    const cloudStore = botUtils.cloudStore()
 
-    const getKey = (key) => `${botUtils.getUid()}_${key}`
+   // const botUtils = inject("botUtils")
+    let db = null;
 
-    const setItem = async (key, value, enableCloud = false) => {
-        
-        let _k = getKey(key)
-        let _v = JSON.stringify({ d: value })
-
-        localStorage.setItem(_k, _v)  
-        
-        if(enableCloud && cloudStore.isSupported()){
-            await cloudStore.setItem(_k, _v)
-        }
-
-        return true 
+    const _initDB = async() => {
+        db = new Dexie("./db")
+        db.version(dbConfig.version)
+          .stores(dbConfig.schema)
     }
 
-    const getItem = async (key, enableCloud = false) => {
+    onBeforeMount(() => {
+        _initDB()
+    })
 
-        let _k = getKey(key)
-        
-        let _v = localStorage.getItem(_k) || null 
-
-        if(_v == null && enableCloud && cloudStore.isSupported()){
-            _v = await cloudStore.getItem(_k)
+    const getDB = async () => {
+        if(db == null){
+            await _initDB()
         }
 
-        if(_v == null) return null;
-
-        return JSON.parse(_v).d;
-    }
-
-    const removeItem = async (key, enableCloud = false) => {
-        let _k = getKey(key)
-        localStorage.removeItem(_k)
-
-        if(enableCloud && cloudStore.isSupported()){
-            cloudStore.removeItem(_k)
+        if(appConfig.is_dev){
+            //await db.upgrade()
         }
+
+        return db;
     }
 
-
-    return { setItem, getItem, removeItem }
+    return {
+        getDB
+    }
 }

@@ -1,8 +1,9 @@
 <script setup>
-import { ref } from 'vue';
+import { onBeforeMount, ref } from 'vue';
 import BAvatar from 'vue-boring-avatars'
-import pcolors from 'nice-color-palettes'
-import Utils from '../../classes/Utils';
+//import pcolors from 'nice-color-palettes/1000.json'
+//import Utils from '../../classes/Utils';
+import randomColor from 'randomcolor';
 
 const props = defineProps({
     name: { type: String, required: true },
@@ -11,12 +12,20 @@ const props = defineProps({
     square: { type: Boolean, default: false }
 })
 
-//const colors = Utils.arrayRandom(pcolors)
+const randColor = ref([])
 
+onBeforeMount(() => {
+    randColor.value =   randomColor({
+                            luminosity: 'bright',
+                            count: 5,
+                            seed: props.name
+                        })
+    //Utils.arrayRandom(pcolors, props.name)
+})
 </script>
 <template>
     <BAvatar 
-        :colors="Utils.arrayRandom(pcolors)"
+        :colors="randColor"
         :name="props.name"
         :variant="props.variant"
         :size="props.size"

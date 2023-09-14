@@ -8,13 +8,13 @@ import Utils from "../classes/Utils"
 import Status from "../classes/Status"
 import { toValue } from "vue"
 import Crypt from "../classes/Crypt"
-import { useDB } from "./useDB"
+import { useSimpleDB } from "./useSimpleDB"
 import ErrorCodes from "../classes/ErrorCodes"
 
 
 export const useKeystore = () => {
 
-    const DB = useDB()
+    const DB = useSimpleDB()
     
     const DEFAULT_WALLET_KEY = `__botfi_dw_info`
     const WALLETS_KEY = `__botfi_wallets`

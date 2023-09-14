@@ -3,6 +3,7 @@ import { inject, onBeforeMount, ref } from 'vue';
 import WalletLayout from '../../layouts/WalletLayout.vue';
 import ProfilePhoto from '../../components/common/ProfilePhoto.vue';
 import DefaultNetAndWallet from '../../components/modals/DefaultNetAndWallet.vue';
+import TokenList from '../../components/wallet/TokenList.vue';
 
 const botUtils = inject("botUtils")
 const userInfo = ref({})
@@ -38,6 +39,31 @@ const initialize = async => {
                         <div>
                            <DefaultNetAndWallet  />
                         </div>
+                    </div>
+
+                    <div class="rounded-lg bg-darken-5 center-vh px-2 py-4 mt-4 shadow">
+                        <div>
+                            <h1 class="text-center">20000</h1>
+                            <div class="hint fs-6 text-center">
+                                 1,000 USD
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="hint fw-semibold">Tokens</div>
+                            <div>
+                                <router-link to="/tokens" 
+                                    class="btn btn-outline-primary rounded-pill text-white"
+                                >
+                                   View All <Icon name="tabler:chevron-right" />
+                                </router-link>
+                            </div>
+                        </div>
+                        <TokenList 
+                            :limit="10"
+                        />
                     </div>
                </div>
             </div>

@@ -11,6 +11,7 @@ declare module '@vue/runtime-core' {
   export interface GlobalComponents {
     AccountSelect: typeof import('./src/components/wallet/AccountSelect.vue')['default']
     AddressesMenus: typeof import('./src/components/modals/AddressesMenus.vue')['default']
+    AddToken: typeof import('./src/components/modals/AddToken.vue')['default']
     AddWallet: typeof import('./src/components/modals/AddWallet.vue')['default']
     Avatar: typeof import('./src/components/common/Avatar.vue')['default']
     BotFiProvider: typeof import('./src/layouts/BotFiProvider.vue')['default']
@@ -49,7 +50,10 @@ declare module '@vue/runtime-core' {
     SidePanel: typeof import('./src/components/wallet/SidePanel.vue')['default']
     TabBar: typeof import('./src/components/wallet/TabBar.vue')['default']
     Toast: typeof import('./src/components/Toast.vue')['default']
+    Token: typeof import('./src/components/wallet/Token.vue')['default']
     TokenIcon: typeof import('./src/components/common/TokenIcon.vue')['default']
+    TokenList: typeof import('./src/components/wallet/TokenList.vue')['default']
+    TokensCore: typeof import('./src/components/wallet/TokensCore.vue')['default']
     TopBackBtn: typeof import('./src/components/header/TopBackBtn.vue')['default']
     TopLogo: typeof import('./src/components/header/TopLogo.vue')['default']
     ValidPasswordHints: typeof import('./src/components/common/ValidPasswordHints.vue')['default']

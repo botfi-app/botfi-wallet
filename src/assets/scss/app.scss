@@ -202,7 +202,7 @@ html[data-is-expanded=false] .swal2-popup {
 
 .no-underline{ text-decoration: none !important;}
 
-a:hover {
+a:hover:not(.btn) {
     color: var(--bs-primary-text) !important;
 }
 
@@ -250,4 +250,8 @@ input[type=number] {
     text-overflow: ellipsis !important;
     white-space: nowrap !important;
     overflow: hidden !important;
+}
+
+.bg-darken-5 {
+    background: var(--bs-bg-dark-5);
 }

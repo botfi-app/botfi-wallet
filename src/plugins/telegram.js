@@ -137,6 +137,19 @@ const ensureTelegramClient = () => {
 
     if(primaryBtnColor != ''){
         cssVars.push(['bs-primary', tinycolor(primaryBtnColor).darken(10).toHexString()])
+        cssVars.push(["bs-btn-color", primaryBtnColor])
+        cssVars.push(["bs-btn-border-color",  primaryBtnColor])
+
+        cssStyles += `
+            .btn-outline-primary {
+                --bs-btn-color: ${primaryBtnColor};
+                --bs-btn-border-color: ${primaryBtnColor};
+                --bs-btn-hover-bg: ${primaryBtnColor};
+                --bs-btn-hover-border-color: ${primaryBtnColor};
+                --bs-btn-active-bg: ${primaryBtnColor};
+                --bs-btn-active-border-color: ${primaryBtnColor};
+            }
+        `
     }
 
     if(primaryBtnText != ''){
