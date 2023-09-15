@@ -7,8 +7,10 @@ import { onBeforeMount, ref } from 'vue'
 import { Modal as bsModal } from 'bootstrap'
 import Utils from '../../classes/Utils';
 import AddTokenModal from '../../components/modals/AddToken.vue';
+import DefaultNetAndWallet from '../../components/modals/DefaultNetAndWallet.vue';
 
 
+const router = useRouter()
 const isLoading     = ref(false)
 const dataState     = ref(Date.now())
 const dataToRender  = ref(null)
@@ -30,7 +32,7 @@ const initialize = async () => {
 </script>
 <template>
     <WalletLayout
-        title="Wallet Addresses"
+        title="Tokens"
         :show-nav="false"
     >   
 
@@ -57,17 +59,20 @@ const initialize = async () => {
                         />
                     </div>
                     <div class="ps-2">
-                        <button class="btn btn-primary rounded-pill v-center"
-                            data-bs-toggle="modal" 
-                            :data-bs-target="`#${addTokenModalId}`"
-                        >
-                            <Icon name="ion:add-sharp" :size="18" />
-                            <div class="px-1">Add</div>
-                        </button>
+                        <DefaultNetAndWallet 
+                            :showAddr="false"
+                            net-max-width="70px"
+                        />
                     </div>
                 </div>
                 <TokenList />
             </loading-view>
+            <div>
+                <MainBtn 
+                    text="Import Token"
+                    :onClick="()=> router.push('/tokens/import')"
+                />
+            </div>
         </div>
     </WalletLayout>
 </template>

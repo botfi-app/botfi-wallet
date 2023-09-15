@@ -7,7 +7,7 @@ import Swal from 'sweetalert2'
 import "sweetalert2/src/sweetalert2.scss"
 import Status from './Status'
 import {prng_alea} from 'esm-seedrandom';
-import { isAddress as ethersIsAddress } from 'ethers';
+import { isAddress as ethersIsAddress, getAddress } from 'ethers';
 
 export default class Utils {
 
@@ -251,9 +251,13 @@ export default class Utils {
         }))
     }
 
-
     static isAddress(addr) {
-        return ethersIsAddress(addr)
+        try {
+            getAddress(addr)
+            return true
+        } catch(e){
+            return false
+        }
     }
     
 }

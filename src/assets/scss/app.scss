@@ -255,3 +255,30 @@ input[type=number] {
 .bg-darken-5 {
     background: var(--bs-bg-dark-5);
 }
+
+.nav-link {
+    
+    border-bottom: 1px solid var(--bs-bg-dark-5) !important;
+    position: relative;
+    top: 1px;
+    color: var(--bs-body-color) !important;
+
+    &.active {
+        border-width: 1px;
+        border-color: transparent  !important;
+        color: var(--bs-primary) !important;
+        background: none !important;
+        opacity: 1;
+    }
+
+    &:not(.active):hover{
+        color: var(--bs-body-color) !important;
+    }
+}
+
+.nav-underline {
+    border-bottom: 1px solid var(--bs-primary) !important;
+    border-width: 1px;
+    font-weight: normal !important;
+    
+}

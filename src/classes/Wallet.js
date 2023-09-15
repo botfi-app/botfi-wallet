@@ -7,11 +7,17 @@ import ErrorCodes from "./ErrorCodes"
 import Status from "./Status"
 import Utils from "./Utils"
 import { ethers, Wallet as ethersWallet } from "ethers"
+import { 
+    Contract as ethcallContract, 
+    Provider as ethcallProvider
+} from 'ethcall';
 
 export default class Wallet {
 
     provider = null
     signer   = null
+    chainId  = null
+    netInfo  = null  
 
     async connect (netInfo, wallet = null) {
 
@@ -20,6 +26,8 @@ export default class Wallet {
             //let opts = {
             //    staticNetwork: netInfo.chainId
             //}
+            this.netInfo = netInfo
+            this.chainId = netInfo.chainId;
 
             let rpc = netInfo.rpc[0]
 
@@ -98,4 +106,42 @@ export default class Wallet {
             return Status.error("Failed to get network info")
         }
     }
+
+
+    async staticMulticall(inputsArray) {
+        try {
+
+            let labels = []
+            let inputs = []
+
+            const mcallProvider = new ethcallProvider(this.chainId, this.provider);
+
+            for(let index in inputsArray){
+                
+                let item = inputsArray[index]
+
+                labels[index] = item.label;
+
+                let contract = new ethcallContract(item.target, item.abi)
+
+                //console.log("contract===>", contract)
+                
+                inputs[index] = contract[item.method](...item.args)
+            }
+
+            const dataArray = await mcallProvider.all(inputs, {blockTag: 'latest'});
+            
+            let processedData = {}
+
+            for(let index in dataArray){
+                processedData[labels[index]] = dataArray[index]
+            }
+
+            return Status.successData(processedData)
+        } catch(e){
+            Utils.logError("Wallet#deploylessMuticall:", e)
+            return Status.error("onchain operation failed")
+        }
+    }
+
 }

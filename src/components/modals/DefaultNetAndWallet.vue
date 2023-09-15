@@ -5,6 +5,12 @@ import { useWalletStore } from '../../store/walletStore';
 import Modal from './Modal.vue';
 import { useNetworks } from '../../composables/useNetworks';
 
+
+const props = defineProps({
+    showAddr: { type: Boolean, default: true },
+    netMaxWidth: { type: null, default: '65px'}
+})
+
 const walletStore = useWalletStore()
 const { activeWallet } = walletStore
 const { isNetReady, activeNetwork } = useNetworks()
@@ -26,19 +32,19 @@ const copyAddr = async () => {
 </script>
 <template>
     <button 
-        class="btn btn-primary rounded-pill fs-14" 
+        class="btn btn-primary py-2 rounded-pill fs-14" 
         data-bs-toggle="modal" 
         :data-bs-target="`#${modalId}`"
     >   
         <div v-if="activeWallet"
             class="d-flex justify-content-center align-items-center flex-nowrap"
         >
-            <div>{{  Utils.maskAddress( activeWallet.address ) }}</div>
+            <div v-if="showAddr">{{  Utils.maskAddress( activeWallet.address ) }}</div>
             <div v-if="isNetReady" 
                 class="d-flex flex-nowrap align-items-center"
             >
-                <div class="px-1">|</div>
-                <div style="max-width: 65px" class="text-truncate">
+                <div class="px-1" v-if="showAddr">|</div>
+                <div :style="`max-width: ${props.netMaxWidth}`" class="text-truncate">
                     {{ activeNetwork.name }}
                 </div>
             </div> 
@@ -64,7 +70,7 @@ const copyAddr = async () => {
                         </div>
                     </div>
                     <div v-else class="p-3 pb-2">
-                        <div v-if="activeWallet != null">
+                        <div v-if="activeWallet != null && showAddr">
                             <div class="d-flex justify-content-between align-items-center">
                                 <label class="fw-bold text-opacity-50">Wallet</label>
                                 <button class="btn btn-none text-primary">Change</button>

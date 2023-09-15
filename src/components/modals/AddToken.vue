@@ -36,9 +36,10 @@ const importCustomToken = async () => {
 
         let resultStatus = await tokens.getERC20TokenInfo(contract)
 
-        loader.close()
+        console.log("resultStatus===>", resultStatus)
 
         if(resultStatus.isError()){
+            loader.close()
             return Utils.mAlert(resultStatus.getMessage())
         }
 
