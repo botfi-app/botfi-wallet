@@ -27,7 +27,7 @@ import TabbedContent from '../../components/common/TabbedContent.vue';
                     {contentId: 'p-custom-token', name: 'Custom Token'}
                 ]"
             >
-                <div id="p-search-token">
+                <div id="p-search-token" class="mt-1">
                     <ImportSearch />
                 </div>
                 <div id="p-custom-token">

@@ -257,6 +257,8 @@ input[type=number] {
 }
 
 .tab-main {
+    position: relative;
+    z-index: 1;
     .tab-items {
         display: flex;
         justify-content: stretch;
@@ -280,6 +282,27 @@ input[type=number] {
                 border-color: var(--bs-primary) !important;
                 color: var(--bs-primary) !important;
             }
+        }
+    }
+}
+
+.import-search-form {
+    position: sticky;
+    top: 0px;
+    background: var(--bs-body-bg) !important;
+    padding: 15px 0px;
+    z-index: 100;
+}
+
+ul.list-group {
+    &.rounded li {
+        &:first-of-type{
+            border-top-left-radius: 12px !important;
+            border-top-right-radius: 12px !important;
+        }
+        &:last-of-type{
+            border-bottom-left-radius: 12px !important;
+            border-bottom-right-radius: 12px !important;
         }
     }
 }

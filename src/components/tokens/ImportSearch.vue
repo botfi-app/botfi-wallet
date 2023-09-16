@@ -1,14 +1,24 @@
 <script setup>
-import { ref } from 'vue';
+import { onBeforeMount, ref } from 'vue';
 import Utils from '../../classes/Utils';
 import Http from '../../classes/Http';
 import { useNetworks } from '../../composables/useNetworks';
+import Image from '../common/Image.vue';
 
 const keyword   = ref("")
 const isLoading = ref(false)
-const pageError = ref("")
-const dataArray = ref([])
+const errorMsg = ref("")
+const initialData = ref([])
+const searchResults = ref([])
 const networks  = useNetworks()
+const initialized = ref(false)
+
+
+onBeforeMount(async () => {
+    await fetchData()
+    initialData.value = searchResults.value
+    initialized.value = true 
+})
 
 const fetchData = async () => {
     try {
@@ -16,10 +26,17 @@ const fetchData = async () => {
         let activeNetInfo = await networks.getActiveNetworkInfo()
 
         let params = { keyword: keyword.value, chainId: activeNetInfo.chainId }
-        
+
         isLoading.value = true 
         
         let resultStatus = await Http.getApi("/token-import/tokens", params)
+
+        if(resultStatus.isError()){
+            errorMsg.value = resultStatus.getMessage()
+            return false;
+        }
+
+        searchResults.value = resultStatus.getData()
 
     } catch(e){
         console.log("ImportSearch#initialize:", e)
@@ -31,16 +48,46 @@ const fetchData = async () => {
 
 const onSearch = async (_keyword) => {
     keyword.value = _keyword
+
+    if(_keyword.trim() == ""){
+        searchResults.value = initialData.value
+    } else {
+        fetchData()
+    }
 }
+
 </script>
 <template>
     <div class="px-3">
-        <div class="mt-3">
+        <div class="import-search-form">
             <SearchForm
                 :dataToFilter="null"
                 :filterKeys="[]"
                 @change="onSearch"
             />
+        </div>
+        <div>
+            <loading-view :loading="isLoading">
+                <ul class="list-group rounded">
+                    <template v-for="(item, index) in searchResults" :key="index">
+                        <li class="list-group-item py-3">
+                            <div class="d-flex">
+                                <Image 
+                                    :src="item.image" 
+                                    :placeholder="item.symbol[0].toUpperCase()"
+                                    :width="24"
+                                    :height="24"
+                                    class="rounded-circle shadow-lg me-2"
+                                />
+                                <div>{{ item.name }}</div>
+                                <div class="ms-2 muted hint">
+                                    {{ item.symbol.toUpperCase() }}
+                                </div>
+                            </div> 
+                        </li>
+                    </template>
+                </ul>
+            </loading-view>
         </div>
     </div>
 </template>
