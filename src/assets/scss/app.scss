@@ -256,29 +256,30 @@ input[type=number] {
     background: var(--bs-bg-dark-5);
 }
 
-.nav-link {
-    
-    border-bottom: 1px solid var(--bs-bg-dark-5) !important;
-    position: relative;
-    top: 1px;
-    color: var(--bs-body-color) !important;
+.tab-main {
+    .tab-items {
+        display: flex;
+        justify-content: stretch;
 
-    &.active {
-        border-width: 1px;
-        border-color: transparent  !important;
-        color: var(--bs-primary) !important;
-        background: none !important;
-        opacity: 1;
+        a {
+            flex-grow: 0;
+            flex-shrink: 1;
+            flex-basis: auto;
+            text-decoration: none;
+            width: 50%;
+            text-align: center;
+
+            border-bottom: 1px solid rgba(0,0,0, 0.2);
+            padding-top: 10px;
+            padding-bottom: 10px;
+            position: relative;
+            top: 1px;
+            color: var(--bs-body-color);
+
+            &.active {
+                border-color: var(--bs-primary) !important;
+                color: var(--bs-primary) !important;
+            }
+        }
     }
-
-    &:not(.active):hover{
-        color: var(--bs-body-color) !important;
-    }
-}
-
-.nav-underline {
-    border-bottom: 1px solid var(--bs-primary) !important;
-    border-width: 1px;
-    font-weight: normal !important;
-    
 }
