@@ -115,7 +115,7 @@ html[data-is-expanded=false] .swal2-popup {
 .h-divider {
     height: 1px;
     width: 100%;
-    background-color: #fff;
+    background: rgba(255,255,255,0.9);
 }
 
 .main-btn {
@@ -305,4 +305,12 @@ ul.list-group {
             border-bottom-right-radius: 12px !important;
         }
     }
+}
+
+.net-select-btn {
+    background: rgba(0,0,0, 0.2) !important;
+}
+
+.mw-50vw {
+    max-width: 50vw;
 }

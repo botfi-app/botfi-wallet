@@ -57,13 +57,8 @@ const revealPk = async () => {
     
 }
 
-const doCopy = async () => {    
-    if((await Utils.copyToClipboard(privateKey.value)) == 'copied'){
-        Utils.toast("Private key copied")
-    } else {
-        Utils.toast("Failed to copy private key")
-    }
-}
+const doCopy = () => Utils.copyText({ text: privateKey.value, showToast: true })
+
 </script>
 <template>
     <Modal

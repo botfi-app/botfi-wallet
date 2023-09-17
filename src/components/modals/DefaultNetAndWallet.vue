@@ -17,48 +17,39 @@ const { isNetReady, activeNetwork } = useNetworks()
 const pageError = ref("") 
 const isPageLoading = ref(false)
 const modalId = ref("d-net-acct-modal"+Date.now())
+const userInfo = ref({})
+const name = ref("")
 
-
-const copyAddr = async () => {
-
-    let status = await Utils.copyToClipboard(activeWallet.address)
-    
-    if(status == 'copied'){
-        Utils.toast("Copied to clipboard")
-    } else {
-        Utils.toast("Failed to copy")
-    }
+const initialize = async => {
+    userInfo.value =  botUtils.getUserInfo() || {}
+    let username = (userInfo.value.username || "").trim()
+    name.value = (username.length > 0) ? '@'+username : userInfo.firstName; 
 }
+
+onBeforeMount(() => {
+    initialize()
+})
+
+const copyAddr = async () => { 
+    Utils.copyText({ 
+        text: activeWallet.address, 
+        showToast: true,
+        successText: "Address copied",
+    })
+}
+
 </script>
 <template>
-    <button 
-        class="btn btn-primary py-2 rounded-pill fs-14" 
-        data-bs-toggle="modal" 
-        :data-bs-target="`#${modalId}`"
-    >   
-        <div v-if="activeWallet"
-            class="d-flex justify-content-center align-items-center flex-nowrap"
-        >
-            <div v-if="showAddr">{{  Utils.maskAddress( activeWallet.address ) }}</div>
-            <div v-if="isNetReady" 
-                class="d-flex flex-nowrap align-items-center"
-            >
-                <div class="px-1" v-if="showAddr">|</div>
-                <div :style="`max-width: ${props.netMaxWidth}`" class="text-truncate">
-                    {{ activeNetwork.name }}
-                </div>
-            </div> 
-        </div>
-    </button>
+    
     <Modal
-        :id="modalId"
-        title=""
-        :has-header="false"
+        id="acctNetSelectModal"
+        :title="`${name}`"
+        :has-header="true"
         :has-footer="false"
     >
         <template #body>
             <loading-view :isLoading="isPageLoading">
-                <div class="py-3">
+                <div class="pt-2 pb-3">
                     <div class="p-3 text-center hint text-muted" v-if="pageError != ''">
                         <div>{{ pageError }}</div>
                         <div>

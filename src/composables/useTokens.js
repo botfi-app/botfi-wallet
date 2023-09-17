@@ -64,8 +64,7 @@ export const useTokens = () => {
             {target: contract, abi: erc20Abi, label: "decimals", method: "decimals", args: [] },
         ]
 
-        //0xdAC17F958D2ee523a2206206994597C13D831ec7
-        let multicallStatus = await web3Conn.staticMulticall(inputs)
+        return web3Conn.staticMulticall(inputs)
     } 
 
     const importToken = async (contract) => {

@@ -8,6 +8,7 @@ import "sweetalert2/src/sweetalert2.scss"
 import Status from './Status'
 import {prng_alea} from 'esm-seedrandom';
 import { isAddress as ethersIsAddress, getAddress } from 'ethers';
+import copyText from 'copy-text-to-clipboard';
 
 export default class Utils {
 
@@ -206,27 +207,16 @@ export default class Utils {
         }
     }
 
-    static async copyToClipboard(text) {
-        try{
-            if("clipboard" in navigator){
-                await navigator.clipboard.writeText(text);
-            }
-            else if("execCommand" in document){
-                var input = document.createElement('textarea');
-                input.innerHTML = text;
-                document.body.appendChild(input);
-                input.select();
-                var result = document.execCommand('copy');
-                document.body.removeChild(input);
-                return result;
-            } else {
-                return "failed"
-            }
+    static async copyText(opts = {}) {
 
-            return "copied"
-        } catch(e){
-            return "failed"
+        let { text, showToast=false, successText = "Copied", failedText = "Copy failed" } = opts
+        let copied = copyText(text)
+
+        if(showToast){
+            Utils.toast((copied) ? successText: failedText)
         }
+
+        return copied
     }
 
     static arrayRandom(arr, seed="") {

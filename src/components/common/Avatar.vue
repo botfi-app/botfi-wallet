@@ -1,8 +1,8 @@
 <script setup>
 import { onBeforeMount, ref } from 'vue';
 import BAvatar from 'vue-boring-avatars'
-//import pcolors from 'nice-color-palettes/1000.json'
-//import Utils from '../../classes/Utils';
+import pcolors from 'nice-color-palettes/1000.json'
+import Utils from '../../classes/Utils';
 import randomColor from 'randomcolor';
 
 const props = defineProps({
@@ -15,12 +15,7 @@ const props = defineProps({
 const randColor = ref([])
 
 onBeforeMount(() => {
-    randColor.value =   randomColor({
-                            luminosity: 'bright',
-                            count: 5,
-                            seed: props.name
-                        })
-    //Utils.arrayRandom(pcolors, props.name)
+    randColor.value = Utils.arrayRandom(pcolors, props.name)
 })
 </script>
 <template>

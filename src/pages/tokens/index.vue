@@ -33,7 +33,9 @@ const initialize = async () => {
 <template>
     <WalletLayout
         title="Tokens"
-        :show-nav="false"
+        :showNav="true"
+        :hasNetSelect="true"
+        :hasAddrSelect="true"
     >   
 
         <NativeBackBtn />
@@ -46,25 +48,20 @@ const initialize = async () => {
         <div class="w-400 mb-5">
             
             <loading-view :isLoading="isLoading" :key="dataState">
-                <div class="d-flex p-2 align-items-center flex-nowrap">
-                    <div class="fw-semibold fs-6 pe-2">Tokens</div>
-                    <div class="flex-grow-1">
-                        <search-form 
-                            placeholder="Search"
-                            @change="onSearch"
-                            :dataToFilter="tokensArr"
-                            :filterKeys="['name', 'address', 'symbol']"
-                            :mode="{start: true, end: true }"
-                            :key="tokensArr.length"
-                        />
-                    </div>
-                    <div class="ps-2">
-                        <DefaultNetAndWallet 
-                            :showAddr="false"
-                            net-max-width="70px"
-                        />
-                    </div>
+               
+                <div class="h-divider mt-3" />
+                <div class="px-3 pt-3">
+                    <search-form 
+                        placeholder="Search"
+                        @change="onSearch"
+                        :dataToFilter="tokensArr"
+                        :filterKeys="['name', 'address', 'symbol']"
+                        :mode="{start: true, end: true }"
+                        :key="tokensArr.length"
+                    />
                 </div>
+                <div class="h-divider my-3" />
+                
                 <TokenList />
             </loading-view>
             <div>

@@ -104,15 +104,8 @@ const removeWallet = async () => {
     menuModalInst.value.hide()
 }
 
-const copyAddress = async (addr) => {
-
-    let status = await Utils.copyToClipboard(addr)
-    
-    if(status == 'copied'){
-        Utils.toast("Address copied")
-    } else {
-        Utils.toast("Address copy failed")
-    }
+const copyAddress = async (addr) =>{
+     Utils.copyText({text: addr, showToast: true, successText: "Address copied" })
 }
 </script>
 <template>

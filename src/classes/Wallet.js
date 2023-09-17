@@ -137,6 +137,8 @@ export default class Wallet {
                 processedData[labels[index]] = dataArray[index]
             }
 
+            //console.log("processedData==>", processedData)
+
             return Status.successData(processedData)
         } catch(e){
             Utils.logError("Wallet#deploylessMuticall:", e)
