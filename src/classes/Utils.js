@@ -250,4 +250,30 @@ export default class Utils {
         }
     }
     
+    static getImportConfirmHtmlMsg(tokenInfo){
+
+        let symbol = tokenInfo.symbol.toUpperCase()
+        let clz = 'd-flex justify-content-between my-2 w-full'
+
+        return  `
+            <div class='${clz}'>
+                <div class='text-primary'>Name:</div>      
+                <div class='ms-2 fw-medium'>${tokenInfo.name}</div>
+            </div>
+            <div class='${clz}'>
+                <div class='text-primary'>Symbol:</div>
+                <div>${symbol}</div>
+            </div>
+            <div class='${clz}'>
+                <div class='text-primary'>Decimals:</div>
+                <div>${Number(tokenInfo.decimals)}</div>
+            </div>
+            <div class='${clz}'>
+                <div class='text-primary'>Balance:</div>
+                <div>${tokenInfo.balanceOfDecimal} ${symbol}</div>
+            </div>
+        `
+    }
+
+
 }

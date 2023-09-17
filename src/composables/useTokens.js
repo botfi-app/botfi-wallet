@@ -65,7 +65,7 @@ export const useTokens = () => {
             inputs.push({
                 target: contract, 
                 abi: erc20Abi, 
-                label: "decimals", 
+                label: "balanceOf", 
                 method: "balanceOf", 
                 args: [walletAddress] 
             })
@@ -81,10 +81,9 @@ export const useTokens = () => {
 
         let resultData = resultStatus.getData()
 
-        console.log("resultData===>", resultData)
 
         if("balanceOf" in resultData){
-            resultData.balanceDecimals = formatUnits(resultData.balanceOf, Number(resultData.decimals))
+            resultData.balanceOfDecimal = formatUnits(resultData.balanceOf, Number(resultData.decimals))
         }
 
         return Status.successData(resultData)

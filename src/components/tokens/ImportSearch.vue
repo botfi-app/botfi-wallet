@@ -82,29 +82,13 @@ const onItemSelect = async (item) => {
 
         let tokenInfo = verifyStatus.getData()
 
-        console.log("tokenInfo===>", tokenInfo)
-
-        let clz = 'd-flex justify-content-between my-2 w-full'
-        let confirmHtml = `
-            <div  class='${clz}'>
-                <div class='text-primary'>Name:</div>      
-                <div class='ms-2 fw-medium'>${tokenInfo.name}</div>
-            </div>
-            <div  class='${clz}'>
-                <div class='text-primary'>Symbol:</div>
-                <div>${tokenInfo.symbol.toUpperCase()}</div>
-            </div>
-            <div  class='${clz}'>
-                <div class='text-primary'>Decimals:</div>
-                <div>${Number(tokenInfo.decimals)}</div>
-            </div>
-        `
-
+        //console.log("tokenInfo==>", tokenInfo)
+        
         let action =   await Utils.getSwal().fire({
                             showCancelButton: true,
                             confirmButtonText: 'Import',
                             denyButtonText:     'Cancel',
-                            html: confirmHtml,
+                            html: Utils.getImportConfirmHtmlMsg(tokenInfo),
                             title: "Confirm Action",
                         })
 
@@ -113,6 +97,8 @@ const onItemSelect = async (item) => {
         tokenInfo.image = item.image
         tokenInfo.contract = contractAddr
         tokenInfo.chainId = chainId
+        delete tokenInfo.balanceOf;
+        delete tokenInfo.balanceOfDecimal
 
         // lets now import the token 
         let importStatus = await tokensCore.importToken(tokenInfo)
