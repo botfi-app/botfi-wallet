@@ -3,7 +3,7 @@ import { inject, onBeforeMount, ref, watch } from 'vue';
 import { useWalletStore } from "../store/walletStore"
 import { useRouter } from 'vue-router';
 import Utils from '../classes/Utils'
-import Pincode from '../components/common/Pincode.vue';
+import PinCode from '../components/common/PinCode.vue';
 
 const initialized = ref(false)
 const walletStore = useWalletStore()
@@ -106,7 +106,7 @@ const resetWallets = async () => {
             <top-logo />
 
             <div class="mt-3">
-                <Pincode 
+                <PinCode 
                     label="Enter Pin"
                     @change="(v) => pin = v"
                 />

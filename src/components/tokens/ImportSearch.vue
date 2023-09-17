@@ -3,6 +3,7 @@ import { onBeforeMount, ref } from 'vue';
 import Utils from '../../classes/Utils';
 import Http from '../../classes/Http';
 import { useNetworks } from '../../composables/useNetworks';
+import { useWalletStore } from '../../store/walletStore';
 import Image from '../common/Image.vue';
 import { useTokens } from '../../composables/useTokens';
 
@@ -15,6 +16,7 @@ const networks  = useNetworks()
 const tokensCore = useTokens()
 const initialized = ref(false)
 const activeNetInfo = ref()
+const { activeWallet } = useWalletStore()
 
 onBeforeMount(async () => {
     await fetchData()
@@ -66,19 +68,58 @@ const onItemSelect = async (item) => {
 
     try {
 
-        console.log(item)
+        //console.log(item)
         let chainId = activeNetInfo.value.chainId 
         let contractAddr = item.contracts[chainId]
 
         loader = Utils.loader("Verifying contract onchain")
 
-        let verifyStatus = await tokensCore.getERC20TokenInfo(contractAddr)
+        let verifyStatus = await tokensCore.getERC20TokenInfo(contractAddr, activeWallet.address)
 
         if(verifyStatus.isError()){
            return Utils.errorAlert(verifyStatus.getMessage())
         }
 
-        console.log(verifyStatus)
+        let tokenInfo = verifyStatus.getData()
+
+        console.log("tokenInfo===>", tokenInfo)
+
+        let clz = 'd-flex justify-content-between my-2 w-full'
+        let confirmHtml = `
+            <div  class='${clz}'>
+                <div class='text-primary'>Name:</div>      
+                <div class='ms-2 fw-medium'>${tokenInfo.name}</div>
+            </div>
+            <div  class='${clz}'>
+                <div class='text-primary'>Symbol:</div>
+                <div>${tokenInfo.symbol.toUpperCase()}</div>
+            </div>
+            <div  class='${clz}'>
+                <div class='text-primary'>Decimals:</div>
+                <div>${Number(tokenInfo.decimals)}</div>
+            </div>
+        `
+
+        let action =   await Utils.getSwal().fire({
+                            showCancelButton: true,
+                            confirmButtonText: 'Import',
+                            denyButtonText:     'Cancel',
+                            html: confirmHtml,
+                            title: "Confirm Action",
+                        })
+
+        if(!action.isConfirmed) return;
+        
+        tokenInfo.image = item.image
+        tokenInfo.contract = contractAddr
+        tokenInfo.chainId = chainId
+
+        // lets now import the token 
+        let importStatus = await tokensCore.importToken(tokenInfo)
+
+        if(importStatus.isError()){
+            return Utils.errorAlert(verifyStatus.getMessage())
+        }                
     } catch(e){ 
         console.log(e, e.stack)
         Utils.errorAlert(Utils.generalErrorMsg)
