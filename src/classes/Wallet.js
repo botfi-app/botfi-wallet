@@ -9,7 +9,7 @@ import Utils from "./Utils"
 import { ethers, Wallet as ethersWallet } from "ethers"
 import { 
     Contract as ethcallContract, 
-    Provider as ethcallProvider
+    Provider as ethcallProviderClazz
 } from 'ethcall';
 
 export default class Wallet {
@@ -114,7 +114,7 @@ export default class Wallet {
             let labels = []
             let inputs = []
 
-            const mcallProvider = new ethcallProvider(this.chainId, this.provider);
+            const ethcallProvider = new ethcallProviderClazz(this.chainId, this.provider);
 
             for(let index in inputsArray){
                 
@@ -131,7 +131,7 @@ export default class Wallet {
                 }
             }
 
-            const dataArray = await mcallProvider.all(inputs, {blockTag: 'latest'});
+            const dataArray = await ethcallProvider.all(inputs, {blockTag: 'latest'});
             
             let processedData = {}
 

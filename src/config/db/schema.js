@@ -7,13 +7,13 @@ export default {
              symbol,
              decimals
             `,
-            
-    balances: `++id, 
-               tokenAddress, 
-               userAddress, 
-               userId,
+
+    balances: `id, 
+               token, 
+               wallet, 
                balance,
                balanceDecimal,
-               updatedAt,
+               balanceUSD,
+               updatedAt
             `
 }

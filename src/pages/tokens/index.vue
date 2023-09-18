@@ -1,20 +1,18 @@
 <script setup>
 
 import { useRouter } from 'vue-router';
-import { useTokens } from '../../composables/useTokens';
-import TokenList from '../../components/wallet/TokenList.vue';
+import TokenBalances from '../../components/wallet/TokenBalances.vue';
 import { onBeforeMount, ref } from 'vue'
 import { Modal as bsModal } from 'bootstrap'
 import Utils from '../../classes/Utils';
 import AddTokenModal from '../../components/modals/AddToken.vue';
-import DefaultNetAndWallet from '../../components/modals/DefaultNetAndWallet.vue';
+import EventBus from '../../classes/EventBus';
 
 
 const router = useRouter()
 const isLoading     = ref(false)
 const dataState     = ref(Date.now())
 const dataToRender  = ref(null)
-const tokensInst    = useTokens()
 const tokensArr     = ref([])
 const addTokenModalId = ref(`add-token-modal-${Date.now()}`)
 
@@ -27,7 +25,7 @@ const onSearch = async (keyword, filteredData) => {
 }
 
 const initialize = async () => {
-   tokensArr.value = tokensInst.getTokens(null)
+   EventBus.emit("update-balance")
 }
 </script>
 <template>
@@ -62,7 +60,9 @@ const initialize = async () => {
                 </div>
                 <div class="h-divider my-3" />
                 
-                <TokenList />
+                <TokenBalances
+                    :limit="null"
+                />
             </loading-view>
             <div>
                 <MainBtn 

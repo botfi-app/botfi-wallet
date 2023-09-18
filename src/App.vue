@@ -1,6 +1,35 @@
 <script setup>
+import { useWalletStore } from './store/walletStore';
+import { useTokens } from './composables/useTokens';
+import { onBeforeMount, toValue, watch } from 'vue';
+import EventBus from './classes/EventBus';
 
-//leave-active-class="animate__animated animate__zoomOut animate__fastest"
+const walletStore = useWalletStore()
+const tokensCore = useTokens()
+
+let isUpdatingBalance = false; 
+
+onBeforeMount(() => {
+  
+  updateBalances()
+  setInterval(updateBalances, 30_000);
+
+  EventBus.on("login", () => updateBalances())
+  EventBus.on("update-balance",  () => updateBalances())
+
+})
+
+const updateBalances = async() => {
+  
+  if(!walletStore.isLoggedIn() || isUpdatingBalance) return;
+  
+  let addresses = await walletStore.getWalletAddresses()
+
+  await tokensCore.updateBalances(addresses)
+
+  isUpdatingBalance = false
+}
+
 </script>
 
 <template>

@@ -19,45 +19,61 @@ export const useTokens = () => {
 
     const getTokens = async (limit = null) => {
 
-        let netInfo = await net.getActiveNetworkInfo()
-        
-        let chainId = netInfo.chainId
-        let userId = botUtils.getUid()
+        try {
+            let netInfo = await net.getActiveNetworkInfo()
+            
+            let chainId = netInfo.chainId
+            let userId = botUtils.getUid()
 
-        let db = await dbCore.getDB()
+            let db = await dbCore.getDB()
 
-        let query =  db.tokens.where({ chainId, userId })
+            let query =  await db.tokens.where({ chainId, userId })
 
-        if(Number.isInteger(limit) && limit > 0){
-            query = query.limit(limit)
+            if(Number.isInteger(limit) && limit > 0){
+                query = query.limit(limit)
+            }
+
+            let tokens = await query.toArray()
+
+            //console.log("tokens===>", tokens)
+            return tokens;
+        } catch(e){
+            console.log("useTokens#getTokens:",e, e.stack)
+            return []
         }
-
-        let tokens = await query.toArray()
-
-        //console.log("tokens===>", tokens)
-        return tokens;
     }
 
-    const updateBalances = async (addrsArr) => {
+    const updateBalances = async (walletAddrs) => {
 
         try {
+
+            ///console.log("addrsArr==>", addrsArr)
 
             if(window.__botFibalanceUpdating) return;
 
             window.__botFibalanceUpdating = true;
 
+              //lets get the web3 conn
+            let web3ConnStatus = await net.getWeb3Conn()
+
+            if(web3ConnStatus.isError()){
+                return web3ConnStatus
+            }
+
+            let web3Conn = web3ConnStatus.getData()
+
             let tokensArray = await getTokens()
 
             let inputs = []
 
-            for(let index of tokensArray){
+            for(let index in tokensArray){
 
                 let token = tokensArray[index]
                 let contract = token.contract; 
 
-                for(let addr of addrsArr) {
+                for(let walletAddr of walletAddrs) {
 
-                    let label = `${index}_${contract}_${addr}`
+                    let label = `balanceOf_${index}_${contract}_${walletAddr}`
                     
                     inputs.push({
                         target: contract, 
@@ -71,13 +87,13 @@ export const useTokens = () => {
 
             let nativeAddr = Utils.nativeTokenAddr
 
-            for(let addr of addrsArr) {
+            for(let addr of walletAddrs) {
                 inputs.push({
                     target: "", 
                     abi:    "", 
                     label:  `ethBalance_${addr}`, 
                     method: "getEthBalance", 
-                    args: [addr] 
+                    args:   [addr] 
                 })
             }
 
@@ -90,7 +106,54 @@ export const useTokens = () => {
 
             let resultData = resultStatus.getData() || []
 
-            console.log("resultData===>", resultData)
+            //console.log("resultData===>", resultData)
+
+            let bulkData = []
+
+            // lets insert balances 
+            for(let label of Object.keys(resultData)) {
+
+                let balance = resultData[label]
+
+                let labelSplit = label.split("_")
+
+                let contract; 
+                let walletAddr;
+                let decimals;
+
+                if(label.startsWith("balanceOf")){
+                    
+                    let tokenIndex = labelSplit[1]
+                    contract =   labelSplit[2]
+                    walletAddr = labelSplit[3]
+
+                    let tokenInfo = tokensArray[tokenIndex]
+                    decimals = tokenInfo.decimals
+
+                } else if(label.startsWith("ethBalance")){
+                    
+                    walletAddr = labelSplit[1]
+                    contract   = nativeAddr
+                    decimals   = 18
+                }
+
+                let id = Utils.generateUID(`${walletAddr}-${contract}`)
+                
+                let balanceDecimal = formatUnits(balance, decimals)
+
+                bulkData.push({
+                    id,
+                    token: contract,
+                    wallet: walletAddr,
+                    balance, 
+                    balanceDecimal,
+                    updatedAt: new Date
+                })
+            } //end foreach
+
+            let db = await dbCore.getDB()
+
+            await db.balances.bulkPut(bulkData)
 
         } catch(e){
             Utils.logError("useToken#updateBalances:", e)

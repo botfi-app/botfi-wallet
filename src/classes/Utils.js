@@ -9,6 +9,8 @@ import Status from './Status'
 import {prng_alea} from 'esm-seedrandom';
 import { isAddress as ethersIsAddress, getAddress } from 'ethers';
 import copyText from 'copy-text-to-clipboard';
+import { v5 as uuidv5 } from 'uuid';
+
 
 export default class Utils {
 
@@ -281,5 +283,9 @@ export default class Utils {
         return html
     }
 
-
+    static generateUID(str) {
+        const ns = "fbaf17b3-005d-4cee-ac09-5020446ef747"
+        return uuidv5(str, ns);
+    }
+    
 }

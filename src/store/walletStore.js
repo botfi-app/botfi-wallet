@@ -5,7 +5,7 @@ import Wallet from '../classes/Wallet';
 import { useKeystore } from '../composables/useKeyStore';
 import { useSimpleDB } from '../composables/useSimpleDB';
 import { useNetworks } from '../composables/useNetworks';
-
+import EventBus from '../classes/EventBus';
 
 export const useWalletStore = defineStore('walletStore', () => {
 
@@ -84,7 +84,9 @@ export const useWalletStore = defineStore('walletStore', () => {
         $s.password = _password
 
         await getActiveWalletInfo()
-      
+        
+        EventBus.emit("login")
+
         return Status.successPromise()
     } //end do login 
 
@@ -182,7 +184,11 @@ export const useWalletStore = defineStore('walletStore', () => {
 
         return walletsStatus
     }
-
+    
+    const getWalletAddresses = async () => {
+       await updateWallets()
+       return $state.value.wallets.map(item => item.address)
+    }
     
     const resetWallets = async () => {
 
@@ -323,6 +329,7 @@ export const useWalletStore = defineStore('walletStore', () => {
         removeWallet,
         updateWalletName,
         decryptPrivateKey,
-        importWalletFromPrivateKey
+        importWalletFromPrivateKey,
+        getWalletAddresses
     }
 })

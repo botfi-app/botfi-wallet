@@ -3,18 +3,18 @@ import { onBeforeMount, ref } from 'vue';
 import { useTokens } from '../../composables/useTokens'
 
 const props = defineProps({
-    limit: { type: Number, default: -1 }
+    limit: { type: null, default: null }
 })
 
 const tokensCore = useTokens()
 const tokensArr = ref([])
 
 onBeforeMount(() => {
-    initialize()
+    fetchBalances()
 })
 
-const initialize = async () => {
-   tokensArr.value = tokensCore.getTokens(props.limit)
+const fetchBalances = async () => {
+    
 }
 </script>
 

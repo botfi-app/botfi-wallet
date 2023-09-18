@@ -3,7 +3,7 @@ import { inject, onBeforeMount, ref } from 'vue';
 import WalletLayout from '../../layouts/WalletLayout.vue';
 import ProfilePhoto from '../../components/common/ProfilePhoto.vue';
 import DefaultNetAndWallet from '../../components/modals/DefaultNetAndWallet.vue';
-import TokenList from '../../components/wallet/TokenList.vue';
+import TokenBalances from '../../components/wallet/TokenBalances.vue';
 
 const botUtils = inject("botUtils")
 const userInfo = ref({})
@@ -13,7 +13,7 @@ onBeforeMount(() => {
     initialize()
 })
 
-const initialize = async => {
+const initialize = async() => {
     userInfo.value =  botUtils.getUserInfo() || {}
     let username = (userInfo.value.username || "").trim()
     name.value = (username.length > 0) ? '@'+username : userInfo.firstName; 
@@ -61,7 +61,7 @@ const initialize = async => {
                                 </router-link>
                             </div>
                         </div>
-                        <TokenList 
+                        <TokenBalances 
                             :limit="10"
                         />
                     </div>
