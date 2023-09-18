@@ -12,6 +12,7 @@ import copyText from 'copy-text-to-clipboard';
 
 export default class Utils {
 
+    static nativeTokenAddr = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
     static generalErrorMsg = "An unknown error occured, try again later"
     static generalErrorStatus =  Status.error(this.generalErrorMsg)
     static openAppFromChatPlatform = "open the app from a chat platform such as telegram"
@@ -255,7 +256,7 @@ export default class Utils {
         let symbol = tokenInfo.symbol.toUpperCase()
         let clz = 'd-flex justify-content-between my-2 w-full'
 
-        return  `
+        let html =  `
             <div class='${clz}'>
                 <div class='text-primary'>Name:</div>      
                 <div class='ms-2 fw-medium'>${tokenInfo.name}</div>
@@ -268,11 +269,16 @@ export default class Utils {
                 <div class='text-primary'>Decimals:</div>
                 <div>${Number(tokenInfo.decimals)}</div>
             </div>
-            <div class='${clz}'>
-                <div class='text-primary'>Balance:</div>
-                <div>${tokenInfo.balanceOfDecimal} ${symbol}</div>
-            </div>
         `
+
+        if('balanceOfDecimal' in tokenInfo){
+            html += `<div class='${clz}'>
+                        <div class='text-primary'>Balance:</div>
+                        <div>${tokenInfo.balanceOfDecimal} ${symbol}</div>
+                    </div>`
+        }
+
+        return html
     }
 
 

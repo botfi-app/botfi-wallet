@@ -122,11 +122,13 @@ export default class Wallet {
 
                 labels[index] = item.label;
 
-                let contract = new ethcallContract(item.target, item.abi)
-
-                //console.log("contract===>", contract)
-                
-                inputs[index] = contract[item.method](...item.args)
+                // if its eth native balance, then use
+                if(item.method == 'getEthBalance') {
+                    inputs[index] = ethcallProvider.getEthBalance(item.args[0])
+                } else {
+                    let contract = new ethcallContract(item.target, item.abi)
+                    inputs[index] = contract[item.method](...item.args)
+                }
             }
 
             const dataArray = await mcallProvider.all(inputs, {blockTag: 'latest'});

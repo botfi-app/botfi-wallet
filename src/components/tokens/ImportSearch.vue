@@ -6,6 +6,8 @@ import { useNetworks } from '../../composables/useNetworks';
 import { useWalletStore } from '../../store/walletStore';
 import Image from '../common/Image.vue';
 import { useTokens } from '../../composables/useTokens';
+import { useRouter } from 'vue-router';
+
 
 const keyword   = ref("")
 const isLoading = ref(false)
@@ -17,6 +19,7 @@ const tokensCore = useTokens()
 const initialized = ref(false)
 const activeNetInfo = ref()
 const { activeWallet } = useWalletStore()
+const router = useRouter()
 
 onBeforeMount(async () => {
     await fetchData()
@@ -98,14 +101,18 @@ const onItemSelect = async (item) => {
         tokenInfo.contract = contractAddr
         tokenInfo.chainId = chainId
         delete tokenInfo.balanceOf;
-        delete tokenInfo.balanceOfDecimal
+        delete tokenInfo.balanceOfDecimal;
 
         // lets now import the token 
         let importStatus = await tokensCore.importToken(tokenInfo)
 
         if(importStatus.isError()){
             return Utils.errorAlert(verifyStatus.getMessage())
-        }                
+        }
+        
+        Utils.toast("Token imported")
+
+        router.push("/tokens")
     } catch(e){ 
         console.log(e, e.stack)
         Utils.errorAlert(Utils.generalErrorMsg)

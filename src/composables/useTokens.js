@@ -26,7 +26,7 @@ export const useTokens = () => {
 
         let db = await dbCore.getDB()
 
-        let query =  db.tokens.where({chainId, userId })
+        let query =  db.tokens.where({ chainId, userId })
 
         if(Number.isInteger(limit) && limit > 0){
             query = query.limit(limit)
@@ -36,6 +36,67 @@ export const useTokens = () => {
 
         //console.log("tokens===>", tokens)
         return tokens;
+    }
+
+    const updateBalances = async (addrsArr) => {
+
+        try {
+
+            if(window.__botFibalanceUpdating) return;
+
+            window.__botFibalanceUpdating = true;
+
+            let tokensArray = await getTokens()
+
+            let inputs = []
+
+            for(let index of tokensArray){
+
+                let token = tokensArray[index]
+                let contract = token.contract; 
+
+                for(let addr of addrsArr) {
+
+                    let label = `${index}_${contract}_${addr}`
+                    
+                    inputs.push({
+                        target: contract, 
+                        abi:    erc20Abi, 
+                        label, 
+                        method: "balanceOf", 
+                        args: [addr] 
+                    })
+                }
+            } //end 
+
+            let nativeAddr = Utils.nativeTokenAddr
+
+            for(let addr of addrsArr) {
+                inputs.push({
+                    target: "", 
+                    abi:    "", 
+                    label:  `ethBalance_${addr}`, 
+                    method: "getEthBalance", 
+                    args: [addr] 
+                })
+            }
+
+            let resultStatus = await web3Conn.staticMulticall(inputs)
+
+            if(resultStatus.isError()){
+                Utils.logError("useToken#updateBalances:"+ resultStatus.getMessage())
+                return resultStatus;
+            }
+
+            let resultData = resultStatus.getData() || []
+
+            console.log("resultData===>", resultData)
+
+        } catch(e){
+            Utils.logError("useToken#updateBalances:", e)
+        } finally {
+            window.__botFibalanceUpdating = false
+        }
     }
 
     const getERC20TokenInfo = async (contract, walletAddress = null) => {
@@ -71,7 +132,7 @@ export const useTokens = () => {
             })
         }
 
-        console.log("inputs===>", inputs)
+        ///console.log("inputs===>", inputs)
 
         let resultStatus = await web3Conn.staticMulticall(inputs)
 
@@ -121,7 +182,7 @@ export const useTokens = () => {
         
         let db = await dbCore.getDB()
         
-        let contract = tokenInfo.contract
+       // let contract = tokenInfo.contract
 
         // check if the token exists first
         let existsInfo = await db.tokens.where({ 
@@ -141,6 +202,7 @@ export const useTokens = () => {
     return {
         getTokens,
         importToken,
-        getERC20TokenInfo
+        getERC20TokenInfo,
+        updateBalances
     }
 }
