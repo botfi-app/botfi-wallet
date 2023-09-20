@@ -73,7 +73,18 @@ const onItemSelect = async (item) => {
 
         //console.log(item)
         let chainId = activeNetInfo.value.chainId 
-        let contractAddr = item.contracts[chainId]
+        
+        let contractAddr = null 
+
+        item.contracts.forEach(item => {
+            if(item.chainId == chainId) {
+                contractAddr = item.contract
+            }
+        })
+
+        if(contractAddr == null){
+            return Utils.errorAlert(Utils.generalErrorMsg)
+        }
 
         loader = Utils.loader("Verifying contract onchain")
 

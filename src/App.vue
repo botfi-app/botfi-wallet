@@ -1,13 +1,13 @@
 <script setup>
 import { useWalletStore } from './store/walletStore';
 import { useTokens } from './composables/useTokens';
-import { onBeforeMount, toValue, watch } from 'vue';
+import { onBeforeMount, toValue, watch, ref } from 'vue';
 import EventBus from './classes/EventBus';
 
 const walletStore = useWalletStore()
 const tokensCore = useTokens()
 
-let isUpdatingBalance = false; 
+const isUpdatingBalance = ref(false); 
 
 onBeforeMount(() => {
   
@@ -21,13 +21,17 @@ onBeforeMount(() => {
 
 const updateBalances = async() => {
   
-  if(!walletStore.isLoggedIn() || isUpdatingBalance) return;
+  if(!walletStore.isLoggedIn() || isUpdatingBalance.value == true) return;
   
+  isUpdatingBalance.value = true 
+
   let addresses = await walletStore.getWalletAddresses()
 
-  await tokensCore.updateBalances(addresses)
+  let updateStatus = await tokensCore.updateBalances(addresses)
 
-  isUpdatingBalance = false
+  console.log("updateStatus==>", updateStatus)
+
+  isUpdatingBalance.value = false
 }
 
 </script>

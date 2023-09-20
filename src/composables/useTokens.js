@@ -3,19 +3,27 @@
  * @author BotFi <hello@botfi.app>
  */
 
-import { inject, onBeforeMount, toValue } from "vue"
+import { computed, inject, onBeforeMount, toValue, ref } from "vue"
 import { useDB } from "./useDB"
 import { useNetworks } from "./useNetworks"
 import Utils from "../classes/Utils"
 import erc20Abi from "../data/abi/erc20.json"
 import Status from "../classes/Status"
 import { formatUnits, getAddress } from "ethers"
+import EventBus from "../classes/EventBus"
+import Http from "../classes/Http"
 
 export const useTokens = () => {
 
     const net = useNetworks()
     const dbCore = useDB()
     const botUtils = inject("botUtils")
+
+    const $state = ref({
+        balances: []
+    })
+
+    const balances = computed(() => $state.balances )
 
     const getTokens = async (limit = null) => {
 
@@ -53,7 +61,11 @@ export const useTokens = () => {
 
             window.__botFibalanceUpdating = true;
 
-              //lets get the web3 conn
+            let netInfo = await net.getActiveNetworkInfo()
+            
+            let chainId = netInfo.chainId
+
+            //lets get the web3 conn
             let web3ConnStatus = await net.getWeb3Conn()
 
             if(web3ConnStatus.isError()){
@@ -63,6 +75,7 @@ export const useTokens = () => {
             let web3Conn = web3ConnStatus.getData()
 
             let tokensArray = await getTokens()
+            let contractsAddrs = []
 
             let inputs = []
 
@@ -71,9 +84,11 @@ export const useTokens = () => {
                 let token = tokensArray[index]
                 let contract = token.contract; 
 
-                for(let walletAddr of walletAddrs) {
+                contractsAddrs.push(contract)
 
-                    let label = `balanceOf_${index}_${contract}_${walletAddr}`
+                for(let addr of walletAddrs) {
+
+                    let label = `balanceOf_${index}_${contract}_${addr}`
                     
                     inputs.push({
                         target: contract, 
@@ -104,9 +119,20 @@ export const useTokens = () => {
                 return resultStatus;
             }
 
-            let resultData = resultStatus.getData() || []
+            let resultData = resultStatus.getData() || {}
 
-            //console.log("resultData===>", resultData)
+            let contracts = nativeAddr+","+contractsAddrs.join(",")
+
+            //lets fetch the fiat conversion first
+            let tokenPricesStatus = await Http.getApi("/contracts/prices", { chainId, contracts })
+
+            let tokenPrices = {}
+
+            if(!tokenPricesStatus.isError()){
+                tokenPrices = tokenPricesStatus.getData() || {}
+            }
+
+            console.log("tokenPrices==>", tokenPrices)
 
             let bulkData = []
 
@@ -258,11 +284,14 @@ export const useTokens = () => {
         let id = (existsInfo != null)
                 ? existsInfo.id
                 : await db.tokens.put(tokenInfo)
+
+        EventBus.emit("update-balance")
   
         return Status.successData(id)
     }//end import 
 
     return {
+        balances,
         getTokens,
         importToken,
         getERC20TokenInfo,
