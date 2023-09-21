@@ -16,6 +16,8 @@ declare module '@vue/runtime-core' {
     AddWallet: typeof import('./src/components/modals/AddWallet.vue')['default']
     Avatar: typeof import('./src/components/common/Avatar.vue')['default']
     BotFiProvider: typeof import('./src/layouts/BotFiProvider.vue')['default']
+    BottomNav: typeof import('./src/components/wallet/BottomNav.vue')['default']
+    BottomTabBar: typeof import('./src/components/wallet/BottomTabBar.vue')['default']
     ChainSelect: typeof import('./src/components/wallet/ChainSelect.vue')['default']
     copy: typeof import('./src/components/modals/NewWalletModal copy.vue')['default']
     CreateWallet: typeof import('./src/components/modals/CreateWallet.vue')['default']

@@ -12,7 +12,7 @@ const isUpdatingBalance = ref(false);
 onBeforeMount(() => {
   
   updateBalances()
-  setInterval(updateBalances, 30_000);
+  setInterval(updateBalances, 60_000);
 
   EventBus.on("login", () => updateBalances())
   EventBus.on("update-balance",  () => updateBalances())
@@ -29,7 +29,7 @@ const updateBalances = async() => {
 
   let updateStatus = await tokensCore.updateBalances(addresses)
 
-  console.log("updateStatus==>", updateStatus)
+  //console.log("updateStatus==>", updateStatus)
 
   isUpdatingBalance.value = false
 }

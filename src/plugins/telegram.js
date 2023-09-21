@@ -41,6 +41,13 @@ export default {
 
         window.botUtils = botUtils;
 
+        // reset the native bottom nav 
+        let natBtn = botUtils.mainButton({text: "none", onClick: null })
+        
+        if(natBtn.isSupported()){
+            natBtn.destroy()
+        }
+
         app.provide("botUtils", botUtils)
     }
 
@@ -138,6 +145,7 @@ const ensureTelegramClient = () => {
     if(primaryBtnColor != ''){
         cssVars.push(['bs-primary', tinycolor(primaryBtnColor).darken(10).toHexString()])
         cssVars.push(['bs-primary-soft', tinycolor(primaryBtnColor).lighten(10).toHexString()])
+        cssVars.push(['bs-primary-dark', tinycolor(primaryBtnColor).darken(50).toHexString()])
         cssVars.push(["bs-btn-color", primaryBtnColor])
         cssVars.push(["bs-btn-color-rgb", tinycolor(primaryBtnColor).toRgbString()])
         cssVars.push(["bs-btn-border-color",  primaryBtnColor])

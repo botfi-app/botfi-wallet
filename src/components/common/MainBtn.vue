@@ -1,5 +1,5 @@
 <script setup>
-import { inject, onBeforeMount, onBeforeUnmount, ref, watch } from 'vue';
+import { inject, onBeforeMount, onBeforeUnmount, onUnmounted, ref, watch } from 'vue';
 
 const props = defineProps({
   text: { type: String, default: "Continue" },
@@ -11,24 +11,23 @@ const props = defineProps({
 
 const botUtils = inject("botUtils")
 const mainBtn = ref(null)
-const initialized = ref(false)
+const initialized = ref(true)
 const isLoading = ref(props.isLoading)
 
+/*
 onBeforeMount(() => {
   initialize()
 })
 
-onBeforeUnmount( () => {
-  let _mBtn = mainBtn.value
-  
-  ///console.log("_mBtn===>",_mBtn)
+onBeforeUnmount( () => cleanBtn())
+onUnmounted(() => cleanBtn())
 
-  if(_mBtn){
-    _mBtn.disable()
-    _mBtn.setOnClick(null)
-    _mBtn.hide()
+const cleanBtn = () => {
+  if(mainBtn.value){ 
+    mainBtn.value.destroy()
+    mainBtn.value = null
   }
-})
+}
 
 const initialize = () => {
 
@@ -38,27 +37,27 @@ const initialize = () => {
               });
 
   if(_mbtn.isSupported()){
-      mainBtn.value =_mbtn
-      if(props.show) _mbtn.show()
+    if(props.show) _mbtn.show()
+    mainBtn.value =_mbtn
   }
 
   initialized.value = true
 }
-
+*/
 </script>
 <template>
   <div  v-if="initialized && mainBtn == null"
     class="position-fixed bottom-0 start-0 end-0 mt-5 pt-5"
   >
     <button 
-        class="btn btn-primary btn-lg w-full" 
+        class="btn btn-primary w-full py-2 fw-medium" 
         :disabled="props.disabled"
         v-if="props.show"
         @click.prevent="props.onClick"
     >
       <template v-if="isLoading">
-        <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span> 
-        Loading..
+          <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span> 
+          Loading..
       </template>
       <template v-else>
         {{ props.text }}

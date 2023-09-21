@@ -4,6 +4,7 @@ import WalletLayout from '../../layouts/WalletLayout.vue';
 import ProfilePhoto from '../../components/common/ProfilePhoto.vue';
 import DefaultNetAndWallet from '../../components/modals/DefaultNetAndWallet.vue';
 import TokenBalances from '../../components/wallet/TokenBalances.vue';
+import BottomNav from '../../components/wallet/BottomNav.vue';
 
 const botUtils = inject("botUtils")
 const userInfo = ref({})
@@ -67,6 +68,8 @@ const initialize = async() => {
                     </div>
                </div>
             </div>
+
+            <BottomNav />
         </div>
         
     </WalletLayout>

@@ -314,3 +314,62 @@ ul.list-group {
 .mw-50vw {
     max-width: 50vw;
 }
+
+.bottom-bar {
+    position: fixed;
+    bottom: 10px;
+    left: 0px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .b-tabs {
+        
+        background: var(--bs-body-bg);
+        width: 95%;
+        //border: 1px solid red;
+        border-radius: 12px;
+
+        .b-tabs-items {
+            background: rgba(0,0,0, 0.25);
+            padding: 10px 0px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-direction: row;
+            width: 100%;
+            font-size: 16px;
+            border-radius: 12px;
+        }
+
+        .b-tab-item {
+            
+            text-align: center;
+            font-weight: 500;
+            margin: 0px 10px;
+            cursor: pointer;
+            height: 100%;
+
+            width: 100%;
+
+            &:first-of-type {
+                margin-left: 5px;
+            }
+
+            &:last-of-type {
+                margin-right: 5px;
+            }
+            
+            &.active {
+
+                .icon {  
+                    background: var(--bs-primary); 
+                    background-size: 100% 100%;
+                    background-position: center;
+                    width: 90%;
+                }
+            }
+        }
+    }
+}

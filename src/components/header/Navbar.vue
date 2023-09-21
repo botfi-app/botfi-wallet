@@ -24,7 +24,7 @@ const { activeWallet } = walletStore
                 {{ props.title }} 
             </div>
            <button v-if="isNetReady" 
-                class="btn net-select-btn px-2 pe-3 rounded-pill my-2 text-truncate"
+                class="btn net-select-btn px-2 rounded-pill my-2 text-truncate"
                 data-bs-toggle="modal" 
                 data-bs-target="#acctNetSelectModal"
                 style="max-width: 55vw;"

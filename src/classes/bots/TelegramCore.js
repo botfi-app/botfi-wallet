@@ -49,7 +49,7 @@ export default class TelegramCore {
         return { isSupported: () => false }
     }
 
-    mainButton({ text = "Continue", onClick= (() => {}) }) {
+    mainButton({ text = "Continue", onClick = null }) {
         
         let _isSupported = (this.webApp && this.webApp.platform != 'unknown')
 
@@ -61,16 +61,30 @@ export default class TelegramCore {
 
         let mb = this.webApp.MainButton;
 
+        let hide = () => mb.hide()
+        let disable = () => mb.disable()
+        let setOnClick = (callback)  => mb.onClick(callback)
+        
+        let destroy = () => {
+            disable();
+            hide();
+            setOnClick(null)
+        }
+
         mb.enable()
-        mb.setText(text)
-        mb.onClick(onClick)
+
+        if(onClick != null && typeof onClick == 'function'){
+            mb.setText(text)
+            mb.onClick(onClick)
+        }
 
         return {
             isSupported: () => _isSupported,
-            show: ()                => mb.show(),
-            hide: ()                => mb.hide(),
-            disable: ()             => mb.disable(),
-            setOnClick: (callback)  => mb.onClick(callback),
+            show: () => mb.show(),
+            hide,
+            disable,
+            setOnClick,
+            destroy,
             showProgress: ()        => mb.showProgress(false),
             hideProgress: ()        => mb.hideProgress()
         }

@@ -3,15 +3,18 @@ import { onBeforeMount, onBeforeUnmount, inject } from 'vue';
 import { useRouter } from 'vue-router';
 
 const props = defineProps({
-                onBack: { type: Function, default: null }
-            })
+    url: { type: String, default: null }
+})
 
 const botUtils = inject("botUtils")
 const router = useRouter()
 let backBtn = null
 
 onBeforeMount(() => {
-    let backFun = (props.onBack) ? props.onBack : () => router.go(-1)
+    let backFun = (props.url) 
+                    ? () => router.push(props.url) 
+                    : () => router.back()
+                    
     backBtn = botUtils.backBtn(backFun)
     backBtn.enable()
     backBtn.show()
