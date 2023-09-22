@@ -22,7 +22,7 @@ export const useTokens = () => {
     const { fetchSettings } = useSettings()
 
     const $state = ref({
-        tokens: [],
+        tokens: {},
         balances: []
     })
 
@@ -34,7 +34,19 @@ export const useTokens = () => {
     const tokensBalances = computed(() => $state.value.balances )
     const tokens   = computed(() =>  $state.value.tokens )
 
-    const getTokens = async (limit = null) => {
+    const getNativeTokenInfo = async () => {
+
+        let netInfo = await net.getActiveNetworkInfo()
+
+        return {
+            ...netInfo.nativeCurrency,
+            image: netInfo.icon || "",
+            chainId: netInfo.chainId,
+            contract: Utils.nativeTokenAddr
+        }
+    }
+
+    const getTokens = async (includeNative=false) => {
 
         try {
             let netInfo = await net.getActiveNetworkInfo()
@@ -44,18 +56,20 @@ export const useTokens = () => {
 
             let db = await dbCore.getDB()
 
-            let query =  await db.tokens.where({ chainId, userId })
+            let tokensArr =  await db.tokens.where({ chainId, userId }).toArray()
 
-            if(Number.isInteger(limit) && limit > 0){
-                query = query.limit(limit)
-            }
+            console.log("tokensArr===>", tokensArr)
 
-            let tokens = await query.toArray()
+            let tokensObj = {}
 
-            $state.value.tokens = tokens;
+            tokensArr.forEach(item => tokensObj[item.contract] = item )
+
+            tokensObj[Utils.nativeTokenAddr] = await getNativeTokenInfo()
+
+            $state.value.tokens = tokensObj;
 
             //console.log("tokens===>", tokens)
-            return tokens;
+            return tokensObj;
         } catch(e){
             console.log("useTokens#getTokens:",e, e.stack)
             return []
@@ -99,6 +113,8 @@ export const useTokens = () => {
             let chainId = netInfo.chainId
             let userId = botUtils.getUid()
 
+            let db = await dbCore.getDB()
+
             //lets get the web3 conn
             let web3ConnStatus = await net.getWeb3Conn()
 
@@ -108,7 +124,8 @@ export const useTokens = () => {
 
             let web3Conn = web3ConnStatus.getData()
 
-            let tokensArray = await getTokens()
+            let tokensArray = await db.tokens.where({ chainId, userId }).toArray()
+
             let contractsAddrs = []
 
             let inputs = []
@@ -243,7 +260,6 @@ export const useTokens = () => {
                 })
             } //end foreach
 
-            let db = await dbCore.getDB()
 
             await db.balances.bulkPut(bulkData)
 
