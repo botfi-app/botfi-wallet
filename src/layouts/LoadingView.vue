@@ -5,7 +5,7 @@
 </script>
 <template>
     <template v-if="props.isLoading">
-        <div class="parent d-flex align-items-center justify-content-center">
+        <div class="parent d-flex align-items-center justify-content-center py-4">
             <div class="spinner-border spinner-border-sm text-primary" role="status">
                 <span class="visually-hidden">Loading...</span>
             </div>

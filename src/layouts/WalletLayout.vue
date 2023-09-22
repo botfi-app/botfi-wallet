@@ -12,6 +12,7 @@ const props = defineProps({
     showNav: { type: Boolean, default: false },
     hasNetSelect: { type: Boolean, default: false },
     hasAddrSelect: { type: Boolean, default: false },
+    icon: { type: String, default: ''},
 })
 
 const walletStore = useWalletStore()
@@ -40,6 +41,7 @@ onBeforeMount(() => {
                 :title="props.title"
                 :hasNetSelect="props.hasNetSelect"
                 :hasAddrSelect="props.hasAddrSelect"
+                :icon="props.icon"
             />
         </div>
         

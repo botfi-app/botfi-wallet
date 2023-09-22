@@ -11,9 +11,18 @@ export default {
     balances: `id, 
                token, 
                wallet, 
+               chainId,
+               userId,
                balance,
                balanceDecimal,
-               balanceUSD,
+               balanceFiat,
+               price,
                updatedAt
+            `,
+
+    settings: `++id,
+              userId,
+              data,
+              updatedAt  
             `
 }

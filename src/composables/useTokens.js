@@ -12,18 +12,27 @@ import Status from "../classes/Status"
 import { formatUnits, getAddress } from "ethers"
 import EventBus from "../classes/EventBus"
 import Http from "../classes/Http"
+import { useSettings } from "./useSettings"
 
 export const useTokens = () => {
 
     const net = useNetworks()
     const dbCore = useDB()
     const botUtils = inject("botUtils")
+    const { fetchSettings } = useSettings()
 
     const $state = ref({
+        tokens: [],
         balances: []
     })
 
-    const balances = computed(() => $state.balances )
+    onBeforeMount(() =>{
+        getTokens()
+        getTokensBalances()
+    })
+
+    const tokensBalances = computed(() => $state.value.balances )
+    const tokens   = computed(() =>  $state.value.tokens )
 
     const getTokens = async (limit = null) => {
 
@@ -43,6 +52,8 @@ export const useTokens = () => {
 
             let tokens = await query.toArray()
 
+            $state.value.tokens = tokens;
+
             //console.log("tokens===>", tokens)
             return tokens;
         } catch(e){
@@ -50,6 +61,28 @@ export const useTokens = () => {
             return []
         }
     }
+
+    const getTokensBalances = async (limit = null) => {
+
+        let netInfo = await net.getActiveNetworkInfo()
+
+        let chainId = netInfo.chainId
+        let userId = botUtils.getUid()
+
+        let db = await dbCore.getDB()
+
+        let query = await db.balances.where({ chainId, userId })
+
+        if(Number.isInteger(limit) && limit > 0){
+            query = query.limit(limit)
+        }
+
+        let balances = await query.toArray()
+
+        $state.value.balances = balances;
+
+        return balances;
+    } 
 
     const updateBalances = async (walletAddrs) => {
 
@@ -64,6 +97,7 @@ export const useTokens = () => {
             let netInfo = await net.getActiveNetworkInfo()
             
             let chainId = netInfo.chainId
+            let userId = botUtils.getUid()
 
             //lets get the web3 conn
             let web3ConnStatus = await net.getWeb3Conn()
@@ -123,16 +157,27 @@ export const useTokens = () => {
 
             let contracts = nativeAddr+","+contractsAddrs.join(",")
 
-            //lets fetch the fiat conversion first
-            let tokenPricesStatus = await Http.getApi("/contracts/prices", { chainId, contracts })
+            // user settings 
+            let settings = await fetchSettings()
 
-            let tokenPrices = {}
+            let defaultCurrency = settings.defaultCurrency || "USD"
 
-            if(!tokenPricesStatus.isError()){
-                tokenPrices = tokenPricesStatus.getData() || {}
+            let queryParams = {
+                currency: defaultCurrency,
+                chainId,
+                contracts
             }
 
-            console.log("tokenPrices==>", tokenPrices)
+            //lets fetch the fiat conversion first
+            let tokenPricesStatus = await Http.getApi("/contracts/prices", queryParams)
+
+            let tokenPricesData = {}
+
+            if(!tokenPricesStatus.isError()){
+                tokenPricesData = tokenPricesStatus.getData() || {}
+            }
+
+            //console.log("tokenPricesData==>", tokenPricesData)
 
             let bulkData = []
 
@@ -163,9 +208,26 @@ export const useTokens = () => {
                     decimals   = 18
                 }
 
-                let id = Utils.generateUID(`${walletAddr}-${contract}`)
+                let balanceFiat = {}
+                let tokenPriceObj;
+
+                let tokenPriceInfo = tokenPricesData[contract.toLowerCase()] || null
+
+                let id = Utils.generateUID(`${userId}-${chainId}-${walletAddr}-${contract}`)
                 
                 let balanceDecimal = formatUnits(balance, decimals)
+
+                if(tokenPriceInfo) {
+
+                    tokenPriceObj = tokenPriceInfo.price || {}
+
+                    //console.log("tokenPriceObj===>", tokenPriceObj)
+
+                    for(let key of Object.keys(tokenPriceObj)){
+                        let price = parseFloat(tokenPriceObj[key] || 0)
+                        balanceFiat[key] = price * parseFloat(balanceDecimal)
+                    }
+                }
 
                 bulkData.push({
                     id,
@@ -173,6 +235,10 @@ export const useTokens = () => {
                     wallet: walletAddr,
                     balance, 
                     balanceDecimal,
+                    balanceFiat,
+                    price: tokenPriceObj,
+                    userId,
+                    chainId,
                     updatedAt: new Date
                 })
             } //end foreach
@@ -180,6 +246,8 @@ export const useTokens = () => {
             let db = await dbCore.getDB()
 
             await db.balances.bulkPut(bulkData)
+
+            await getTokensBalances()
 
         } catch(e){
             Utils.logError("useToken#updateBalances:", e)
@@ -291,10 +359,11 @@ export const useTokens = () => {
     }//end import 
 
     return {
-        balances,
         getTokens,
         importToken,
         getERC20TokenInfo,
-        updateBalances
+        updateBalances,
+        tokens,
+        tokensBalances
     }
 }

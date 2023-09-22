@@ -14,7 +14,7 @@ export const useDB = () => {
     let db = null;
 
     const _initDB = async() => {
-        db = new Dexie("./db")
+        db = new Dexie("botfi")
         db.version(dbConfig.version)
           .stores(dbConfig.schema)
     }

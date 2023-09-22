@@ -6,18 +6,18 @@ const props = defineProps({
     limit: { type: null, default: null }
 })
 
-const tokensCore = useTokens()
-const tokensArr = ref([])
+const { tokensBalances } = useTokens()
 
 onBeforeMount(() => {
-    fetchBalances()
+  
 })
 
-const fetchBalances = async () => {
-    
-}
 </script>
 
 <template>
-
+    <ul class="list-group rounded">
+        <template v-for="(item, index) in tokensBalances">
+            <li class="list-group-item">And a fifth one</li>
+        </template>
+    </ul>
 </template>
