@@ -23,32 +23,36 @@ export const useTokens = () => {
 
     const $state = ref({
         tokens: {},
-        balances: []
     })
 
     onBeforeMount(() =>{
         getTokens()
-        getTokensBalances()
     })
 
-    const tokensBalances = computed(() => $state.value.balances )
     const tokens   = computed(() =>  $state.value.tokens )
 
     const getNativeTokenInfo = async () => {
 
         let netInfo = await net.getActiveNetworkInfo()
 
+        let image =  netInfo.icon || ""
+
+        if("icon" in netInfo.nativeCurrency && netInfo.nativeCurrency.icon.trim() != ""){
+            image = netInfo.nativeCurrency.icon || "";
+        }
+
         return {
             ...netInfo.nativeCurrency,
-            image: netInfo.icon || "",
+            image,
             chainId: netInfo.chainId,
             contract: Utils.nativeTokenAddr
         }
     }
 
-    const getTokens = async (includeNative=false) => {
+    const getTokens = async (limit=null) => {
 
         try {
+
             let netInfo = await net.getActiveNetworkInfo()
             
             let chainId = netInfo.chainId
@@ -56,19 +60,33 @@ export const useTokens = () => {
 
             let db = await dbCore.getDB()
 
-            let tokensArr =  await db.tokens.where({ chainId, userId }).toArray()
+            let tokensQuery =  await db.tokens.where({ chainId, userId })
 
-            console.log("tokensArr===>", tokensArr)
+            if(limit != null) {
+                tokensQuery = tokensQuery.limit(limit)
+            }
+
+            let tokensArr = await tokensQuery.toArray()
 
             let tokensObj = {}
 
+            tokensObj[Utils.nativeTokenAddr] = await getNativeTokenInfo()
+
             tokensArr.forEach(item => tokensObj[item.contract] = item )
 
-            tokensObj[Utils.nativeTokenAddr] = await getNativeTokenInfo()
+            // lets get the token balances 
+            let balancesArr = await db.balances.where({ chainId, userId }).toArray()
+
+            for(let balance of balancesArr){
+                if(balance.token in tokensObj){
+                    tokensObj[balance.token].balanceInfo = balance
+                }
+            }
 
             $state.value.tokens = tokensObj;
 
-            //console.log("tokens===>", tokens)
+           // console.log("tokens===>", tokensObj)
+
             return tokensObj;
         } catch(e){
             console.log("useTokens#getTokens:",e, e.stack)
@@ -76,6 +94,7 @@ export const useTokens = () => {
         }
     }
 
+    /*
     const getTokensBalances = async (limit = null) => {
 
         let netInfo = await net.getActiveNetworkInfo()
@@ -96,7 +115,7 @@ export const useTokens = () => {
         $state.value.balances = balances;
 
         return balances;
-    } 
+    }*/ 
 
     const updateBalances = async (walletAddrs) => {
 
@@ -263,8 +282,6 @@ export const useTokens = () => {
 
             await db.balances.bulkPut(bulkData)
 
-            await getTokensBalances()
-
         } catch(e){
             Utils.logError("useToken#updateBalances:", e)
         } finally {
@@ -326,7 +343,7 @@ export const useTokens = () => {
     const importToken = async (tokenInfo={}) => {
         
         for (let key of Object.keys(tokenInfo)){
-            if(!['name','symbol', 'decimals', 'chainId','image', 'contract'].includes(key)){
+            if(!['name','symbol', 'decimals', 'chainId','image', 'contract', 'geckoId'].includes(key)){
                 return Status.error(`unknown item ${key} in token info object`)
             }
 
@@ -379,7 +396,6 @@ export const useTokens = () => {
         importToken,
         getERC20TokenInfo,
         updateBalances,
-        tokens,
-        tokensBalances
+        tokens
     }
 }

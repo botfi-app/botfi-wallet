@@ -36,6 +36,7 @@ declare module '@vue/runtime-core' {
     Modal: typeof import('./src/components/modals/Modal.vue')['default']
     ModalSelect: typeof import('./src/components/modals/modal-select.vue')['default']
     NativeBackBtn: typeof import('./src/components/common/NativeBackBtn.vue')['default']
+    NativeBalanceCard: typeof import('./src/components/wallet/NativeBalanceCard.vue')['default']
     Nav: typeof import('./src/components/header/Nav.vue')['default']
     Navbar: typeof import('./src/components/header/Navbar.vue')['default']
     NetAndAccountSelect: typeof import('./src/components/modals/NetAndAccountSelect.vue')['default']

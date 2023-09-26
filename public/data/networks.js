@@ -10,7 +10,7 @@ export default {
             chain: "ETH",
             shortName: "eth",
             nativeCurrency: {
-                name:       "Ether",
+                name:       "Ethereum",
                 symbol:     "ETH",
                 decimals:   18
             },
@@ -55,9 +55,11 @@ export default {
             chain: "ETH",
             shortName: "arb",
             nativeCurrency: {
-                name:       "Ether",
+                name:       "Ethereum",
                 symbol:     "ETH",
-                decimals:   18
+                decimals:   18,
+                chainId:    1,
+                icon: "/images/crypto/eth.svg"
             },
             rpc: ["https://arb1.arbitrum.io/rpc"],
             explorers: [ "https://arbiscan.io/"],
@@ -70,9 +72,11 @@ export default {
             chain: "ETH",
             shortName: 'zksync',
             nativeCurrency: {
-                name:       "Ether",
+                name:       "Ethereum",
                 symbol:     "ETH",
-                decimals:   18
+                decimals:   18,
+                chainId:    1,
+                icon: "/images/crypto/eth.svg"
             },
             rpc: ["https://mainnet.era.zksync.io"],
             explorers: [ "https://explorers.zksync.io/"],
@@ -85,9 +89,11 @@ export default {
             chain: "ETH",
             shortName: "op",
             nativeCurrency: {
-                name:       "Ether",
+                name:       "Ethereum",
                 symbol:     "ETH",
-                decimals:   18
+                decimals:   18,
+                chainId:    1,
+                icon: "/images/crypto/eth.svg"
             },
             rpc: ["https://mainnet.optimism.io"],
             explorers: [ "https://explorers.optimism.io"],
@@ -100,9 +106,11 @@ export default {
             chain: "ETH",
             shortName: "base",
             nativeCurrency: {
-                name:       "Ether",
+                name:       "Ethereum",
                 symbol:     "ETH",
-                decimals:   18
+                decimals:   18,
+                chainId:    1,
+                icon: "/images/crypto/eth.svg"
             },
             rpc: ["https://mainnet.base.org"],
             explorers: [ "https://basescan.org"],
@@ -115,9 +123,11 @@ export default {
             chain: "ETH",
             shortName: "linea",
             nativeCurrency: {
-                name:       "Ether",
+                name:       "Ethereum",
                 symbol:     "ETH",
-                decimals:   18
+                decimals:   18,
+                chainId:    1,
+                icon: "/images/crypto/eth.svg"
             },
             rpc: ["https://rpc.linea.build"],
             explorers: [ "https://lineascan.build/"],

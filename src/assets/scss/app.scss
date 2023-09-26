@@ -12,14 +12,27 @@ $danger:  #ec407a;
 @import "./bootstrap";
 @import "~/bootswatch/dist/cosmo/bootswatch";
 
+[data-bs-theme=dark] {
+    .text-dark {
+        color: #fff !important;
+        color: rgba(255,255,255,0.95) !important;
+    }
+}
+
+[data-bs-theme=light] {
+    .text-light {
+        color: #000 !important;
+        color: rgba(0,0,0,0.95) !important;
+    }
+}
 
 body {
     overflow-x: hidden !important;
     scroll-behavior: smooth !important;
     overflow-y: auto;
     font-family: -apple-system,BlinkMacSystemFont,avenir next,avenir,helvetica neue,helvetica,ubuntu,roboto,noto,segoe ui,arial,sans-serif;
+    padding-bottom: 60px;
 }
-
 
 
 .app-main {
@@ -369,6 +382,7 @@ ul.list-group {
                     background-size: 100% 120%;
                     background-position: center;
                     width: 90%;
+                    color: #fff;
                 }
             }
         }

@@ -109,6 +109,7 @@ const onItemSelect = async (item) => {
         if(!action.isConfirmed) return;
         
         tokenInfo.image = item.image
+        tokenInfo.geckoId = item.geckoId;
         tokenInfo.contract = contractAddr
         tokenInfo.chainId = chainId
         delete tokenInfo.balanceOf;

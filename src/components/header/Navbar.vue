@@ -60,11 +60,11 @@ const { activeWallet } = walletStore
                         <Avatar 
                             :name="activeWallet.address" 
                             :square="true" 
-                            :size="20" 
+                            :size="24" 
                             variant="ring"
                             class="rounded me-2"
                         />
-                        <div class="text-light me-2 fw-normal text-truncate flex-grow-1">
+                        <div class="text-dark me-2 fw-normal text-truncate flex-grow-1">
                             {{ activeWallet.name }}
                         </div>
                     </div>

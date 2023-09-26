@@ -3,11 +3,13 @@ import { useWalletStore } from './store/walletStore';
 import { useTokens } from './composables/useTokens';
 import { onBeforeMount, toValue, watch, ref } from 'vue';
 import EventBus from './classes/EventBus';
+import { useRouter } from 'vue-router';
 
 const walletStore = useWalletStore()
 const tokensCore = useTokens()
 
 const isUpdatingBalance = ref(false); 
+const router = useRouter()
 
 onBeforeMount(() => {
   
@@ -18,6 +20,7 @@ onBeforeMount(() => {
   EventBus.on("update-balance",  () => updateBalances())
 
 })
+
 
 const updateBalances = async() => {
   

@@ -11,7 +11,9 @@ import TabbedContent from '../../components/common/TabbedContent.vue';
         :hasAddrSelect="false"
     >   
 
-        <NativeBackBtn />
+        <NativeBackBtn 
+            url="/tokens"
+        />
 
         <div class="w-400 mb-5">
 

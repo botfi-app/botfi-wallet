@@ -11,6 +11,9 @@ const pinia = createPinia()
 
 const app = createApp(App)
 
+BigInt.prototype["toJSON"] = function () {
+    return this.toString();
+}
 
 router.beforeResolve(() => {
     const appDom = document.querySelector("#app")

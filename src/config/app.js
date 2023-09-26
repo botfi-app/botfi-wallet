@@ -5,5 +5,8 @@ export default {
     chains_data_url: "https://github.com/ethereum-lists/chains/blob/master/_data/chains",
 
     ///is dev
-    is_dev: import.meta.env.DEV
+    is_dev: import.meta.env.DEV,
+
+    // gecko api endpoint 
+    gecko_api_endpoint: "https://api.coingecko.com/api/v3/"
 }

@@ -15,9 +15,9 @@ export default [
         bridge: "/bridge"
     },
     {
-        name: "Settings", 
-        icon: "basil:settings-solid",
-        url: "/settings"
+        name: "More", 
+        icon: "uiw:more",
+        url: "/menu"
     },
  ]
  

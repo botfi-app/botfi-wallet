@@ -173,7 +173,7 @@ export default class Http {
 
         let rparams = {
             ...{
-                "credentials": 'include',
+                "credentials": 'omit',
                 "redirect": "follow"
             },
             ...params

@@ -12,17 +12,12 @@ import EventBus from '../../classes/EventBus';
 const router = useRouter()
 const isLoading     = ref(false)
 const dataState     = ref(Date.now())
-const dataToRender  = ref(null)
 const tokensArr     = ref([])
 const addTokenModalId = ref(`add-token-modal-${Date.now()}`)
 
 onBeforeMount(() => {
     initialize()
 })
-
-const onSearch = async (keyword, filteredData) => {
-   dataToRender.value = filteredData
-}
 
 const initialize = async () => {
    EventBus.emit("update-balance")
@@ -36,7 +31,9 @@ const initialize = async () => {
         :hasAddrSelect="true"
     >   
 
-        <NativeBackBtn />
+        <NativeBackBtn 
+            url="/wallet"
+        />
 
         <AddTokenModal
             :id="addTokenModalId"
@@ -46,22 +43,9 @@ const initialize = async () => {
         <div class="w-400 mb-5">
             
             <loading-view :isLoading="isLoading" :key="dataState">
-               
-                <div class="h-divider mt-3" />
-                <div class="px-3 pt-3">
-                    <search-form 
-                        placeholder="Search"
-                        @change="onSearch"
-                        :dataToFilter="tokensArr"
-                        :filterKeys="['name', 'address', 'symbol']"
-                        :mode="{start: true, end: true }"
-                        :key="tokensArr.length"
-                    />
-                </div>
-                <div class="h-divider my-3" />
-                
                 <TokenBalances
                     :limit="null"
+                    :hasSearch="true"
                 />
             </loading-view>
             <div>

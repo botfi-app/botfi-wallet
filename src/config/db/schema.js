@@ -5,7 +5,9 @@ export default {
              contract, 
              name, 
              symbol,
-             decimals
+             decimals,
+             geckoId,
+             extraInfo
             `,
 
     balances: `id, 

@@ -5,7 +5,9 @@ import Utils from "../../classes/Utils"
 import Http from "../../classes/Http"
 
 const props = defineProps({
-                userId: String
+                userId: String,
+                rounded: { type: Boolean, default: true },
+                size: { type: Number, default: 24 }
             })
 
 onBeforeMount(() => {
@@ -44,13 +46,16 @@ onBeforeMount(() => {
     <div>
         <img 
             :src="imgSrc" 
-            v-if="imgSrc != ''" ref="imgRef" class="profile-photo shadow-lg" 
+            v-if="imgSrc != ''" 
+            ref="imgRef" 
+            :class="`shadow-lg ${props.rounded ? 'rounded-circle' : 'rounded'}`"
+            :style="{ width: props.size+'px', height: props.size+'px'}" 
             @error="imgSrc=''"
         /> 
         <Avatar 
             v-else 
             :name="props.userId" 
-            :size="28"
+            :size="props.size"
             variant="ring" 
             class="rounded" 
             :square="true"

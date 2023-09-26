@@ -46,24 +46,29 @@ const initialize = () => {
 */
 </script>
 <template>
-  <div  v-if="initialized && mainBtn == null"
-    class="position-fixed bottom-0 start-0 end-0 mt-5 pt-5"
-  >
-    <button 
-        class="btn btn-primary w-full py-2 fw-medium" 
-        :disabled="props.disabled"
-        v-if="props.show"
-        @click.prevent="props.onClick"
+  <div class="main-btn-wrapper"  v-if="initialized && mainBtn == null">
+    <div 
+      class="main-btn position-fixed bottom-0 start-0 end-0 mt-5 pt-5"
     >
-      <template v-if="isLoading">
-          <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span> 
-          Loading..
-      </template>
-      <template v-else>
-        {{ props.text }}
-      </template>
-    </button>
+      <button 
+          class="btn btn-primary w-full py-2 fw-medium" 
+          :disabled="props.disabled"
+          v-if="props.show"
+          @click.prevent="props.onClick"
+      >
+        <template v-if="isLoading">
+            <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span> 
+            Loading..
+        </template>
+        <template v-else>
+          {{ props.text }}
+        </template>
+      </button>
+    </div>
   </div>
 </template>
 <style lang="scss" scoped>
+.main-btn-wrapper {
+  padding-bottom: 60px;
+}
 </style>

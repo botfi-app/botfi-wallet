@@ -29,22 +29,29 @@ const onTabClick = (item) => {
 }
 </script>
 <template>
-   <div class="bottom-bar" :key="route.path">
-      <div class="divider" />
-      <div class="b-tabs mt-2 shadow-xl">
-         <div class="b-tabs-items">
-            <template v-for="(item, index) in tabItems" :key="index">
-               <div
-                  :class="`b-tab-item text-center ${isTabActive(index) ? 'active': ''}`" 
-                  @click.prevent="onTabClick(item)"
-               >  
-                  <Icon class='rounded-pill icon mb-1' :name="item.icon" :size="20" />
-                  <div class="ms-1 fs-12">
-                     {{ item.name }}
+   <div class="bottom-bar-main">
+      <div class="bottom-bar" :key="route.path">
+         <div class="divider" />
+         <div class="b-tabs mt-2 shadow-xl">
+            <div class="b-tabs-items">
+               <template v-for="(item, index) in tabItems" :key="index">
+                  <div
+                     :class="`b-tab-item text-center ${isTabActive(index) ? 'active': ''}`" 
+                     @click.prevent="onTabClick(item)"
+                  >  
+                     <Icon class='rounded-pill icon mb-1' :name="item.icon" :size="20" />
+                     <div class="ms-1 fs-12">
+                        {{ item.name }}
+                     </div>
                   </div>
-               </div>
-            </template>
+               </template>
+            </div>
          </div>
       </div>
    </div>
 </template>
+<style lang="scss">
+.bottom-bar-main {
+   padding-bottom: 75px;
+}
+</style>
