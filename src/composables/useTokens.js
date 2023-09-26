@@ -23,6 +23,7 @@ export const useTokens = () => {
 
     const $state = ref({
         tokens: {},
+        //updatedAt: Date.now()
     })
 
     onBeforeMount(() =>{
@@ -30,6 +31,7 @@ export const useTokens = () => {
     })
 
     const tokens   = computed(() =>  $state.value.tokens )
+    const updatedAt = ref(Date.now())
 
     const getNativeTokenInfo = async () => {
 
@@ -85,7 +87,7 @@ export const useTokens = () => {
 
             $state.value.tokens = tokensObj;
 
-           // console.log("tokens===>", tokensObj)
+            //console.log("tokensObj===>", tokensObj)
 
             return tokensObj;
         } catch(e){
@@ -94,28 +96,6 @@ export const useTokens = () => {
         }
     }
 
-    /*
-    const getTokensBalances = async (limit = null) => {
-
-        let netInfo = await net.getActiveNetworkInfo()
-
-        let chainId = netInfo.chainId
-        let userId = botUtils.getUid()
-
-        let db = await dbCore.getDB()
-
-        let query = await db.balances.where({ chainId, userId })
-
-        if(Number.isInteger(limit) && limit > 0){
-            query = query.limit(limit)
-        }
-
-        let balances = await query.toArray()
-
-        $state.value.balances = balances;
-
-        return balances;
-    }*/ 
 
     const updateBalances = async (walletAddrs) => {
 
@@ -282,6 +262,10 @@ export const useTokens = () => {
 
             await db.balances.bulkPut(bulkData)
 
+            let tokens = await getTokens()
+
+            EventBus.emit("balance-updated", tokens)
+
         } catch(e){
             Utils.logError("useToken#updateBalances:", e)
         } finally {
@@ -391,11 +375,25 @@ export const useTokens = () => {
         return Status.successData(id)
     }//end import 
 
+    /**
+     * remove Token
+     */
+    const removeToken = async (tokenInfo) => {
+        try {
+
+            
+          } catch(e){
+            Utils.logError("useToken#removeToken:", e)
+        }
+    }
+
     return {
         getTokens,
         importToken,
         getERC20TokenInfo,
         updateBalances,
-        tokens
+        tokens,
+        updatedAt,
+        removeToken
     }
 }

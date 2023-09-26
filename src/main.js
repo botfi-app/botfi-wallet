@@ -6,6 +6,7 @@ import { createPinia } from 'pinia'
 import telegram from './plugins/telegram'
 import SimpleBar from 'simplebar'
 import 'simplebar/dist/simplebar.css';
+import { Dropdown } from 'bootstrap'
 
 const pinia = createPinia()
 
@@ -33,6 +34,8 @@ router.afterEach(() => {
         [...document.querySelectorAll('[data-simplebar]')]
             .map(el => new SimpleBar(el));
 
+        [...document.querySelectorAll('.dropdown-toggle')]
+            .map(dropdownToggleEl => new bootstrap.Dropdown(dropdownToggleEl))
     }, 200);
 })
 

@@ -12,7 +12,6 @@ import EventBus from '../../classes/EventBus';
 const router = useRouter()
 const isLoading     = ref(false)
 const dataState     = ref(Date.now())
-const tokensArr     = ref([])
 const addTokenModalId = ref(`add-token-modal-${Date.now()}`)
 
 onBeforeMount(() => {

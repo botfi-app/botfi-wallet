@@ -388,3 +388,21 @@ ul.list-group {
         }
     }
 }
+
+.dropdown-menu {
+    background: var(--bs-body-bg);
+    padding: none !important;
+    margin: 0px !important;
+
+    li {
+        background: rgba(0,0,0, 0.3);
+        padding: none !important;
+        margin: 0px !important;
+        border-radius: 8px !important;
+        overflow: hidden !important;
+
+        &:hover {
+            background: rgba(0,0,0, 0.35) !important;
+        }
+    }
+}
