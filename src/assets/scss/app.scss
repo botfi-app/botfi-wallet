@@ -337,10 +337,11 @@ ul.list-group {
     display: flex;
     justify-content: center;
     align-items: center;
+    z-index: 10 !important;
 
     .b-tabs {
         
-        background: var(--bs-body-bg);
+        background: var(--bs-body-bg) !important;
         width: 95%;
         //border: 1px solid red;
         border-radius: 12px;
@@ -393,6 +394,8 @@ ul.list-group {
     background: var(--bs-body-bg);
     padding: none !important;
     margin: 0px !important;
+    position: absolute;
+    z-index: 500 !important;
 
     li {
         background: rgba(0,0,0, 0.3);
@@ -400,8 +403,9 @@ ul.list-group {
         margin: 0px !important;
         border-radius: 8px !important;
         overflow: hidden !important;
+        z-index: 100 !important;
 
-        &:hover {
+        &:hover, a:hover {
             background: rgba(0,0,0, 0.35) !important;
         }
     }

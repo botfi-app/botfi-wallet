@@ -56,12 +56,12 @@ const updateTabs = () => {
 </script>
 <template>
     <div class="tab-main" ref="tabMain">
-        <div class="tab-items">
+        <div class="tab-items text-center">
             <template v-for="(item, index) in props.tabItems" :key="index">
                 <a  href="#" 
                     :data-content="item.contentId" 
                     @click.prevent="changeTab"
-                    :class="(item.contentId == currentTab) ? 'active' : ''"
+                    :class="`text-center ${(item.contentId == currentTab) ? 'active' : ''}`"
                 >
                     {{ item.name }}
                 </a>

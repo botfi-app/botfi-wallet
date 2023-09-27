@@ -55,6 +55,8 @@ export const useTokens = () => {
 
         try {
 
+            //console.log("limit===>", limit)
+
             let netInfo = await net.getActiveNetworkInfo()
             
             let chainId = netInfo.chainId
@@ -64,16 +66,20 @@ export const useTokens = () => {
 
             let tokensQuery =  await db.tokens.where({ chainId, userId })
 
-            if(limit != null) {
+            if(limit != null && Number.isInteger(limit)) {
                 tokensQuery = tokensQuery.limit(limit)
             }
 
             let tokensArr = await tokensQuery.toArray()
 
+            //console.log("tokensArr===>", tokensArr.length)
+
             let tokensObj = {}
 
             tokensObj[Utils.nativeTokenAddr] = await getNativeTokenInfo()
 
+            tokensArr.reverse()
+            
             tokensArr.forEach(item => tokensObj[item.contract] = item )
 
             // lets get the token balances 
@@ -381,9 +387,30 @@ export const useTokens = () => {
     const removeToken = async (tokenInfo) => {
         try {
 
+
+            let netInfo = await net.getActiveNetworkInfo()
             
+            let chainId = netInfo.chainId
+            let userId = botUtils.getUid()
+
+            let db = await dbCore.getDB()
+
+            let contract = tokenInfo.contract;
+
+            let deleteCount =  await db.tokens.where({ contract, chainId, userId }).delete()
+
+            if(deleteCount == 1 && "balanceInfo" in tokenInfo) {
+                let balanceId = tokenInfo.balanceInfo.id;
+                await db.balances.where({ id: balanceId }).delete() 
+            }
+            
+            //lets get the tokens 
+            let _tokens = await getTokens()
+
+            return Status.successData(_tokens)
           } catch(e){
             Utils.logError("useToken#removeToken:", e)
+            return Status.error(Utils.generalErrorMsg)
         }
     }
 

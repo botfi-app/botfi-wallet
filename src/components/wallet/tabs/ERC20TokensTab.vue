@@ -1,10 +1,10 @@
 <script setup>
 import { nextTick, onBeforeMount, onBeforeUnmount, ref, watch } from 'vue';
-import { useTokens } from '../../composables/useTokens'
-import Image from '../common/Image.vue';
-import { useSettings } from '../../composables/useSettings'
-import EventBus from '../../classes/EventBus';
-import Utils from '../../classes/Utils';
+import { useTokens } from '../../../composables/useTokens'
+import Image from '../../common/Image.vue';
+import { useSettings } from '../../../composables/useSettings'
+import EventBus from '../../../classes/EventBus';
+import Utils from '../../../classes/Utils';
 
 const props = defineProps({
     limit: { type: null, default: null },
@@ -28,12 +28,12 @@ const initialize = async () => {
     let settings  = await fetchSettings()
     defaultCurrency.value = (settings.defaultCurrency || "usd").toLowerCase()
 
-    tokensData.value = await getTokens()
+    tokensData.value = await getTokens(props.limit)
     dataToRender.value = tokensData.value
 
-    EventBus.on("balance-updated", (tdata) => {
-        nextTick(() => {
-            tokensData.value = tdata
+    EventBus.on("balance-updated", () => {
+        nextTick(async () => {
+            tokensData.value = await getTokens(props.limit)
             dataState.value = Date.now()
         })
     })
@@ -48,6 +48,10 @@ const onSearch = async (keyword, filteredData) => {
 onBeforeUnmount(() => {
     EventBus.off("balance-updated");
 })
+
+const reloadData = () => {
+
+}
 
 const doRemoveToken = async (token) => {
     
@@ -85,34 +89,46 @@ const doRemoveToken = async (token) => {
 
         if(_tokensData != null){
             nextTick(() => {
-                tokensData.value = _tokensDatas
+                tokensData.value = _tokensData
                 dataState.value = Date.now()
             })
         }
     } catch(e){
         Utils.logError(`TokenBalances#removeToken:`, e)
         Utils.errorAlert(Utils.generalErrorMsg)
+    } finally {
+        if(loader) loader.close()
     }
 }
 </script>
 
 <template>
     <div v-if="initialized">
-        <div v-if="props.hasSearch">      
-            <div class="h-divider mt-3" />
-            <div class="px-3 pt-3">
-                <search-form 
-                    placeholder="Search"
-                    @change="onSearch"
-                    :dataToFilter="tokensData"
-                    :filterKeys="['name', 'contract', 'symbol']"
-                    :mode="{start: true, end: true }"
-                    :key="dataState"
-                />
+             
+        <div class="mx-2 px-1 mt-2">
+            <div class="py-3">
+                <div class="d-flex align-items-center justify-content-center">
+                    <search-form 
+                        placeholder="Search"
+                        @change="onSearch"
+                        :dataToFilter="tokensData"
+                        :filterKeys="['name', 'contract', 'symbol']"
+                        :mode="{start: true, end: true }"
+                        :key="dataState"
+                        class="flex-grow-1"
+                    />
+                    <button @click.prevent="reloadData"
+                        class="btn btn-none text-success rounded-circle btn-sm mx-2 p-0"
+                    >
+                        <Icon name="solar:refresh-line-duotone" :size="32" />
+                    </button>
+                    <router-link to="/tokens/import?ref=wallet" 
+                        class="btn btn-none text-primary rounded-circle btn-sm p-0"
+                    >
+                        <Icon name="solar:add-circle-line-duotone" :size="32" />
+                    </router-link>
+                </div>
             </div>
-            <div class="h-divider my-3 mx-2" />
-        </div>
-        <div class="mx-2 px-1">
             <template v-for="token in dataToRender">
                 <div class="d-flex align-items-center justify-content-between">
                     <div class="d-flex justify-content-between align-items-center py-1 my-2 flex-grow-1">
@@ -160,7 +176,7 @@ const doRemoveToken = async (token) => {
                             </a>
                             <ul class="dropdown-menu shadow rounded py-0 my-0">
                                 <li>
-                                    <a  @click.prevent="removeToken(token)"
+                                    <a  @click.prevent="doRemoveToken(token)"
                                         class="dropdown-item py-3" 
                                         href="#"
                                     >

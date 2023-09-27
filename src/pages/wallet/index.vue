@@ -2,12 +2,11 @@
 import { inject, onBeforeMount, ref } from 'vue';
 import WalletLayout from '../../layouts/WalletLayout.vue';
 import ProfilePhoto from '../../components/common/ProfilePhoto.vue';
-import DefaultNetAndWallet from '../../components/modals/DefaultNetAndWallet.vue';
-import TokenBalances from '../../components/wallet/TokenBalances.vue';
 import BottomNav from '../../components/wallet/BottomNav.vue';
 import Utils from '../../classes/Utils';
 import Icon from '../../components/common/Icon.vue';
 import { useSettings } from '../../composables/useSettings';
+import TokensAndActivityTabs from '../../components/wallet/TokensAndActivityTabs.vue';
 
 const botUtils = inject("botUtils")
 const userInfo = ref({})
@@ -63,21 +62,21 @@ const initialize = async() => {
                         <NativeBalanceCard />
                     </div>
 
-                    <div class="mt-3">
-                        <div class="d-flex justify-content-between align-items-center mx-2">
-                            <div class="hint fw-semibold">Tokens</div>
-                            <div>
-                                <router-link to="/tokens" 
-                                    class="btn btn-outline-primary rounded-pill center-vh"
-                                >
-                                   <span>View All </span>
-                                   <Icon name="tabler:chevron-right" />
-                                </router-link>
-                            </div>
-                        </div>
-                        <TokenBalances 
-                            :limit="10"
+                    <div class="mt-3 mx-2">
+                        <TokensAndActivityTabs 
+                            :limit="7"
+                            :showViewAll="true"
                         />
+                        <div class="d-flex mt-2 mb-3 me-3 justify-content-end">
+                            <router-link to="/tokens" 
+                                class="btn btn-outline-primary rounded-pill shadow"
+                            >
+                                <div class="d-flex align-items-center">
+                                    <div class="me-2">View All</div>
+                                    <Icon name="solar:arrow-right-line-duotone" />
+                                </div>
+                            </router-link>
+                        </div>
                     </div>
                </div>
             </div>
