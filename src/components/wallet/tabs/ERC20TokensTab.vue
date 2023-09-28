@@ -122,7 +122,7 @@ const doRemoveToken = async (token) => {
                     >
                         <Icon name="solar:refresh-line-duotone" :size="32" />
                     </button>
-                    <router-link to="/tokens/import?ref=wallet" 
+                    <router-link to="/tokens/import-erc20?ref=wallet" 
                         class="btn btn-none text-primary rounded-circle btn-sm p-0"
                     >
                         <Icon name="solar:add-circle-line-duotone" :size="32" />

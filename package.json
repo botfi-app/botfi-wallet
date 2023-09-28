@@ -24,6 +24,7 @@
     "esm-seedrandom": "^3.0.5",
     "ethcall": "^6.0.2",
     "ethers": "^6.7.1",
+    "helia": "^2.0.3",
     "nice-color-palettes": "^3.0.0",
     "pinia": "^2.1.6",
     "randomcolor": "^0.6.2",
