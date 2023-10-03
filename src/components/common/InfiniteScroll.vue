@@ -19,7 +19,6 @@ const dataArray = ref([])
 let pageNo = 1;
 let pagingInfo = null
 const errorMsg = ref("")
-const $t = inject("$t")
 const noResultsText = ref("")
 const isLoading = ref(false)
 const initialReqDone = ref(false)
@@ -27,7 +26,7 @@ const initialReqDone = ref(false)
 onBeforeMount(() => {
     noResultsText.value = (props.noResultsText.trim() != "")
                 ? props.noResultsText
-                : $t("nothing_here")
+                : "Nothing Here"
 })
 
 const load = async $state => {
@@ -57,6 +56,12 @@ const load = async $state => {
         }
         
         let dataObj = resultStatus.getData() || null;
+
+        //console.log("dataObj====>", dataObj)
+
+        if(dataObj == null){
+            return $state.complete();
+        }
 
         if(p.resultsDataKey != ""){
             dataObj = dataObj[p.resultsDataKey]
@@ -106,7 +111,7 @@ const load = async $state => {
             <div class="d-flex flex-column align-items-center my-5">
                 <p>{{  errorMsg }}</p>
                 <button class="btn btn-secondary rounded-pill" @click="retry">
-                    {{ $t("retry") }}
+                    Retry
                 </button>
             </div>
         </template>

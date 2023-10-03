@@ -7,21 +7,21 @@ const props = defineProps({
     text: { type: String, default: "" }
 })
 
-const $t = inject("$t")
+
 const noResultsText = ref("")
 
 onBeforeMount(() => {
     noResultsText.value = (props.text.trim() != "")
                             ? props.text
-                            : $t("nothing_here")
+                            : "Nothing Here"
 })
 
 </script>
 <template>
     <div :class="`mt-2 d-flex flex-column align-items-center justify-content-center ${containerClass}`">
-        <Lottie name="empty_ghost" class="" />
-        <h3 class="text-muted"> 
+        <div><Lottie name="empty_ghost" class="" /></div>
+        <h5 class="fw-medium text-muted hint"> 
             {{ noResultsText }} 
-        </h3>
+        </h5>
     </div>
 </template>

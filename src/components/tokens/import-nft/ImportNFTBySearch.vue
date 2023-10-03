@@ -11,6 +11,7 @@ const networks  = useNetworks()
 const activeNetInfo = ref()
 const queryParams = ref({})
 const key = ref(Date.now())
+const initialized = ref(true)
 
 onBeforeMount(async () => {
     await initialize()
@@ -19,7 +20,8 @@ onBeforeMount(async () => {
 
 const initialize = async () => {
     activeNetInfo.value = await networks.getActiveNetworkInfo()
-    queryParams.value = { keyword: keyword.value, chainId: activeNetInfo.value.chainId }
+    queryParams.value   = { keyword: keyword.value, chainId: activeNetInfo.value.chainId }
+    initialized.value   = true
 }
 
 const onSearch = async (_keyword) => {
@@ -35,7 +37,7 @@ const onSearch = async (_keyword) => {
 }
 </script>
 <template>
-    <div class="px-3">
+    <div class="px-3" v-if="initialized">
         <div class="import-search-form">
             <SearchForm
                 :dataToFilter="null"
@@ -47,7 +49,7 @@ const onSearch = async (_keyword) => {
             <InfiniteScroll 
                 uri="/token-import/nft-collections"
                 :queryParams="queryParams"
-                resultsDataKey="nft-search"
+                resultsDataKey=""
                 :renderer="NFTCollectionItem"
                 :key="key"
                 containerClass="d-flex flex-wrap justify-content-center"

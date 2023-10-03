@@ -6,8 +6,8 @@ import { createPinia } from 'pinia'
 import telegram from './plugins/telegram'
 import SimpleBar from 'simplebar'
 import 'simplebar/dist/simplebar.css';
-import { Dropdown } from 'bootstrap'
-
+//simport { Dropdown } from 'bootstrap'
+import '@dotlottie/player-component';
 const pinia = createPinia()
 
 const app = createApp(App)

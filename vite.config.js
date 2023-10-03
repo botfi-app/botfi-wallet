@@ -15,7 +15,7 @@ export default defineConfig({
       template: {
         compilerOptions: {
           // i am ignorning my custom '<container>' tag
-          isCustomElement: (tag) => ['lottie-player'].includes(tag)
+          isCustomElement: (tag) => ['dotlottie-player'].includes(tag)
         }
       }
     }),
@@ -49,7 +49,8 @@ export default defineConfig({
   optimizeDeps: {
     exclude: [
       "whatwg-fetch",
-      "animate.css"
+      "animate.css",
+      " @dotlottie/player-component"
     ],
   }
 
