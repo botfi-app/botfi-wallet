@@ -1,11 +1,11 @@
 <script setup>
 import { onBeforeMount, ref } from 'vue';
-import Utils from '../../classes/Utils';
-import Http from '../../classes/Http';
-import { useNetworks } from '../../composables/useNetworks';
-import { useWalletStore } from '../../store/walletStore';
-import Image from '../common/Image.vue';
-import { useTokens } from '../../composables/useTokens';
+import Utils from '../../../classes/Utils';
+import Http from '../../../classes/Http';
+import { useNetworks } from '../../../composables/useNetworks';
+import { useWalletStore } from '../../../store/walletStore';
+import Image from '../../common/Image.vue';
+import { useTokens } from '../../../composables/useTokens';
 import { useRouter } from 'vue-router';
 
 
