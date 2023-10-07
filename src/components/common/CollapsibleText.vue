@@ -18,7 +18,7 @@ onMounted(() => {
                             allowedTags: [ 'b', 'i', 'em', 'strong', 'a' ] 
                         });
 
-    if(cleanContent.length > 100){
+    if(cleanContent.length > 80){
         hasToggle.value = true
         toggleContent()
     }
@@ -40,7 +40,7 @@ const toggleContent = () => {
 }
 </script>
 <template>
-    <p ref="contentRef" class="text-break" v-html="content"></p>
+    <p ref="contentRef" class="text-break">{{ content }}</p>
     <div v-if="hasToggle" class='c-toggler d-flex d-block w-full justify-content-center'>
         <a href="#" class='btn btn-none w-full text-primary' @click.prevent="toggleContent">
             {{toggleBtnText}}

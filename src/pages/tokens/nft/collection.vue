@@ -11,6 +11,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { onBeforeMount, ref } from 'vue';
 import Http from '../../../classes/Http';
 import CollapsibleText from '../../../components/common/CollapsibleText.vue';
+import NFTItemCard from '../../../components/tokens/NFTItemCard.vue';
 
 const route     = useRoute()
 const pageError = ref("")
@@ -19,7 +20,7 @@ const chainId   = ref()
 const pageTitle = ref("NFT Collection")
 const isLoading = ref(false)
 const dataObj   = ref(null)
-const imageUrl  = ref("")
+
 
 onBeforeMount(() => {
     initialize()
@@ -44,8 +45,10 @@ const initialize = async () => {
         chainId.value = _chainId
 
         isLoading.value = true 
+
+        let queryParams = { chainId: _chainId, contract: _contract }
         
-        let resultStatus = await Http.getApi(`/nft/collection/${_contract}-${_chainId}`)
+        let resultStatus = await Http.getApi(`/nft/collection/info`, queryParams)
 
         if(resultStatus.isError()){
             return pageError.value = resultStatus.getMessage()
@@ -53,7 +56,7 @@ const initialize = async () => {
 
         let resultObj = resultStatus.getData()
 
-        console.log("resultObj===>", resultObj)
+        //console.log("resultObj===>", resultObj)
 
         if(resultObj == null){
             return pageError.value = "Collection not found"
@@ -100,12 +103,11 @@ const initialize = async () => {
                             :lines="2"
                         />
                     </div>
-                    <div class="mt-2 px-3">
+                    <div class="mt-2 mb-2 px-3">
                         <div class="d-flex justify-content-between align-items-center">
                             <div class="fw-bold text-uppercase fs-14 hint muted">
                                 Details
                             </div>
-                            <Icon name="emojione-v1:rosette" />
                         </div>
                         <div>
                             <template v-for="(value,key) in dataObj">
@@ -116,12 +118,29 @@ const initialize = async () => {
                                         {{ key }}
                                     </div>
                                     
-                                    <div v-if="key == 'contract'" class='value text-break text-end'>
-                                        {{ value }}
+                                    <div v-if="key == 'contract'" 
+                                        class='value contract text-break text-end d-flex'
+                                    >
+                                        <CopyBtn :text="value" btnClasses="text-primary" />
+                                        <div>{{ value }}</div>    
                                     </div>
                                     <div v-else class='value text-break text-end'>{{ value }}</div>
                                 </div>
                             </template>
+                        </div>
+                        <div class="my-3">
+                            <div class="fw-bold fs-14 hint muted mb-3">
+                                NFTs
+                            </div>
+                            <div class="pb-2">
+                                <InfiniteScroll 
+                                    uri="/nft/collection/items"
+                                    :queryParams="{ contract, chainId }"
+                                    resultsDataKey=""
+                                    :renderer="NFTItemCard"
+                                    containerClass="d-flex flex-wrap justify-content-center"
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -144,5 +163,6 @@ const initialize = async () => {
         width: 200px;
        max-width: 40%;
     }
+
 }
 </style>

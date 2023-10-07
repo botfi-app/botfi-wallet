@@ -86,7 +86,7 @@ const load = async $state => {
     }catch(e){
         console.log(e)
         Utils.logError(`InfiniteScroll# uri: ${p.uri}`, e)
-        errorMsg.value = Utils.systemErrorMsg
+        errorMsg.value = Utils.generalErrorMsg
         $state.error()
     } finally {
         isLoading.value = false
@@ -109,8 +109,8 @@ const load = async $state => {
     <InfiniteLoading @infinite="load">
         <template #error="{ retry }">
             <div class="d-flex flex-column align-items-center my-5">
-                <p>{{  errorMsg }}</p>
-                <button class="btn btn-secondary rounded-pill" @click="retry">
+                <div class="fs-14 my-2">{{  errorMsg }}</div>
+                <button class="btn btn-success rounded-pill" @click="retry">
                     Retry
                 </button>
             </div>

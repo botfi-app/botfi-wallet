@@ -2,7 +2,7 @@
 import { onBeforeMount, ref } from 'vue';
 import { useNetworks } from '../../../composables/useNetworks';
 import InfiniteScroll from '../../common/InfiniteScroll.vue';
-import NFTCollectionItem from '../NFTCollectionItem.vue';
+import NFTCollectionCard from '../NFTCollectionCard.vue';
 //import Utils from '../../../classes/Utils';
 
 const networks  = useNetworks()
@@ -54,10 +54,10 @@ const onSearch = async (keyword) => {
         </div>
         <div class="pb-2">
             <InfiniteScroll 
-                uri="/token-import/nft-collections"
+                uri="/nft/collections"
                 :queryParams="queryParams"
                 resultsDataKey=""
-                :renderer="NFTCollectionItem"
+                :renderer="NFTCollectionCard"
                 :key="key"
                 containerClass="d-flex flex-wrap justify-content-center"
             />
