@@ -27,6 +27,7 @@ $danger:  #ec407a;
 }
 
 body {
+    background: var(--bs-body-bg);
     overflow-x: hidden !important;
     scroll-behavior: smooth !important;
     overflow-y: auto;
@@ -129,7 +130,18 @@ html[data-is-expanded=false] .swal2-popup {
 .h-divider {
     height: 1px;
     width: 100%;
-    background: rgba(255,255,255,0.9);
+}
+
+[data-bs-theme=light] {
+    .h-divider {
+        background: rgba(0,0,0,0.65);
+    }
+}
+
+[data-bs-theme=dark] {
+    .h-divider {
+        background: rgba(255,255,255,0.65);
+    }
 }
 
 .main-btn {
@@ -322,7 +334,7 @@ ul.list-group {
 }
 
 .net-select-btn {
-    background: rgba(0,0,0, 0.2) !important;
+    background: var(--bs-body-bg-dark-3) !important;
 }
 
 .mw-50vw {
@@ -340,14 +352,14 @@ ul.list-group {
     z-index: 10 !important;
 
     .b-tabs {
-        
-        background: var(--bs-body-bg) !important;
+    
         width: 95%;
         //border: 1px solid red;
         border-radius: 12px;
 
         .b-tabs-items {
-            background: rgba(0,0,0, 0.25);
+           
+            background: var(--bs-body-bg-dark-3);
             padding: 10px 0px;
             display: flex;
             justify-content: space-between;
@@ -391,14 +403,13 @@ ul.list-group {
 }
 
 .dropdown-menu {
-    background: var(--bs-body-bg);
     padding: none !important;
     margin: 0px !important;
     position: absolute;
     z-index: 500 !important;
 
     li {
-        background: rgba(0,0,0, 0.3);
+        background: var(--bs-body-bg-dark-3);
         padding: none !important;
         margin: 0px !important;
         border-radius: 8px !important;
@@ -406,7 +417,67 @@ ul.list-group {
         z-index: 100 !important;
 
         &:hover, a:hover {
-            background: rgba(0,0,0, 0.35) !important;
+            background: var(--bs-body-bg-dark-6);
+        }
+    }
+}
+
+
+.text-truncate-multiline {
+    display: -webkit-box;
+    max-width: calc(100%);
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.nft-collection-card {
+
+    width:  160px;
+    width:  calc(50% - 6px);
+    height: 255px;
+    overflow:hidden !important;
+    margin: 6px 3px;
+    border-radius: 8px;
+    background-color: var(--bs-body-bg-dark-3) !important;
+    text-decoration: none !important;
+    display: flex;
+    flex-direction: column;
+
+    .item-title {
+        line-height: 20px !important;
+        font-size: 14px;
+    }
+    
+    .card-header {
+
+        width: 100%;
+        height: 140px;
+        padding: 0px;
+        margin: 0px;
+        background-size: cover;
+        background-position: center;
+        
+
+        .card-header-img {
+            
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 0px;
+            margin: 0px;
+
+            background-color: rgba(255 255 255 / 0.3);
+            backdrop-filter: blur(20px);
+            width: 100%;
+            height: 140px;
+
+            img{
+                height: 140px;
+                width: 100% !important;
+                max-height: 100%;
+                max-width: 100%;
+            }
         }
     }
 }

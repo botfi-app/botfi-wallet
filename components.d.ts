@@ -19,6 +19,7 @@ declare module '@vue/runtime-core' {
     BottomNav: typeof import('./src/components/wallet/BottomNav.vue')['default']
     BottomTabBar: typeof import('./src/components/wallet/BottomTabBar.vue')['default']
     ChainSelect: typeof import('./src/components/wallet/ChainSelect.vue')['default']
+    CollapsibleText: typeof import('./src/components/common/CollapsibleText.vue')['default']
     copy: typeof import('./src/components/modals/NewWalletModal copy.vue')['default']
     CreateWallet: typeof import('./src/components/modals/CreateWallet.vue')['default']
     DefaultNetAndWallet: typeof import('./src/components/modals/DefaultNetAndWallet.vue')['default']

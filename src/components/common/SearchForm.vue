@@ -148,6 +148,7 @@ const handleOnChange = async () => {
 <style lang="scss">
 
     .search-form{
+        
         .ic {
             position: absolute;
             opacity: 0.15;

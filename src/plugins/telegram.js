@@ -173,17 +173,31 @@ const ensureTelegramClient = () => {
         let _bg = tinycolor(bgColor)
         let _tc = tinycolor(textColor)
 
+        let bgDark2 = _bg.clone().darken(2).toHexString()
+        let bgRgb = _bg.clone().toRgb()
+
         cssVars.push(
             ...[
                 ['bs-body-bg', bgColor],
-                ["bs-body-bg-rgb", _bg.clone().toRgbString()],
+                ["bs-body-bg-rgb", `${bgRgb.r}, ${bgRgb.g}, ${bgRgb.b}`],
                 ["bs-body-color", textColor],
                 ["bs-body-color-rgb", _tc.toRgbString() ],
-                ['bs-modal-bg', _bg.clone().darken(1)],
-                ['bs-card-bg', _bg.clone().darken(1)],
-                ['bs-bg-dark-5', _bg.clone().darken(5)]
+                ['bs-modal-bg', bgDark2],
+                ['bs-card-bg',  bgDark2],
+                ['bs-bg-dark-5', _bg.clone().darken(5).toHexString()]
             ]
         )
+        
+        Array.from(Array(20).keys()).forEach((i)=> {
+            
+            if(i == 0) return;
+
+            let colorDark = _bg.clone().darken(i).toHexString()
+            let lightColor = _bg.clone().lighten(i).toHexString()
+
+            cssVars.push([`bs-body-bg-dark-${i}`, colorDark])
+            cssVars.push([`bs-body-bg-light-${i}`, lightColor])
+        })
     
         
         if(scheme == 'dark'){

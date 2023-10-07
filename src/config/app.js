@@ -8,5 +8,7 @@ export default {
     is_dev: import.meta.env.DEV,
 
     // gecko api endpoint 
-    gecko_api_endpoint: "https://api.coingecko.com/api/v3/"
+    gecko_api_endpoint: "https://api.coingecko.com/api/v3/",
+
+    bugsnag_key: "82899ee9f9542a97b05fa4cf393ce712"
 }

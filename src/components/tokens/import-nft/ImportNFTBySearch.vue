@@ -3,37 +3,44 @@ import { onBeforeMount, ref } from 'vue';
 import { useNetworks } from '../../../composables/useNetworks';
 import InfiniteScroll from '../../common/InfiniteScroll.vue';
 import NFTCollectionItem from '../NFTCollectionItem.vue';
+//import Utils from '../../../classes/Utils';
 
-const keyword   = ref("")
-const initialData = ref([])
-const searchResults = ref([]) 
 const networks  = useNetworks()
 const activeNetInfo = ref()
 const queryParams = ref({})
 const key = ref(Date.now())
 const initialized = ref(true)
+var searchQuery = ""
 
 onBeforeMount(async () => {
     await initialize()
 })
 
-
 const initialize = async () => {
     activeNetInfo.value = await networks.getActiveNetworkInfo()
-    queryParams.value   = { keyword: keyword.value, chainId: activeNetInfo.value.chainId }
+    queryParams.value   = { keyword: "", chainId: activeNetInfo.value.chainId }
     initialized.value   = true
 }
 
-const onSearch = async (_keyword) => {
+const onSearch = async (keyword) => {
 
-    _keyword = _keyword.trim()
-    keyword.value = _keyword
+    searchQuery = keyword.trim();
 
-    if(_keyword.trim() == ""){
-        searchResults.value = initialData.value
-    } else {
-        fetchData()
-    }
+    window.setTimeout(() => {
+        keyword = keyword.trim()
+
+        if(searchQuery != keyword) return;
+        
+        //console.log("keyword: ==>", keyword)
+        
+        queryParams.value = {
+            keyword,
+            chainId: activeNetInfo.value.chainId
+        }
+
+        key.value = Date.now()
+        
+    }, 1500)
 }
 </script>
 <template>

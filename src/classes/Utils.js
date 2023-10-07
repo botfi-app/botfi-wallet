@@ -10,7 +10,7 @@ import {prng_alea} from 'esm-seedrandom';
 import { isAddress as ethersIsAddress, getAddress } from 'ethers';
 import copyText from 'copy-text-to-clipboard';
 import { v5 as uuidv5 } from 'uuid';
-
+import appConfig from "../config/app"
 
 export default class Utils {
 
@@ -288,4 +288,23 @@ export default class Utils {
         return uuidv5(str, ns);
     }
     
+    static getNFTPreviewByName(imageName, size="small") {
+        return `${appConfig}/media/nfts/images/${size}/${imageName}.webp`
+    }
+
+    static getNFTPreviewUrl(itemObj, size="small") {
+
+        let image = (itemObj.media || {}).image || {}
+        
+        //console.log("image===>", image)
+        if("name" in image && image.name == ''){
+            return Utils.getNFTPreviewByName(image.name, size)
+        } else if("url" in image && image.url != '' && !["missing_small.png"].includes(image.url)){
+            return  image.url
+        } else {
+            return (size == "large") 
+            ? "/images/nft-large.jpg" 
+            : "/images/nft-small.jpg"
+        }
+    }
 }

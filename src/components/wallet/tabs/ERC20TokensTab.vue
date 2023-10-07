@@ -120,12 +120,12 @@ const doRemoveToken = async (token) => {
                     <button @click.prevent="reloadData"
                         class="btn btn-none text-success rounded-circle btn-sm mx-2 p-0"
                     >
-                        <Icon name="solar:refresh-line-duotone" :size="32" />
+                        <Icon name="solar:refresh-bold" :size="28" />
                     </button>
                     <router-link to="/tokens/import-erc20?ref=wallet" 
                         class="btn btn-none text-primary rounded-circle btn-sm p-0"
                     >
-                        <Icon name="solar:add-circle-line-duotone" :size="32" />
+                        <Icon name="gala:add" :size="28" />
                     </router-link>
                 </div>
             </div>

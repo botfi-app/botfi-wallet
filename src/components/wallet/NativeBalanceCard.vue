@@ -28,7 +28,7 @@ const initialize = async() => {
 }
 </script>
 <template>
-     <div class="home-balance-card rounded-lg shadow mt-3" 
+     <div class="home-balance-card rounded-lg mt-3" 
         v-if="nativeTokenInfo != null"
     >
         <div class="rounded-lg px-2 pb-3">
@@ -87,13 +87,7 @@ const initialize = async() => {
 .home-balance-card {
     padding: 0px; 
     margin: 0px;
-    background: var(--bs-body-bg);
+    background: var(--bs-body-bg-dark-5);
     color: var(--bs-body-color);
-
-    > div {
-        width: 100%;
-        height: 100%;
-        background: rgba(0,0,0,0.25);
-    }
 }
 </style>
