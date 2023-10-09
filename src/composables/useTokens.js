@@ -537,7 +537,7 @@ export const useTokens = () => {
 
             let resultStatus = await web3Conn.staticMulticall(inputs)
 
-            console.log("resultStatus===>", resultStatus)
+            //console.log("resultStatus===>", resultStatus)
 
             if(resultStatus.isError()){
                 Utils.logError("useToken#updateOnChainNFTData:"+ resultStatus.getMessage())
@@ -545,6 +545,19 @@ export const useTokens = () => {
             }
 
             let resultData = resultStatus.getData() || {}
+
+            console.log("resultData===>", resultData)
+
+            let processedData = {}
+
+            for(let label of Object.keys(resultData)){
+                console.log("label===>", label)
+                let {methodName, dataId} = label.split("_")
+
+                let dataInfo = nftsArray[dataId]
+                
+                
+            }
 
             return Status.successPromise()
         } catch(e){
