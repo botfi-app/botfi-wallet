@@ -312,7 +312,7 @@ input[type=number] {
     }
 }
 
-.import-search-form {
+.import-search-form, .search-sticky {
     position: sticky;
     top: 0px;
     background: var(--bs-body-bg) !important;
@@ -480,4 +480,8 @@ ul.list-group {
             }
         }
     }
+}
+
+.wallet-select-with-bg {
+    background: var(--bs-body-bg-dark-5) !important;
 }

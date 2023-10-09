@@ -134,8 +134,8 @@ const onItemSelect = async (item) => {
 }
 </script>
 <template>
-    <div class="px-3">
-        <div class="import-search-form">
+    <div>
+        <div class="import-search-form px-2">
             <SearchForm
                 :dataToFilter="null"
                 :filterKeys="[]"
@@ -144,7 +144,7 @@ const onItemSelect = async (item) => {
         </div>
         <div class="pb-2">
             <loading-view :isLoading="isLoading">
-                <ul class="list-group rounded">
+                <ul class="list-group list-group-flush w-full">
                     <template v-for="(item, index) in searchResults" :key="index">
                         <li class="list-group-item py-3" @click.prevent="onItemSelect(item)">
                             <div class="d-flex">

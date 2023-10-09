@@ -147,11 +147,14 @@ export default class TelegramCore {
 
         let cs = this.webApp.CloudStorage 
 
+        /*
         cs.setItem("hello", "Booom", function() {
             console.log("Saved=========>")
-        });
-
-        cs.getKeys(function(keys){ console.log("keeeeys====>", keys)})
+          
+            cs.getItem("hello", function(result) {
+                console.log("Item===>", result)
+            })
+        });*/s
 
         return {
             isSupported: () => isSupported,

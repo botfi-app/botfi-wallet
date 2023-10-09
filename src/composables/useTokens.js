@@ -3,7 +3,7 @@
  * @author BotFi <hello@botfi.app>
  */
 
-import { computed, inject, onBeforeMount, toValue, ref } from "vue"
+import { computed, inject, onBeforeMount, toValue, ref, toRaw } from "vue"
 import { useDB } from "./useDB"
 import { useNetworks } from "./useNetworks"
 import Utils from "../classes/Utils"
@@ -23,14 +23,15 @@ export const useTokens = () => {
 
     const $state = ref({
         tokens: {},
-        //updatedAt: Date.now()
+        nfts:   {}
     })
 
     onBeforeMount(() =>{
-        getTokens()
+        Promise.all([getTokens(), getNFTs()])
     })
 
-    const tokens   = computed(() =>  $state.value.tokens )
+    const nfts      = computed(() =>  $state.value.nfts )
+    const tokens    = computed(() =>  $state.value.tokens )
     const updatedAt = ref(Date.now())
 
     const getNativeTokenInfo = async () => {
@@ -98,7 +99,7 @@ export const useTokens = () => {
             return tokensObj;
         } catch(e){
             console.log("useTokens#getTokens:",e, e.stack)
-            return []
+            return {}
         }
     }
 
@@ -333,6 +334,7 @@ export const useTokens = () => {
     const importToken = async (tokenInfo={}) => {
         
         for (let key of Object.keys(tokenInfo)){
+
             if(!['name','symbol', 'decimals', 'chainId','image', 'contract', 'geckoId'].includes(key)){
                 return Status.error(`unknown item ${key} in token info object`)
             }
@@ -408,10 +410,99 @@ export const useTokens = () => {
             let _tokens = await getTokens()
 
             return Status.successData(_tokens)
-          } catch(e){
+        } catch(e){
             Utils.logError("useToken#removeToken:", e)
             return Status.error(Utils.generalErrorMsg)
         }
+    }
+
+
+    const getNFTs = async (limit) => {
+         try {
+
+            //console.log("limit===>", limit)
+
+            let netInfo = await net.getActiveNetworkInfo()
+            
+            let chainId = netInfo.chainId
+            let userId = botUtils.getUid()
+
+            let db = await dbCore.getDB()
+
+            let nftsQuery =  await db.nfts.where({ chainId, userId })
+
+            if(limit != null && Number.isInteger(limit)) {
+                nftsQuery = nftsQuery.limit(limit)
+            }
+
+            let nftsArr = await nftsQuery.toArray()
+
+            let nftsObj = {}
+
+            nftsArr.reverse()
+            
+            nftsArr.forEach(item => nftsObj[item.id] = item )
+            $state.value.nfts = nftsObj;
+
+            console.log("nftsObj===>", nftsObj)
+
+            return nftsObj;
+
+        } catch(e){
+            console.log("useTokens#getNFTs:",e, e.stack)
+            return {}
+        }
+    }
+    
+    const importNFT = async (nftInfo={}, walletAddr) => {
+
+        try{
+
+            nftInfo = toRaw(nftInfo)
+
+            let requiredFields = [
+                'name',
+                'tokenId', 
+                'chainId',  
+                'collection',
+                'collectionInfo',
+                'standard'
+            ]
+
+            for (let field of requiredFields){
+                if(!(field in nftInfo)){
+                    return Status.error(`'${field}' field is missing`)
+                }
+            }
+
+            let userId = botUtils.getUid()
+
+
+            let db = await dbCore.getDB()
+            
+            let { chainId, collection, tokenId } = nftInfo
+
+            let id = Utils.generateUID(`${userId}-${chainId}-${walletAddr}-${collection}-${tokenId}`)
+
+            let dataToSave = {
+                id,
+                userId, 
+                wallet: walletAddr,
+                nftInfo,
+                updatedAt: new Date()
+            }
+
+            let dId = await db.nfts.put(dataToSave)
+
+            return Status.success("", dId)
+        } catch(e){
+            Utils.logError("useTokens#importNFT:", e)
+            return Status.error(Utils.generalErrorMsg)
+        }
+    }
+
+    const nftExists = (id) => {
+        return (id in $state.value.nfts)
     }
 
     return {
@@ -420,7 +511,10 @@ export const useTokens = () => {
         getERC20TokenInfo,
         updateBalances,
         tokens,
+        nfts,
         updatedAt,
-        removeToken
+        removeToken,
+        importNFT,
+        nftExists
     }
 }

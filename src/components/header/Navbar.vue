@@ -2,9 +2,6 @@
 
 import { useNetworks } from '../../composables/useNetworks';
 import Image from '../common/Image.vue';
-import { useWalletStore } from '../../store/walletStore';
-import Utils from '../../classes/Utils';
-import Avatar from '../common/Avatar.vue';
 
 const props = defineProps({
     title: { type: String, default: "" },
@@ -14,8 +11,6 @@ const props = defineProps({
 })
 
 const { isNetReady, activeNetwork } = useNetworks()
-const walletStore = useWalletStore()
-const { activeWallet } = walletStore
 
 </script>
 <template>
@@ -48,32 +43,8 @@ const { activeWallet } = walletStore
            </button>
            <Icon v-else-if="props.icon != ''" :name="props.icon"  class="text-primary" />
         </div>
-        <div class=" w-full px-3 mb-2" v-if="props.hasAddrSelect">
-            <button class="btn py-2 btn-outline-primary rounded w-full d-block addr-select-btn" 
-                v-if="activeWallet"
-                data-bs-toggle="modal" 
-                data-bs-target="#acctNetSelectModal"
-            >
-                <div class="d-flex align-items-center justify-content-between fs-16">
-
-                    <div class="d-flex align-items-center mw-50vw">
-                        <Avatar 
-                            :name="activeWallet.address" 
-                            :square="true" 
-                            :size="24" 
-                            variant="ring"
-                            class="rounded me-2"
-                        />
-                        <div class="text-dark me-2 fw-normal text-truncate flex-grow-1">
-                            {{ activeWallet.name }}
-                        </div>
-                    </div>
-
-                    <div class="font-monospace">
-                        {{  Utils.maskAddress(activeWallet.address, 6, 6)  }}
-                    </div>
-                </div>
-            </button>
+        <div class="px-3 mb-2 w-full" v-if="props.hasAddrSelect">
+            <WalletSelect />
         </div>
 
         <DefaultNetAndWallet />

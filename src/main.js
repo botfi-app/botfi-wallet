@@ -12,13 +12,16 @@ const pinia = createPinia()
 import Bugsnag from '@bugsnag/js'
 import BugsnagPluginVue from '@bugsnag/plugin-vue'
 import appConfig from "./config/app"
+import VueLazyLoad from 'vue3-lazyload'
 
+/*
 Bugsnag.start({
   apiKey:   appConfig.bugsnag_key,
   plugins:  [new BugsnagPluginVue()]
 })
 
 const bugsnagVue = Bugsnag.getPlugin('vue')
+*/
 
 const app = createApp(App)
 
@@ -50,9 +53,11 @@ router.afterEach(() => {
 })
 
 
-app.use(bugsnagVue)
-    .use(router)
-    .use(pinia)
-    .use(telegram, { router })
+app
+ //.use(bugsnagVue)
+ .use(router)
+ .use(pinia)
+ .use(telegram, { router })
+ .use(VueLazyLoad)
     
 app.mount('#app')

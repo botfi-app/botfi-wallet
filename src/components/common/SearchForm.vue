@@ -120,7 +120,7 @@ const handleOnChange = async () => {
             <Icon 
                 name="iconamoon:search-light" 
                 :size="24" 
-                class="ic ic-left text-primary " 
+                class="ic ic-left" 
             />
         </div>
         <input 
@@ -151,7 +151,7 @@ const handleOnChange = async () => {
         
         .ic {
             position: absolute;
-            opacity: 0.15;
+            opacity: 0.08;
             color: var(--bs-bg-color);
             transition: opacity 0.6s;
         }
@@ -183,7 +183,7 @@ const handleOnChange = async () => {
         }
 
         &.focus {
-            .ic { opacity: 0.9;}
+            .ic { opacity: 0.9; color: var(--bs-primary); }
         }
     }
 </style>

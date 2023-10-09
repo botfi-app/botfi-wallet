@@ -36,7 +36,7 @@ export default class Utils {
             buttonsStyling: false,
             customClass: {
                 confirmButton: 'btn mx-1 shadow-lg px-5 btn-primary rounded-pill',
-                cancelButton: 'btn  mx-1 px-5 btn-info rounded-pill',
+                cancelButton: 'btn  mx-1 px-5 btn-warning rounded-pill',
                 popup: 'shadow-lg',
                 htmlContainer: "body-bg",
             },
@@ -283,28 +283,76 @@ export default class Utils {
         return html
     }
 
+    static getImportNFTConfirmMsg(nftInfo) {
+
+        let imgUrl = Utils.getNFTPreviewUrl(nftInfo)
+
+        let clz = 'd-flex justify-content-between my-3 w-full align-items-center'
+        let imgStyle = 'max-width: 100%; height: 140px;'
+
+
+        let html =  `
+            <div class='d-flex justify-content-center mb-1'>
+                <img src="${imgUrl}" 
+                    style='${imgStyle}' 
+                    class='rounded-lg'
+                />
+            </div>
+            <div class='${clz}'>
+                <div class='text-primary text-start' style='width:85px;'>Name:</div>      
+                <div class='ms-2 fw-medium text-end ps-2'>${nftInfo.name}</div>
+            </div>
+            <div class='${clz}'>
+                <div class='text-primary text-start'>Token ID:</div>      
+                <div class='ms-2 fw-medium text-end'>${nftInfo.tokenId}</div>
+            </div>
+            <div class='${clz}'>
+                <div class='text-primary text-start' style='width:140px;'>Contract:</div>
+                <div class='text-break text-end ps-2'>${nftInfo.collection}</div>
+            </div>
+        `
+
+        return html
+    }
+
     static generateUID(str) {
         const ns = "fbaf17b3-005d-4cee-ac09-5020446ef747"
         return uuidv5(str, ns);
     }
     
     static getNFTPreviewByName(imageName, size="small") {
-        return `${appConfig}/media/nfts/images/${size}/${imageName}.webp`
+        return `${appConfig.server_url}/media/nfts/images/${size}/${imageName}.webp`
     }
 
     static getNFTPreviewUrl(itemObj, size="small") {
 
         let image = (itemObj.media || {}).image || {}
+        let imageName = (image.name || "").toString().trim()
         
-        //console.log("image===>", image)
-        if("name" in image && image.name == ''){
-            return Utils.getNFTPreviewByName(image.name, size)
+        //console.log("image===>", imageName)
+
+        if(imageName != ""){
+            
+            return Utils.getNFTPreviewByName(imageName, size)
+
         } else if("url" in image && image.url != '' && !["missing_small.png"].includes(image.url)){
-            return  image.url
+            
+            let tokenId = (itemObj.tokenId || "").toString().trim()
+            let server = `${appConfig.server_url}`
+            let chainId = itemObj.chainId
+
+            return (tokenId != "") 
+                ? `${server}/nft/images/${size}/${chainId}/${itemObj.collection}/${tokenId}`
+                : `${server}/collection/images/${size}/${chainId}/${itemObj.contract}`
+
         } else {
+
+            return  "/images/nft-small.jpg";
+            /*
             return (size == "large") 
             ? "/images/nft-large.jpg" 
             : "/images/nft-small.jpg"
+            */
         }
     }
 }

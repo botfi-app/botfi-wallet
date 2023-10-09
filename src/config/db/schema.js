@@ -26,5 +26,15 @@ export default {
               userId,
               data,
               updatedAt  
-            `
+            `,
+
+    nfts:  `id, 
+            wallet,
+            userId,
+            chainId,
+            nftInfo,
+            balance,
+            extraInfo,
+            updatedAt  
+           `
 }

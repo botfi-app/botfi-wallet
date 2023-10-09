@@ -117,30 +117,31 @@ const copyAddress = async (addr) =>{
         <NativeBackBtn />
 
         <div class="w-400 mb-5">
-            
-            <loading-view :isLoading="isLoading" :key="dataState">
-                <div class="d-flex p-2 align-items-center flex-nowrap">
-                    <div class="fw-semibold fs-6 pe-2">Wallets</div>
-                    <div class="flex-grow-1">
-                        <search-form 
-                            placeholder="Search"
-                            @change="onSearch"
-                            :dataToFilter="walletStore.wallets"
-                            :filterKeys="['name', 'address']"
-                            :mode="{start: true, end: true }"
-                            :key="`${walletStore.wallets.length}-${walletStore.activeWallet.address}`"
-                        />
-                    </div>
-                    <div class="ps-2">
-                        <button class="btn btn-primary rounded-pill v-center"
-                            data-bs-toggle="modal" 
-                            :data-bs-target="`#${newWalletModalId}`"
-                        >
-                            <Icon name="ion:add-sharp" :size="18" />
-                            <div class="px-1">New</div>
-                        </button>
-                    </div>
+            <div class="d-flex p-2 align-items-center justify-content-between flex-nowrap">
+                <div class="fw-semibold fs-6 pe-2">Wallets</div>
+                
+                <div class="ps-2">
+                    <button class="btn btn-primary rounded-pill v-center"
+                        data-bs-toggle="modal" 
+                        :data-bs-target="`#${newWalletModalId}`"
+                    >
+                        <Icon name="ion:add-sharp" :size="18" />
+                        <div class="px-1">New</div>
+                    </button>
                 </div>
+            </div>
+            <div class="p-2 my-2 search-sticky">
+                <search-form 
+                    placeholder="Search"
+                    @change="onSearch"
+                    :dataToFilter="walletStore.wallets"
+                    :filterKeys="['name', 'address']"
+                    :mode="{start: true, end: true }"
+                    :key="`${walletStore.wallets.length}-${walletStore.activeWallet.address}`"
+                />
+            </div>
+            <loading-view :isLoading="isLoading" :key="dataState">
+             
                 <ul class="list-group list-group-flush w-full no-select">
                     <li v-if="dataToRender != null"
                         v-for="(item,key) in dataToRender" 

@@ -12,7 +12,8 @@ const props = defineProps({
     queryParams: { type: Object, default: {} },
     resultsDataKey: { type: String, default: ""},
     containerClass: { type: String, default:"d-flex flex-wrap" },
-    noResultsText: { type: String, default: "" }
+    noResultsText: { type: String, default: "" },
+    extraData: { type: Object, default: {} }
 })
 
 const dataArray = ref([])
@@ -103,10 +104,13 @@ const load = async $state => {
             v-if="!isLoading && initialReqDone && errorMsg == '' && dataArray.length == 0"
         />
         <template v-else v-for="(item, index) in dataArray" :key="index">
-            <component :is="props.renderer" v-bind="{ data: item }" />
+            <component 
+                :is="props.renderer" 
+                v-bind="{ data: item, extraData: props.extraData }" 
+            />
         </template>
     </div>
-    <InfiniteLoading @infinite="load">
+    <InfiniteLoading @infinite="load" :distance="10">
         <template #error="{ retry }">
             <div class="d-flex flex-column align-items-center my-5">
                 <div class="fs-14 my-2">{{  errorMsg }}</div>
@@ -118,7 +122,9 @@ const load = async $state => {
         <template #complete>&nbsp;</template>
         <template #spinner>
             <div class="full-width d-flex align-items-center justify-content-center my-1">
-                <div class="loader loader-sm"></div>
+                <div class="spinner-border spinner-border-sm text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
             </div>
         </template>
     </InfiniteLoading>

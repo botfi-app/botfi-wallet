@@ -12,6 +12,9 @@ import { onBeforeMount, ref } from 'vue';
 import Http from '../../../classes/Http';
 import CollapsibleText from '../../../components/common/CollapsibleText.vue';
 import NFTItemCard from '../../../components/tokens/NFTItemCard.vue';
+import { useNetworks } from '../../../composables/useNetworks';
+import { useWalletStore } from '../../../store/walletStore';
+import WalletSelect from '../../../components/header/WalletSelect.vue';
 
 const route     = useRoute()
 const pageError = ref("")
@@ -20,9 +23,13 @@ const chainId   = ref()
 const pageTitle = ref("NFT Collection")
 const isLoading = ref(false)
 const dataObj   = ref(null)
+const { activeNetwork, getActiveNetworkInfo }  = useNetworks()
+const  { activeWallet, getActiveWalletInfo } = useWalletStore()
 
+const activeWalletAddress = ref("")
 
 onBeforeMount(() => {
+    Promise.all([getActiveWalletInfo(), getActiveNetworkInfo()])
     initialize()
 })
 
@@ -62,7 +69,13 @@ const initialize = async () => {
             return pageError.value = "Collection not found"
         }
 
-
+        let activeNet = activeNetwork.value
+        
+        //console.log("activeNet===>", activeNet)
+        resultObj.chain  = `${activeNet.name} (${resultObj.chainId})`
+        
+        activeWalletAddress.value = activeWallet.address;
+        
         dataObj.value = resultObj
 
         //pageTitle.value = resultObj.name 
@@ -77,10 +90,10 @@ const initialize = async () => {
 </script>
 <template>
     <WalletLayout
-        :title="pageTitle"
+        title=""
         :showNav="false"
         :hasNetSelect="false"
-        :hasAddrSelect="false"
+        :hasAddrSelect="true"
         :pageError="pageError"
     >   
 
@@ -91,10 +104,18 @@ const initialize = async () => {
         <div class="w-400 mb-5">
             <loading-view :isLoading="isLoading">
                 <div v-if="dataObj != null">
+                    
+                    <div class="p-2">
+                        <WalletSelect 
+                            btnClass="rounded-lg btn-none text-primary wallet-select-with-bg" 
+                        />
+                    </div>
+
                     <div class="d-flex justify-content-center p-2">
                         <img 
-                            class="collection-preview rounded shadow"
+                            class="collection-preview rounded-lg shadow"
                             :src="Utils.getNFTPreviewUrl(dataObj, 'large')"
+                            loading="lazy"
                         />
                     </div>
                     <div class="text-justify description mt-2 mx-3">
@@ -112,7 +133,7 @@ const initialize = async () => {
                         <div>
                             <template v-for="(value,key) in dataObj">
                                 <div class="d-flex align-items-center justify-content-between py-2 details"
-                                    v-if="['name', 'symbol', 'standard', 'contract'].includes(key)"
+                                    v-if="['name', 'symbol', 'standard', 'contract', 'chain'].includes(key)"
                                 >
                                     <div class="text-capitalize key text-start fw-medium">
                                         {{ key }}
@@ -139,6 +160,10 @@ const initialize = async () => {
                                     resultsDataKey=""
                                     :renderer="NFTItemCard"
                                     containerClass="d-flex flex-wrap justify-content-center"
+                                    :extraData="{ 
+                                        collectionInfo: dataObj,
+                                        activeWalletAddress 
+                                    }"
                                 />
                             </div>
                         </div>
@@ -149,10 +174,11 @@ const initialize = async () => {
     </WalletLayout>
 </template>
 <style lang="scss" scoped>
+
+
 .collection-preview {
-    max-height: 300px;
-    max-height: 45vh;
-    max-width: 100%;
+    width: 100%;
+    max-height: 50vh;
 }
 .description {
     text-align:start;

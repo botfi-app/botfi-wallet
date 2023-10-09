@@ -39,7 +39,9 @@
     "validator": "^13.9.0",
     "vue": "^3.3.4",
     "vue-boring-avatars": "^1.3.0",
+    "vue-lazyload": "^3.0.0",
     "vue-router": "^4.2.4",
+    "vue3-lazyload": "^0.3.8",
     "webkit-line-clamp": "^1.2.2",
     "whatwg-fetch": "^3.6.17"
   },

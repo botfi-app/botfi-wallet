@@ -13,6 +13,9 @@ const props = defineProps({
 </script>
 <template>
 <a href="#" @click.prevent="Utils.copyText({ ...props })" :class="props.btnClasses">
-    <Icon name="solar:copy-bold-duotone" :size="24" />
+    <Icon name="solar:copy-bold-duotone" 
+        :size="20" 
+        style="position:relative; top: -2px;" 
+    />
 </a>
 </template>
