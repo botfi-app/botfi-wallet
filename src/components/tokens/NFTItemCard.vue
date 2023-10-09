@@ -1,5 +1,5 @@
 <script setup>
-import { onBeforeMount, ref } from 'vue';
+import { onBeforeMount, ref, inject } from 'vue';
 import Utils from '../../classes/Utils';
 import { useTokens } from '../../composables/useTokens';
 
@@ -12,25 +12,29 @@ const imgUrl = ref("")
 const item = ref(props.data)
 const collectionInfo = ref(props.extraData.collectionInfo)
 const { importNFT, nftExists } = useTokens()
-const activeWalletAddress = ref(props.extraData.activeWalletAddress)
+const activeWalletAddr = ref(props.extraData.activeWalletAddr)
 const nftId = ref("")
 const nftExistsInDb = ref(false)
 const botUtils = inject("botUtils")
 
 onBeforeMount( async() => {
+    initialize()
+})
 
-    let nft = props.data
+const initialize = async () => {
+
+    let nftInfo = props.data
 
     let userId  = botUtils.getUid()
-    let { chainId, collection, tokenId } = nft.chainId;
-    let walletAddr = activeWalletAddress.value
+    let { chainId, collection, tokenId } = nftInfo;
+    let walletAddr = activeWalletAddr.value
     
     nftId.value = Utils.generateUID(`${userId}-${chainId}-${walletAddr}-${collection}-${tokenId}`)
 
-    nftExistsInDb.value = nftExists(nftId.value)
+    nftExistsInDb.value = await nftExists(nftId.value)
 
-    imgUrl.value = Utils.getNFTPreviewUrl(props.data, "small")    
-})
+    imgUrl.value = Utils.getNFTPreviewUrl(props.data, "small")   
+}
 
 const doImportNFT = async () => {
 
@@ -65,15 +69,24 @@ const doImportNFT = async () => {
             geckoId:    colInfo.geckoId || ""
         }
 
+        ///console.log("activeWalletAddress====>", activeWalletAddr.value)
+
+        
         loader = Utils.loader("Importing NFT")
 
-        let resultStatus = await tokensCore.importNFT(tokenInfo, activeWalletAddress)
+        let resultStatus = await importNFT(tokenInfo, activeWalletAddr.value)
 
         if(resultStatus.isError()){
             return Utils.errorAlert(resultStatus.getMessage())
         }
 
-        Utils.successAlert(`${tokenInfo.name} (id: ${tokenInfo.tokenId}) imported`)
+        //console.log("nftId.value===>", nftId.value)
+
+        nftExistsInDb.value = nftExists(nftId.value)
+
+       // console.log("nftExistsInDb.value===>", nftExistsInDb.value)
+
+        Utils.toast(`${tokenInfo.name} (id: ${tokenInfo.tokenId}) imported`)
         
     }catch(e){
         Utils.logError("NFTItemCard#importNFT:", e)
@@ -103,11 +116,11 @@ const doImportNFT = async () => {
                     {{ item.name }}
                 </div>
                 <button @click.prevent="doImportNFT"
-                    class="btn btn-primary mt-2 btn-sm rounded-pill fw-bold fs-12"
-                    :disable="nftExistsInDb"
+                    class="btn btn-primary mt-2 btn-sm rounded-pill fs-12"
+                    :disabled="nftExistsInDb"
                 >
-                    <div v-if="nftExistsInDb" class='fst-italics'>Imported</div>
-                    <div v-else>Import</div>
+                    <div v-if="nftExistsInDb" class='fst-italic fw-semibold'>Imported</div>
+                    <div v-else class="fw-bold">Import NFT</div>
                 </button>
             </div>
         </div>

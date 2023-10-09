@@ -307,7 +307,7 @@ export default class Utils {
                 <div class='ms-2 fw-medium text-end'>${nftInfo.tokenId}</div>
             </div>
             <div class='${clz}'>
-                <div class='text-primary text-start' style='width:140px;'>Contract:</div>
+                <div class='text-primary text-start' style='width:160px;'>Contract:</div>
                 <div class='text-break text-end ps-2'>${nftInfo.collection}</div>
             </div>
         `

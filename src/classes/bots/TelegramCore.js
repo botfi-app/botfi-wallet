@@ -154,7 +154,7 @@ export default class TelegramCore {
             cs.getItem("hello", function(result) {
                 console.log("Item===>", result)
             })
-        });*/s
+        });*/
 
         return {
             isSupported: () => isSupported,

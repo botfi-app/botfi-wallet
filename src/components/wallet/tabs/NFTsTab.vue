@@ -10,11 +10,9 @@ const props = defineProps({
     limit: { type: null, default: null }
 })
 
-const { fetchSettings } = useSettings()
-const { getTokens, removeToken  } = useTokens()
+const { nfts, updateOnChainNFTData  } = useTokens()
 const defaultCurrency = ref("usd")
 const initialized = ref(false)
-const nftsData = ref({})
 const dataToRender  = ref({})
 const dataState = ref(Date.now())
 
@@ -23,6 +21,10 @@ onBeforeMount(() => {
 })
 
 const initialize = () => {
+
+    updateOnChainNFTData()
+
+    window.setInterval(() => updateOnChainNFTData(), 10_000)
 
     initialized.value = true
 }
@@ -40,8 +42,8 @@ const onSearch = async (keyword, filteredData) => {
                     <search-form 
                         placeholder="Search"
                         @change="onSearch"
-                        :dataToFilter="nftsData"
-                        :filterKeys="['name', 'contract', 'symbol']"
+                        :dataToFilter="nfts"
+                        :filterKeys="['name', 'collection', 'symbol']"
                         :mode="{start: true, end: true }"
                         :key="dataState"
                         class="flex-grow-1"

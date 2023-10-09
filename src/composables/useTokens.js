@@ -8,6 +8,8 @@ import { useDB } from "./useDB"
 import { useNetworks } from "./useNetworks"
 import Utils from "../classes/Utils"
 import erc20Abi from "../data/abi/erc20.json"
+import erc721Abi from "../data/abi/erc721.json"
+import erc1155Abi from "../data/abi/erc1155.json"
 import Status from "../classes/Status"
 import { formatUnits, getAddress } from "ethers"
 import EventBus from "../classes/EventBus"
@@ -444,13 +446,112 @@ export const useTokens = () => {
             nftsArr.forEach(item => nftsObj[item.id] = item )
             $state.value.nfts = nftsObj;
 
-            console.log("nftsObj===>", nftsObj)
+            //console.log("nftsObj===>", nftsObj)
 
             return nftsObj;
 
         } catch(e){
             console.log("useTokens#getNFTs:",e, e.stack)
             return {}
+        }
+    }
+
+    const updateOnChainNFTData = async () => {
+        try {
+
+            if(window.__botFiNFTsUpdating) return;
+
+            window.__botFiNFTsUpdating = true;
+
+            let netInfo = await net.getActiveNetworkInfo()
+            
+            let chainId = netInfo.chainId
+            let userId = botUtils.getUid()
+
+            let db = await dbCore.getDB()
+
+            //lets get the web3 conn
+            let web3ConnStatus = await net.getWeb3Conn()
+
+            if(web3ConnStatus.isError()){
+                return web3ConnStatus
+            }
+
+            let web3Conn = web3ConnStatus.getData()
+
+
+            let nftsArray =  await db.nfts.where({ chainId, userId }).toArray()
+
+            let inputs = []
+
+            for(let index in nftsArray){
+                
+                let item = nftsArray[index]
+
+                let nftInfo = item.nftInfo
+
+                let wallet = getAddress(item.wallet)
+
+                let { tokenId, collection: target } = nftInfo
+
+                let tokenIdBigInt = BigInt(tokenId)
+
+                if(nftInfo.standard == 'erc721'){
+
+                    let abi = erc721Abi;
+
+                    inputs.push(...[
+                        {
+                            target, 
+                            abi, 
+                            label:  `ownerOf_${index}`, 
+                            method: "ownerOf", 
+                            args:   [tokenId] 
+                        },
+                        {
+                            target, 
+                            abi, 
+                            label:  `balanceOf_${index}`, 
+                            method: "balanceOf", 
+                            args:   [wallet] 
+                        }
+                    ])
+                } else {
+
+                    let abi = erc1155Abi;
+
+                    inputs.push(...[
+                        {
+                            abi, 
+                            target,
+                            label: `balanceOf_${index}`,
+                            method: "balanceOf",
+                            args: [wallet, tokenId]
+                        }
+                    ])
+                }
+            }
+
+            //console.log("nftInfo.standard===>", nftInfo.standard);
+
+
+            let resultStatus = await web3Conn.staticMulticall(inputs)
+
+            console.log("resultStatus===>", resultStatus)
+
+            if(resultStatus.isError()){
+                Utils.logError("useToken#updateOnChainNFTData:"+ resultStatus.getMessage())
+                return resultStatus;
+            }
+
+            let resultData = resultStatus.getData() || {}
+
+            return Status.successPromise()
+        } catch(e){
+            Utils.logError("useTokens#updateOnChainNFTData:",e, e.stack)
+            return Status.errorPromise()
+        } finally {
+            window.__botFiNFTsUpdating = false
         }
     }
     
@@ -486,7 +587,8 @@ export const useTokens = () => {
 
             let dataToSave = {
                 id,
-                userId, 
+                userId,
+                chainId, 
                 wallet: walletAddr,
                 nftInfo,
                 updatedAt: new Date()
@@ -501,8 +603,14 @@ export const useTokens = () => {
         }
     }
 
-    const nftExists = (id) => {
-        return (id in $state.value.nfts)
+    const nftExists = async (id) => { getNFTs
+        //let _nfts = ($state.value.nfts)
+        //return (id in $state.value.nfts)
+        let _nfts = (Object.keys($state.value.nfts).length == 0)
+                        ? (await getNFTs())
+                        : $state.value.nfts
+
+        return (id in _nfts)
     }
 
     return {
@@ -515,6 +623,7 @@ export const useTokens = () => {
         updatedAt,
         removeToken,
         importNFT,
-        nftExists
+        nftExists,
+        updateOnChainNFTData
     }
 }

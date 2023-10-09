@@ -23,13 +23,12 @@ const chainId   = ref()
 const pageTitle = ref("NFT Collection")
 const isLoading = ref(false)
 const dataObj   = ref(null)
-const { activeNetwork, getActiveNetworkInfo }  = useNetworks()
-const  { activeWallet, getActiveWalletInfo } = useWalletStore()
+const { getActiveNetworkInfo }  = useNetworks()
+const  {  getActiveWalletInfo } = useWalletStore()
 
-const activeWalletAddress = ref("")
+const activeWalletAddr = ref("")
 
 onBeforeMount(() => {
-    Promise.all([getActiveWalletInfo(), getActiveNetworkInfo()])
     initialize()
 })
 
@@ -69,13 +68,13 @@ const initialize = async () => {
             return pageError.value = "Collection not found"
         }
 
-        let activeNet = activeNetwork.value
-        
+        activeWalletAddr.value = (await getActiveWalletInfo()).address
+
+        let activeNetworkInfo = await getActiveNetworkInfo()
+
         //console.log("activeNet===>", activeNet)
-        resultObj.chain  = `${activeNet.name} (${resultObj.chainId})`
-        
-        activeWalletAddress.value = activeWallet.address;
-        
+        resultObj.chain  = `${activeNetworkInfo.name} (${resultObj.chainId})`
+                
         dataObj.value = resultObj
 
         //pageTitle.value = resultObj.name 
@@ -162,7 +161,7 @@ const initialize = async () => {
                                     containerClass="d-flex flex-wrap justify-content-center"
                                     :extraData="{ 
                                         collectionInfo: dataObj,
-                                        activeWalletAddress 
+                                        activeWalletAddr
                                     }"
                                 />
                             </div>

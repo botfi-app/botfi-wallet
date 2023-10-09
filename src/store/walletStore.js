@@ -106,6 +106,8 @@ export const useWalletStore = defineStore('walletStore', () => {
     const getActiveWalletInfo = async () => {
         
         let $s = $state.value 
+
+        //console.log("$s ===>", $s )
         
         if($s.activeWalletAddr == null){
 
@@ -126,8 +128,10 @@ export const useWalletStore = defineStore('walletStore', () => {
 
            $s.activeWalletAddr = addr
         }
+
+        //console.log("$s.activeWalletAddr", $s.activeWalletAddr)
         
-        return wallets.value[$s.activeWalletAddr]
+        return getWalletByAddr($s.activeWalletAddr)
     }
  
     const isLoggedIn = () => {
