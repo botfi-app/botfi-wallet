@@ -1,16 +1,25 @@
 <script setup>
+import { onBeforeMount, ref } from 'vue';
+import Utils from '../../classes/Utils';
+
 const props = defineProps({
     data: { type: Object, default: {} }
 })
+
+const nftInfo = ref(props.data.nftInfo)
+const imgUrl = ref("")
 
 onBeforeMount( async() => {
     initialize()
 })
 
 const initialize = async () => {
-    imgUrl.value = Utils.getNFTPreviewUrl(props.data, "small")   
+    imgUrl.value = Utils.getNFTPreviewUrl(nftInfo.value, "small")   
 }
 
+const doRemoveNFT = async () => {
+
+}
 </script>
 <template>
     <div class="nft-collection-card">
@@ -24,19 +33,12 @@ const initialize = async () => {
         </div>
         <div class="p-2 text-center flex-grow-1 d-flex align-items-center justify-content-center">
             <div class="px-2">
-                <div class="fw-bold fs-12 hint font-monospace text-truncate">
-                    #{{ item.tokenId }}
+                <div class="fw-medium fs-12 text-uppercase text-truncate">
+                    {{ nftInfo.collectionInfo.name }}
                 </div>
                 <div class="fw-medium item-title text-truncate-multiline text-break">
-                    {{ item.name }}
+                    {{ nftInfo.name }}
                 </div>
-                <button @click.prevent="doImportNFT"
-                    class="btn btn-primary mt-2 btn-sm rounded-pill fs-12"
-                    :disabled="nftExistsInDb"
-                >
-                    <div v-if="nftExistsInDb" class='fst-italic fw-semibold'>Imported</div>
-                    <div v-else class="fw-bold">Import NFT</div>
-                </button>
             </div>
         </div>
     </div>

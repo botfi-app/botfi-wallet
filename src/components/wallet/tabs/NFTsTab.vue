@@ -24,9 +24,9 @@ const initialize = async () => {
     nftItems.value = await getNFTs(props.limit)
 
     updateTimer = window.setInterval(async () => {
-        updateOnChainNFTData()
+        await updateOnChainNFTData()
         nftItems.value = await getNFTs(props.limit)
-    }, 35_000)
+    }, 40_000)
 
     initialized.value = true
 }
@@ -48,7 +48,7 @@ onBeforeUnmount(() => {
                     <search-form 
                         placeholder="Search"
                         @change="onSearch"
-                        :dataToFilter="nfts"
+                        :dataToFilter="nftItems"
                         :filterKeys="['name', 'collection', 'symbol']"
                         :mode="{start: true, end: true }"
                         :key="dataState"
@@ -65,11 +65,11 @@ onBeforeUnmount(() => {
                         <Icon name="gala:add" :size="28" />
                     </router-link>
                 </div>
-                <div class="d-flex flex-wrap justify-content-center">
-                    <template v-for="(item, id) in nftItems">
-                        <ImportedNFTCard data="item" />
-                    </template>
-                </div>
+            </div>
+            <div class="d-flex flex-wrap justify-content-center">
+                <template v-for="(item, id) in dataToRender">
+                    <ImportedNFTCard :data="item" />
+                </template>
             </div>
         </div>
     </div>
