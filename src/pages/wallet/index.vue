@@ -65,18 +65,8 @@ const initialize = async() => {
                     <div class="mt-3 mx-2">
                         <TokensAndActivityTabs 
                             :limit="7"
-                            :showViewAll="true"
+                            :enableViewAllBtn="true"
                         />
-                        <div class="d-flex mt-2 mb-3 me-3 justify-content-end">
-                            <router-link to="/tokens" 
-                                class="btn btn-outline-primary rounded-pill shadow"
-                            >
-                                <div class="d-flex align-items-center">
-                                    <div class="me-2">View All</div>
-                                    <Icon name="solar:arrow-right-line-duotone" />
-                                </div>
-                            </router-link>
-                        </div>
                     </div>
                </div>
             </div>

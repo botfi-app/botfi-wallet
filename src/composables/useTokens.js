@@ -433,10 +433,6 @@ export const useTokens = () => {
 
             let nftsQuery =  await db.nfts.where({ chainId, userId })
 
-            if(limit != null && Number.isInteger(limit)) {
-                nftsQuery = nftsQuery.limit(limit)
-            }
-
             let nftsArr = await nftsQuery.toArray()
 
             let nftsObj = {}
@@ -447,7 +443,14 @@ export const useTokens = () => {
             
             $state.value.nfts = nftsObj;
 
-            //console.log("nftsObj===>", nftsObj)
+            //console.log("nftsObj=======>",nftsObj)
+
+            if(limit != null && Number.isInteger(limit) && nftsArr.length > limit) {
+                let slicedItems = Object.fromEntries(
+                    Object.entries(nftsObj).slice(limit)
+                )
+                return slicedItems
+            }
 
             return nftsObj;
 
@@ -642,6 +645,20 @@ export const useTokens = () => {
         return (id in _nfts)
     }
 
+    const removeNFT = async (id) => {
+        
+        let db = await dbCore.getDB()
+        let userId = botUtils.getUid()
+
+        let deleteItem = await db.nfts.where({ id, userId }).delete()
+
+        let newNFTs = await getNFTs()
+
+        console.log("delete===>", deleteItem)
+        
+        return Status.success("", newNFTs)
+    }
+
     return {
         getTokens,
         importToken,
@@ -654,6 +671,7 @@ export const useTokens = () => {
         importNFT,
         nftExists,
         getNFTs,
-        updateOnChainNFTData
+        updateOnChainNFTData,
+        removeNFT
     }
 }

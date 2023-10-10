@@ -4,7 +4,8 @@ import ERC20TokensTab from "./tabs/ERC20TokensTab.vue";
 import NFTsTab from "./tabs/NFTsTab.vue";
 
 const props = defineProps({
-    limit: { type: null, default: null }
+    limit: { type: null, default: null },
+    enableViewAllBtn: { type: Boolean, default: false }
 })
 </script>
 <template>
@@ -17,13 +18,20 @@ const props = defineProps({
         ]"
     >
         <div id="t-erc20s" class="mt-1">
-            <ERC20TokensTab :limit="props.limit" />
+            <ERC20TokensTab 
+                :limit="props.limit" 
+                :enableViewAllBtn="props.enableViewAllBtn"
+            />
         </div>
         <div id="t-nfts">
-            <NFTsTab :limit="props.limit" />
+            <NFTsTab 
+                :limit="props.limit"
+                :enableViewAllBtn="props.enableViewAllBtn"
+            />
         </div>
         <div id="t-activity">
 
         </div>
     </TabbedContent>
+  
 </template>

@@ -143,9 +143,13 @@ const ensureTelegramClient = () => {
     }
 
     if(primaryBtnColor != ''){
-        cssVars.push(['bs-primary', tinycolor(primaryBtnColor).darken(10).toHexString()])
+
+        let pRGB = tinycolor(primaryBtnColor).toRgb()
+
+        cssVars.push(['bs-primary-rgb', `${pRGB.r}, ${pRGB.g}, ${pRGB.b}`])
+        cssVars.push(['bs-primary', tinycolor(primaryBtnColor).toHexString()])
         cssVars.push(['bs-primary-soft', tinycolor(primaryBtnColor).lighten(10).toHexString()])
-        cssVars.push(['bs-primary-dark', tinycolor(primaryBtnColor).darken(50).toHexString()])
+        cssVars.push(['bs-primary-dark', tinycolor(primaryBtnColor).darken(10).toHexString()])
         cssVars.push(["bs-btn-color", primaryBtnColor])
         cssVars.push(["bs-btn-color-rgb", tinycolor(primaryBtnColor).toRgbString()])
         cssVars.push(["bs-btn-border-color",  primaryBtnColor])

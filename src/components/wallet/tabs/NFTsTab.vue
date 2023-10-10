@@ -2,33 +2,32 @@
 import { onBeforeMount, onBeforeUnmount, ref } from 'vue';
 import { useTokens } from '../../../composables/useTokens'
 import ImportedNFTCard from "../../tokens/ImportedNFTCard.vue"
+import Utils from '../../../classes/Utils';
 
 const props = defineProps({
-    limit: { type: null, default: null }
+    limit: { type: null, default: null },
+    enableViewAllBtn: { type: Boolean, default: false }
 })
 
-const { getNFTs,updateOnChainNFTData  } = useTokens()
+const { getNFTs,updateOnChainNFTData, removeNFT  } = useTokens()
 const initialized = ref(false)
 const dataToRender  = ref({})
 const dataState = ref(Date.now())
 const nftItems = ref({})
 let updateTimer = null
 
-onBeforeMount(() => {
-    initialize()
-})
+onBeforeMount(async () => {
+    
+    await fetchNFTs()
 
-const initialize = async () => {
-
-    updateOnChainNFTData()
-    nftItems.value = await getNFTs(props.limit)
-
-    updateTimer = window.setInterval(async () => {
-        await updateOnChainNFTData()
-        nftItems.value = await getNFTs(props.limit)
-    }, 40_000)
+    updateTimer = window.setInterval(fetchNFTs, 40_000)
 
     initialized.value = true
+})
+
+const fetchNFTs = async () => {
+    updateOnChainNFTData()
+    nftItems.value = await getNFTs(props.limit)
 }
 
 const onSearch = async (keyword, filteredData) => {
@@ -39,6 +38,52 @@ onBeforeUnmount(() => {
     if(updateTimer) clearInterval(updateTimer)
 })
 
+const doRemoveNFT = async (id) => {
+
+    let loader;
+
+    try {
+
+        let _nft = nftItems.value[id]
+
+        let html = `${_nft.name} (id: ${_nft.tokenId}) will be removed`
+
+        let action =   await Utils.getSwal().fire({
+                            showCancelButton: true,
+                            confirmButtonText: 'Confirm',
+                            denyButtonText:    'Cancel',
+                            html,
+                            title: "Confirm Action",
+                        })
+
+        if(!action.isConfirmed) return;
+                        
+        loader = Utils.loader(`Removing ${_nft.name} (id: ${_nft.tokenId})`)
+
+        let resultStatus = await removeNFT(token)
+
+        if(resultStatus.isError()){
+            return Utils.errorAlert(resultStatus.getMessage())
+        }   
+        
+        Utils.toast(`NFT item removed`)
+
+        let _nftItems = resultStatus.getData() || null 
+
+        if(_nftItems != null){
+            nextTick(() => {
+                nftItems.value = _nftItems
+                dataState.value = Date.now()
+            })
+        }
+        
+    } catch(e){
+        Utils.logError(`NFTsTab#doRemoveNFT:`, e) 
+        Utils.errorAlert(Utils.generalErrorMsg)
+    } finally {
+        if(loader) loader.close()
+    }
+} //end remove nft
 </script>
 <template>
      <div v-if="initialized">      
@@ -68,9 +113,23 @@ onBeforeUnmount(() => {
             </div>
             <div class="d-flex flex-wrap justify-content-center">
                 <template v-for="(item, id) in dataToRender">
-                    <ImportedNFTCard :data="item" />
+                    <ImportedNFTCard :data="item" @remove-nft="doRemoveNFT" />
                 </template>
             </div>
+
+            <div v-if="props.enableViewAllBtn && Object.keys(nftItems).length > 0">
+                <div class="d-flex mt-2 mb-3 me-3 justify-content-end">
+                    <router-link to="/tokens#t-nfts" 
+                        class="btn btn-outline-primary rounded-pill shadow"
+                    >
+                        <div class="d-flex align-items-center">
+                            <div class="me-2">View All</div>
+                            <Icon name="solar:arrow-right-line-duotone" />
+                        </div>
+                    </router-link>
+                </div>
+            </div>
+
         </div>
     </div>
 </template>

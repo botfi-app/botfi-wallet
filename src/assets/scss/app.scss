@@ -35,6 +35,9 @@ body {
     padding-bottom: 60px;
 }
 
+.btn-primary-soft {
+    background: rgba(var(--bs-primary-rgb), 0.25) !important;
+}
 
 .app-main {
     width: 100%;
@@ -487,6 +490,15 @@ ul.list-group {
                 width: 100% !important;
                 max-height: 100%;
                 max-width: 100%;
+            }
+
+            .nft-bg-img{
+                height: 100%;
+                width: 100% !important;
+                background-size: 100% 100%;
+                background-repeat: no-repeat;
+                background-position: center;
+                display:block;
             }
         }
     }

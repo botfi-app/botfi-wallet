@@ -6,6 +6,8 @@ const props = defineProps({
     data: { type: Object, default: {} }
 })
 
+const emits = defineEmits(['remove-nft'])
+
 const nftInfo = ref(props.data.nftInfo)
 const imgUrl = ref("")
 
@@ -14,11 +16,8 @@ onBeforeMount( async() => {
 })
 
 const initialize = async () => {
+    //console.log("nftInfo===>", nftInfo)
     imgUrl.value = Utils.getNFTPreviewUrl(nftInfo.value, "small")   
-}
-
-const doRemoveNFT = async () => {
-
 }
 </script>
 <template>
@@ -27,11 +26,10 @@ const doRemoveNFT = async () => {
             <div class="card-header-img">
                 <router-link 
                     :to="`/tokens/nft/item/${props.data.id}`"
+                    class='nft-bg-img' 
+                    :style="`background-image: url(${imgUrl})`"
                 >
-                    <img 
-                        v-lazy="imgUrl" 
-                        alt=""
-                    />
+                    <div  />
                 </router-link>
             </div>
         </div>
@@ -48,10 +46,32 @@ const doRemoveNFT = async () => {
                 </div>
             </div>
         </router-link>
-        <div class="d-flex justify-content-between m-2">
-            <a href="#" @click.prevent class="btn btn-none rounded-pill btn-sm btn-supply">
-                10 Qty
+        <div class="d-flex justify-content-between m-2 align-items-center">
+            <a href="#" @click.prevent 
+              class="btn btn-none rounded btn-sm btn-supply text-truncate"
+            >
+                {{ nftInfo.balanceDecimal }}
             </a>
+            <a href="#" @click.prevent 
+                class="ps-2"
+                data-bs-toggle="dropdown" 
+                aria-expanded="false"
+            >
+                <Icon name="ri:more-2-fill" />
+            </a>
+            <ul class="dropdown-menu shadow rounded py-0 my-0">
+                <li>
+                    <a  @click.prevent="emits('remove-nft', props.data.id)"
+                        class="dropdown-item py-3" 
+                        href="#"
+                    >
+                        <div class="d-flex align-items-center">
+                            <Icon name="mdi:delete" class="text-danger" />
+                            <div class="ms-1">Remove</div>
+                        </div>
+                    </a>
+                </li>
+            </ul>
         </div>
     </div>
 </template>
@@ -61,6 +81,7 @@ const doRemoveNFT = async () => {
 }
 
 .btn-supply {
-    background: rgba(var(--bs-primary-rgb), 0.6);
+    //background: var(--bs-body-bg-light-2);
+    background: rgba(var(--bs-primary-rgb), 0.25);
 }
 </style>

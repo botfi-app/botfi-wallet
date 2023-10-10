@@ -8,7 +8,8 @@ import Utils from '../../../classes/Utils';
 
 const props = defineProps({
     limit: { type: null, default: null },
-    hasSearch: { type: Boolean, default: false }
+    hasSearch: { type: Boolean, default: false },
+    enableViewAllBtn: { type: Boolean, default: false }
 })
 
 const { fetchSettings } = useSettings()
@@ -191,6 +192,20 @@ const doRemoveToken = async (token) => {
                     </div>
                 </div>
             </template>
+
+            <div v-if="props.enableViewAllBtn && Object.keys(tokensData).length > 0">
+                <div class="d-flex mt-2 mb-3 me-3 justify-content-end">
+                    <router-link to="/tokens#t-erc20s" 
+                        class="btn btn-outline-primary rounded-pill shadow"
+                    >
+                        <div class="d-flex align-items-center">
+                            <div class="me-2">View All</div>
+                            <Icon name="solar:arrow-right-line-duotone" />
+                        </div>
+                    </router-link>
+                </div>
+            </div>
+
         </div>
     </div>
 </template>
