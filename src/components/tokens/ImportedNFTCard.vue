@@ -33,7 +33,7 @@ const doRemoveNFT = async () => {
         </div>
         <div class="p-2 text-center flex-grow-1 d-flex align-items-center justify-content-center">
             <div class="px-2">
-                <div class="fw-bold hint col-name fs-10 text-uppercase text-truncate">
+                <div class="fw-semibold hint col-name fs-11 text-uppercase text-truncate">
                     {{ nftInfo.collectionInfo.name }}
                 </div>
                 <div class="fw-medium item-title text-truncate-multiline text-break">
