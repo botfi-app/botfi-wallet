@@ -610,7 +610,6 @@ export const useTokens = () => {
 
             let userId = botUtils.getUid()
 
-
             let db = await dbCore.getDB()
             
             let { chainId, collection, tokenId } = nftInfo

@@ -56,8 +56,6 @@ const doImportNFT = async () => {
             
         let tokenInfo = item.value
  
-        //console.log("tokenInfo====>", tokenInfo)
-
         tokenInfo.standard = colInfo.standard
 
         tokenInfo.collectionInfo = {

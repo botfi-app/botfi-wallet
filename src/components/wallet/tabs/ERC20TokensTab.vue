@@ -50,6 +50,7 @@ onBeforeUnmount(() => {
     EventBus.off("balance-updated");
 })
 
+
 const reloadData = () => {
 
 }
