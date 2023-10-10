@@ -20,11 +20,13 @@ onBeforeMount(() => {
 
 const initialize = async() => {
 
+    let defaultBalance = { balanceInfo: { balanceDecimal: 0, balanceFiat: {} }}
+
     let settings  = await fetchSettings()
     defaultCurrency.value = (settings.defaultCurrency || "usd").toLowerCase()
 
     let tokens = await getTokens() 
-    nativeTokenInfo.value = tokens[Utils.nativeTokenAddr] || {}
+    nativeTokenInfo.value = tokens[Utils.nativeTokenAddr] || defaultBalance
 }
 </script>
 <template>
