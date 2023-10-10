@@ -63,7 +63,7 @@ const initialize = async() => {
                         />
                     </div>
                 </button>
-            </div>
+            </div> 
             <div class="h-divider mb-3" />
             <div class="text-center text-light m-0 p-0 d-flex center-vh mb-1">
                 <h2 class="m-0 p-0">

@@ -645,16 +645,14 @@ export const useTokens = () => {
         return (id in _nfts)
     }
 
-    const removeNFT = async (id) => {
+    const removeNFT = async (id) => { 
         
         let db = await dbCore.getDB()
         let userId = botUtils.getUid()
 
-        let deleteItem = await db.nfts.where({ id, userId }).delete()
+        await db.nfts.where({ id, userId }).delete()
 
         let newNFTs = await getNFTs()
-
-        console.log("delete===>", deleteItem)
         
         return Status.success("", newNFTs)
     }

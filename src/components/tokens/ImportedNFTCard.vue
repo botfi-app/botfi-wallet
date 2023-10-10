@@ -32,7 +32,7 @@ const initialize = async () => {
                     <div  />
                 </router-link>
             </div>
-        </div>
+        </div> 
         <router-link 
             :to="`/tokens/nft/item/${props.data.id}`" 
             class="p-2 text-center flex-grow-1 d-flex align-items-center justify-content-center"

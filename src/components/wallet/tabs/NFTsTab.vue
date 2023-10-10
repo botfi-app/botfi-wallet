@@ -1,5 +1,5 @@
 <script setup>
-import { onBeforeMount, onBeforeUnmount, ref } from 'vue';
+import { nextTick, onBeforeMount, onBeforeUnmount, ref } from 'vue';
 import { useTokens } from '../../../composables/useTokens'
 import ImportedNFTCard from "../../tokens/ImportedNFTCard.vue"
 import Utils from '../../../classes/Utils';
@@ -15,6 +15,7 @@ const dataToRender  = ref({})
 const dataState = ref(Date.now())
 const nftItems = ref({})
 let updateTimer = null
+
 
 onBeforeMount(async () => {
     
@@ -44,7 +45,7 @@ const doRemoveNFT = async (id) => {
 
     try {
 
-        let _nft = nftItems.value[id]
+        let _nft = nftItems.value[id].nftInfo;
 
         let html = `${_nft.name} (id: ${_nft.tokenId}) will be removed`
 
@@ -60,7 +61,7 @@ const doRemoveNFT = async (id) => {
                         
         loader = Utils.loader(`Removing ${_nft.name} (id: ${_nft.tokenId})`)
 
-        let resultStatus = await removeNFT(token)
+        let resultStatus = await removeNFT(id)
 
         if(resultStatus.isError()){
             return Utils.errorAlert(resultStatus.getMessage())

@@ -55,7 +55,7 @@ const doImportNFT = async () => {
         let colInfo = collectionInfo.value
             
         let tokenInfo = item.value
-
+ 
         //console.log("tokenInfo====>", tokenInfo)
 
         tokenInfo.standard = colInfo.standard
@@ -67,7 +67,7 @@ const doImportNFT = async () => {
             chainId:    colInfo.chainId,
             contract:   colInfo.contract,
             geckoId:    colInfo.geckoId || ""
-        }
+        } 
 
         ///console.log("activeWalletAddress====>", activeWalletAddr.value)
 
