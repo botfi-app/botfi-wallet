@@ -444,6 +444,7 @@ export const useTokens = () => {
             nftsArr.reverse()
             
             nftsArr.forEach(item => nftsObj[item.id] = item )
+            
             $state.value.nfts = nftsObj;
 
             //console.log("nftsObj===>", nftsObj)
@@ -479,7 +480,6 @@ export const useTokens = () => {
 
             let web3Conn = web3ConnStatus.getData()
 
-
             let nftsArray =  await db.nfts.where({ chainId, userId }).toArray()
 
             let inputs = []
@@ -494,7 +494,7 @@ export const useTokens = () => {
 
                 let { tokenId, collection: target } = nftInfo
 
-                let tokenIdBigInt = BigInt(tokenId)
+                //let tokenIdBigInt = BigInt(tokenId)
 
                 if(nftInfo.standard == 'erc721'){
 
@@ -546,18 +546,34 @@ export const useTokens = () => {
 
             let resultData = resultStatus.getData() || {}
 
-            console.log("resultData===>", resultData)
+            //console.log("resultData===>", resultData)
 
-            let processedData = {}
+            let bulkData = []
 
             for(let label of Object.keys(resultData)){
-                console.log("label===>", label)
-                let {methodName, dataId} = label.split("_")
+               // console.log("label===>", label)
+                let [methodName, dbItemId] = label.split("_")
 
-                let dataInfo = nftsArray[dataId]
+                dbItemId = parseInt(dbItemId)
+
+                let value = resultData[label]
+
+                let dataInfo = nftsArray[dbItemId]
+
+                //console.log("dataId===>", dbItemId)
                 
-                
+                if(methodName == "balanceOf"){
+                    dataInfo.nftInfo.balance = value
+                    dataInfo.nftInfo.balanceDecimal = Number(value)
+                } else if(methodName == "ownerOf"){
+                    dataInfo.nftInfo.owner = value
+                }
+
+                //console.log("dataInfo===>", dataInfo)
+                bulkData.push(dataInfo)
             }
+
+            await db.nfts.bulkPut(bulkData)
 
             return Status.successPromise()
         } catch(e){
@@ -637,6 +653,7 @@ export const useTokens = () => {
         removeToken,
         importNFT,
         nftExists,
+        getNFTs,
         updateOnChainNFTData
     }
 }

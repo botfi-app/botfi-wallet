@@ -30,6 +30,7 @@ declare module '@vue/runtime-core' {
     Icon: typeof import('./src/components/common/Icon.vue')['default']
     Image: typeof import('./src/components/common/Image.vue')['default']
     ImportCustom: typeof import('./src/components/tokens/import-erc20/ImportCustom.vue')['default']
+    ImportedNFTCard: typeof import('./src/components/tokens/ImportedNFTCard.vue')['default']
     ImportERC20ByContract: typeof import('./src/components/tokens/import-erc20/ImportERC20ByContract.vue')['default']
     ImportERC20BySearch: typeof import('./src/components/tokens/import-erc20/ImportERC20BySearch.vue')['default']
     ImportNFTByContract: typeof import('./src/components/tokens/import-nft/ImportNFTByContract.vue')['default']

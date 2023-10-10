@@ -1,30 +1,32 @@
 <script setup>
-import { nextTick, onBeforeMount, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { onBeforeMount, onBeforeUnmount, ref } from 'vue';
 import { useTokens } from '../../../composables/useTokens'
-import Image from '../../common/Image.vue';
-import { useSettings } from '../../../composables/useSettings'
-import EventBus from '../../../classes/EventBus';
-import Utils from '../../../classes/Utils';
+import ImportedNFTCard from "../../tokens/ImportedNFTCard.vue"
 
 const props = defineProps({
     limit: { type: null, default: null }
 })
 
-const { nfts, updateOnChainNFTData  } = useTokens()
-const defaultCurrency = ref("usd")
+const { getNFTs,updateOnChainNFTData  } = useTokens()
 const initialized = ref(false)
 const dataToRender  = ref({})
 const dataState = ref(Date.now())
+const nftItems = ref({})
+let updateTimer = null
 
 onBeforeMount(() => {
     initialize()
 })
 
-const initialize = () => {
+const initialize = async () => {
 
     updateOnChainNFTData()
+    nftItems.value = await getNFTs(props.limit)
 
-    window.setInterval(() => updateOnChainNFTData(), 10_000)
+    updateTimer = window.setInterval(async () => {
+        updateOnChainNFTData()
+        nftItems.value = await getNFTs(props.limit)
+    }, 35_000)
 
     initialized.value = true
 }
@@ -32,6 +34,10 @@ const initialize = () => {
 const onSearch = async (keyword, filteredData) => {
    dataToRender.value = filteredData
 }
+
+onBeforeUnmount(() => {
+    if(updateTimer) clearInterval(updateTimer)
+})
 
 </script>
 <template>
@@ -58,6 +64,11 @@ const onSearch = async (keyword, filteredData) => {
                     >
                         <Icon name="gala:add" :size="28" />
                     </router-link>
+                </div>
+                <div class="d-flex flex-wrap justify-content-center">
+                    <template v-for="(item, id) in nftItems">
+                        <ImportedNFTCard data="item" />
+                    </template>
                 </div>
             </div>
         </div>
