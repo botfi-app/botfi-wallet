@@ -289,7 +289,20 @@ input[type=number] {
     text-overflow: ellipsis !important;
     white-space: nowrap !important;
     overflow: hidden !important;
+    max-width: calc(100%);
 }
+
+.truncate-text, .text-truncate2 {
+    display: -webkit-box !important;
+    max-width: calc(100%) !important;
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.ls-1 { letter-spacing: 1; }
+.ls-2 { letter-spacing: 2; }
 
 .bg-darken-5 {
     background: var(--bs-bg-dark-5);
@@ -440,6 +453,7 @@ ul.list-group {
     display: -webkit-box;
     max-width: calc(100%);
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }

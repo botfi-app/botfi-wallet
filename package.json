@@ -42,7 +42,6 @@
     "vue-lazyload": "^3.0.0",
     "vue-router": "^4.2.4",
     "vue3-lazyload": "^0.3.8",
-    "webkit-line-clamp": "^1.2.2",
     "whatwg-fetch": "^3.6.17"
   },
   "devDependencies": {

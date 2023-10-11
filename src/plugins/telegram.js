@@ -226,7 +226,6 @@ const ensureTelegramClient = () => {
                 .form-control, .form-check-input {
                     border: 2px solid ${border};
                 }
-                .h-divider { background: ${border} !important; }
             `
             cssVars.push(...[
                 [ "bs-border-color", border ], 
@@ -241,7 +240,6 @@ const ensureTelegramClient = () => {
                 .form-control, .form-check-input { 
                     border: 2px solid ${border};
                 }
-                .h-divider { background: ${border} !important; }
             `
 
             cssVars.push(...[

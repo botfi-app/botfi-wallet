@@ -107,8 +107,8 @@ const doImportNFT = async () => {
         </div>
         <div class="p-2 text-center flex-grow-1 d-flex align-items-center justify-content-center">
             <div class="px-2">
-                <div class="fw-bold fs-12 hint font-monospace text-truncate">
-                    #{{ item.tokenId }}
+                <div class="fw-bold fs-11 hint token-id text-truncate text-center">
+                    ID: {{ item.tokenId }}
                 </div>
                 <div class="fw-medium item-title text-truncate-multiline text-break">
                     {{ item.name }}
@@ -128,4 +128,5 @@ const doImportNFT = async () => {
     .item-addr {
         background: var(--bs-body-bg-dark-9);
     }
+    
 </style>

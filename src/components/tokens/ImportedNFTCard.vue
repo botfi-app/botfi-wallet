@@ -37,11 +37,11 @@ const initialize = async () => {
             :to="`/tokens/nft/item/${props.data.id}`" 
             class="p-2 text-center flex-grow-1 d-flex align-items-center justify-content-center"
         >
-            <div class="px-2">
-                <div class="fw-semibold hint col-name fs-11 text-uppercase text-truncate">
+            <div class="px-1">
+                <div class="fw-semibold hint col-name fs-11 text-uppercase text-truncate2">
                     {{ nftInfo.collectionInfo.name }}
                 </div>
-                <div class="fw-medium item-title text-truncate">
+                <div class="fw-medium item-title text-truncate-multiline">
                     {{ nftInfo.name }}
                 </div>
                 <div class="fw-semibold hint fs-12 text-uppercase text-truncate">
@@ -80,11 +80,17 @@ const initialize = async () => {
 </template>
 <style lang="scss" scoped>
 .col-name {
-    letter-spacing: 2px;
+    letter-spacing: 1.5px;
+    text-align: center;
 }
 
 .btn-supply {
     //background: var(--bs-body-bg-light-2);
     background: rgba(var(--bs-primary-rgb), 0.25);
+}
+
+.nft-collection-card {
+    height: 275px !important;
+    overflow-x: hidden;
 }
 </style>

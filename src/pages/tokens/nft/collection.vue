@@ -125,7 +125,7 @@ const initialize = async () => {
                     </div>
                     <div class="mt-2 mb-2 px-3">
                         <div class="d-flex justify-content-between align-items-center">
-                            <div class="fw-bold text-uppercase fs-14 hint muted">
+                            <div class="fw-bold text-uppercase fs-12 hint muted">
                                 Details
                             </div>
                         </div>
@@ -134,22 +134,27 @@ const initialize = async () => {
                                 <div class="d-flex align-items-center justify-content-between py-2 details"
                                     v-if="['name', 'symbol', 'standard', 'contract', 'chain'].includes(key)"
                                 >
-                                    <div class="text-capitalize key text-start fw-medium">
+                                    <div class="text-uppercase hint d-block fs-10 key text-start fw-bold pe-2">
                                         {{ key }}
                                     </div>
                                     
                                     <div v-if="key == 'contract'" 
-                                        class='value contract text-break text-end d-flex'
+                                        class='value contract text-break text-end d-flex fs-14 fw-medium'
                                     >
                                         <CopyBtn :text="value" btnClasses="text-primary" />
                                         <div>{{ value }}</div>    
                                     </div>
-                                    <div v-else class='value text-break text-end'>{{ value }}</div>
+                                    <div v-else class='value text-break text-end fs-14 fw-medium'>
+                                        <span v-if="key=='standard'" class='text-uppercase'>
+                                            {{ value }}
+                                        </span>
+                                        <span v-else>{{ value }}</span>
+                                    </div>
                                 </div>
                             </template>
                         </div>
                         <div class="my-3">
-                            <div class="fw-bold fs-14 hint muted mb-3">
+                            <div class="fw-bold text-uppercase fs-12 hint muted ls-2 px-1 pb-3">
                                 NFTs
                             </div>
                             <div class="pb-2">

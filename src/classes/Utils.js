@@ -289,7 +289,8 @@ export default class Utils {
 
         let clz = 'd-flex justify-content-between my-3 w-full align-items-center'
         let imgStyle = 'max-width: 100%; height: 140px;'
-
+        let keyClz = 'text-start hint muted fs-12 fw-bold'
+        let valueClz = 'text-break text-end ps-2'
 
         let html =  `
             <div class='d-flex justify-content-center mb-1'>
@@ -299,16 +300,16 @@ export default class Utils {
                 />
             </div>
             <div class='${clz}'>
-                <div class='text-primary text-start' style='width:85px;'>Name:</div>      
-                <div class='ms-2 fw-medium text-end ps-2'>${nftInfo.name}</div>
+                <div class='${keyClz}' style='width:85px;'>Name:</div>      
+                <div class='${valueClz}'>${nftInfo.name}</div>
             </div>
             <div class='${clz}'>
-                <div class='text-primary text-start'>Token ID:</div>      
-                <div class='ms-2 fw-medium text-end'>${nftInfo.tokenId}</div>
+                <div class='${keyClz}'>Token ID:</div>      
+                <div class='${valueClz}'>${nftInfo.tokenId}</div>
             </div>
             <div class='${clz}'>
-                <div class='text-primary text-start' style='width:160px;'>Contract:</div>
-                <div class='text-break text-end ps-2'>${nftInfo.collection}</div>
+                <div class='${keyClz}' style='width:160px;'>Contract:</div>
+                <div class='${valueClz}'>${nftInfo.collection}</div>
             </div>
         `
 
