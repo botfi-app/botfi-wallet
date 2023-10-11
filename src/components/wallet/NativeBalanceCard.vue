@@ -2,12 +2,12 @@
 import { useTokens } from '../../composables/useTokens'
 import Utils from '../../classes/Utils';
 import { useSettings } from '../../composables/useSettings'
-import { onBeforeMount, ref } from 'vue';
+import { onBeforeMount, ref, watch } from 'vue';
 import { useWalletStore } from '../../store/walletStore';
 import { useRouter } from 'vue-router';
 import Avatar from '../common/Avatar.vue';
 
-const { getTokens } = useTokens()
+const { tokens } = useTokens()
 const { fetchSettings } = useSettings()
 const { activeWallet } = useWalletStore()
 const router = useRouter()
@@ -15,19 +15,39 @@ const nativeTokenInfo = ref(null)
 const defaultCurrency = ref("usd")
 
 onBeforeMount(() => {
-    initialize()
+    processNativeToken()
 })
 
-const initialize = async() => {
+const processNativeToken = async() => {
 
-    let defaultBalance = { balanceInfo: { balanceDecimal: 0, balanceFiat: {} }}
+    let _tokens = tokens.value
+
+    if(!_tokens || _tokens == null) return;
+
+
+    let defaultBalanceInfo = { balanceDecimal: 0, balanceFiat: {} }
 
     let settings  = await fetchSettings()
     defaultCurrency.value = (settings.defaultCurrency || "usd").toLowerCase()
 
-    let tokens = await getTokens() 
-    nativeTokenInfo.value = tokens[Utils.nativeTokenAddr] || defaultBalance
+    nativeTokenInfo.value = _tokens[Utils.nativeTokenAddr]
+
+    if(nativeTokenInfo.value == null) return
+
+    if(!("balanceInfo" in nativeTokenInfo.value) || 
+       nativeTokenInfo.value.balanceInfo == null || 
+       Object.keys(nativeTokenInfo.value.balanceInfo).length == 0
+    ) {
+        nativeTokenInfo.value.balanceInfo = defaultBalanceInfo
+    }
+ 
 }
+
+watch(tokens, () => {
+    processNativeToken()
+}, { deep: true })
+
+
 </script>
 <template>
      <div class="home-balance-card rounded-lg mt-3" 

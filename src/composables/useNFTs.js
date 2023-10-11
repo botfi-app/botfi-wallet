@@ -77,7 +77,7 @@ export const useNFTs = () => {
        let db = await dbCore.getDB()
        let userId = botUtils.getUid()
 
-       let nftItem = await db.nfts.where({ id, userId })
+       let nftItem = await db.nfts.where({ id, userId }).first() || null
 
        return nftItem
    }
