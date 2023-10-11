@@ -8,4 +8,4 @@ The BotFi Wallet is a user-friendly self-custody wallet accessible through a web
 git clone https://github.com/botfi-app/botfi-wallet && \
 cd botfi-wallet
 ```
-2. Inside botfi-wallet/config directory, update the configurations in app.js
+2. Inside ** botfi-wallet/config ** directory, open & update the configurations in ** app.js **
