@@ -3,7 +3,7 @@ The BotFi Wallet is a user-friendly self-custody wallet accessible through a web
 
 ### Installation
 
-1. Clone the code:
+##### 1. Clone the code:
 ```sh 
 git clone https://github.com/botfi-app/botfi-wallet && \
 cd botfi-wallet
