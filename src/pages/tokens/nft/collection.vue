@@ -5,9 +5,9 @@
     }
 </route>
 <script setup>
-import { useTokens } from '../../../composables/useTokens'
+import { useNFTs } from '../../../composables/useNFTs'
 import Utils from '../../../classes/Utils';
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute } from 'vue-router';
 import { onBeforeMount, ref } from 'vue';
 import Http from '../../../classes/Http';
 import CollapsibleText from '../../../components/common/CollapsibleText.vue';
@@ -20,10 +20,10 @@ const route     = useRoute()
 const pageError = ref("")
 const contract  = ref("")
 const chainId   = ref()
-const pageTitle = ref("NFT Collection")
+//const pageTitle = ref("NFT Collection")
 const isLoading = ref(false)
 const dataObj   = ref(null)
-const { getActiveNetworkInfo }  = useNetworks()
+const  { getActiveNetworkInfo }  = useNetworks()
 const  {  getActiveWalletInfo } = useWalletStore()
 
 const activeWalletAddr = ref("")

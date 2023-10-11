@@ -41,8 +41,11 @@ const initialize = async () => {
                 <div class="fw-semibold hint col-name fs-11 text-uppercase text-truncate">
                     {{ nftInfo.collectionInfo.name }}
                 </div>
-                <div class="fw-medium item-title text-truncate-multiline text-break">
+                <div class="fw-medium item-title text-truncate">
                     {{ nftInfo.name }}
+                </div>
+                <div class="fw-semibold hint fs-12 text-uppercase text-truncate">
+                    ID: {{ nftInfo.tokenId }}
                 </div>
             </div>
         </router-link>

@@ -1,6 +1,6 @@
 <script setup>
 import { nextTick, onBeforeMount, onBeforeUnmount, ref } from 'vue';
-import { useTokens } from '../../../composables/useTokens'
+import { useNFTs } from '../../../composables/useNFTs'
 import ImportedNFTCard from "../../tokens/ImportedNFTCard.vue"
 import Utils from '../../../classes/Utils';
 
@@ -9,7 +9,7 @@ const props = defineProps({
     enableViewAllBtn: { type: Boolean, default: false }
 })
 
-const { getNFTs,updateOnChainNFTData, removeNFT  } = useTokens()
+const { getNFTs,updateOnChainNFTData, removeNFT  } = useNFTs()
 const initialized = ref(false)
 const dataToRender  = ref({})
 const dataState = ref(Date.now())
@@ -27,7 +27,7 @@ onBeforeMount(async () => {
 })
 
 const fetchNFTs = async () => {
-    updateOnChainNFTData()
+    await updateOnChainNFTData()
     nftItems.value = await getNFTs(props.limit)
 }
 
@@ -44,6 +44,10 @@ const doRemoveNFT = async (id) => {
     let loader;
 
     try {
+        
+
+        //console.log("id====>", id)
+        //console.log("nftItems.value[id]====>", nftItems.value[id])
 
         let _nft = nftItems.value[id].nftInfo;
 
@@ -69,14 +73,11 @@ const doRemoveNFT = async (id) => {
         
         Utils.toast(`NFT item removed`)
 
-        let _nftItems = resultStatus.getData() || null 
+        nftItems.value = await getNFTs(props.limit)
 
-        if(_nftItems != null){
-            nextTick(() => {
-                nftItems.value = _nftItems
-                dataState.value = Date.now()
-            })
-        }
+        nextTick(()=> {
+            dataState.value = Date.now()
+        })
         
     } catch(e){
         Utils.logError(`NFTsTab#doRemoveNFT:`, e) 
@@ -85,6 +86,13 @@ const doRemoveNFT = async (id) => {
         if(loader) loader.close()
     }
 } //end remove nft
+
+const reloadItems = async () => {
+    let loader = Utils.loader("Updating NFTs")
+    await fetchNFTs()
+    dataState.value = Date.now()
+    loader.close()
+}
 </script>
 <template>
      <div v-if="initialized">      
@@ -100,7 +108,7 @@ const doRemoveNFT = async (id) => {
                         :key="dataState"
                         class="flex-grow-1"
                     />
-                    <button @click.prevent="reloadData"
+                    <button @click.prevent="reloadItems"
                         class="btn btn-none text-success rounded-circle btn-sm mx-2 p-0"
                     >
                         <Icon name="solar:refresh-bold" :size="28" />
@@ -113,8 +121,11 @@ const doRemoveNFT = async (id) => {
                 </div>
             </div>
             <div class="d-flex flex-wrap justify-content-center">
-                <template v-for="(item, id) in dataToRender">
-                    <ImportedNFTCard :data="item" @remove-nft="doRemoveNFT" />
+                <template v-for="(item, id) in dataToRender" :key="id">
+                    <ImportedNFTCard 
+                        :data="item" 
+                        @remove-nft="doRemoveNFT" 
+                    />
                 </template>
             </div>
 

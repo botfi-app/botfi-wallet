@@ -35,6 +35,7 @@ export default {
             nftInfo,
             balance,
             extraInfo,
+            createdAt,
             updatedAt  
            `
 }
