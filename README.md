@@ -9,3 +9,14 @@ git clone https://github.com/botfi-app/botfi-wallet && \
 cd botfi-wallet
 ```
 2. Inside **botfi-wallet/config** directory, open & update the configurations in **app.js**
+
+### Run Dev Mode
+```sh 
+yarn dev
+```
+
+### Build Production Mode
+```sh 
+yarn build
+```
+
