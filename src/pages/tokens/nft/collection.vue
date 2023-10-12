@@ -5,7 +5,7 @@
     }
 </route>
 <script setup>
-import { useNFTs } from '../../../composables/useNFTs'
+import { useNFT } from '../../../composables/useNFT'
 import Utils from '../../../classes/Utils';
 import { useRoute } from 'vue-router';
 import { onBeforeMount, ref } from 'vue';

@@ -13,7 +13,7 @@ import Status from "../classes/Status"
 import { getAddress } from "ethers"
 
 
-export const useNFTs = () => {
+export const useNFT = () => {
 
     const net = useNetworks()
     const dbCore = useDB()

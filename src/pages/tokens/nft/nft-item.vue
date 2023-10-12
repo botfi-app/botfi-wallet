@@ -7,7 +7,7 @@
 <script setup>
 import { onBeforeMount, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useNFTs } from '../../../composables/useNFTs'
+import { useNFT } from '../../../composables/useNFT'
 import Utils from '../../../classes/Utils';
 import { useNetworks } from '../../../composables/useNetworks';
 import { useWalletStore } from '../../../store/walletStore';
@@ -15,7 +15,7 @@ import { useWalletStore } from '../../../store/walletStore';
 
 const route = useRoute()
 const router = useRouter()
-const { getNFTById, removeNFT, getNFTs } = useNFTs()
+const { getNFTById, removeNFT, getNFTs } = useNFT()
 const  { getActiveNetworkInfo }  = useNetworks()
 const  {  getActiveWalletInfo } = useWalletStore()
 const dbData = ref(null)

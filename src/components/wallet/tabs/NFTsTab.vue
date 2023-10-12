@@ -1,6 +1,6 @@
 <script setup>
 import { nextTick, onBeforeMount, onBeforeUnmount, ref } from 'vue';
-import { useNFTs } from '../../../composables/useNFTs'
+import { useNFT } from '../../../composables/useNFT'
 import ImportedNFTCard from "../../tokens/ImportedNFTCard.vue"
 import Utils from '../../../classes/Utils';
 
@@ -9,7 +9,7 @@ const props = defineProps({
     enableViewAllBtn: { type: Boolean, default: false }
 })
 
-const { getNFTs,updateOnChainNFTData, removeNFT  } = useNFTs()
+const { getNFTs,updateOnChainNFTData, removeNFT  } = useNFT()
 const initialized = ref(false)
 const dataToRender  = ref({})
 const dataState = ref(Date.now())

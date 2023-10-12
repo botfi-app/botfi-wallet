@@ -1,7 +1,7 @@
 <script setup>
 import { onBeforeMount, ref, inject } from 'vue';
 import Utils from '../../classes/Utils';
-import { useNFTs } from '../../composables/useNFTs';
+import { useNFT } from '../../composables/useNFT';
 
 const props = defineProps({
     data: { type: Object, default: {} },
@@ -11,7 +11,7 @@ const props = defineProps({
 const imgUrl = ref("")
 const item = ref(props.data)
 const collectionInfo = ref(props.extraData.collectionInfo)
-const { importNFT, nftExists } = useNFTs()
+const { importNFT, nftExists } = useNFT()
 const activeWalletAddr = ref(props.extraData.activeWalletAddr)
 const nftId = ref("")
 const nftExistsInDb = ref(false)
