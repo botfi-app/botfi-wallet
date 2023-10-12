@@ -133,7 +133,6 @@ const sendNFT = () => {
               <img 
                 class="nft-preview rounded-lg shadow"
                 :src="Utils.getNFTPreviewUrl(nftInfo, 'large')"
-                loading="lazy"
               />
             </div>
             <div class="text-justify description mt-2 mx-3">
