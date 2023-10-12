@@ -11,6 +11,7 @@ declare module '@vue/runtime-core' {
   export interface GlobalComponents {
     _TabbedContent: typeof import('./src/components/common/_TabbedContent.vue')['default']
     AccountSelect: typeof import('./src/components/wallet/AccountSelect.vue')['default']
+    ActivityTab: typeof import('./src/components/wallet/tabs/ActivityTab.vue')['default']
     AddressesMenus: typeof import('./src/components/modals/AddressesMenus.vue')['default']
     AddToken: typeof import('./src/components/modals/AddToken.vue')['default']
     AddWallet: typeof import('./src/components/modals/AddWallet.vue')['default']

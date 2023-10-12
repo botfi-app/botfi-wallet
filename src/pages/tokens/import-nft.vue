@@ -18,20 +18,12 @@ import ImportNFTByContract from '../../components/tokens/import-nft/ImportNFTByC
         />
 
         <div class="w-400 mb-5">
-
             <TabbedContent
                 :tab-items="[
-                    {contentId: 'p-search-token', name: 'Search'},
-                    {contentId: 'p-custom-token', name: 'Custom'}
+                    {id: 'imp-nft-search', name: 'Search', component: ImportNFTBySearch },
+                    {id: 'imp-nft-custom', name: 'Custom', component: ImportNFTByContract }
                 ]"
-            >
-                <div id="p-search-token" class="mt-1">
-                    <ImportNFTBySearch />
-                </div>
-                <div id="p-custom-token">
-                    <ImportNFTByContract />
-                </div>
-            </TabbedContent>
+            />
         </div>
     </WalletLayout>
 </template>

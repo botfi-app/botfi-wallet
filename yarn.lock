@@ -482,6 +482,11 @@
     "@ethereumjs/rlp" "^5.0.0"
     ethereum-cryptography "^2.1.2"
 
+"@glidejs/glide@^3.6.0":
+  version "3.6.0"
+  resolved "https://registry.npmjs.org/@glidejs/glide/-/glide-3.6.0.tgz"
+  integrity sha512-47Aa+JmYjY4xTFpTtYCwrqirmI1arnp1UZETwtWpbTPisXUAuxrdJxKJLH8KHFWMsSrLi9+AcfyfzDIuO75rEA==
+
 "@helia/interface@^2.0.0":
   version "2.0.0"
   resolved "https://registry.npmjs.org/@helia/interface/-/interface-2.0.0.tgz"

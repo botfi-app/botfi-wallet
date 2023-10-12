@@ -17,7 +17,7 @@ import {
     Provider as ethcallProviderClazz
 } from 'ethcall';
 
-import { Buffer } from "buffer";
+//import { Buffer } from "buffer";
 import proxyBeaconImplAbi from "../data/abi/proxy_beacon_impl_abi.json"
 
 export default class Wallet {

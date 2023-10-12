@@ -3,11 +3,16 @@ import { onBeforeMount, ref } from "vue";
 import TabbedContent from "../common/TabbedContent.vue"
 import ERC20TokensTab from "./tabs/ERC20TokensTab.vue";
 import NFTsTab from "./tabs/NFTsTab.vue";
+import ActivityTab from "./tabs/ActivityTab.vue";
+
 import { useRoute } from "vue-router";
 
 const props = defineProps({
     limit: { type: null, default: null },
     enableViewAllBtn: { type: Boolean, default: false }
+})
+
+const componentAttrs = ref({ 
 })
 
 const route = useRoute()
@@ -27,27 +32,26 @@ onBeforeMount(() => {
     
     <TabbedContent
         :selected="selectedTab"
-        :tab-items="[
-            {contentId: 'tab-tokens', name: 'Tokens'},
-            {contentId: 'tab-nfts', name: 'NFTs'},
-            {contentId: 'tab-activity', name: 'Activity'}
+        :tabs="[
+            { 
+              id:   'tab-tokens',  
+              name: 'Tokens',
+              component: ERC20TokensTab, 
+              componentAttrs
+            },
+            {   
+                id: 'tab-nfts',
+                name: 'NFTs',
+                component: NFTsTab, 
+                componentAttrs
+            },
+            {
+                id:   'tab-activity',
+                name: 'Activity',
+                component: ActivityTab, 
+                componentAttrs
+            }
         ]"
-    >
-        <div id="tab-tokens" class="mt-1">
-            <ERC20TokensTab 
-                :limit="props.limit" 
-                :enableViewAllBtn="props.enableViewAllBtn"
-            />
-        </div>
-        <div id="tab-nfts">
-            <NFTsTab 
-                :limit="props.limit"
-                :enableViewAllBtn="props.enableViewAllBtn"
-            />
-        </div>
-        <div id="tab-activity">
-
-        </div>
-    </TabbedContent>
-  
+    />
+    
 </template>

@@ -21,18 +21,11 @@ import ImportCustom from '../../components/tokens/import-erc20/ImportERC20ByCont
         <div class="w-400 mb-5">
 
             <TabbedContent
-                :tab-items="[
-                    {contentId: 'p-search-token', name: 'Search'},
-                    {contentId: 'p-custom-token', name: 'Custom'}
+                :tabs="[
+                    { id: 'imp-erc20-search',   component: ImportERC20BySearch, name: 'Search'},
+                    { id: 'imp-erc20-contract', component: ImportERC20ByContract, name: 'Custom'}
                 ]"
-            >
-                <div id="p-search-token" class="mt-1">
-                    <ImportERC20BySearch />
-                </div>
-                <div id="p-custom-token">
-                    <ImportERC20ByContract />
-                </div>
-            </TabbedContent>
+            />
         </div>
     </WalletLayout>
 </template>
