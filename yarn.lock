@@ -2866,6 +2866,8 @@ indent-string@^4.0.0:
 
 inherits@^2.0.3, inherits@^2.0.4, inherits@~2.0.3:
   version "2.0.4"
+  resolved "https://registry.npmjs.org/inherits/-/inherits-2.0.4.tgz"
+  integrity sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==
 
 inherits@~2.0.1:
   version "2.0.4"
@@ -4871,6 +4873,11 @@ sweetalert2@^11.7.20:
   version "11.7.20"
   resolved "https://registry.npmjs.org/sweetalert2/-/sweetalert2-11.7.20.tgz"
   integrity sha512-GdU1TkiLpGGC0mcPV8bKmS7G0MR7caxambPkEU8zyepRSNR9EaEvIjNhX5QNkL0VFVzHbI3l12NtuEklkJ0D4Q==
+
+swipejs@^2.3.1:
+  version "2.3.1"
+  resolved "https://registry.npmjs.org/swipejs/-/swipejs-2.3.1.tgz"
+  integrity sha512-mUL5MKSVkpQ2/CMgurNNgiKNRKcRkkD1/bfe8f2Y5MZW74E99p3zCxBrV9C7goMmBY4J8lrH3Dm0IQvaV64UEQ==
 
 tape@~2.3.2:
   version "2.3.3"

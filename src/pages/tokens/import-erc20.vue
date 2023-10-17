@@ -2,7 +2,7 @@
 import { ref } from 'vue';
 import TabbedContent from '../../components/common/TabbedContent.vue';
 import ImportERC20BySearch from '../../components/tokens/import-erc20/ImportERC20BySearch.vue';
-import ImportCustom from '../../components/tokens/import-erc20/ImportERC20ByContract.vue';
+import ImportERC20ByContract from '../../components/tokens/import-erc20/ImportERC20ByContract.vue';
 
 
 </script>
@@ -22,8 +22,8 @@ import ImportCustom from '../../components/tokens/import-erc20/ImportERC20ByCont
 
             <TabbedContent
                 :tabs="[
-                    { id: 'imp-erc20-search',   component: ImportERC20BySearch, name: 'Search'},
-                    { id: 'imp-erc20-contract', component: ImportERC20ByContract, name: 'Custom'}
+                    { id: 'import-erc20-search',   component: ImportERC20BySearch, name: 'Search'},
+                    { id: 'import-erc20-contract', component: ImportERC20ByContract, name: 'Custom'}
                 ]"
             />
         </div>

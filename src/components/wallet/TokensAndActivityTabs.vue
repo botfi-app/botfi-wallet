@@ -1,5 +1,5 @@
 <script setup>
-import { onBeforeMount, ref } from "vue";
+import { onBeforeMount, ref, toRaw } from "vue";
 import TabbedContent from "../common/TabbedContent.vue"
 import ERC20TokensTab from "./tabs/ERC20TokensTab.vue";
 import NFTsTab from "./tabs/NFTsTab.vue";
@@ -12,13 +12,14 @@ const props = defineProps({
     enableViewAllBtn: { type: Boolean, default: false }
 })
 
-const componentAttrs = ref({ 
-})
+let  componentAttrs = toRaw(props)
 
 const route = useRoute()
 const selectedTab = ref("")
 
 onBeforeMount(() => {
+
+    //console.log("componentAttrs==>", componentAttrs)
 
     let hash = (route.hash || "").trim()
 

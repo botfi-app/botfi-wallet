@@ -11,6 +11,7 @@ import erc721Abi from "../data/abi/erc721.json"
 import erc1155Abi from "../data/abi/erc1155.json"
 import Status from "../classes/Status"
 import { getAddress } from "ethers"
+import ErrorCodes from "../classes/ErrorCodes"
 
 
 export const useNFT = () => {
@@ -286,6 +287,183 @@ export const useNFT = () => {
        return Status.success("", newNFTs)
    }
 
+   const getNFTStandard = async (contractAddr)  => {
+        try {
+
+            contractAddr = contractAddr.trim()
+
+            if(!Utils.isAddress(contractAddr)){
+                return Status.error("Invalid contract address")
+            }
+
+            contractAddr = getAddress(contractAddr)
+
+            //lets get the web3 conn
+           let web3ConnStatus = await net.getWeb3Conn()
+
+           if(web3ConnStatus.isError()){
+               return web3ConnStatus
+           }
+
+           let web3Conn = web3ConnStatus.getData()
+
+           let code = await web3Conn.getCode(contractAddr)
+
+           if(code == '0x'){
+                return Status.error("Address is not a smart contract")
+           }
+
+           let tokenStandard = ""
+           
+            if((await web3Conn.isTokenStandard("erc721", contractAddr, code))){
+                tokenStandard = "erc721"
+            } else if((await web3Conn.isTokenStandard("erc1155", contractAddr, code))){
+                tokenStandard = "erc1155"
+            } else {
+                return Status.error("Unkown token standard")
+                            .setCode(ErrorCodes.UNKNOWN_TOKEN_STANDARD)
+            }
+
+           return Status.success("", tokenStandard)
+        } catch(e){
+            Utils.logError("useNFT#importNFT:", e)
+           return Status.error(Utils.generalErrorMsg)
+        }
+    }
+
+    const getNFTMetadata = async (url="") => {
+
+        url = url.trim()
+
+        if(url == ""){
+            return Status.error("empty metadata url")
+        }
+
+        if(/^(https?:\/\/)/.test(url)){
+            return getMetadataFromURL(url)
+        }
+    }
+
+    const fetchNFTOnChain = async (
+        contractAddr, 
+        tokenId, 
+        standard
+    ) => {
+        try {
+
+            contractAddr = contractAddr.trim()
+
+            if(!Utils.isAddress(contractAddr)){
+                return Status.error("Invalid contract address")
+            }
+
+            contractAddr = getAddress(contractAddr)
+
+            //lets get the web3 conn
+           let web3ConnStatus = await net.getWeb3Conn()
+
+           if(web3ConnStatus.isError()){
+               return web3ConnStatus
+           }
+
+           let web3Conn = web3ConnStatus.getData()
+
+           let target = contractAddr
+
+           let inputs = []
+
+           if(standard == 'erc721'){
+
+                let abi = erc721Abi
+
+                inputs.push(...[
+                    {
+                        target, 
+                        abi, 
+                        label:  `name`, 
+                        method: "name", 
+                        args:   [] 
+                    },
+                    {
+                        target, 
+                        abi, 
+                        label:  `symbol`, 
+                        method: "symbol", 
+                        args:   [] 
+                    },
+                    {
+                        target, 
+                        abi, 
+                        label:  `tokenURI`, 
+                        method: "tokenURI", 
+                        args:   [tokenId] 
+                    },
+                    {
+                        target, 
+                        abi, 
+                        label:  `ownerOf`, 
+                        method: "ownerOf", 
+                        args:   [tokenId] 
+                    },
+                    {
+                        target, 
+                        abi, 
+                        label:  `totalSupply`, 
+                        method: "totalSupply", 
+                        args:   [] 
+                    }
+                ])
+
+           } else {
+
+                let abi = erc1155Abi
+
+                inputs.push(...[
+                    {
+                        target, 
+                        abi, 
+                        label:  `name`, 
+                        method: "name", 
+                        args:   [] 
+                    },
+                    {
+                        target, 
+                        abi, 
+                        label:  `symbol`, 
+                        method: "symbol", 
+                        args:   [] 
+                    },
+                    {
+                        target, 
+                        abi, 
+                        label:  `uri`, 
+                        method: "uri", 
+                        args:   [tokenId] 
+                    },
+                ])
+                
+           }
+
+           let resultStatus = await web3Conn.staticMulticall(inputs)
+
+           //console.log("resultStatus===>", resultStatus)
+
+           if(resultStatus.isError()){
+               Utils.logError("useToken#fetchNFTMetadata:"+ resultStatus.getMessage())
+               return resultStatus;
+           }
+
+           let resultData = resultStatus.getData() || {}
+
+           console.log("resultData=====>", resultData)
+
+        } catch(e){
+            Utils.logError("useNFT#fetchOnchainNFTData:", e)
+           return Status.error(Utils.generalErrorMsg)
+        }
+    }
+
+    
 
     return {
         nfts,
@@ -294,6 +472,8 @@ export const useNFT = () => {
         getNFTs,
         getNFTById,
         updateOnChainNFTData,
-        removeNFT
+        removeNFT,
+        getNFTStandard,
+        fetchNFTOnChain
     }
 }

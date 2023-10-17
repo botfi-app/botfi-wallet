@@ -1,6 +1,5 @@
 <script setup>
-import { nextTick, onMounted, ref, watch } from 'vue';
-import Glide from '@glidejs/glide'
+import { onBeforeMount, ref } from 'vue';
 
 const props = defineProps({
     selected: { type: String, default: "" },
@@ -8,23 +7,18 @@ const props = defineProps({
 })
 
 const tabMain = ref()
-const currentTab = ref("")
+const currentTabIndex = ref(0)
 
-onMounted(() => {
+onBeforeMount(() => {
    initialize()
 })
 
 const initialize = () => {
-    nextTick(() => {
-        
-        if(props.selected != ''){
-            currentTab.value = props.selected
-        } else {
-            if(props.tabs.length > 0){
-                currentTab.value = props.tabs[0].id;
-            }
-        }
-    });
+    if(props.selected != ''){
+        props.tabs.forEach((item, index) => {
+            if(item.id == props.selected) { currentTabIndex.value = index }
+        })
+    }
 }
 </script>
 <template>
@@ -33,16 +27,16 @@ const initialize = () => {
             <template v-for="(item, index) in props.tabs" :key="index">
                 <a  href="#" 
                     :data-tab="item.id"
-                    @click.prevent="currentTab=item.id"
-                    :class="`text-center ${(item.id == currentTab) ? 'active' : ''}`"
+                    @click.prevent="currentTabIndex=index"
+                    :class="`text-center ${(currentTabIndex == index) ? 'active' : ''}`"
                 >
                     {{ item.name }}
                 </a>
             </template>
         </div>
-        <div class="tab-content">
+        <div class="tab-content mt-1">
             <template v-for="(item, index) in props.tabs" :key="index">
-                <div :data-tab="item.id" :class="currentTab != item.id ? 'hidden': ''">
+                <div :data-tab="item.id" :class="currentTabIndex != index ? 'hidden': ''">
                     <component 
                         :is="item.component"  
                         v-bind="{...item.componentAttrs || {}}" 

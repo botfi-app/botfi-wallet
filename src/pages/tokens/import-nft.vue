@@ -19,9 +19,9 @@ import ImportNFTByContract from '../../components/tokens/import-nft/ImportNFTByC
 
         <div class="w-400 mb-5">
             <TabbedContent
-                :tab-items="[
-                    {id: 'imp-nft-search', name: 'Search', component: ImportNFTBySearch },
-                    {id: 'imp-nft-custom', name: 'Custom', component: ImportNFTByContract }
+                :tabs="[
+                    { id: 'import-nft-search', name: 'Search', component: ImportNFTBySearch },
+                    { id: 'import-nft-custom', name: 'Custom', component: ImportNFTByContract }
                 ]"
             />
         </div>
