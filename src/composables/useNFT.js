@@ -12,7 +12,8 @@ import erc1155Abi from "../data/abi/erc1155.json"
 import Status from "../classes/Status"
 import { getAddress, toBigInt } from "ethers"
 import ErrorCodes from "../classes/ErrorCodes"
-
+import app from "../config/app"
+import Http from "../classes/Http"
 
 export const useNFT = () => {
 
@@ -331,17 +332,41 @@ export const useNFT = () => {
         }
     }
 
-    const getNFTMetadata = async (url="") => {
+    const processNFTUrl = async (url="") => {
 
         url = url.trim()
 
         if(url == ""){
-            return Status.error("empty metadata url")
+            return ""
         }
 
         if(/^(https?:\/\/)/.test(url)){
-            return getMetadataFromURL(url)
+            return url
         }
+
+        if(/^(ipfs:\/\/).+/gi.test(url)){
+            return url.replace(/^(ipfs:\/\/).+/,app.ipfs_gateway)
+        }
+
+        if(/^(ar:\/\/).+/ig.test(url)){
+            return url.replace(/^(ar:\/\/).+/,app.arweave_gateway)
+        }
+
+        return url
+    }
+
+
+    const getNFTContractMetadata = async(url) => {
+        
+        url = processNFTUrl(url)
+
+        let metadataStatus = await Http.getJson(url)
+
+        if(metadataStatus.isError()){
+            return metadataStatus
+        }
+
+        let resultData = metadataStatus.getData() || {}
     }
 
     const fetchNFTOnChain = async (
@@ -488,8 +513,8 @@ export const useNFT = () => {
                 inputs.push({
                     target, 
                     abi, 
-                    label:  `contractOwner`, 
-                    method: "owner()", 
+                    label:  `contractURI`, 
+                    method: "contractURI()", 
                     args:   [] 
                 })
             }
@@ -511,6 +536,11 @@ export const useNFT = () => {
                 standard,
                // chainId:    colInfo.chainId,
                 contract:   contractAddr,
+            }
+
+            if(hasContractUri){
+                let contractUri = (resultData.contractURI || "").trim()
+                let contractMetaDataStatus = await getNFTContractMetadata(contractUri)
             }
 
            console.log("resultData=====>", resultData)
