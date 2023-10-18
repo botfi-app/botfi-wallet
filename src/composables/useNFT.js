@@ -10,7 +10,7 @@ import Utils from "../classes/Utils"
 import erc721Abi from "../data/abi/erc721.json"
 import erc1155Abi from "../data/abi/erc1155.json"
 import Status from "../classes/Status"
-import { getAddress } from "ethers"
+import { getAddress, toBigInt } from "ethers"
 import ErrorCodes from "../classes/ErrorCodes"
 
 
@@ -368,15 +368,43 @@ export const useNFT = () => {
 
            let web3Conn = web3ConnStatus.getData()
 
+           console.log("web3Conn====>", web3Conn)
+
            let target = contractAddr
 
            let inputs = []
 
+           let code = await web3Conn.getCode(contractAddr)
+
+           if(code == '0x'){
+                return Status.error("Address is not a smart contract")
+           }
+           
+           let tokenIdBN = BigInt(tokenId.toString())
+
+           let abi; 
+
+           let hasName = false;
+           let hasSymbol = false 
+
+           let hasContractUri = (await web3Conn.hasMethod(contractAddr, "contractURI()", code));  
+           let hasOwner = (await web3Conn.hasMethod(contractAddr, "name()", code));  
+           
            if(standard == 'erc721'){
 
-                let abi = erc721Abi
+                abi = erc721Abi
+                
+                hasName = true 
+                hasSymbol = true 
 
                 inputs.push(...[
+                    {
+                        target, 
+                        abi, 
+                        label:  `symbol`, 
+                        method: "symbol", 
+                        args:   [] 
+                    }, 
                     {
                         target, 
                         abi, 
@@ -387,23 +415,16 @@ export const useNFT = () => {
                     {
                         target, 
                         abi, 
-                        label:  `symbol`, 
-                        method: "symbol", 
-                        args:   [] 
-                    },
-                    {
-                        target, 
-                        abi, 
                         label:  `tokenURI`, 
                         method: "tokenURI", 
-                        args:   [tokenId] 
+                        args:   [tokenIdBN] 
                     },
                     {
                         target, 
                         abi, 
                         label:  `ownerOf`, 
                         method: "ownerOf", 
-                        args:   [tokenId] 
+                        args:   [tokenIdBN] 
                     },
                     {
                         target, 
@@ -416,35 +437,64 @@ export const useNFT = () => {
 
            } else {
 
-                let abi = erc1155Abi
+                abi = erc1155Abi
 
-                inputs.push(...[
-                    {
-                        target, 
-                        abi, 
-                        label:  `name`, 
-                        method: "name", 
-                        args:   [] 
-                    },
-                    {
+                if((await web3Conn.hasMethod(contractAddr, "name()", code))){
+                    hasName = true 
+                    inputs.push({
                         target, 
                         abi, 
                         label:  `symbol`, 
                         method: "symbol", 
                         args:   [] 
-                    },
+                    })
+               }   
+               
+               if((await web3Conn.hasMethod(contractAddr, "symbol()", code))){
+                    hasSymbol = true 
+                    inputs.push({
+                        target, 
+                        abi, 
+                        label:  `symbol`, 
+                        method: "symbol", 
+                        args:   [] 
+                    })
+                }       
+
+                inputs.push(...[
                     {
                         target, 
                         abi, 
                         label:  `uri`, 
                         method: "uri", 
-                        args:   [tokenId] 
+                        args:   [tokenIdBN] 
                     },
                 ])
                 
            }
 
-           let resultStatus = await web3Conn.staticMulticall(inputs)
+
+           if(hasOwner) {
+                inputs.push({
+                    target, 
+                    abi, 
+                    label:  `contractOwner`, 
+                    method: "owner()", 
+                    args:   [] 
+                })
+            }
+
+            if(hasContractUri){
+                inputs.push({
+                    target, 
+                    abi, 
+                    label:  `contractOwner`, 
+                    method: "owner()", 
+                    args:   [] 
+                })
+            }
+
+            let resultStatus = await web3Conn.staticMulticall(inputs)
 
            //console.log("resultStatus===>", resultStatus)
 
@@ -454,6 +504,14 @@ export const useNFT = () => {
            }
 
            let resultData = resultStatus.getData() || {}
+
+           let collectionInfo = {
+                name:   (resultData.name || ""),
+                symbol: (resultData.symbol || ""),
+                standard,
+               // chainId:    colInfo.chainId,
+                contract:   contractAddr,
+            }
 
            console.log("resultData=====>", resultData)
 

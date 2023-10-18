@@ -30,7 +30,7 @@ const onSubmit = async () => {
             return Utils.errorAlert("Invalid contract address")
         }
 
-        if(_tokenId == "" || !/\d+/.test(_tokenId)){
+        if(!/\d+/.test(_tokenId)){
             return Utils.errorAlert("A valid token ID is required")
         }
 
@@ -86,7 +86,7 @@ const onSubmit = async () => {
         </div>
         <div class="form-floating mb-3 rounded">
             <input 
-                type="number" 
+                type="text" 
                 v-model="tokenId"
                 class="form-control rounded" 
                 id="tokenId" 
