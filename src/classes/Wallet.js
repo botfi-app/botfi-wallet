@@ -130,6 +130,8 @@ export default class Wallet {
 
                 labels[index] = item.label;
 
+                //console.log("item.method=====>", item.method)
+
                 // if its eth native balance, then use
                 if(item.method == 'getEthBalance') {
                     inputs[index] = ethcallProvider.getEthBalance(item.args[0])

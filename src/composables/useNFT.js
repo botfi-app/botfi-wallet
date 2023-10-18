@@ -332,7 +332,7 @@ export const useNFT = () => {
         }
     }
 
-    const processNFTUrl = async (url="") => {
+    const processNFTMetadataUrl = (url="") => {
 
         url = url.trim()
 
@@ -345,20 +345,30 @@ export const useNFT = () => {
         }
 
         if(/^(ipfs:\/\/).+/gi.test(url)){
-            return url.replace(/^(ipfs:\/\/).+/,app.ipfs_gateway)
+            let uri = url.replace(/^(ipfs:\/\/)/i,"")
+            
+            if(!uri.startsWith("ipfs/")){
+                uri = `ipfs/${uri}`
+            }
+
+            let ipfsGateway = app.ipfs_gateway.replace(/(\/)$/,'')
+
+            return `${ipfsGateway}/${uri}`
         }
 
         if(/^(ar:\/\/).+/ig.test(url)){
-            return url.replace(/^(ar:\/\/).+/,app.arweave_gateway)
+            return url.replace(/^(ar:\/\/)/i,app.arweave_gateway)
         }
 
         return url
     }
 
 
-    const getNFTContractMetadata = async(url) => {
+    const getNFTMetadata = async(url) => {
         
-        url = processNFTUrl(url)
+        url = processNFTMetadataUrl(url)
+
+       // console.log("url===>>>", url)
 
         let metadataStatus = await Http.getJson(url)
 
@@ -367,7 +377,16 @@ export const useNFT = () => {
         }
 
         let resultData = metadataStatus.getData() || {}
+
+        //console.log("resultData===>", resultData)
+
+        if("image" in resultData && resultData.image != ''){
+            resultData.image = processNFTMetadataUrl(resultData.image)
+        }
+
+        return Status.successData(resultData)
     }
+
 
     const fetchNFTOnChain = async (
         contractAddr, 
@@ -504,7 +523,7 @@ export const useNFT = () => {
                     target, 
                     abi, 
                     label:  `contractOwner`, 
-                    method: "owner()", 
+                    method: "owner", 
                     args:   [] 
                 })
             }
@@ -514,7 +533,7 @@ export const useNFT = () => {
                     target, 
                     abi, 
                     label:  `contractURI`, 
-                    method: "contractURI()", 
+                    method: "contractURI", 
                     args:   [] 
                 })
             }
@@ -531,20 +550,68 @@ export const useNFT = () => {
            let resultData = resultStatus.getData() || {}
 
            let collectionInfo = {
-                name:   (resultData.name || ""),
-                symbol: (resultData.symbol || ""),
+                name:       (resultData.name || ""),
+                symbol:     (resultData.symbol || ""),
+                description: "",
                 standard,
-               // chainId:    colInfo.chainId,
+                chainId:    web3Conn.chainId,
                 contract:   contractAddr,
             }
 
             if(hasContractUri){
+
                 let contractUri = (resultData.contractURI || "").trim()
-                let contractMetaDataStatus = await getNFTContractMetadata(contractUri)
+                let contractMetaDataStatus = await getNFTMetadata(contractUri)
+
+                if(!contractMetaDataStatus.isError()){
+                    let contractData = contractMetaDataStatus.getData() || {}
+
+                    if('name' in contractData && contractData.name.trim() != ''){
+                        collectionInfo.name = contractData.name
+                    }
+
+                    if('symbol' in contractData && contractData.symbol.trim() != ''){
+                        collectionInfo.symbol = contractData.symbol
+                    }
+
+                    if('description' in contractData && contractData.description.trim() != ''){
+                        collectionInfo.description = contractData.description
+                    }
+
+                    if('image' in contractData && contractData.image.trim() != ''){
+                        collectionInfo.image = contractData.image
+                    }
+
+                    if('external_link' in contractData && contractData.external_link.trim() != ''){
+                        collectionInfo.external_link = contractData.external_link
+                    }
+                }
             }
 
-           console.log("resultData=====>", resultData)
+           console.log("collectionInfo=====>", collectionInfo)
+            
+           console.log("resultData====>", resultData)
 
+           // now lets retrieve the nft metadata 
+            let tokenUri = (standard == 'erc721') 
+                            ? (resultData.tokenURI || '')
+                            : (resultData.uri || '')
+
+            tokenUri = tokenUri.trim()
+
+            if(tokenUri == ''){
+                return Status.errorPromise("Contract returned an empty metadata url")
+            }
+
+            if(tokenUri.contains("{id}")){
+                tokenUri = tokenId.replace("{id}", tokenId)
+            }
+
+            console.log("tokenUri===>", tokenUri)
+
+            let nftMetadaStatus = await getNFTMetadata(tokenUri)
+
+            console.log("nftMetadaStatus===>", nftMetadaStatus)
         } catch(e){
             Utils.logError("useNFT#fetchOnchainNFTData:", e)
            return Status.error(Utils.generalErrorMsg)
