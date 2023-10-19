@@ -11,9 +11,9 @@ export default class Http {
      * @param {Object} data 
      * @param {Object} headers 
      */
-    static async get(url,data = {}, headers = {}){
+    static async get(url,data = {}, headers = {}, fetchOpts={}){
         url += (url.indexOf('?') === -1 ? '?' : '&') + this.queryParams(data);
-        return this.request(url,{headers})
+        return this.request(url,{ headers, ...fetchOpts })
     } //end fun
 
     /**
@@ -114,10 +114,10 @@ export default class Http {
      * @param {*} data 
      * @param {*} headers 
      */
-    static async getJson(url, data = {}, headers = {}){
+    static async getJson(url, data = {}, headers = {}, fetchOpts={}){
         try {
 
-            let reqStatus = await this.get(url,data,headers)
+            let reqStatus = await this.get(url,data,headers, fetchOpts)
 
             if(reqStatus.isError()) return reqStatus
 
@@ -143,7 +143,7 @@ export default class Http {
      * @param {*} data 
      * @param {*} headers 
      */
-    static async post(url,data = {}, headers = {}){
+    static async post(url,data = {}, headers = {}, fetchOpts={}){
 
         //let formData = new FormData()
         let formData = new URLSearchParams(data)
@@ -151,7 +151,8 @@ export default class Http {
         return this.request(url,{
             method: "POST",
             body: formData,
-            headers
+            headers,
+            ...fetchOpts
         })
     } //end fun 
 
@@ -173,12 +174,13 @@ export default class Http {
 
         let rparams = {
             ...{
-                "credentials": 'omit',
-                "redirect": "follow"
+                "credentials":  'omit',
+                "redirect":     "follow",
+                //mode:           "no-cors"
             },
             ...params
         }
-       
+
         try {
 
             let response = await window.fetch(url,rparams);
@@ -186,6 +188,7 @@ export default class Http {
             return Status.successPromise(null, response)
 
         } catch(e){
+
             console.error(`request Error: ${url}`,e)
             return Status.errorPromise("REQUEST_FAILED")
         }
