@@ -4,6 +4,7 @@ import Utils from '../../../classes/Utils';
 import { useNetworks } from '../../../composables/useNetworks';
 import { useNFT } from '../../../composables/useNFT';
 import { useRouter } from 'vue-router';
+import { useWalletStore } from '../../../store/walletStore';
 
 const contractAddr = ref("")
 const tokenId = ref("")
@@ -11,7 +12,9 @@ const tokenStandard = ref("")
 const networks  = useNetworks()
 const activeNetInfo = ref()
 const router = useRouter()
-const { getNFTStandard, fetchNFTOnChain } = useNFT()
+const { getNFTStandard, fetchNFTOnChain, importNFT } = useNFT()
+const  {  getActiveWalletInfo } = useWalletStore()
+
 
 onBeforeMount(async () => {
     activeNetInfo.value = await networks.getActiveNetworkInfo()
@@ -50,7 +53,44 @@ const onSubmit = async () => {
        
         let resultStatus = await fetchNFTOnChain(_contractAddr, _tokenId, _tokenStandard)
 
-        console.log("resultStatus====>", resultStatus)
+        //console.log("resultStatus====>", resultStatus)
+
+        if(resultStatus.isError()){
+            return Utils.mAlert(resultStatus.getMessage())
+        }
+
+        let nftInfo = resultStatus.getData()
+
+        //console.log("nftInfo===>", nftInfo)
+
+        nftInfo.isCustomImport = true
+         
+        let action =   await Utils.getSwal().fire({
+                            showCancelButton: true,
+                            confirmButtonText: 'Import',
+                            denyButtonText:     'Cancel',
+                            html: Utils.getImportNFTConfirmMsg(nftInfo),
+                            title: "Confirm Action",
+                        })
+
+        if(!action.isConfirmed) return;
+
+        let walletAddr = (await getActiveWalletInfo()).address
+
+
+        loader = Utils.loader("Importing NFT")
+
+        let importStatus = await importNFT(nftInfo, walletAddr)
+
+        if(importStatus.isError()){
+            return Utils.errorAlert(importStatus.getMessage())
+        }
+
+        Utils.mAlert(`${nftInfo.name} (id: ${nftInfo.tokenId}) imported`)
+        
+        contractAddr.value = ''
+        tokenId.value = ''
+
     } catch(e){
         console.log(e, e.stack)
         Utils.errorAlert(Utils.generalErrorMsg)
@@ -60,17 +100,7 @@ const onSubmit = async () => {
 }
 </script>
 <template>
-       <div class="mx-3 mt-4">
-        <!--
-        <div class="form-floating">
-            <select class="form-select" id="floatingSelect" aria-label="Floating label select example">
-                <option selected>Select one</option>
-                <option value="erc721">ERC-721</option>
-                <option value="erc1155">ERC-1155</option>
-            </select>
-            <label for="floatingSelect">Token Standard</label>
-        </div>
-        -->
+    <div class="mx-3 mt-4">
         <div class="form-floating mb-3 rounded">
             <input 
                 type="text" 

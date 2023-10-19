@@ -29,7 +29,7 @@ onBeforeMount(() => {
         <div class="card-header" :style="{'background-image': `url(${imgUrl})` }">
             <div class="card-header-img">
                 <img 
-                    :src="imgUrl" 
+                    v-lazy="imgUrl" 
                     alt=""
                 />
             </div>

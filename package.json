@@ -61,6 +61,7 @@
     "unplugin-vue-router": "^0.6.4",
     "vite": "^4.4.5",
     "vite-plugin-compression": "^0.5.1",
+    "vite-plugin-node-stdlib-browser": "^0.2.1",
     "vite-plugin-pages": "^0.31.0"
   }
 }

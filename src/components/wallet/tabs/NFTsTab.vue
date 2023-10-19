@@ -131,7 +131,7 @@ const reloadItems = async () => {
 
             <div v-if="props.enableViewAllBtn && Object.keys(nftItems).length > 0">
                 <div class="d-flex mt-2 mb-3 me-3 justify-content-end">
-                    <router-link to="/tokens#t-nfts" 
+                    <router-link to="/tokens#tab-nfts" 
                         class="btn btn-outline-primary rounded-pill shadow"
                     >
                         <div class="d-flex align-items-center">

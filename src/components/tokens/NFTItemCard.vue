@@ -55,6 +55,8 @@ const doImportNFT = async () => {
         let colInfo = collectionInfo.value
             
         let tokenInfo = item.value
+
+        tokenInfo.isCustomImport = false
  
         tokenInfo.standard = colInfo.standard
 
@@ -68,7 +70,13 @@ const doImportNFT = async () => {
         } 
 
         ///console.log("activeWalletAddress====>", activeWalletAddr.value)
+        if(!("attributes" in tokenInfo)){
+            tokenInfo['attributes'] = []
+        }
 
+        if(!("tokenUri" in tokenInfo)){
+            tokenInfo['tokenUri'] = ''
+        }
         
         loader = Utils.loader("Importing NFT")
 

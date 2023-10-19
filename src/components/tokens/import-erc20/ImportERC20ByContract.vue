@@ -46,6 +46,7 @@ const onSubmit = async () => {
         let tokenInfo = verifyStatus.getData()
 
         //console.log("tokenInfo==>", tokenInfo)
+        //tokenInfo.isCustomImport = true 
         
         let action =   await Utils.getSwal().fire({
                             showCancelButton: true,

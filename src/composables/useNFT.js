@@ -228,9 +228,14 @@ export const useNFT = () => {
                'collection',
                'collectionInfo',
                'attributes',
+               'isCustomImport',
                'tokenUri',
                'standard'
            ]
+
+           if(!Utils.isAddress(walletAddr)){
+                return Status.error("Invalid wallet address")
+           }
 
            for (let field of requiredFields){
                if(!(field in nftInfo)){
@@ -371,7 +376,9 @@ export const useNFT = () => {
         
         url = processNFTMetadataUrl(url)
 
-        let metadataStatus = await Http.getJson(url, {}, {}, { mode: 'no-cors'})
+        let metadataStatus = await Http.getJson(url)
+
+        console.log("metadataStatus===>", metadataStatus)
         
         if(metadataStatus.isError()){
             let urlB64 = btoa(url)
@@ -478,15 +485,10 @@ export const useNFT = () => {
                         method: "ownerOf", 
                         args:   [tokenIdBN] 
                     },
-                    {
-                        target, 
-                        abi, 
-                        label:  `totalSupply`, 
-                        method: "totalSupply", 
-                        args:   [] 
-                    }
+                   
                 ])
 
+           
            } else {
 
                 abi = erc1155Abi
@@ -525,6 +527,15 @@ export const useNFT = () => {
                 
            }
 
+           if((await web3Conn.hasMethod(contractAddr, "totalSupply()", code))){
+                inputs.push({
+                    target, 
+                    abi, 
+                    label:  `totalSupply`, 
+                    method: "totalSupply", 
+                    args:   [] 
+                })
+            }
 
            if(hasOwner) {
                 inputs.push({
@@ -548,7 +559,7 @@ export const useNFT = () => {
 
             let resultStatus = await web3Conn.staticMulticall(inputs)
 
-          // console.log("resultStatus===>", resultStatus)
+            console.log("resultStatus===>", resultStatus)
 
            if(resultStatus.isError()){
                Utils.logError("useToken#fetchNFTMetadata:"+ resultStatus.getMessage())
@@ -562,9 +573,12 @@ export const useNFT = () => {
                 symbol:     (resultData.symbol || ""),
                 description: "",
                 standard,
+                media:      {},
                 chainId:    web3Conn.chainId,
                 contract:   contractAddr,
             }
+
+            let collectionImage = ''
 
             if(hasContractUri){
 
@@ -594,8 +608,11 @@ export const useNFT = () => {
                         }
 
                         if('image' in contractData && contractData.image.trim() != ''){
-                            collectionInfo.image = contractData.image
-                            collectionInfo.imageUrl = processNFTMetadataUrl(contractData.image)
+                            collectionImage = contractData.image
+                            collectionInfo.media = {
+                                image: processNFTMetadataUrl(contractData.image),
+                                imageOriginal: contractData.image
+                            }
                         }
 
                         if('external_link' in contractData && contractData.external_link.trim() != ''){
@@ -607,7 +624,7 @@ export const useNFT = () => {
 
            //console.log("collectionInfo=====>", collectionInfo)
             
-           //console.log("resultData====>", resultData)
+           ///console.log("resultData====>", resultData) 
 
            // now lets retrieve the nft metadata 
             let tokenUri = (standard == 'erc721') 
@@ -621,11 +638,11 @@ export const useNFT = () => {
             }
 
             if(tokenUri.includes("{id}")){
-                tokenUri = tokenId.replace("{id}", tokenId)
+                tokenUri = tokenUri.replace("{id}", tokenId)
             }
 
             if(tokenUri.includes("{address}")){
-                tokenUri = tokenId.replace("{address}", contractAddr)
+                tokenUri = tokenUri.replace("{address}", contractAddr)
             }
 
             //console.log("tokenUri===>", tokenUri)
@@ -636,7 +653,7 @@ export const useNFT = () => {
                 return Status.error("Failed to retrieve contract's metadata")
             }
 
-            ///console.log("nftMetadaStatus===>", nftMetadaStatus)
+            //console.log("nftMetadaStatus===>", nftMetadaStatus)
 
             let nftMetaData = nftMetadaStatus.getData() || {}
 
@@ -644,9 +661,20 @@ export const useNFT = () => {
             let symbol = (nftMetaData.symbol || "").trim()
             let description = (nftMetaData.description || "").trim()
             let image = (nftMetaData.image || "").trim()
-            let imageUrl = ""
+            //let imageUrl = ""
 
-            if(standard == 'erc1155'){
+            if(standard == 'erc721'){
+               
+                if(name == '' && collectionInfo.name != ''){
+                    name = `${name} ${$tokenId}`
+                }
+
+                if(symbol == '' && collectionInfo.symbol != ''){
+                    symbol = collectionInfo.symbol
+                }
+            }
+
+            else if(standard == 'erc1155'){
                 if(name == '' && collectionInfo.name != ''){
                     name = collectionInfo.name
                 }
@@ -659,7 +687,7 @@ export const useNFT = () => {
                     description = collectionInfo.description
                 }
 
-                if(image == '' && collectionInfo.image != '') {
+                if(image == '' && collectionImage != '') {
                     image = collectionInfo.image
                 }
             }
@@ -668,17 +696,24 @@ export const useNFT = () => {
                 return Status.error("NFT metadata returned no name")
             }
 
+            let media = {}
+
             if(image != ''){
-                imageUrl = processNFTMetadataUrl(image)
+                media = {
+                    image: {
+                        url: processNFTMetadataUrl(image),
+                        urlOriginal: image
+                     }
+                }
             }
 
             let finalData = {
                 name, 
                 symbol,
                 description,
-                image,
-                imageUrl,
+                media,
                 standard,
+                tokenId,
                 chainId:      web3Conn.chainId,
                 collection:   contractAddr,
                 collectionInfo,

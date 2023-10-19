@@ -127,6 +127,9 @@ export default class Http {
 
             let respBody =  (await responseObj.text()).trim();
 
+            //console.log("url===>", url)
+            //console.log("respBody===>", respBody)
+
             let respJson = (respBody.length ==  0) ? {} : JSON.parse(respBody)
 
             return Status.successPromise(null, respJson)

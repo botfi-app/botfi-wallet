@@ -13,6 +13,9 @@ import Bugsnag from '@bugsnag/js'
 import BugsnagPluginVue from '@bugsnag/plugin-vue'
 import appConfig from "./config/app"
 import VueLazyLoad from 'vue3-lazyload'
+import { Buffer } from "buffer/"
+
+window.Buffer = Buffer
 
 /*
 Bugsnag.start({

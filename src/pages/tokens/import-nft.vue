@@ -14,7 +14,7 @@ import ImportNFTByContract from '../../components/tokens/import-nft/ImportNFTByC
     >   
 
         <NativeBackBtn 
-            url="/tokens"
+            url="/tokens#tab-nfts"
         />
 
         <div class="w-400 mb-5">

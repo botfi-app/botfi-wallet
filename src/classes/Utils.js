@@ -331,21 +331,28 @@ export default class Utils {
         let imageName = (image.name || "").toString().trim()
         
         //console.log("image===>", imageName)
+        let isCustomImport = ("isCustomImport" in itemObj && itemObj.isCustomImport == true)
 
         if(imageName != ""){
             
             return Utils.getNFTPreviewByName(imageName, size)
 
-        } else if("url" in image && image.url != '' && !["missing_small.png"].includes(image.url)){
+        } else if("url" in image && 
+            image.url != '' && 
+            !["missing_small.png"].includes(image.url)
+        ){
             
             let tokenId = (itemObj.tokenId || "").toString().trim()
             let server = `${appConfig.server_url}`
             let chainId = itemObj.chainId
 
-            return (tokenId != "") 
-                ? `${server}/nft/images/${size}/${chainId}/${itemObj.collection}/${tokenId}`
-                : `${server}/collection/images/${size}/${chainId}/${itemObj.contract}`
-
+            if(isCustomImport){
+                return image.url
+            } else {
+                return (tokenId != "") 
+                    ? `${server}/nft/images/${size}/${chainId}/${itemObj.collection}/${tokenId}`
+                    : `${server}/collection/images/${size}/${chainId}/${itemObj.contract}`
+            }
         } else {
 
             return  "/images/nft-small.jpg";

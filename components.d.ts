@@ -89,5 +89,6 @@ declare module '@vue/runtime-core' {
     WalletNameEditor: typeof import('./src/components/modals/WalletNameEditor.vue')['default']
     WalletSelect: typeof import('./src/components/header/WalletSelect.vue')['default']
     We: typeof import('./src/components/modals/we.vue')['default']
+    X: typeof import('./src/components/tokens/x.vue')['default']
   }
 }

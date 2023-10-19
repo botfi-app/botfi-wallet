@@ -1,7 +1,7 @@
 <script setup>
 
 import { onBeforeMount, ref } from 'vue'
-import Utils from '../../classes/Utils';
+//import Utils from '../../classes/Utils';
 import EventBus from '../../classes/EventBus';
 import TokensAndActivityTabs from '../../components/wallet/TokensAndActivityTabs.vue';
 

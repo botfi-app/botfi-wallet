@@ -12,13 +12,16 @@ import {
     getAddress,
     Contract as ethersContract,
     id as ethersId,
-    Interface
+    Interface,
+    isAddress,
+    ZeroAddress
 } from "ethers"
 import { 
     Contract as ethcallContract, 
     Provider as ethcallProviderClazz
 } from 'ethcall';
 
+//import { Buffer } from "buffer/";
 
 export default class Wallet {
 
@@ -167,7 +170,7 @@ export default class Wallet {
      */
     async getProxyImplFromStorage(address, slot) {
         ///let slot = "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc";
-        let data = await this.provider.getStorageAt(address, slot);
+        let data = await this.provider.getStorage(address, slot);
         return this.parseAddressFromStorage(data)
     }
     
@@ -272,9 +275,8 @@ export default class Wallet {
       
         //console.log("implAddress===>", "===>", implAddress)
             
-        if (implAddress &&
-            ethersUtils.isAddress(implAddress) &&
-            implAddress != Utils.zeroAddress
+        if (implAddress && isAddress(implAddress) &&
+            implAddress != ZeroAddress
         ) {
             code = await this.provider.getCode(implAddress);
         }

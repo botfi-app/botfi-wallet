@@ -7,6 +7,8 @@ import path from "path"
 import viteCompression from 'vite-plugin-compression';
 import Icons from 'unplugin-icons/vite'
 import IconsResolver from 'unplugin-icons/resolver'
+import nodePolyfills from 'vite-plugin-node-stdlib-browser'
+
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -20,10 +22,14 @@ export default defineConfig({
       }
     }),
     
+    nodePolyfills(),
+
     AutoImport(),
+
     Pages({
       importMode: 'async'
     }),
+
     Icons({ compiler: 'vue3' }),
     Components({
       directoryAsNamespace: false,
@@ -50,8 +56,7 @@ export default defineConfig({
     exclude: [
       "whatwg-fetch",
       "animate.css",
-      "@dotlottie/player-component",
-      "buffer"
+      "@dotlottie/player-component"
     ],
   }
 
