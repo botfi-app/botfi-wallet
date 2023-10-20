@@ -7,18 +7,32 @@ import { useWalletStore } from '../../store/walletStore';
 import { useRouter } from 'vue-router';
 import Avatar from '../common/Avatar.vue';
 
+const props = defineProps({
+    tokenAddress: { type: String, required: true }
+})
+
+const tokenAddr = ref(props.tokenAddress)
+const tokenInfo = ref(null)
 const { tokens } = useTokens()
 const { fetchSettings } = useSettings()
 const { activeWallet } = useWalletStore()
 const router = useRouter()
-const nativeTokenInfo = ref(null)
 const defaultCurrency = ref("usd")
 
+const actionArr = ref([
+    { text: "Send", icon: "iconoir:arrow-tr", url: "" },
+    { text: "Recieve", icon: "iconoir:arrow-br", url: "" },
+    { text: "Swap", 
+      icon: "streamline:interface-arrows-reload-2-arrows-load-arrow-sync-square-loading-reload-synchronize", 
+      url: "" 
+    },
+])
+
 onBeforeMount(() => {
-    processNativeToken()
+    processToken()
 })
 
-const processNativeToken = async() => {
+const processToken = async() => {
 
     let _tokens = tokens.value
 
@@ -30,28 +44,27 @@ const processNativeToken = async() => {
     let settings  = await fetchSettings()
     defaultCurrency.value = (settings.defaultCurrency || "usd").toLowerCase()
 
-    nativeTokenInfo.value = _tokens[Utils.nativeTokenAddr]
+    tokenInfo.value = _tokens[props.tokenAddress]
 
-    if(nativeTokenInfo.value == null) return
+    if(tokenInfo.value == null) return
 
-    if(!("balanceInfo" in nativeTokenInfo.value) || 
-       nativeTokenInfo.value.balanceInfo == null || 
-       Object.keys(nativeTokenInfo.value.balanceInfo).length == 0
+    if(!("balanceInfo" in tokenInfo.value) || 
+        tokenInfo.value.balanceInfo == null || 
+        Object.keys(tokenInfo.value.balanceInfo).length == 0
     ) {
-        nativeTokenInfo.value.balanceInfo = defaultBalanceInfo
+        tokenInfo.value.balanceInfo = defaultBalanceInfo
     }
  
 }
 
 watch(tokens, () => {
-    processNativeToken()
+    processToken()
 }, { deep: true })
-
 
 </script>
 <template>
-     <div class="home-balance-card rounded-lg mt-3" 
-        v-if="nativeTokenInfo != null"
+    <div class="token-balance-card rounded-lg mt-3" 
+        v-if="tokenInfo != null"
     >
         <div class="rounded-lg px-2 pb-3">
             <div v-if="activeWallet" class="p-3 pb-2">
@@ -87,29 +100,48 @@ watch(tokens, () => {
             <div class="h-divider mb-3" />
             <div class="text-center text-light m-0 p-0 d-flex center-vh mb-1">
                 <h2 class="m-0 p-0">
-                    {{ nativeTokenInfo.balanceInfo.balanceDecimal }} 
+                    {{ tokenInfo.balanceInfo.balanceDecimal }} 
                 </h2>
                 <h3 class="m-0 p-0 ms-1">
-                    {{ nativeTokenInfo.symbol }}
+                    {{ tokenInfo.symbol }}
                 </h3>
             </div>
-            <div v-if="defaultCurrency in  nativeTokenInfo.balanceInfo.balanceFiat">
+            <div v-if="defaultCurrency in  tokenInfo.balanceInfo.balanceFiat">
                 <div class="d-flex fs-6 text-light text-center center-vh mb-2">
                     <div class="me-1">
-                        {{ nativeTokenInfo.balanceInfo.balanceFiat[defaultCurrency]  }}
+                        {{ tokenInfo.balanceInfo.balanceFiat[defaultCurrency]  }}
                     </div>
                     <div>{{ defaultCurrency.toUpperCase() }}</div>
                 </div>
             </div>
+
+            <div class="d-flex align-items-center justify-content-center actions mt-3">
+                <template v-for="(item, index) in actionArr" :key="index">
+                    <div class="text-center">
+                        <button class="btn btn-primary p-0 rounded-circle center-vh">
+                            <Icon :name="item.icon" class="text-light" />
+                        </button>
+                        <div class="text-center text fs-14 hint fw-semibold">
+                            {{ item.text }}
+                        </div>
+                    </div>
+                </template>
+            </div>
         </div>
     </div>
 </template>
-
-<style lang="scss" scoped>
-.home-balance-card {
-    padding: 0px; 
-    margin: 0px;
-    background: var(--bs-body-bg-dark-5);
-    color: var(--bs-body-color);
+<style lang="scss">
+.actions {
+    >div {
+        margin: 0px 10px;
+        display:flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+    }
+    .btn {
+        width: 40px;
+        height: 40px;
+    }
 }
 </style>
