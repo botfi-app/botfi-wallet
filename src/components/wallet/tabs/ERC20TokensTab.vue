@@ -133,7 +133,9 @@ const doRemoveToken = async (token) => {
             </div>
             <template v-for="token in dataToRender">
                 <div class="d-flex align-items-center justify-content-between">
-                    <div class="d-flex justify-content-between align-items-center py-1 my-2 flex-grow-1">
+                    <div @click.prevent="$router.push(`/tokens/item/${token.contract}`)"
+                        class="d-flex justify-content-between align-items-center py-1 my-2 flex-grow-1"
+                    >
                         <div class="d-flex">
                             <Image
                                 :src="token.image"

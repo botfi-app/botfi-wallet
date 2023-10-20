@@ -105,7 +105,7 @@ const doImportNFT = async () => {
 </script>
 <template>
     <div class="nft-collection-card">
-        <div class="card-header" :style="{'background-image': `url(${imgUrl})` }">
+        <div class="card-header">
             <div class="card-header-img">
                 <img 
                     v-lazy="imgUrl" 

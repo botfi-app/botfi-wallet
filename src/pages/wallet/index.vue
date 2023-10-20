@@ -59,7 +59,7 @@ const initialize = async() => {
                     </div>
 
                     <div class="mx-2">
-                        <NativeBalanceCard />
+                        <TokenBalanceCard :tokenAddress="Utils.nativeTokenAddr" />
                     </div>
 
                     <div class="mt-3 mx-2">

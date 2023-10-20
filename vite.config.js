@@ -7,7 +7,7 @@ import path from "path"
 import viteCompression from 'vite-plugin-compression';
 import Icons from 'unplugin-icons/vite'
 import IconsResolver from 'unplugin-icons/resolver'
-import nodePolyfills from 'vite-plugin-node-stdlib-browser'
+//import nodePolyfills from 'vite-plugin-node-stdlib-browser'
 
 
 // https://vitejs.dev/config/
@@ -22,7 +22,7 @@ export default defineConfig({
       }
     }),
     
-    nodePolyfills(),
+    //nodePolyfills(),
 
     AutoImport(),
 

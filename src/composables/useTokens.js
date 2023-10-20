@@ -32,7 +32,6 @@ export const useTokens = () => {
         getTokens()
     })
 
-    const nfts      = computed(() =>  $state.value.nfts )
     const tokens    = computed(() =>  $state.value.tokens )
     const updatedAt = ref(Date.now())
 
@@ -418,7 +417,14 @@ export const useTokens = () => {
         }
     }
 
+    const getTokenByContract = async (contract) => {
+        
+        if(Object.keys(tokens.value).length == 0){
+            await getTokens()
+        }
 
+        return tokens.value[contract] || null
+    }
 
     return {
         getTokens,

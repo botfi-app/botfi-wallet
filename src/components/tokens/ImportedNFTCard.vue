@@ -22,15 +22,15 @@ const initialize = async () => {
 </script>
 <template>
     <div class="nft-collection-card">
-        <div class="card-header" :style="{'background-image': `url(${imgUrl})` }">
-            <div class="card-header-img">
-                <router-link 
-                    :to="`/tokens/nft/item/${props.data.id}`"
-                    class='nft-bg-img' 
-                    :style="`background-image: url(${imgUrl})`"
-                >
-                    <div  />
-                </router-link>
+        <div class="card-header">
+            <div class="card-header-img" 
+                @click.prevent="$router.push(`/tokens/nft/item/${props.data.id}`)"
+            >
+                <img 
+                    v-lazy="imgUrl" 
+                    alt=""
+                    loading="lazy"
+                />
             </div>
         </div>  
         <router-link 

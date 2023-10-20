@@ -17,14 +17,14 @@ import { Buffer } from "buffer/"
 
 window.Buffer = Buffer
 
-/*
+
 Bugsnag.start({
   apiKey:   appConfig.bugsnag_key,
   plugins:  [new BugsnagPluginVue()]
 })
 
 const bugsnagVue = Bugsnag.getPlugin('vue')
-*/
+
 
 const app = createApp(App)
 
@@ -57,7 +57,7 @@ router.afterEach(() => {
 
 
 app
- //.use(bugsnagVue)
+ .use(bugsnagVue)
  .use(router)
  .use(pinia)
  .use(telegram, { router })

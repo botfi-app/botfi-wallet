@@ -76,6 +76,7 @@ declare module '@vue/runtime-core' {
     TabbedContent: typeof import('./src/components/common/TabbedContent.vue')['default']
     Toast: typeof import('./src/components/Toast.vue')['default']
     Token: typeof import('./src/components/wallet/Token.vue')['default']
+    TokenBalanceCard: typeof import('./src/components/tokens/TokenBalanceCard.vue')['default']
     TokenBalances: typeof import('./src/components/wallet/TokenBalances.vue')['default']
     TokenIcon: typeof import('./src/components/common/TokenIcon.vue')['default']
     TokenList: typeof import('./src/components/wallet/TokenList.vue')['default']

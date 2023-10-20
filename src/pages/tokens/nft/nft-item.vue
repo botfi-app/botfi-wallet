@@ -31,31 +31,33 @@ const initialize = async () => {
 
   dbData.value = await getNFTById(route.params.id)
 
+  //consoe.log(" dbData.value===>",  dbData.value)
+
   if(dbData.value == null){
     pageError.value = "NFT item not found"
     return false
   }
 
-  let _nf = dbData.value.nftInfo;
+  let _nft = dbData.value.nftInfo;
 
   let activeNetworkInfo = await getActiveNetworkInfo()
 
   //console.log("activeNet===>", activeNet)
-  _nf.chain  = `${activeNetworkInfo.name} (${_nf.chainId})`
+  _nft.chain  = `${activeNetworkInfo.name} (${_nft.chainId})`
           
-  _nf = {..._nf, 
-          contract: _nf.collection,
-          collectionName: _nf.collectionInfo.name 
+  _nft = {..._nft, 
+          contract: _nft.collection,
+          collectionName: _nft.collectionInfo.name 
         }
   
   let activeWallet = (await getActiveWalletInfo()).address.toLowerCase()
 
  // let nftWallet = dbData.value.wallet.toLowerCase()
-  let nftOwner = (_nf.owner || "").toLowerCase().trim()
+  let nftOwner = (_nft.owner || "").toLowerCase().trim()
 
  isOwner.value = (nftOwner != '' && nftOwner == activeWallet)
 
-  nftInfo.value = _nf
+  nftInfo.value = _nft
 }
 
 const keyText = {
@@ -132,7 +134,7 @@ const sendNFT = () => {
             <div class="d-flex justify-content-center p-2">
               <img 
                 class="nft-preview rounded-lg shadow"
-                :src="Utils.getNFTPreviewUrl(nftInfo, 'large')"
+                v-lazy="Utils.getNFTPreviewUrl(nftInfo, 'large')"
               />
             </div>
             <div class="text-justify description mt-2 mx-3">

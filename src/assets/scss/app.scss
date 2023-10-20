@@ -528,3 +528,10 @@ ul.list-group {
 .wallet-select-with-bg {
     background: var(--bs-body-bg-dark-5) !important;
 }
+
+.token-balance-card {
+    padding: 0px; 
+    margin: 0px;
+    background: var(--bs-body-bg-dark-5);
+    color: var(--bs-body-color);
+}
