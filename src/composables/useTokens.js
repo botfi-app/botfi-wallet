@@ -417,7 +417,7 @@ export const useTokens = () => {
         }
     }
 
-    const getTokenByContract = async (contract) => {
+    const getTokenByAddr = async (contract) => {
         
         if(Object.keys(tokens.value).length == 0){
             await getTokens()
@@ -433,6 +433,7 @@ export const useTokens = () => {
         updateBalances,
         tokens,
         updatedAt,
-        removeToken
+        removeToken,
+        getTokenByAddr
     }
 }

@@ -55,7 +55,7 @@ declare module '@vue/runtime-core' {
     NetAndAccountSelect: typeof import('./src/components/modals/NetAndAccountSelect.vue')['default']
     NetworkAndAccount: typeof import('./src/components/modals/NetworkAndAccount.vue')['default']
     NetworkAndWallets: typeof import('./src/components/modals/NetworkAndWallets.vue')['default']
-    NetworkSelect: typeof import('./src/components/modals/network-select.vue')['default']
+    NetworkSelect: typeof import('./src/components/header/NetworkSelect.vue')['default']
     NewWalletModal: typeof import('./src/components/modals/NewWalletModal.vue')['default']
     NFTCollectionCard: typeof import('./src/components/tokens/NFTCollectionCard.vue')['default']
     NFTCollectionItem: typeof import('./src/components/tokens/import-nft/renders/NFTCollectionItem.vue')['default']
