@@ -92,6 +92,11 @@
     "@babel/helper-validator-identifier" "^7.22.5"
     to-fast-properties "^2.0.0"
 
+"@bitjson/qr-code@^1.0.2":
+  version "1.0.2"
+  resolved "https://registry.npmjs.org/@bitjson/qr-code/-/qr-code-1.0.2.tgz"
+  integrity sha512-oqcTWhzMs8Dt/xrHKDUzYglccgjVX2GleASd4FsE7TGGUkW8n57tBjKmfwkAVWa722+v6ijS81EmWbd07ebsmQ==
+
 "@bugsnag/browser@^7.21.0":
   version "7.21.0"
   resolved "https://registry.npmjs.org/@bugsnag/browser/-/browser-7.21.0.tgz"
@@ -2432,6 +2437,11 @@ duplexer3@^0.1.4:
   version "0.1.5"
   resolved "https://registry.npmjs.org/duplexer3/-/duplexer3-0.1.5.tgz"
   integrity sha512-1A8za6ws41LQgv9HrE/66jyC5yuSjQ3L/KOpFtoBilsAK2iA2wuS5rTt1OCzIvtS2V7nVmedsUU+DGRcjBmOYA==
+
+easyqrcodejs@^4.5.0:
+  version "4.5.0"
+  resolved "https://registry.npmjs.org/easyqrcodejs/-/easyqrcodejs-4.5.0.tgz"
+  integrity sha512-V9z6vst9I5hGYw4fx+ofQARDFQlbwpltka+TJ41W+bCtDnQkhw+b/ChsqRv0xFLvpOIW/dv4Lh01ONr6EmXdzQ==
 
 electron-to-chromium@^1.4.477:
   version "1.4.482"

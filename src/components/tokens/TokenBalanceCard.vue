@@ -6,6 +6,7 @@ import { onBeforeMount, ref, watch } from 'vue';
 import { useWalletStore } from '../../store/walletStore';
 import { useRouter } from 'vue-router';
 import Avatar from '../common/Avatar.vue';
+import DepositAddressModal from "../modals/DepostAddressModal.vue"
 
 const props = defineProps({
     tokenAddress: { type: String, required: true }
@@ -18,13 +19,25 @@ const { fetchSettings } = useSettings()
 const { activeWallet } = useWalletStore()
 const router = useRouter()
 const defaultCurrency = ref("usd")
+const title = ref("Deposit Address")
 
 const actionArr = ref([
-    { text: "Send", icon: "iconoir:arrow-tr", url: "" },
-    { text: "Recieve", icon: "iconoir:arrow-br", url: "" },
+    { 
+        text: "Send", 
+        icon: "iconoir:arrow-tr", 
+        onClick: () => router.push("/"),
+        attr: {}
+    },
+    { 
+        text: "Recieve", 
+        icon: "iconoir:arrow-br", 
+        onClick: "",
+        attr: { "data-bs-toggle": "modal", "data-bs-target": "#deposit-addr-modal" }
+    },
     { text: "Swap", 
       icon: "streamline:interface-arrows-reload-2-arrows-load-arrow-sync-square-loading-reload-synchronize", 
-      url: "" 
+      onClick: () => router.push("/"),
+      attr: {}
     },
 ])
 
@@ -118,7 +131,10 @@ watch(tokens, () => {
             <div class="d-flex align-items-center justify-content-center actions mt-3">
                 <template v-for="(item, index) in actionArr" :key="index">
                     <div class="text-center">
-                        <button class="btn btn-primary p-0 rounded-circle center-vh">
+                        <button @click.prevent="item.onClick"
+                            class="btn btn-primary p-0 rounded-circle center-vh"
+                            v-bind="item.attr"
+                        >
                             <Icon :name="item.icon" class="text-light" />
                         </button>
                         <div class="text-center text fs-14 hint fw-semibold">
@@ -127,6 +143,11 @@ watch(tokens, () => {
                     </div>
                 </template>
             </div>
+            <DepositAddressModal 
+                :title="title"
+                :address="activeWallet.address"
+                :logo="Utils.getTokenIconUrl(tokenInfo.symbol)"
+            />
         </div>
     </div>
 </template>

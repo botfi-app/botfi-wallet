@@ -26,6 +26,7 @@ declare module '@vue/runtime-core' {
     CreateWallet: typeof import('./src/components/modals/CreateWallet.vue')['default']
     DefaultNetAndWallet: typeof import('./src/components/modals/DefaultNetAndWallet.vue')['default']
     DefaultNetworkAndWallet: typeof import('./src/components/modals/default-network-and-wallet.vue')['default']
+    DepostAddressModal: typeof import('./src/components/modals/DepostAddressModal.vue')['default']
     ERC20Tokens: typeof import('./src/components/wallet/ERC20Tokens.vue')['default']
     ERC20TokensTab: typeof import('./src/components/wallet/tabs/ERC20TokensTab.vue')['default']
     Icon: typeof import('./src/components/common/Icon.vue')['default']
