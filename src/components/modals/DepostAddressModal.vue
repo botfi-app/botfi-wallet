@@ -22,8 +22,8 @@ onMounted(() => {
 
     let opts = {
         text: `ethereum:${props.address}`,
-        width: 200,
-        height: 200,
+        width: 300,
+        height: 300,
         colorDark:  Utils.getCssVar("bs-body-bg"), 
 		colorLight: primaryColor.clone().lighten(40).toHexString(),
         quietZone: 5,

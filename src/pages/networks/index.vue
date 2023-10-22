@@ -143,16 +143,8 @@ const onSearch = async (keyword, filteredData) => {
         <div class="w-400 mb-5">
             
             <loading-view :isLoading="isLoading" :key="dataState">
-                <div class="d-flex p-2 align-items-center flex-nowrap">
+                <div class="d-flex p-2 justify-content-between align-items-center flex-nowrap">
                     <div class="fw-semibold fs-6 pe-2">Networks</div>
-                    <div class="flex-grow-1">
-                        <search-form 
-                            placeholder="Search"
-                            @change="onSearch"
-                            :dataToFilter="allNetworks"
-                            :filterKeys="['name', 'shortName']"
-                        />
-                    </div>
                     <div class="ps-2">
                         <router-link to="/networks/add" class="no-underline">
                             <button class="btn btn-primary rounded-pill v-center">
@@ -162,6 +154,15 @@ const onSearch = async (keyword, filteredData) => {
                         </router-link>
                     </div>
                 </div>
+                <div class="py-3 px-2">
+                    <search-form 
+                        placeholder="Search"
+                        @change="onSearch"
+                        :dataToFilter="allNetworks"
+                        :filterKeys="['name', 'shortName']"
+                    />
+                </div>
+                
                 <ul class="list-group list-group-flush w-full no-select">
                     <li v-if="networksDataToRender != null"
                         v-for="(item,index) in networksDataToRender" 

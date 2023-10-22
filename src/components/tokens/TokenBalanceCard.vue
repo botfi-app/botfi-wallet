@@ -25,7 +25,7 @@ const actionArr = ref([
     { 
         text: "Send", 
         icon: "iconoir:arrow-tr", 
-        onClick: () => router.push("/"),
+        onClick: () => router.push(`/tokens/item/${props.tokenAddress}/send`),
         attr: {}
     },
     { 

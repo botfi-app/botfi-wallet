@@ -8,9 +8,7 @@
 import { onBeforeMount, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useTokens } from '../../composables/useTokens'
-import Utils from '../../classes/Utils';
-import { useNetworks } from '../../composables/useNetworks';
-import { useWalletStore } from '../../store/walletStore';
+
 
 const route = useRoute()
 const initialized  = ref(false)
@@ -44,6 +42,7 @@ const initialize = async () => {
     :showNav="false"
     :hasNetSelect="false"
     :hasAddrSelect="false"
+    :pageError="pageError"
     v-if="initialized && tokenInfo != null"
   >   
 
