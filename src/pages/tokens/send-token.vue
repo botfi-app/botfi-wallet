@@ -5,34 +5,108 @@
     }
 </route>
 <script setup>
-import { onBeforeMount, ref } from 'vue';
+import { onBeforeMount, ref, inject } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useTokens } from '../../composables/useTokens'
+import EthUriParser from "../../classes/EthUriParser"
+import Utils from "../../classes/Utils"
 
 const route = useRoute()
 const initialized  = ref(false)
 const tokenAddress = ref(null)
 const tokenInfo    = ref(null)
-const { getTokenByAddr } = useTokens()
+const { getTokenByAddr, updateBalances } = useTokens()
 const pageError = ref("")
+const botUtils = inject("botUtils")
+const qrCodeReader = ref(null)
+const qrReaderSupported = ref(false)
 
-onBeforeMount(() => {
+const recipient = ref("")
+const amount = ref("")
+const amountError = ref("")
+const isLoading = ref(false)
+
+onBeforeMount(async () => {
   initialize()
 })
 
 const initialize = async () => {
 
-  tokenAddress.value = route.params.contract; 
+    try {
 
-  //console.log("contractAddr===>", tokenAddress)
+        isLoading.value = true
 
-  tokenInfo.value = await getTokenByAddr(tokenAddress.value)
+        qrCodeReader.value = botUtils.qrCodeReader()
 
-  if(tokenInfo.value == null){
-    return tokenInfo.value = "Unknown token, kindly import it first"
-  }
+        qrReaderSupported.value = qrCodeReader.value.isSupported()
 
-  initialized.value = true
+        tokenAddress.value = route.params.contract; 
+
+        //console.log("contractAddr===>", tokenAddress)
+
+        tokenInfo.value = await getTokenByAddr(tokenAddress.value)
+
+        if(tokenInfo.value == null){
+            return pageError.value = "Unknown token, kindly import it first"
+        }
+
+        await updateBalances()
+
+        initialized.value = true
+
+    } catch(e){
+
+        Utils.logError("send-token#initialize:",e)
+        pageError.value = Utils.generalErrorMsg
+
+    } finally {
+        isLoading.value = false
+    }
+}
+
+const showQRCodeReader = () => {
+    
+    if(!qrReaderSupported.value) return;
+
+    qrCodeReader.value.show("Scan Address", (data)=> {
+        
+        qrCodeReader.value.close()
+
+        try {
+
+            if(data == ''){
+                Utils.mAlert("QRCode reader returned an empty data")
+            } else {
+
+                let parsed = EthUriParser.parseURL(data)
+
+                if(("address" in parsed) && Utils.isAddress(parsed.address)){
+                    recipient.value = parsed.address
+                } else {
+                    Utils.mAlert("Invalid recipient address")
+                }
+            }
+
+        } catch(e){
+            
+            console.log("send-token#showQRCodeReader:", e, e.stack)
+            
+            let msg = (e.message == 'Not an Ethereum URI')
+                ? e.message
+                : "Failed to parse QRCode data"
+            
+            Utils.mAlert(msg)
+        }
+
+    })
+}
+
+
+const onAmtChange = () => {
+
+    let amt = amount.value;
+
+    console.log("amt===>", amt)
 }
 </script>
 <template>
@@ -50,6 +124,7 @@ const initialize = async () => {
         />
     
         <div class="w-400 mb-5">
+           
             <div class='d-flex justify-content-between px-2'>
                 <div class="center-vh">
                     <Image
@@ -66,10 +141,74 @@ const initialize = async () => {
                 <NetworkSelect backUrl="/tokens#tab-tokens" />
             </div>
 
-            <div class="px-3 mb-2 w-full">
+            <div class="px-3 my-2 w-full">
                 <WalletSelect />
             </div>
+            
+            <loading-view :isLoading="isLoading">
+                <div class="px-3 my-3">
+                    <div class="mb-3">
+                        <div class="form-floating">
+                            <input 
+                                type="text" 
+                                :class="`form-control rounded ${qrReaderSupported ? '': 'no-qrcode'}`" 
+                                id="recipient" 
+                                placeholder="0x..." 
+                                v-model="recipient"
+                            />
+                            <label for="recipient">
+                                Recipient
+                            </label>
+                        </div>
+                        <div class="recipient-btns" v-if="qrReaderSupported">
+                            <button @click.prevent="showQRCodeReader"
+                                class="btn p-1 btn-sm rounded-circle text-info"
+                            >
+                                <Icon name="ri:qr-scan-2-line" />
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-floating">
+                            <input 
+                                type="number" 
+                                class="form-control rounded" 
+                                id="amount" 
+                                placeholder="0.1" 
+                                v-model="amount"
+                                @keyup="onAmtChange"
+                            />
+                            <label for="amount">
+                                Amount in {{tokenInfo.symbol.toUpperCase()}}
+                            </label>
+                        </div>
+                        <div class="invalid-feedback" v-if="amountError != ''">
+                            {{ amountError }}
+                        </div>
+                    </div>
+                </div>
+            </loading-view>
         </div>
           
     </WalletLayout>
 </template>
+<style lang="scss">
+
+input#recipient{
+
+    padding-right: 35px;
+
+    &.no-qrcode {
+        padding-right: 10px;
+    }
+}
+
+.recipient-btns {
+    display: flex;
+    position: relative;
+    top:-45px;
+    left: calc(89.5%);
+    z-index: 10;
+    width: 30px;
+}
+</style>

@@ -177,4 +177,24 @@ export default class TelegramCore {
     }
 
 
+    qrCodeReader() {
+
+        let _p = this.webApp.platform.toLowerCase()
+        let isSupported =  (this.isMinVersion(6.4) && ['android', 'ios'].includes(_p))
+
+        if(!isSupported){
+            return this.notSupported()
+        }
+
+        let reader = this.webApp.showScanQrPopup 
+
+        return {
+            isSupported: () => isSupported,
+            show: (title, callback) => {
+                reader({ title }, callback)
+            },
+            close: () => this.webApp.closeScanQrPopup()
+        }
+    }
+
 }

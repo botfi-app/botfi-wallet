@@ -535,3 +535,15 @@ ul.list-group {
     background: var(--bs-body-bg-dark-5);
     color: var(--bs-body-color);
 }
+
+.no-bg {
+    background:none !important;
+}
+
+.border-left-none {
+    border-left:none !important;
+}
+
+.border-right-none {
+    border-right: none !important;
+}

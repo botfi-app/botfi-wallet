@@ -2,7 +2,7 @@
 import { QRCode } from "easyqrcodejs"
 import { onMounted, ref } from "vue";
 import Utils from "../../classes/Utils"
-import tinycolor from "tinycolor2";
+//import tinycolor from "tinycolor2";
 
 const props = defineProps({
     title: { type: String, required: true },
@@ -15,17 +15,15 @@ const qrCodeRef = ref()
 onMounted(() => {
 
     //console.log("Utils.getCssVar", Utils.getCssVar("bs-body-bg"))
-    let primaryColor = tinycolor(Utils.getCssVar("bs-primary"))
-    let colorSuccess = tinycolor(Utils.getCssVar("bs-success"))
-    let colorWarning = tinycolor(Utils.getCssVar("bs-warning"))
-    let colorInfo = tinycolor(Utils.getCssVar("bs-info"))
+    //let primaryColor = tinycolor(Utils.getCssVar("bs-primary"))
+  
 
     let opts = {
         text: `ethereum:${props.address}`,
-        width: 300,
-        height: 300,
-        colorDark:  Utils.getCssVar("bs-body-bg"), 
-		colorLight: primaryColor.clone().lighten(40).toHexString(),
+        width: 260,
+        height: 260,
+        //colorDark:  Utils.getCssVar("bs-body-bg"), 
+		//colorLight: primaryColor.clone().lighten(40).toHexString(),
         quietZone: 5,
 
         logo: props.logo,
@@ -33,20 +31,8 @@ onMounted(() => {
         logoWidth: 45, 
 		logoHeight: 45,
 
-        PO: colorWarning.clone().darken(8).toHexString(), 
-        PI: colorWarning.clone().darken(20).toHexString(), 
-
-        PO_TL: primaryColor.clone().toHexString(), // Position Outer - Top Left 
-        PI_TL: primaryColor.clone().darken(20).toHexString(), // Position Inner - Top Left 
-       
-        PO_TR: colorSuccess.clone().toHexString(), // Position Outer - Top Right 
-        PI_TR: colorSuccess.clone().darken(20).toHexString(), // Position Inner - Top Right 
-
-        AI: colorInfo.clone().darken(15).toHexString(),
-        AO: colorInfo.clone().toHexString(),
-
         //correctLevel: QRCode.CorrectLevel.H, // L, M, Q, H
-        dotScale: 0.8,
+        //dotScale: 0.5,
         
     }
 

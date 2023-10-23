@@ -1070,6 +1070,10 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
+"@parity/erc681@github:parity-js/erc681":
+  version "0.1.1"
+  resolved "git+ssh://git@github.com/parity-js/erc681.git#27ffe5056ec6e415b669ca650b5412cc12678196"
+
 "@popperjs/core@^2.11.8":
   version "2.11.8"
   resolved "https://registry.npmjs.org/@popperjs/core/-/core-2.11.8.tgz"
@@ -1634,6 +1638,11 @@ better-path-resolve@1.0.0:
   integrity sha512-pbnl5XzGBdrFU/wT4jqmJVPn2B6UHPBOhzMQkY/SPUPB6QtUXtmBHBIwCbXJol93mOpGMnQyP/+BB19q04xj7g==
   dependencies:
     is-windows "^1.0.0"
+
+bignumber.js@^7.2.1:
+  version "7.2.1"
+  resolved "https://registry.npmjs.org/bignumber.js/-/bignumber.js-7.2.1.tgz"
+  integrity sha512-S4XzBk5sMB+Rcb/LNcpzXr57VRTxgAvaAEDAl1AwRx27j00hT84O6OkteE7u8UB3NuaaygCRrEpqox4uDOrbdQ==
 
 binary-extensions@^2.0.0:
   version "2.2.0"
@@ -2589,6 +2598,14 @@ estree-walker@^2.0.2:
   version "2.0.2"
   resolved "https://registry.npmjs.org/estree-walker/-/estree-walker-2.0.2.tgz"
   integrity sha512-Rfkk/Mp/DL7JVje3u18FxFujQlTNR2q6QfMSMB7AvCBx91NGj/ba3kCfza0f6dVDbw7YlRf/nDrn7pQrCCyQ/w==
+
+eth-url-parser@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.npmjs.org/eth-url-parser/-/eth-url-parser-1.0.4.tgz"
+  integrity sha512-2PTTyc9OXNxePTUlYfos1du6hytElYdubJbx2uF3wNMEsvHOg/P7ZpPFERub6vod2T8eGjDZtB8nkGsKEc4tIQ==
+  dependencies:
+    bignumber.js "^7.2.1"
+    qs "^6.5.2"
 
 ethcall@^6.0.2:
   version "6.0.2"
@@ -4760,7 +4777,7 @@ punycode@^1.4.1:
   resolved "https://registry.npmjs.org/punycode/-/punycode-1.4.1.tgz"
   integrity sha512-jmYNElW7yvO7TV33CjSmvSiE2yco3bV2czu/OzDKdMNVZQWfxCblURLhf+47syQRBntjfLdd/H0egrzIG+oaFQ==
 
-qs@^6.11.2:
+qs@^6.11.2, qs@^6.5.2:
   version "6.11.2"
   resolved "https://registry.npmjs.org/qs/-/qs-6.11.2.tgz"
   integrity sha512-tDNIz22aBzCDxLtVH++VnTfzxlfeK5CbqohpSqpJgj1Wg/cQbStNAz3NuqCs5vV+pjBsK4x4pN9HlVh7rcYRiA==
