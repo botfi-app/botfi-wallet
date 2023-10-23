@@ -14,6 +14,7 @@ import BugsnagPluginVue from '@bugsnag/plugin-vue'
 import appConfig from "./config/app"
 import VueLazyLoad from 'vue3-lazyload'
 import { Buffer } from "buffer/"
+import numberInput from './directives/numberInput'
 
 window.Buffer = Buffer
 
@@ -62,5 +63,6 @@ app
  .use(pinia)
  .use(telegram, { router })
  .use(VueLazyLoad)
+ .directive("number", numberInput)
     
 app.mount('#app')

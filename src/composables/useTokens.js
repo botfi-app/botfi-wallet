@@ -8,13 +8,13 @@ import { useDB } from "./useDB"
 import { useNetworks } from "./useNetworks"
 import Utils from "../classes/Utils"
 import erc20Abi from "../data/abi/erc20.json"
-import erc721Abi from "../data/abi/erc721.json"
-import erc1155Abi from "../data/abi/erc1155.json"
 import Status from "../classes/Status"
 import { formatUnits, getAddress } from "ethers"
 import EventBus from "../classes/EventBus"
 import Http from "../classes/Http"
 import { useSettings } from "./useSettings"
+import { useWalletStore } from "../store/walletStore"
+
 
 export const useTokens = () => {
 
@@ -22,6 +22,7 @@ export const useTokens = () => {
     const dbCore = useDB()
     const botUtils = inject("botUtils")
     const { fetchSettings } = useSettings()
+    const { getWalletAddresses } = useWalletStore()
 
     const $state = ref({
         tokens: {},
@@ -105,13 +106,17 @@ export const useTokens = () => {
     }
 
 
-    const updateBalances = async (walletAddrs) => {
+    const updateBalances = async (walletAddrs, force=false) => {
 
         try {
 
-            ///console.log("addrsArr==>", addrsArr)
+            if(!walletAddrs || walletAddrs.length == 0) {
+                walletAddrs = await getWalletAddresses()
+            }
 
-            if(window.__botFibalanceUpdating) return;
+            //console.log("walletAddrs==>", walletAddrs)
+
+            if(window.__botFibalanceUpdating && !force) return;
 
             window.__botFibalanceUpdating = true;
 

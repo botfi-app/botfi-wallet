@@ -22,7 +22,7 @@ const qrCodeReader = ref(null)
 const qrReaderSupported = ref(false)
 
 const recipient = ref("")
-const amount = ref("")
+const amount = ref()
 const amountError = ref("")
 const isLoading = ref(false)
 
@@ -36,21 +36,19 @@ const initialize = async () => {
 
         isLoading.value = true
 
+        await updateBalances()
+
         qrCodeReader.value = botUtils.qrCodeReader()
 
         qrReaderSupported.value = qrCodeReader.value.isSupported()
 
         tokenAddress.value = route.params.contract; 
 
-        //console.log("contractAddr===>", tokenAddress)
-
         tokenInfo.value = await getTokenByAddr(tokenAddress.value)
 
         if(tokenInfo.value == null){
             return pageError.value = "Unknown token, kindly import it first"
         }
-
-        await updateBalances()
 
         initialized.value = true
 
@@ -101,13 +99,6 @@ const showQRCodeReader = () => {
     })
 }
 
-
-const onAmtChange = () => {
-
-    let amt = amount.value;
-
-    console.log("amt===>", amt)
-}
 </script>
 <template>
     <WalletLayout
@@ -171,12 +162,12 @@ const onAmtChange = () => {
                     <div class="mb-3">
                         <div class="form-floating">
                             <input 
-                                type="number" 
+                                type="text"
                                 class="form-control rounded" 
                                 id="amount" 
                                 placeholder="0.1" 
                                 v-model="amount"
-                                @keyup="onAmtChange"
+                                v-number
                             />
                             <label for="amount">
                                 Amount in {{tokenInfo.symbol.toUpperCase()}}
