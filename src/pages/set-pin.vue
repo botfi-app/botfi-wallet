@@ -20,7 +20,7 @@ const isLoading = ref(false)
 
 onBeforeMount( async () => {
 
-    console.log("getNextPage()===>", getNextPage())
+    //console.log("getNextPage()===>", getNextPage())
 
     if(getNextPage() == ""){
        return router.push("/")
@@ -46,6 +46,7 @@ const getNextPage = () => {
     return nextPage;
 }
 
+/*
 const isPinSequential = (value) => {
     
     var pinArr = value.toString().split('');
@@ -57,6 +58,7 @@ const isPinSequential = (value) => {
 
     return true;
 }
+*/
 
 const onSave = async () => {
     
@@ -64,7 +66,7 @@ const onSave = async () => {
 
         let p1 = pin1.value.toString()
 
-        if(p1.trim() == '' || p1.length < 5 || !/[0-9]+/.test(p1)){
+        if(p1.trim() == '' || p1.length < 6 || !/[0-9]+/.test(p1)){
             return Utils.errorAlert("A valid numeric value is required")
         }
         
@@ -80,10 +82,10 @@ const onSave = async () => {
         //{ minLength: 8, minLowercase: 1, minUppercase: 1, minNumbers: 1, minSymbols: 1, returnScore: false, pointsPerUnique: 1, pointsPerRepeat: 0.5, pointsForContainingLower: 10, pointsForContainingUpper: 10, pointsForContainingNumber: 10, pointsForContainingSymbol: 10 }
 
         let strongPinOpts = {
-            minLength: 5, 
+            minLength: 6, 
             minLowercase:0, 
             minUppercase: 0,
-            minNumbers: 5 ,
+            minNumbers: 6,
             minSymbols: 0
         }
 

@@ -13,7 +13,7 @@ const props = defineProps({
 })
 
 const { fetchSettings } = useSettings()
-const { getTokens, removeToken  } = useTokens()
+const { getTokens, removeToken, updateBalances  } = useTokens()
 const defaultCurrency = ref("usd")
 const initialized = ref(false)
 const tokensData = ref({})
@@ -51,8 +51,24 @@ onBeforeUnmount(() => {
 })
 
 
-const reloadData = () => {
+const reloadData = async () => {
 
+    let loader;
+
+    try {
+
+        loader = Utils.loader("Updating Balances")
+        
+        await updateBalances(null, true)
+        tokensData.value = await getTokens(props.limit)
+        
+        dataState.value = Date.now()
+        
+    }catch(e){
+        Utils.logError("ERC20TokensTab#reloadData:", e)
+    } finally {
+        if(loader) loader.close()
+    }
 }
 
 const doRemoveToken = async (token) => {
@@ -132,9 +148,9 @@ const doRemoveToken = async (token) => {
                 </div>
             </div>
             <template v-for="token in dataToRender">
-                <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center no-select justify-content-between">
                     <div @click.prevent="$router.push(`/tokens/item/${token.contract}`)"
-                        class="d-flex justify-content-between align-items-center py-1 my-2 flex-grow-1"
+                        class="d-flex m-pointer justify-content-between align-items-center py-1 my-2 flex-grow-1"
                     >
                         <div class="d-flex">
                             <Image
@@ -144,7 +160,7 @@ const doRemoveToken = async (token) => {
                                 :height="28"
                                 class="rounded-circle shadow"
                             />
-                            <div class="ps-2">
+                            <div class="ps-2 m-pointer no-select">
                                 <div class="fw-medium">{{ token.symbol.toUpperCase() }}</div>
                                 <div class="fs-12 hint muted fw-semibold monospace">
                                     {{ token.name }}
@@ -152,7 +168,7 @@ const doRemoveToken = async (token) => {
                             </div>
                         </div>
                         <div v-if="('balanceInfo' in  token)" 
-                            class="d-flex flex-column align-items-end"
+                            class="d-flex flex-column align-items-end m-pointer"
                         >
                             <div class="d-flex">
                                 <div class="me-1">{{ token.balanceInfo.balanceDecimal }}</div>

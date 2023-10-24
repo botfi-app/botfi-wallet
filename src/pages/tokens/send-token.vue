@@ -176,6 +176,9 @@ const showQRCodeReader = () => {
                         <div class="invalid-feedback" v-if="amountError != ''">
                             {{ amountError }}
                         </div>
+                        <div v-else>
+                            
+                        </div>
                     </div>
                 </div>
             </loading-view>
