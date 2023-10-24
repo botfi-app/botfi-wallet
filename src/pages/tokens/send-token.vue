@@ -5,29 +5,37 @@
     }
 </route>
 <script setup>
-import { onBeforeMount, ref, inject } from 'vue';
+import { onBeforeMount, ref, inject, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useTokens } from '../../composables/useTokens'
 import EthUriParser from "../../classes/EthUriParser"
 import Utils from "../../classes/Utils"
+import { useSettings } from '../../composables/useSettings'
 
 const route = useRoute()
 const initialized  = ref(false)
 const tokenAddress = ref(null)
 const tokenInfo    = ref(null)
 const { getTokenByAddr, updateBalances } = useTokens()
+const { fetchSettings } = useSettings()
 const pageError = ref("")
 const botUtils = inject("botUtils")
 const qrCodeReader = ref(null)
 const qrReaderSupported = ref(false)
 
+
 const recipient = ref("")
 const amount = ref()
 const amountError = ref("")
 const isLoading = ref(false)
+const defaultCurrency = ref("usd")
 
 onBeforeMount(async () => {
   initialize()
+})
+
+watch(amount, () => {
+    console.log("amount====>", amount.value)
 })
 
 const initialize = async () => {
@@ -49,6 +57,10 @@ const initialize = async () => {
         if(tokenInfo.value == null){
             return pageError.value = "Unknown token, kindly import it first"
         }
+
+        let settings  = await fetchSettings()
+        defaultCurrency.value = (settings.defaultCurrency || "usd").toLowerCase()
+
 
         initialized.value = true
 
@@ -177,7 +189,7 @@ const showQRCodeReader = () => {
                             {{ amountError }}
                         </div>
                         <div v-else>
-                            
+
                         </div>
                     </div>
                 </div>

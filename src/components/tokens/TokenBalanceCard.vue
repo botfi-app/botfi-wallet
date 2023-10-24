@@ -67,7 +67,14 @@ const processToken = async() => {
     ) {
         tokenInfo.value.balanceInfo = defaultBalanceInfo
     }
- 
+    
+    title.value = ` <div class='center-vh text-truncate'>
+                        <div>${tokenInfo.value.name}</div>
+                        <div class='ms-1 hint'>
+                            ${tokenInfo.value.symbol}
+                        </div>
+                    </div>
+                    `
 }
 
 watch(tokens, () => {
