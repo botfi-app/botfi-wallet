@@ -364,4 +364,13 @@ export default class Utils {
         }
     }
 
+    static countStrInstance(_str, _inst) {
+        return _str.split(_inst).length - 1;
+    }
+
+    static isValidFloat(no) {
+        no = no.toString()
+        let dotCount = Utils.countStrInstance(no, ".")
+        return (/[0-9\.]+/g.test(no) &&  [0,1].includes(dotCount))
+    }
 }

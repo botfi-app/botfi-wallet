@@ -116,7 +116,7 @@ export const useTokens = () => {
 
             //console.log("walletAddrs==>", walletAddrs)
 
-            if(window.__botFibalanceUpdating && !force) return;
+            if(window.__botFibalanceUpdating && !force) return Status.success();
 
             window.__botFibalanceUpdating = true;
 
@@ -279,8 +279,10 @@ export const useTokens = () => {
 
             EventBus.emit("balance-updated", tokens)
 
+            return Status.success()
         } catch(e){
             Utils.logError("useToken#updateBalances:", e)
+            return Status.error(`balance update failed: ${e.message}`)
         } finally {
             window.__botFibalanceUpdating = false
         }

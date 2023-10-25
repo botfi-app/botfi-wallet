@@ -75,6 +75,7 @@ export default class Wallet {
                                 .setCode(ErrorCodes.WALLET_NOT_CONNECTED)
 
     setWallet(privateKey) {
+
         if(!this.provider){
             return this.notConnectedError()
         }
@@ -177,8 +178,6 @@ export default class Wallet {
 
     encodeSig(sig) {
         return ethersId(sig).substring(0, 10);
-       // let iface = new Interface([sig])
-        //return iface.getFunction(sig).selector
     }
 
     /**
@@ -347,4 +346,45 @@ export default class Wallet {
 
         return true;
     }
+
+    /**
+     * gasFeeData
+     */
+    async getFeeData() {
+        try {
+
+            if(!this.provider){
+                return this.notConnectedError()
+            }
+            
+            let feeData = await this.provider.getFeeData()
+
+            return Status.successPromise(null, feeData)
+
+        } catch(e){
+            Utils.logError("Wallet#getFeeData:", e)
+            return Status.error("Failed to fetch gas fee data")
+        }
+    }
+
+    async getGasEstimate({ to, data, value }){
+        try {
+
+            if(!this.provider){
+                return this.notConnectedError()
+            }
+
+            let gasData = await this.provider.estimateGas({
+                            to,
+                            data,
+                            value
+                        });
+
+            return  Status.successData(gasData)        
+        } catch(e){
+            Utils.logError("Wallet#getETHGasEstimate:", e)
+            return Status.error("Failed to fetch gas estimate")
+        }
+    }
+
 }
