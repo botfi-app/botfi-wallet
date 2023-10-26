@@ -312,7 +312,7 @@ export const useWalletStore = defineStore('walletStore', () => {
         return resultStatus
     }
 
-    const getWeb3 = async (injectPK = true) => {
+    const getWeb3Conn = async () => {
 
         let currentWallet = await getActiveWalletInfo()
 
@@ -324,9 +324,9 @@ export const useWalletStore = defineStore('walletStore', () => {
             return decryptedPkStatus
         }
 
-        let pk = decryptedPkStatus.getData()
+        let decryptedWallet = decryptedPkStatus.getData()
 
-        console.log("pk===>", pk)
+        //console.log("pk===>", decryptedWallet)
 
         let connStatus = await networks.getWeb3Conn()
 
@@ -336,7 +336,7 @@ export const useWalletStore = defineStore('walletStore', () => {
 
         let web3Conn = connStatus.getData()
 
-        let setWalletStatus = web3Conn.setWallet(pk)
+        let setWalletStatus = web3Conn.setWallet(decryptedWallet.decryptedPk)
 
         if(setWalletStatus.isError()){
             return setWalletStatus
@@ -367,6 +367,6 @@ export const useWalletStore = defineStore('walletStore', () => {
         decryptPrivateKey,
         importWalletFromPrivateKey,
         getWalletAddresses,
-        getWeb3
+        getWeb3Conn
     }
 })

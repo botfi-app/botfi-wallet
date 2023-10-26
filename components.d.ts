@@ -31,6 +31,7 @@ declare module '@vue/runtime-core' {
     DepostAddressModal: typeof import('./src/components/modals/DepostAddressModal.vue')['default']
     ERC20Tokens: typeof import('./src/components/wallet/ERC20Tokens.vue')['default']
     ERC20TokensTab: typeof import('./src/components/wallet/tabs/ERC20TokensTab.vue')['default']
+    GasSelect: typeof import('./src/components/wallet/GasSelect.vue')['default']
     Icon: typeof import('./src/components/common/Icon.vue')['default']
     Image: typeof import('./src/components/common/Image.vue')['default']
     ImportCustom: typeof import('./src/components/tokens/import-erc20/ImportCustom.vue')['default']

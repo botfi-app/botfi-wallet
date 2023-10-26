@@ -374,7 +374,7 @@ export default class Wallet {
         }
     }
 
-    async getGasEstimate({ to, data, value }){
+    async getETHGasEstimate({ to, value }){
         try {
 
             if(!this.provider){
@@ -383,7 +383,7 @@ export default class Wallet {
 
             let gasData = await this.provider.estimateGas({
                             to,
-                            data,
+                            data: null,
                             value
                         });
 

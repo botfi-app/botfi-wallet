@@ -90,9 +90,9 @@ const initialize = async () => {
 
         tokenInfo.value = await getTokenByAddr(tokenAddress.value)
 
-        tokenType.value = (tokenInfo.value == Utils.nativeTokenAddr)
-                        ? "native"
-                        : "erc20"
+        tokenType.value = (tokenInfo.value.contract == Utils.nativeTokenAddr)
+                            ? "native"
+                            : "erc20"
 
         if(tokenInfo.value == null){
             return pageError.value = "Unknown token, kindly import it first"

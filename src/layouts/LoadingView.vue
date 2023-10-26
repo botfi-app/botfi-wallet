@@ -1,13 +1,19 @@
 <script setup>
     const props = defineProps({
-        isLoading: {type: Boolean, default: false }
+        isLoading: {type: Boolean, default: false },
+        loadingText: {type: String, default: "" },
     })
 </script>
 <template>
     <template v-if="props.isLoading">
         <div class="parent d-flex align-items-center justify-content-center py-4">
-            <div class="spinner-border spinner-border-sm text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
+            <div class="text-center">
+                <div class="spinner-border spinner-border-sm text-primary" role="status">
+                    <span v-if="props.loadingText==''" class="visually-hidden">Loading...</span>
+                </div>
+                <div v-if="props.loadingText!=''" class="text-center fs-14 my-1">
+                    {{ props.loadingText }}
+                </div>
             </div>
         </div>
     </template>
