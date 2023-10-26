@@ -6,47 +6,42 @@
 </route>
 <script setup>
 import { onBeforeMount, ref, inject, watch } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import { useTokens } from '../../composables/useTokens'
-import { useNetworks } from '../../composables/useNetworks';
-import EthUriParser from "../../classes/EthUriParser"
-import Utils from "../../classes/Utils"
-import Status from "../../classes/Status"
-import { useSettings } from '../../composables/useSettings'
+import { useRoute } from 'vue-router';
+import { useTokens } from '../../../composables/useTokens'
+import EthUriParser from "../../../classes/EthUriParser"
+import Utils from "../../../classes/Utils"
+import { useSettings } from '../../../composables/useSettings'
 import { parseUnits } from 'ethers';
+import ConfirmTokenSend from '../../../components/modals/ConfirmTokenSend.vue';
+import { Modal as bsModal } from 'bootstrap'
+
 
 const route = useRoute()
 const initialized  = ref(false)
 const tokenAddress = ref(null)
 const tokenInfo    = ref(null)
+const tokenType    = ref(null)
 const balanceInfo  = ref(null)
 const tokenPrice   = ref(null) 
 const { getTokenByAddr, updateBalances } = useTokens()
 const { fetchSettings } = useSettings()
-const { getWeb3Conn } = useNetworks()
 const pageError = ref("")
 const botUtils = inject("botUtils")
 const qrCodeReader = ref(null)
 const qrReaderSupported = ref(false)
-const feeData = ref(null)
 
 
 const recipient = ref("")
-const amount = ref()
+const amount = ref("")
 const amountFiat = ref(null)
 const amountError = ref("")
 const isLoading = ref(false)
 const defaultCurrency = ref("usd")
-var web3Conn = null 
+const confirmModalId = ref("confirm-token-send")
+
 
 onBeforeMount(async () => {
-    
   initialize()
-
-  /*setInterval(() => {
-    fetchFeeData()
-  }, 30_000)*/
-
 })
 
 watch(amount, () => {
@@ -86,19 +81,7 @@ const initialize = async () => {
 
         isLoading.value = true
 
-        let web3ConnStatus = await getWeb3Conn()
-
-        if(web3ConnStatus.isError()){
-            return pageError.value = web3ConnStatus.getMessage()
-        }
-
-        web3Conn = web3ConnStatus.getData()
-
-        let  userNetDataStatus = await fetchUserNetworkData()
-
-        if(userNetDataStatus.isError()){
-            return pageError.value = userNetDataStatus.getMessage()
-        }
+        await updateBalances(null, true) 
 
         qrCodeReader.value = botUtils.qrCodeReader()
 
@@ -108,7 +91,9 @@ const initialize = async () => {
 
         tokenInfo.value = await getTokenByAddr(tokenAddress.value)
 
-        //console.log("tokenInfo.value===>", tokenInfo.value)
+        tokenType.value = (tokenInfo.value == Utils.nativeTokenAddr)
+                        ? "native"
+                        : "erc20"
 
         if(tokenInfo.value == null){
             return pageError.value = "Unknown token, kindly import it first"
@@ -139,43 +124,6 @@ const initialize = async () => {
     }
 }
 
-const fetchFeeData = async () => {
-
-    let resultStatus = await web3Conn.getFeeData()
-    
-    if(resultStatus.isError()) {
-        return resultStatus
-    }
-
-    let resultData = resultStatus.getData()
-
-    console.log("resultData===>", resultData)
-
-    feeData.value = resultData
-
-    return resultStatus
-}
-
-const fetchUserNetworkData = async () => {
-
-   let resultsArr = await Promise.all([ fetchFeeData(), updateBalances(null, true) ])
-   console.log("resultData===>>>", resultsArr)
-
-    for(let index in resultsArr){
-
-        // result 2 doesnt return status
-        if(index == 1) continue;
-        
-        let resultStatus = resultsArr[index]
-
-        // if status is error, return it
-        if(resultStatus.isError()){
-            return resultStatus
-        }
-    }
-
-    return Status.success()
-}
 
 const showQRCodeReader = () => {
     
@@ -222,6 +170,16 @@ const setMaxAmount = () => {
 
 const confirmSendToken = async () => {
     
+    if(!Utils.isAddress(recipient.value)){
+        return Utils.mAlert(`Invalid recipient address`)
+    }
+
+    if(amountError.value != ''){
+        return Utils.mAlert(amountError.value)
+    }
+
+    let m = bsModal.getOrCreateInstance("#"+confirmModalId.value)
+    m.show()
 }
 </script>
 <template>
@@ -320,6 +278,14 @@ const confirmSendToken = async () => {
                     </div>
                 </div>
             </loading-view>
+
+            <ConfirmTokenSend
+                :id="confirmModalId"
+                :tokenType="tokenType"
+                :tokenInfo="tokenInfo"
+                :recipient="recipient"
+                :amount="amount"
+            />
         </div>
           
     </WalletLayout>

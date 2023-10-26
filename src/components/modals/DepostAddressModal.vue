@@ -37,7 +37,7 @@ onMounted(() => {
     }
 
     window.setTimeout(()=>{
-        let qrcode = new QRCode(qrCodeRef.value, opts);
+       new QRCode(qrCodeRef.value, opts);
     }, 100)
 })
 </script>

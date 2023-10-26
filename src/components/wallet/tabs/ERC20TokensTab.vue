@@ -13,31 +13,44 @@ const props = defineProps({
 })
 
 const { fetchSettings } = useSettings()
-const { getTokens, removeToken, updateBalances  } = useTokens()
+const { tokens, removeToken, updateBalances  } = useTokens()
 const defaultCurrency = ref("usd")
 const initialized = ref(false)
-const tokensData = ref({})
+//const tokensData = ref({})
 const dataToRender  = ref({})
 const dataState = ref(Date.now())
-
+const tokensData = ref({})
 
 onBeforeMount(() => {
    initialize()
 })
 
+watch(tokens, () => {
+    processTokens()
+
+}, { deep: true })
+
+const processTokens = () => {
+
+    let limit = props.limit
+
+    if(limit > 0){
+        tokensData.value = Object.fromEntries(
+            Object.entries(tokens.value).slice(0, limit+1)
+        )
+    } else {
+        tokensData.value = tokens.value
+    }
+
+    dataState.value = Date.now()
+}
+
 const initialize = async () => {
     let settings  = await fetchSettings()
     defaultCurrency.value = (settings.defaultCurrency || "usd").toLowerCase()
 
-    tokensData.value = await getTokens(props.limit)
+    processTokens()
     dataToRender.value = tokensData.value
-
-    EventBus.on("balance-updated", () => {
-        nextTick(async () => {
-            tokensData.value = await getTokens(props.limit)
-            dataState.value = Date.now()
-        })
-    })
 
     initialized.value = true
 }
@@ -46,29 +59,11 @@ const onSearch = async (keyword, filteredData) => {
    dataToRender.value = filteredData
 }
 
-onBeforeUnmount(() => {
-    EventBus.off("balance-updated");
-})
-
 
 const reloadData = async () => {
-
-    let loader;
-
-    try {
-
-        loader = Utils.loader("Updating Balances")
-        
-        await updateBalances(null, true)
-        tokensData.value = await getTokens(props.limit)
-        
-        dataState.value = Date.now()
-        
-    }catch(e){
-        Utils.logError("ERC20TokensTab#reloadData:", e)
-    } finally {
-        if(loader) loader.close()
-    }
+    let loader = Utils.loader("Updating Balances")
+    await updateBalances(null, true)
+    loader.close()
 }
 
 const doRemoveToken = async (token) => {
@@ -84,8 +79,8 @@ const doRemoveToken = async (token) => {
         let html = `${token.name} (${token.symbol.toUpperCase()}) will be removed`
 
         let action =   await Utils.getSwal().fire({
-                            showCancelButton: true,
-                            confirmButtonText: 'Confirm',
+                            showCancelButton:   true,
+                            confirmButtonText:  'Confirm',
                             denyButtonText:     'Cancel',
                             html,
                             title: "Confirm Action",
@@ -121,7 +116,7 @@ const doRemoveToken = async (token) => {
 </script>
 
 <template>
-    <div v-if="initialized">
+    <div v-if="initialized" :key="dataState">
              
         <div class="mx-2 px-1 mt-2">
             <div class="py-3">
@@ -132,7 +127,7 @@ const doRemoveToken = async (token) => {
                         :dataToFilter="tokensData"
                         :filterKeys="['name', 'contract', 'symbol']"
                         :mode="{start: true, end: true }"
-                        :key="dataState"
+                        
                         class="flex-grow-1"
                     />
                     <button @click.prevent="reloadData"

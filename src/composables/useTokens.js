@@ -16,6 +16,12 @@ import { useSettings } from "./useSettings"
 import { useWalletStore } from "../store/walletStore"
 
 
+const $state = ref({
+    tokens: {},
+    dataState: Date.now()
+})
+
+
 export const useTokens = () => {
 
     const net = useNetworks()
@@ -24,17 +30,18 @@ export const useTokens = () => {
     const { fetchSettings } = useSettings()
     const { getWalletAddresses } = useWalletStore()
 
-    const $state = ref({
-        tokens: {},
-        nfts:   {}
-    })
+    const updateDataState = () => {
+        $state.value.dataState = Date.now()
+    }
 
-    onBeforeMount(() =>{
-        getTokens()
+    onBeforeMount(async () =>{
+        await getTokens()
+        updateDataState()
     })
 
     const tokens    = computed(() =>  $state.value.tokens )
     const updatedAt = ref(Date.now())
+    const dataState = computed(() => $state.value.dataState )
 
     const getNativeTokenInfo = async () => {
 
@@ -58,7 +65,7 @@ export const useTokens = () => {
 
         try {
 
-            //console.log("limit===>", limit)
+            //console.log("Calling getTokens")
 
             let netInfo = await net.getActiveNetworkInfo()
             
@@ -67,21 +74,14 @@ export const useTokens = () => {
 
             let db = await dbCore.getDB()
 
-            let tokensQuery =  await db.tokens.where({ chainId, userId })
-
-            if(limit != null && Number.isInteger(limit)) {
-                tokensQuery = tokensQuery.limit(limit)
-            }
-
-            let tokensArr = await tokensQuery.toArray()
-
-            //console.log("tokensArr===>", tokensArr.length)
+            let tokensArr =  await db.tokens.where({ chainId, userId })
+                                .reverse()
+                                .sortBy("createdAt")
 
             let tokensObj = {}
 
             tokensObj[Utils.nativeTokenAddr] = await getNativeTokenInfo()
 
-            tokensArr.reverse()
             
             tokensArr.forEach(item => tokensObj[item.contract] = item )
 
@@ -96,7 +96,16 @@ export const useTokens = () => {
 
             $state.value.tokens = tokensObj;
 
-            //console.log("tokensObj===>", tokensObj)
+            let tokensCount = tokensArr.length + 1 // the +1 is the native token
+
+            if(limit != null && Number.isInteger(limit) && tokensCount > (limit+1)) {
+                let slicedItems = Object.fromEntries(
+                    Object.entries(tokensObj).slice(0,limit+1)
+                )
+                return slicedItems
+            }
+
+            //console.log("Calling getTokens===>", tokensObj)
 
             return tokensObj;
         } catch(e){
@@ -277,6 +286,8 @@ export const useTokens = () => {
 
             let tokens = await getTokens()
 
+            updateDataState()
+
             EventBus.emit("balance-updated", tokens)
 
             return Status.success()
@@ -433,6 +444,7 @@ export const useTokens = () => {
         return tokens.value[contract] || null
     }
 
+
     return {
         getTokens,
         importToken,
@@ -440,6 +452,7 @@ export const useTokens = () => {
         updateBalances,
         tokens,
         updatedAt,
+        tokensDataState: dataState,
         removeToken,
         getTokenByAddr
     }

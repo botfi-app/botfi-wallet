@@ -2,7 +2,7 @@
 import {  onBeforeUnmount, onMounted, ref } from 'vue';
 import { Modal as bsModal } from 'bootstrap'
 
-const $emit = defineEmits(["close", "show"])
+const $emit = defineEmits(["close", "show", "hide"])
 
 const props = defineProps({
     id:       { type: String, required: true },
@@ -20,12 +20,18 @@ onMounted(() => {
 })
 
 const initModal = () => {
-    let mEl = modalEl.value;
-   
-    _modal = new bsModal(mEl)
 
-    mEl.addEventListener("hidden.bs.modal", () => {
+    let mElement = modalEl.value;
+   
+    _modal = new bsModal(mElement)
+
+    mElement.addEventListener("shown.bs.modal", () => {
+        $emit("show", mElement, _modal)
+    })
+
+    mElement.addEventListener("hidden.bs.modal", () => {
         cleanupModal()
+        $emit("hide", mElement, _modal)
     })
 }
 

@@ -15,15 +15,17 @@ import ErrorCodes from "../classes/ErrorCodes"
 import app from "../config/app"
 import Http from "../classes/Http"
 
+const $state = ref({
+    nfts:   {}
+})
+
+
 export const useNFT = () => {
 
     const net = useNetworks()
     const dbCore = useDB()
     const botUtils = inject("botUtils")
 
-    const $state = ref({
-        nfts:   {}
-    })
 
     onBeforeMount(() =>{
         getNFTs()
@@ -378,7 +380,7 @@ export const useNFT = () => {
 
         let metadataStatus = await Http.getJson(url)
 
-        console.log("metadataStatus===>", metadataStatus)
+       // console.log("metadataStatus===>", metadataStatus)
         
         if(metadataStatus.isError()){
             let urlB64 = btoa(url)
