@@ -83,7 +83,14 @@ export const useTokens = () => {
             tokensObj[Utils.nativeTokenAddr] = await getNativeTokenInfo()
 
             
-            tokensArr.forEach(item => tokensObj[item.contract] = item )
+            tokensArr.forEach(item => {
+
+                if(!item.balanceInfo || Object.keys(item.balanceInfo).length == 0){
+                    item.balanceInfo =  { balance: 0n, balanceDecimal: "0.0" }
+                }
+
+                tokensObj[item.contract] = item 
+            })
 
             // lets get the token balances 
             let balancesArr = await db.balances.where({ chainId, userId }).toArray()
@@ -408,7 +415,6 @@ export const useTokens = () => {
     const removeToken = async (tokenInfo) => {
         try {
 
-
             let netInfo = await net.getActiveNetworkInfo()
             
             let chainId = netInfo.chainId
@@ -444,6 +450,28 @@ export const useTokens = () => {
         return tokens.value[contract] || null
     }
 
+    const geTokenFiatValue = async (tokenAddr, tokenAmt=1) => {
+
+        let settings  = await fetchSettings()
+        
+        let defaultCurrency = (settings.defaultCurrency || "usd").toLowerCase()
+
+        let tokenInfo = await getTokenByAddr(tokenAddr)
+
+        if(tokenInfo == null) return null
+
+        let balanceInfo = tokenInfo.balanceInfo || {}
+
+        if(!("price" in balanceInfo) || balanceInfo.price == null){
+            return null
+        }
+
+        let tokenPrice = balanceInfo.price[defaultCurrency] || null
+
+        if(tokenPrice == null) return null
+
+        return (tokenPrice * parseFloat(tokenAmt))
+    }
 
     return {
         getTokens,
@@ -454,6 +482,7 @@ export const useTokens = () => {
         updatedAt,
         tokensDataState: dataState,
         removeToken,
-        getTokenByAddr
+        getTokenByAddr,
+        geTokenFiatValue
     }
 }

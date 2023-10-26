@@ -312,6 +312,38 @@ export const useWalletStore = defineStore('walletStore', () => {
         return resultStatus
     }
 
+    const getWeb3 = async (injectPK = true) => {
+
+        let currentWallet = await getActiveWalletInfo()
+
+        //console.log("password.value--->", password.value)
+
+        let decryptedPkStatus = await keyStore.decryptWallet(currentWallet, password.value)
+
+        if(decryptedPkStatus.isError()){
+            return decryptedPkStatus
+        }
+
+        let pk = decryptedPkStatus.getData()
+
+        console.log("pk===>", pk)
+
+        let connStatus = await networks.getWeb3Conn()
+
+        if(connStatus.isError()){
+            return connStatus
+        }
+
+        let web3Conn = connStatus.getData()
+
+        let setWalletStatus = web3Conn.setWallet(pk)
+
+        if(setWalletStatus.isError()){
+            return setWalletStatus
+        }
+
+        return Status.successData(web3Conn)
+    }
 
     return {
         hasDefaultWallet,
@@ -334,6 +366,7 @@ export const useWalletStore = defineStore('walletStore', () => {
         updateWalletName,
         decryptPrivateKey,
         importWalletFromPrivateKey,
-        getWalletAddresses
+        getWalletAddresses,
+        getWeb3
     }
 })

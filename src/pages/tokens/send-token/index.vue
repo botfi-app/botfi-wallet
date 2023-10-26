@@ -23,7 +23,7 @@ const tokenInfo    = ref(null)
 const tokenType    = ref(null)
 const balanceInfo  = ref(null)
 const tokenPrice   = ref(null) 
-const { getTokenByAddr, updateBalances } = useTokens()
+const { getTokenByAddr, updateBalances, geTokenFiatValue } = useTokens()
 const { fetchSettings } = useSettings()
 const pageError = ref("")
 const botUtils = inject("botUtils")
@@ -33,6 +33,7 @@ const qrReaderSupported = ref(false)
 
 const recipient = ref("")
 const amount = ref("")
+const amountBigInt = ref(null)
 const amountFiat = ref(null)
 const amountError = ref("")
 const isLoading = ref(false)
@@ -44,7 +45,7 @@ onBeforeMount(async () => {
   initialize()
 })
 
-watch(amount, () => {
+watch(amount, async () => {
     
     amountError.value = ''
 
@@ -63,16 +64,14 @@ watch(amount, () => {
 
     let balanceBN = balanceInfo.balance || 0n
 
-    let amountBN = parseUnits(amt.toString(), _token.decimals)
+    amountBigInt.value = parseUnits(amt.toString(), _token.decimals)
 
-    if(amountBN > balanceBN){
+    if(amountBigInt.value > balanceBN){
         amountError.value = 'Insufficient balance'
         return false
     }
 
-    if(tokenPrice.value != null){
-        amountFiat.value = (tokenPrice.value * parseFloat(amt))
-    }
+    amountFiat.value = await geTokenFiatValue(_token.contract, amt)
 })
 
 const initialize = async () => {
@@ -99,18 +98,7 @@ const initialize = async () => {
             return pageError.value = "Unknown token, kindly import it first"
         }
 
-        let settings  = await fetchSettings()
-        defaultCurrency.value = (settings.defaultCurrency || "usd").toLowerCase()
-
-        balanceInfo.value = tokenInfo.value.balanceInfo || null
-
-        if(balanceInfo.value == null || Object.keys(balanceInfo).length == 0){
-            balanceInfo.value =  { balance: 0n, balanceDecimal: "0.0" }
-        }
-
-        if("price" in balanceInfo.value && balanceInfo.value.price != null){
-            tokenPrice.value = balanceInfo.value.price
-        }
+        balanceInfo.value = tokenInfo.value.balanceInfo
 
         initialized.value = true
 
@@ -265,8 +253,8 @@ const confirmSendToken = async () => {
                         <div class="invalid-feedback" v-if="amountError != ''">
                             {{ amountError }}
                         </div>
-                        <div v-else-if="amountFiat != null">
-                           ~{{ amountFiat}} {{ defaultCurrency.toUpperCase() }}
+                        <div v-else-if="amountFiat != null" class='mt-2 fs-14'>
+                           ~{{ amountFiat }} {{ defaultCurrency.toUpperCase() }}
                         </div>
                     </div>
                     <div class='mt-4 mb-3'>
@@ -285,6 +273,7 @@ const confirmSendToken = async () => {
                 :tokenInfo="tokenInfo"
                 :recipient="recipient"
                 :amount="amount"
+                :amountUint="amountBigInt"
             />
         </div>
           

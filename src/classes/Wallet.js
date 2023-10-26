@@ -162,6 +162,13 @@ export default class Wallet {
         }
     }
 
+
+    contract(address, abi) {
+        let _p = (this.signer) ?  this.signer : this.provider
+        let contract = new ethersContract(address, abi, _p)
+        return contract
+    }
+
     
     /**
      * get proxy implementation address from storage

@@ -8,9 +8,14 @@ import Status from "../classes/Status"
 import { useDB } from "./useDB"
 import Utils from "../classes/Utils"
 
+const $settings = ref({})
+
 export const useSettings = () => {
 
-    const $settings = ref({})
+    
+    const defaultSettings = {
+        defaultCurrency: 'usd'
+    }
 
     const dbCore = useDB()
     const botUtils = inject("botUtils")
@@ -18,6 +23,7 @@ export const useSettings = () => {
     const settings = computed(() => $settings.value )
 
     onBeforeMount(() => {
+        $settings.value = defaultSettings
         fetchSettings()
     })
 
@@ -29,7 +35,9 @@ export const useSettings = () => {
 
         let _settings = (await db.settings.get({ userId }))
 
-        let data = (!_settings || _settings == null) ? {} :  _settings.data || {}
+        let data = (!_settings || _settings == null) 
+                    ?  defaultSettings
+                    :  { ...defaultSettings, ...(_settings.data || {}) }
             
         $settings.value = data;
 

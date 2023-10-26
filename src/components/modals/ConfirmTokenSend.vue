@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from "vue";
+import { onMounted, ref, toRaw, toValue } from "vue";
 import Utils from "../../classes/Utils"
 import { useTokens } from '../../composables/useTokens'
 import { useNetworks } from '../../composables/useNetworks';
@@ -7,6 +7,7 @@ import EthUriParser from "../../classes/EthUriParser"
 import Status from "../../classes/Status"
 import { useSettings } from '../../composables/useSettings'
 import { Contract } from "ethers";
+import { useWalletStore } from '../../store/walletStore'
 
 const props = defineProps({
     id: { type: String, required: true },
@@ -15,12 +16,14 @@ const props = defineProps({
     tokenType: { type: String, required: true },
     tokenInfo: { type: Object, required: true },
     amount: { type: String, required: true },
+    amountUint: { type: null, required: true },
 })
 
-const erc20TransferAbi = ["function transfer(address to, uint amount)"]
+import erc20Abi from "../../data/abi/erc20.json"
 
 const initialized = ref(false)
-const { getWeb3Conn } = useNetworks()
+//const { getWeb3Conn } = useNetworks()
+const { getWeb3 } = useWalletStore()
 const feeData = ref()
 const errorMsg = ref("")
 const isLoading = ref(false)
@@ -28,24 +31,25 @@ const isLoading = ref(false)
 let web3Conn = null;
 
 const onShow = (mElement, mInstance) => {
-    console.log(props.tokenInfo)
     initialize()
 }
 
 const initialize = async () => {
     try{
 
-        if(initialized) return false
+        if(initialized.value) return false
 
         isLoading.value = true 
 
-        let web3ConnStatus = await getWeb3Conn()
+        let web3ConnStatus = await getWeb3()
 
         if(web3ConnStatus.isError()){
             return errorMsg.value = web3ConnStatus.getMessage()
         }
 
-        web3Conn = web3ConnStatus.getData() 
+        web3Conn = web3ConnStatus.getData()
+
+        let gasInfoStatus = await getGasLimit()
 
     } catch(e) {
 
@@ -60,17 +64,22 @@ const initialize = async () => {
     }
 }
 
-//0xa01641dF0bFEFb42cb739B550Fd0B4C477983201
+
 const getGasLimit = async () => {
  
     let p = props;
     let data;
 
-    if(tokenType == 'native') {
+    console.log("p===>", p)
+
+    if(p.tokenType == 'native') {
         data = null
     } 
-    else if(tokenType == 'erc20'){
-        let contract = new Contract(p.tokenInfo.contract, erc20TransferAbi)
+    else if(p.tokenType == 'erc20'){
+
+        let contract =  web3Conn.contract(p.tokenInfo.contract, erc20Abi)
+        let gasLimit = await contract.transfer.estimateGas(p.recipient, p.amountUint)
+        console.log("contract===>", gasLimit)
     }
 }
 
@@ -92,7 +101,9 @@ const fetchFeeData = async () => {
 }
 
 const fetchGasInfo = async () => {
-    let resultArr = Promise.all([fetchFeeData(), ])
+    //let resultArr = Promise.all([fetchFeeData(), getGasLimit() ])
+
+    getGasLimit()
 }
 </script>
 <template>
@@ -104,8 +115,10 @@ const fetchGasInfo = async () => {
         @show="onShow"
     >
         <template #body>
-
-
+            <div class="p-2">
+                sdsd
+                {{  errorMsg }}
+            </div>
         </template>
     </Modal>
 
