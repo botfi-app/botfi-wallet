@@ -72,6 +72,8 @@ watch(amount, async () => {
     }
 
     amountFiat.value = await geTokenFiatValue(_token.contract, amt)
+
+    console.log("amountFiat.value===>", amountFiat.value)
 })
 
 const initialize = async () => {
@@ -124,17 +126,21 @@ const showQRCodeReader = () => {
         try {
 
             if(data == ''){
-                Utils.mAlert("QRCode reader returned an empty data")
-            } else {
+                return Utils.mAlert("QRCode reader returned an empty data")
+            } 
 
-                let parsed = EthUriParser.parseURL(data)
-
-                if(("address" in parsed) && Utils.isAddress(parsed.address)){
-                    recipient.value = parsed.address
-                } else {
-                    Utils.mAlert("Invalid recipient address")
-                }
+            if(Utils.isAddress(data)){
+                recipient.value = data
+                return true
             }
+
+            let parsed = EthUriParser.parseURL(data)
+
+            if(("address" in parsed) && Utils.isAddress(parsed.address)){
+                recipient.value = parsed.address
+            } else {
+                Utils.mAlert("Invalid recipient address")
+            }   
 
         } catch(e){
             
@@ -254,7 +260,7 @@ const confirmSendToken = async () => {
                             {{ amountError }}
                         </div>
                         <div v-else-if="amountFiat != null" class='mt-2 fs-14'>
-                           ~{{ amountFiat }} {{ defaultCurrency.toUpperCase() }}
+                            ~{{ amountFiat.value }} {{ amountFiat.symbol.toUpperCase() }}
                         </div>
                     </div>
                     <div class='mt-4 mb-3'>

@@ -450,8 +450,11 @@ export const useTokens = () => {
         return tokens.value[contract] || null
     }
 
-    const geTokenFiatValue = async (tokenAddr, tokenAmt=1) => {
+    const geTokenFiatValue = async (tokenAddr, tokenAmt) => {
 
+        tokenAmt = toValue(tokenAmt)
+        tokenAddr = toValue(tokenAddr)
+        
         let settings  = await fetchSettings()
         
         let defaultCurrency = (settings.defaultCurrency || "usd").toLowerCase()
@@ -470,7 +473,14 @@ export const useTokens = () => {
 
         if(tokenPrice == null) return null
 
-        return (tokenPrice * parseFloat(tokenAmt))
+        let value = (tokenPrice * parseFloat(tokenAmt))
+
+        console.log("tokenAmt===>", tokenAmt)
+        console.log("value====>", value)
+
+        if(value == null || value == NaN) return value
+
+        return { value, symbol: defaultCurrency }
     }
 
     return {

@@ -8,10 +8,10 @@ import Status from "../../classes/Status"
 import { useSettings } from '../../composables/useSettings'
 import { Contract, formatUnits } from "ethers";
 import { useWalletStore } from '../../store/walletStore'
+import { computedAsync } from '@vueuse/core'
 
 const props = defineProps({
     id: { type: String, required: true },
-    title: { type: String, default: "Confirm Action" },
     recipient: { type: String, required: true },
     tokenType: { type: String, required: true },
     tokenInfo: { type: Object, required: true },
@@ -21,29 +21,37 @@ const props = defineProps({
 
 import erc20Abi from "../../data/abi/erc20.json"
 
+const title = ref( `Confirm <span class='hinted'>
+                        ${props.tokenInfo.symbol.toUpperCase()}
+                    </span> Transfer
+                `)
+
 const initialized = ref(false)
 const { getTokenByAddr, geTokenFiatValue } = useTokens()
-const { getWeb3Conn } = useWalletStore()
+const { getWeb3Conn, activeWallet } = useWalletStore()
 const feeData = ref()
 const gasLimit = ref(null)
 const selectedGasPrice = ref(null)
 const gasFeeInETHUint = ref(null)
 const gasFeeInETH = ref(null)
+const gasFeeInFiat = ref(null)
 const errorMsg = ref("")
 const isLoading = ref(false)
 const loadingText = ref("")
 const balanceInfo = ref(null)
 const finalAmount = ref(null)
 const finalAmountUint = ref(null)
+const nonce = ref(0)
+const customNonce = ref("")
 
 const nativeTokenInfo = ref(null)
 const nativeTokenBalanceInfo = ref(null)
 const hasInsufficientNativeToken = ref(false)
 
-const finalAmountFiat = computed(() => (
+const finalAmountFiat = computedAsync( async() => (
     (finalAmount == null) 
         ? null 
-        : geTokenFiatValue(props.tokenInfo.contract, finalAmount)  
+        : (await geTokenFiatValue(props.tokenInfo.contract, finalAmount.value))
 ))
 
 let web3Conn = null;
@@ -52,20 +60,20 @@ const onShow = (mElement, mInstance) => {
     initialize()
 }
 
-watch(selectedGasPrice, () => {
+watch(selectedGasPrice, async () => {
 
     let txGasFee = selectedGasPrice.value * gasLimit.value
 
     gasFeeInETHUint.value = txGasFee
     gasFeeInETH.value = formatUnits(txGasFee, 18)
+
+    gasFeeInFiat.value = await geTokenFiatValue(Utils.nativeTokenAddr, gasFeeInETH.value)
 });
 
 const processFeeAndFinalAmount = async () => {
 
     let p = props;
     let balance = balanceInfo.value.balance;
-
-    console.log("p.tokenType===>>>>>>", p.tokenInfo)
 
     //if native token
     if(p.tokenType == 'native') {
@@ -111,7 +119,11 @@ const initialize = async () => {
 
         balanceInfo.value = props.tokenInfo.balanceInfo;
 
-        initialize.value = false
+        if(initialized.value){
+            await processFeeAndFinalAmount()
+            return true
+        }
+
         isLoading.value = true 
 
         loadingText.value = "Initializing gas data"
@@ -132,15 +144,29 @@ const initialize = async () => {
 
         await processFeeAndFinalAmount()
 
-        initialize.value = true 
-
     } catch(e) {
 
         Utils.logError("ConfirmTokenSend#initialize:", e)
         errorMsg.value = Utils.generalErrorMsg
 
     } finally {
+        initialized.value = true 
         isLoading.value = false
+    }
+}
+
+const getTxNonce = async () => {
+    try {
+
+        let resultStatus = await web3Conn.getTxNonce()
+
+        if(resultStatus.isError()) {
+            return resultStatus
+        }
+
+    } catch(e){
+        Utils.logError("ConfirmTokenSend#getTxNonce:", e)
+        return Status.errorPromise("Failed to fetch tx nonce")
     }
 }
 
@@ -216,7 +242,7 @@ const fetchGasInfo = async () => {
         }
     }
 
-    console.log("feeData.value===>", feeData.value)
+    //console.log("feeData.value===>", feeData.value)
 
     // lets set the gas price here
     selectedGasPrice.value = feeData.value.maxFeePerGas
@@ -227,24 +253,104 @@ const fetchGasInfo = async () => {
 <template>
     <Modal
         :id="props.id"
-        :title="props.title"
+        :title="title"
         :has-header="true"
         :has-footer="false"
         @show="onShow"
     >
         <template #body>
-            <div class="p-2">
+            <div class="p-2 send-token-modal">
                 <LoadingView :isLoading="isLoading" :loadingText="loadingText">
-                    <div class="p-2 center-vh text-center">
-                        <div>
-                            <div class="fs-11 hint fw-semibold text-upper">
-                                Final Amount
+                    <div v-if="errorMsg != ''">
+                    
+                    </div>
+                    <div v-else>
+                        <div class="p-2 center-vh text-center">
+                            <div>
+                                <div class="fw-medium fs-3 text-truncate">
+                                    -{{ finalAmount }} {{ props.tokenInfo.symbol }}
+                                </div>
+                                <div v-if="finalAmountFiat != null && finalAmountFiat.value != null" 
+                                    class="fs-12 hint fw-semibold text-upper mt-1"
+                                >
+                                    ~{{ finalAmountFiat.value }} {{ finalAmountFiat.symbol.toUpperCase() }}
+                                </div>
                             </div>
-                            <div class="fw-medium fs-3 text-truncate">
-                                {{ finalAmount }} {{ props.tokenInfo.symbol }}
+                        </div>
+
+                        <div class="m-2 details rounded-lg py-3 px-4">
+                            <div class="d-flex  justify-content-between my-3">
+                                <div class="fs-11 hint fw-semibold text-upper  text-start pe-3">
+                                    Asset
+                                </div>
+                                <div class="d-flex fs-14 ps-3 fw-middle text-end">
+                                    <div class="pe-1">
+                                        {{ tokenInfo.name }}
+                                    </div>
+                                    <div class="hint text-upper">
+                                        {{ tokenInfo.symbol }}
+                                    </div>
+                                </div>
                             </div>
-                            <div v-if="finalAmountFiat">
-                                {{ finalAmountFiat }}
+                            <div v-if="activeWallet != null" 
+                                class="d-flex  justify-content-between my-3"
+                            >
+                                <div class="fs-11 hint fw-semibold text-upper  text-start pe-3">
+                                    From
+                                </div>
+                                <div class="d-flex ps-3 fw-middle">
+                                    <CopyBtn :text="recipient" 
+                                        successText="Sender copied" 
+                                        btnClasses="text-warning me-1" 
+                                    />
+                                    <div class="fs-14 text-break text-end">
+                                        {{ Utils.maskAddress(activeWallet.address) }} - 
+                                        <span class='text-success'>{{ activeWallet.name }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-flex  justify-content-between my-3">
+                                <div class="fs-11 hint fw-semibold text-upper  text-start pe-3">
+                                    To
+                                </div>
+                                <div class="d-flex ps-3 fw-middle">
+                                    <CopyBtn :text="recipient" 
+                                        successText="Recipient copied" 
+                                        btnClasses="text-warning " 
+                                    />
+                                    <div class="fs-14 text-break text-end">
+                                        {{ recipient }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="m-2 details rounded-lg py-3 px-4">
+                            <div class="d-flex  justify-content-between my-3">
+                                <div class="fs-11 hint fw-semibold text-upper  text-start pe-3">
+                                    Network Fee
+                                </div>
+                                <div class="d-flex ps-3 fw-middle">
+                                    <div class="fs-14 flex-wrap text-end center-vh">
+                                        <div>{{ gasFeeInETH }} {{ nativeTokenInfo.symbol.toUpperCase() }}</div>
+                                        <div v-if="gasFeeInFiat != null">
+                                            ({{ gasFeeInFiat.value }} {{ gasFeeInFiat.symbol.toUpperCase() }})
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-between my-3">
+                                <div class="fs-11 hint fw-semibold text-upper  text-start pe-3">
+                                    Nonce
+                                </div>
+                                <div class="ps-3 fw-middle">
+                                    <input 
+                                        type='text' 
+                                        v-model="customNonce" 
+                                        class="form-control form-sm nonce rounded-pill"
+                                        :placeholder="nonce"
+                                    />
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -254,3 +360,16 @@ const fetchGasInfo = async () => {
     </Modal>
 
 </template>
+
+<style lang="scss">
+.send-token-modal {
+    .details {
+        background: var(--bs-body-bg-dark-3);
+    }
+
+    .nonce {
+        max-width: 80px;
+        text-align: center;
+    }
+}
+</style>
