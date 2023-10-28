@@ -394,4 +394,17 @@ export default class Wallet {
         }
     }
 
+
+    async getTxNonce(address, blockTag = 'latest') {
+        try {
+
+            let nonce = await this.provider.getTransactionCount(address, blockTag);
+            return Status.successData(nonce)
+
+        } catch(e) {
+            Utils.logError("Wallet#getTxNonce:", e)
+            return Status.error("Failed to fetch gas estimate")
+        }
+    }
+
 }

@@ -28,7 +28,10 @@ const title = ref( `Confirm <span class='hinted'>
 
 const initialized = ref(false)
 const { getTokenByAddr, geTokenFiatValue } = useTokens()
-const { getWeb3Conn, activeWallet } = useWalletStore()
+const { getWeb3Conn, getActiveWalletInfo } = useWalletStore()
+const activeWalletInfo = ref(null)
+const editNonceInput = ref("")
+
 const feeData = ref()
 const gasLimit = ref(null)
 const selectedGasPrice = ref(null)
@@ -41,8 +44,10 @@ const loadingText = ref("")
 const balanceInfo = ref(null)
 const finalAmount = ref(null)
 const finalAmountUint = ref(null)
-const nonce = ref(0)
-const customNonce = ref("")
+
+const txNonce = ref("")
+const customTxNonce = ref("")
+const editNonce = ref(false)
 
 const nativeTokenInfo = ref(null)
 const nativeTokenBalanceInfo = ref(null)
@@ -117,6 +122,7 @@ const processFeeAndFinalAmount = async () => {
 const initialize = async () => {
     try{
 
+        activeWalletInfo.value = await getActiveWalletInfo()
         balanceInfo.value = props.tokenInfo.balanceInfo;
 
         if(initialized.value){
@@ -158,12 +164,17 @@ const initialize = async () => {
 const getTxNonce = async () => {
     try {
 
-        let resultStatus = await web3Conn.getTxNonce()
+        let resultStatus = await web3Conn.getTxNonce(activeWalletInfo.value.address)
 
         if(resultStatus.isError()) {
             return resultStatus
         }
 
+        let nonce = resultStatus.getData().toString()
+        txNonce.value = nonce
+        customTxNonce.value = nonce
+
+        return Status.success()
     } catch(e){
         Utils.logError("ConfirmTokenSend#getTxNonce:", e)
         return Status.errorPromise("Failed to fetch tx nonce")
@@ -232,7 +243,7 @@ const fetchFeeData = async () => {
 
 const fetchGasInfo = async () => {
 
-    let resulstArr = await (Promise.all([fetchFeeData(), getGasLimit() ]))
+    let resulstArr = await (Promise.all([fetchFeeData(), getGasLimit(), getTxNonce() ]))
 
     //console.log("resulstArr===>", resulstArr)
 
@@ -249,12 +260,29 @@ const fetchGasInfo = async () => {
 
     return Status.success()
 }
+
+const toggleEditNonce = () => {
+    editNonce.value = !editNonce.value
+    if(editNonce.value) editNonceInput.value.focus()
+}
+
+
+const handleSend = async () => {
+    try {
+
+    } catch(e){
+
+    }  finally {
+        
+    }
+}
 </script>
+
 <template>
     <Modal
         :id="props.id"
         :title="title"
-        :has-header="true"
+        :has-header="!isLoading"
         :has-footer="false"
         @show="onShow"
     >
@@ -292,20 +320,20 @@ const fetchGasInfo = async () => {
                                     </div>
                                 </div>
                             </div>
-                            <div v-if="activeWallet != null" 
+                            <div v-if="activeWalletInfo != null" 
                                 class="d-flex  justify-content-between my-3"
                             >
                                 <div class="fs-11 hint fw-semibold text-upper  text-start pe-3">
                                     From
                                 </div>
                                 <div class="d-flex ps-3 fw-middle">
-                                    <CopyBtn :text="recipient" 
+                                    <CopyBtn :text="activeWalletInfo.address" 
                                         successText="Sender copied" 
                                         btnClasses="text-warning me-1" 
                                     />
                                     <div class="fs-14 text-break text-end">
-                                        {{ Utils.maskAddress(activeWallet.address) }} - 
-                                        <span class='text-success'>{{ activeWallet.name }}</span>
+                                        {{ Utils.maskAddress(activeWalletInfo.address) }} - 
+                                        <span class='text-success'>{{ activeWalletInfo.name }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -326,7 +354,9 @@ const fetchGasInfo = async () => {
                         </div>
 
                         <div class="m-2 details rounded-lg py-3 px-4">
-                            <div class="d-flex  justify-content-between my-3">
+                            <div v-if="nativeTokenInfo != null" 
+                                class="d-flex  justify-content-between my-3"
+                            >
                                 <div class="fs-11 hint fw-semibold text-upper  text-start pe-3">
                                     Network Fee
                                 </div>
@@ -343,15 +373,32 @@ const fetchGasInfo = async () => {
                                 <div class="fs-11 hint fw-semibold text-upper  text-start pe-3">
                                     Nonce
                                 </div>
-                                <div class="ps-3 fw-middle">
+                                <div class="ps-3 center-vh fw-middle">
                                     <input 
                                         type='text' 
-                                        v-model="customNonce" 
-                                        class="form-control form-sm nonce rounded-pill"
-                                        :placeholder="nonce"
+                                        :value="customTxNonce == '' ? txNonce : customTxNonce" 
+                                        @change="e => customTxNonce = e.target.value"
+                                        class="form-control form-control-sm nonce rounded-pill"
+                                        :disabled="!editNonce"
+                                        ref="editNonceInput"
                                     />
+                                    <button
+                                        class="btn btn-danger p-0 rounded-circle ms-1 w-30px h-30px"
+                                        @click.prevent="toggleEditNonce"
+                                    >
+                                        <Icon v-if="!editNonce" name="clarity:edit-line" :size="14" />
+                                        <Icon v-else name="carbon:close" :size="14" />
+                                    </button>
+                                    
                                 </div>
                             </div>
+                        </div>
+                        <div class='mx-3 mt-4 mb-3'>
+                            <button @click.prevent="handleSend"
+                                class="btn btn-success w-full rounded-pill"
+                            >
+                                Send
+                            </button>
                         </div>
                     </div>
                 </LoadingView>
