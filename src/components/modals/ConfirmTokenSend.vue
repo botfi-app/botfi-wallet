@@ -270,10 +270,24 @@ const toggleEditNonce = () => {
 const handleSend = async () => {
     try {
 
-    } catch(e){
+        let nativeToken = nativeTokenInfo.value
+        let p = props;
 
-    }  finally {
-        
+        if(hasInsufficientNativeToken.value){
+            return Utils.mAlert(`Insufficient ${nativeToken.symbol.toUpperCase()} for gas fee`)
+        }
+
+        let resultStatus;
+
+        if(p.tokenType == 'native'){
+
+        } else {
+
+            
+        }
+    } catch(e){
+        Utils.logError("ConfirmTokenSend#handleSend:", e)
+        Utils.mAlert(Utils.generalErrorMsg)
     }
 }
 </script>

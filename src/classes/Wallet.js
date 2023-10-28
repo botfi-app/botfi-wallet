@@ -407,4 +407,15 @@ export default class Wallet {
         }
     }
 
+
+    // send transaction
+    async sendETH({ to, value, nonce, gasPrice, gasLimit }){
+        try {
+
+        } catch(e){
+            
+        }
+    }
+
+
 }
