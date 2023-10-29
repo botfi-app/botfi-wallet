@@ -1,14 +1,16 @@
 <script setup>
-import { computed, onMounted, ref, watch } from "vue";
+import {  ref, watch } from "vue";
 import Utils from "../../classes/Utils"
 import { useTokens } from '../../composables/useTokens'
-import { useNetworks } from '../../composables/useNetworks';
-import EthUriParser from "../../classes/EthUriParser"
 import Status from "../../classes/Status"
-import { useSettings } from '../../composables/useSettings'
-import { Contract, formatUnits } from "ethers";
+import { formatUnits, getAddress } from "ethers";
 import { useWalletStore } from '../../store/walletStore'
 import { computedAsync } from '@vueuse/core'
+import GasFeePicker from "../common/GasFeePicker.vue"
+
+import erc20Abi from "../../data/abi/erc20.json"
+import erc721Abi from "../../data/abi/erc721.json"
+import erc1155Abi from "../../data/abi/erc1155.json"
 
 const props = defineProps({
     id: { type: String, required: true },
@@ -19,7 +21,6 @@ const props = defineProps({
     amountUint: { type: null, required: true },
 })
 
-import erc20Abi from "../../data/abi/erc20.json"
 
 const title = ref( `Confirm <span class='hinted'>
                         ${props.tokenInfo.symbol.toUpperCase()}
@@ -33,8 +34,12 @@ const activeWalletInfo = ref(null)
 const editNonceInput = ref("")
 
 const feeData = ref()
-const gasLimit = ref(null)
-const selectedGasPrice = ref(null)
+const txGasLimit = ref(null)
+const onChainGasLimit = ref(null)
+
+const txGasPrice = ref(null)
+const onChainGasPrice = ref(null)
+
 const gasFeeInETHUint = ref(null)
 const gasFeeInETH = ref(null)
 const gasFeeInFiat = ref(null)
@@ -53,6 +58,8 @@ const nativeTokenInfo = ref(null)
 const nativeTokenBalanceInfo = ref(null)
 const hasInsufficientNativeToken = ref(false)
 
+
+
 const finalAmountFiat = computedAsync( async() => (
     (finalAmount == null) 
         ? null 
@@ -65,15 +72,22 @@ const onShow = (mElement, mInstance) => {
     initialize()
 }
 
-watch(selectedGasPrice, async () => {
+watch(txGasPrice, () => computeFeeInETH());
+watch(txGasLimit, () => computeFeeInETH())
 
-    let txGasFee = selectedGasPrice.value * gasLimit.value
+const computeFeeInETH  = async () => {
+
+    if(txGasPrice.value == null || txGasLimit.value == null){
+        return false;
+    }
+    
+    let txGasFee = txGasPrice.value * txGasLimit.value
 
     gasFeeInETHUint.value = txGasFee
     gasFeeInETH.value = formatUnits(txGasFee, 18)
 
     gasFeeInFiat.value = await geTokenFiatValue(Utils.nativeTokenAddr, gasFeeInETH.value)
-});
+}
 
 const processFeeAndFinalAmount = async () => {
 
@@ -199,17 +213,19 @@ const getGasLimit = async () => {
                 return gasEstimateStatus
             }
 
-            gasLimit.value = gasEstimateStatus.getData() || 21_000n
+            onChainGasLimit.value = gasEstimateStatus.getData() || 21_000n
 
         } 
         else if(p.tokenType == 'erc20'){
 
             let contract =  web3Conn.contract(p.tokenInfo.contract, erc20Abi)
-            gasLimit.value = await contract.transfer.estimateGas(p.recipient, p.amountUint)
+            onChainGasLimit.value = await contract.transfer.estimateGas(p.recipient, p.amountUint)
 
         }
 
-        return Status.successData(gasLimit) 
+        txGasLimit.value = onChainGasLimit.value
+
+        return Status.successData(txGasLimit) 
     } catch(e){
         Utils.logError("ConfirmTokenSend#getGasLimit:", e)
         return Status.errorPromise("Failed to fetch gas limit")
@@ -255,17 +271,21 @@ const fetchGasInfo = async () => {
 
     //console.log("feeData.value===>", feeData.value)
 
+    let gasPrice = feeData.value.maxFeePerGas
+
     // lets set the gas price here
-    selectedGasPrice.value = feeData.value.maxFeePerGas
+    onChainGasPrice.value = gasPrice
+    txGasPrice.value = gasPrice
 
     return Status.success()
 }
 
 const toggleEditNonce = () => {
     editNonce.value = !editNonce.value
-    if(editNonce.value) editNonceInput.value.focus()
+    if(editNonce.value) {
+        editNonceInput.value.focus()
+    }
 }
-
 
 const handleSend = async () => {
     try {
@@ -277,14 +297,66 @@ const handleSend = async () => {
             return Utils.mAlert(`Insufficient ${nativeToken.symbol.toUpperCase()} for gas fee`)
         }
 
+        let userNonce = customTxNonce.value.toString().trim()
+
         let resultStatus;
+        let nonce = (userNonce != "" && /\d+/gi.test(userNonce))
+                        ? userNonce
+                        : txNonce.value
 
         if(p.tokenType == 'native'){
 
+            let txParams = { 
+                to: recipient, 
+                value: p.amountUint, 
+                nonce, 
+                gasPrice: txGasPrice.value, 
+                gasLimit: txGasLimit.value
+            }
+
+            resultStatus = web3Conn.sendETH(txParams)
+
         } else {
 
-            
-        }
+            let contractAddr = p.tokenInfo.contract
+            let recipient = getAddress(p.recipient)
+            let sender = getAddress(activeWalletInfo.value.address)
+            let minConfirmaions = 1
+
+            let contract, method, params; 
+
+            if(p.tokenType == 'erc20'){
+                contract =  web3Conn.contract(contractAddr, erc20Abi)
+                method = "transfer"
+                params = [recipient, p.amountUint]
+            } 
+
+            // erc 721 
+            else if (p.tokenType == 'erc721'){
+                contract =  web3Conn.contract(contractAddr, erc721Abi)
+                method = "safeTransferFrom"
+                params = [sender, recipient, p.tokenInfo.tokenId]
+            }
+
+            // erc 1155 
+            else if (p.tokenType == 'erc1155'){
+                contract =  web3Conn.contract(contractAddr, erc1155Abi)
+                method = "safeTransferFrom"
+                params = [sender, recipient, p.tokenInfo.tokenId, p.amountUint, '']
+            }
+
+            let ethersTxOpt = { 
+                nonce, 
+                gasPrice: txGasPrice.value, 
+                gasLimit: txGasLimit.value
+            }
+
+            // (method, params = [], minConfirmations = 1, ethersOpts={})
+            //lets send Tx 
+            resultStatus = await contract.sendTx(method, params, minConfirmaions, ethersTxOpt)
+        } //en if contract
+
+        console.log("resultStatus ==> ", resultStatus)
     } catch(e){
         Utils.logError("ConfirmTokenSend#handleSend:", e)
         Utils.mAlert(Utils.generalErrorMsg)
@@ -315,7 +387,7 @@ const handleSend = async () => {
                                 <div v-if="finalAmountFiat != null && finalAmountFiat.value != null" 
                                     class="fs-12 hint fw-semibold text-upper mt-1"
                                 >
-                                    ~{{ finalAmountFiat.value }} {{ finalAmountFiat.symbol.toUpperCase() }}
+                                    ~{{ finalAmountFiat["value"] }} {{ finalAmountFiat.symbol.toUpperCase() }}
                                 </div>
                             </div>
                         </div>
@@ -380,6 +452,12 @@ const handleSend = async () => {
                                         <div v-if="gasFeeInFiat != null">
                                             ({{ gasFeeInFiat.value }} {{ gasFeeInFiat.symbol.toUpperCase() }})
                                         </div>
+                                        <GasFeePicker
+                                            :nativeTokenInfo="nativeTokenInfo"
+                                            :feeData="feeData"
+                                            :txGasLimit="txGasLimit"
+                                            :popoverOpts="{}"
+                                        />
                                     </div>
                                 </div>
                             </div>
@@ -387,21 +465,22 @@ const handleSend = async () => {
                                 <div class="fs-11 hint fw-semibold text-upper  text-start pe-3">
                                     Nonce
                                 </div>
-                                <div class="ps-3 center-vh fw-middle">
+                                <div class="ps-3 center-vh fw-middle" :key="editNonce">
                                     <input 
                                         type='text' 
-                                        :value="customTxNonce == '' ? txNonce : customTxNonce" 
-                                        @change="e => customTxNonce = e.target.value"
+                                        v-model="customTxNonce"
+                                        v-integer 
                                         class="form-control form-control-sm nonce rounded-pill"
                                         :disabled="!editNonce"
                                         ref="editNonceInput"
                                     />
                                     <button
-                                        class="btn btn-danger p-0 rounded-circle ms-1 w-30px h-30px"
+                                        class="btn btn-danger p-0 rounded-circle ms-1 w-25px h-25px center-vh"
                                         @click.prevent="toggleEditNonce"
+                                        type="button" 
                                     >
-                                        <Icon v-if="!editNonce" name="clarity:edit-line" :size="14" />
-                                        <Icon v-else name="carbon:close" :size="14" />
+                                        <Icon v-if="!editNonce" name="mdi:gear" :size="16" />
+                                        <Icon v-else name="ic:baseline-close" :size="16" />
                                     </button>
                                     
                                 </div>
@@ -432,5 +511,6 @@ const handleSend = async () => {
         max-width: 80px;
         text-align: center;
     }
+
 }
 </style>

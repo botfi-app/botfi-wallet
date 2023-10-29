@@ -89,6 +89,8 @@ export default class Utils {
 
     static loaderWithTitle (title, text, canclose=true) {
 
+        console.log("this.isExpanded()===>", this.isExpanded())
+        
         let position = (this.isExpanded()) ? "center" : "top"
 
         //if(!ttl || ttl <= 0) ttl = 1440 * 1000;

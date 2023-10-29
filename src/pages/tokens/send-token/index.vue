@@ -73,7 +73,7 @@ watch(amount, async () => {
 
     amountFiat.value = await geTokenFiatValue(_token.contract, amt)
 
-    console.log("amountFiat.value===>", amountFiat.value)
+    //console.log("amountFiat.value===>", amountFiat.value)
 })
 
 const initialize = async () => {
@@ -280,6 +280,7 @@ const confirmSendToken = async () => {
                 :recipient="recipient"
                 :amount="amount"
                 :amountUint="amountBigInt"
+                :key="`${recipient}-${amount}`"
             />
         </div>
           

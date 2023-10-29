@@ -15,6 +15,7 @@ import appConfig from "./config/app"
 import VueLazyLoad from 'vue3-lazyload'
 import { Buffer } from "buffer/"
 import numberInput from './directives/numberInput'
+import integerInput from './directives/integerInput'
 
 window.Buffer = Buffer
 
@@ -63,6 +64,8 @@ app
  .use(pinia)
  .use(telegram, { router })
  .use(VueLazyLoad)
- .directive("number", numberInput)
+ .directive("number", numberInput);
+ 
+ app.directive("integer", integerInput)
     
 app.mount('#app')

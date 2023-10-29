@@ -7,12 +7,12 @@
 <template>
     <template v-if="props.isLoading">
         <div class="parent d-flex align-items-center justify-content-center py-4">
-            <div class="text-center">
-                <div class="spinner-border spinner-border-sm text-primary" role="status">
-                    <span v-if="props.loadingText==''" class="visually-hidden">Loading...</span>
-                </div>
-                <div v-if="props.loadingText!=''" class="text-center fs-14 my-1">
-                    {{ props.loadingText }}
+            <div class="center-vh text-center">
+                <div>
+                    <div class="loader loader-sm"></div>
+                    <div v-if="props.loadingText!=''" class="text-center my-1">
+                        {{ props.loadingText }}
+                    </div>
                 </div>
             </div>
         </div>

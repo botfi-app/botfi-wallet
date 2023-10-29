@@ -475,8 +475,8 @@ export const useTokens = () => {
 
         let value = (tokenPrice * parseFloat(tokenAmt))
 
-        console.log("tokenAmt===>", tokenAmt)
-        console.log("value====>", value)
+       // console.log("tokenAmt===>", tokenAmt)
+        //console.log("value====>", value)
 
         if(value == null || value == NaN) return value
 

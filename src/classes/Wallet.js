@@ -163,13 +163,6 @@ export default class Wallet {
     }
 
 
-    contract(address, abi) {
-        let _p = (this.signer) ?  this.signer : this.provider
-        let contract = new ethersContract(address, abi, _p)
-        return contract
-    }
-
-    
     /**
      * get proxy implementation address from storage
      * @param {*} address 
@@ -408,14 +401,234 @@ export default class Wallet {
     }
 
 
-    // send transaction
-    async sendETH({ to, value, nonce, gasPrice, gasLimit }){
+   /**
+    * sendEth Tx
+    * @param {*} params 
+    * @returns 
+    */
+    async sendETH(params = {}, minConfirmations = 0){
         try {
 
+            //let { to, value, nonce, gasPrice, gasLimit } = params;
+
+            let tx = await this.signer.sendTransaction(params)
+
+              
+            let txReceipt = null;
+
+            //if we need to wait for tx to  confirmation to wait
+            if(minConfirmations > 0 && typeof tx.wait === 'function') {
+                 
+                txReceipt = await tx.wait(minConfirmations);
+                
+                //lets merge 
+                tx = {...tx, ...txReceipt};
+
+                 //lets check if status is 1 then its success
+                 if(txReceipt.status != 1){
+                    return Status.errorPromise("Transaction failed", tx)
+                }
+            }
+
+            return Status.successData(tx)
         } catch(e){
-            
+
+            Utils.logError(`
+                Wallet::sendETH Error: 
+                params: ${JSON.stringify(contractParams)}
+            `, error)
+        
+            let requestError = this.__getFailedTxReason(error).trim();
+
+            if(!requestError || requestError.length == 0){
+                requestError = "Oops, request failed to complete"
+            } else {
+                requestError = requestError
+            }
+
+            return  Status.errorPromise(requestError)
         }
     }
 
+    
+    /**
+     * contract
+     * @param address 
+     * @param abi
+     */
+    contract(address, abi) {
+
+        try{
+            
+            let _addr = getAddress(address)
+            
+            let signer = (this.signer) ?  this.signer : this.provider
+
+            let contract = new ethersContract(_addr, abi, signer)
+
+            let onTxCreatedCallback = null;
+            
+            contract.onTxCreated = (callback=null) => {
+                onTxCreatedCallback = callback
+            }
+
+            contract.sendTx = (method, params = [], minConfirmations = 1, ethersOpts={}) => {
+                return this.__sendTx({
+                    contract,
+                    method, 
+                    params,
+                    minConfirmations,
+                    abi,
+                    _addr,
+                    ethersOpts,
+                    onTxCreatedCallback
+                });
+            }
+
+            return contract;
+        } catch (e) {
+            Utils.logError(`Failed to initialize contract at ${address} with abi: ${abi}`, e)
+            throw e;
+        }
+    }
+
+
+    // lets make some methods private
+    async __sendTx(argsObj) {
+
+        let contractMethod = "";
+        let contractParams = [];
+
+        //console.log( this.web3Provider)
+
+        try{
+
+            let {
+                contract,
+                method,
+                params, 
+                minConfirmations,
+                abi,
+                ethersOpts,
+                onTxCreatedCallback
+            } = argsObj;
+
+            contractMethod = method;
+
+            if(!params || params == null) params = []
+
+            if(!minConfirmations || minConfirmations == null) minConfirmations = 1
+
+            contractParams = params;
+
+            //let getEvent = (eventNameOrSig) => {return null;}
+
+            let paramsArray = [];
+
+            if(!Array.isArray(params)){
+                if(params != null){paramsArray.push(params)}
+            } else {
+                paramsArray = params;
+            }
+
+           // console.log(paramsArray)
+
+            let tx = await contract[method](...paramsArray, ethersOpts);
+            
+            if (onTxCreatedCallback != null) {
+                onTxCreatedCallback(tx)
+            }
+            
+            let txReceipt = null;
+
+            //if we need to wait for tx to  confirmation to wait
+            if(minConfirmations > 0 && typeof tx.wait === 'function') {
+                 
+                txReceipt = await tx.wait(minConfirmations);
+                
+                //lets merge 
+                tx = {...tx, ...txReceipt};
+
+                 //lets check if status is 1 then its success
+                 if(txReceipt.status != 1){
+                    return Status.errorPromise("Transaction failed", tx)
+                }
+
+                if(txReceipt.events && txReceipt.events.length > 0){
+                    tx.getEvent = (eventNameOrSig) => {
+                        return this.__getEventData(txReceipt.events, eventNameOrSig);
+                    }
+                }
+            } //end if
+
+            return Status.successPromise(null, tx);
+
+        } catch (error){
+           
+             Utils.logError(`
+                Wallet::sendTx Error: method: ${contractMethod}, 
+                params: ${JSON.stringify(contractParams)}
+            `, error)
+            
+            let requestError = this.__getFailedTxReason(error).trim();
+
+            if(!requestError || requestError.length == 0){
+                requestError = "Oops, request failed to complete"
+            } else {
+                requestError = requestError
+            }
+
+            return  Status.errorPromise(requestError)
+        }
+    }
+
+
+    __getFailedTxReason(error){
+
+        let errMsg = error.message || "";
+
+        if("reason" in error) {
+            errMsg = error.reason;
+        }
+        else if("data" in error){
+            let dataErr = error.data.message || ""
+            if(dataErr != ""){
+                let dataErrorSplit = dataErr.split(":");
+                errMsg = dataErrorSplit[dataErrorSplit.length - 1];
+            }
+        }
+
+        errMsg = errMsg.replace("Error: VM Exception while processing transaction: reverted with reason string", "")
+        
+        return errMsg;
+    }
+
+    /**
+     * __getEventData
+     * @param {*} eventsLog
+     * @param {*} eventName
+     */
+    __getEventData(eventsArray, eventNameOrSig) {
+
+        let _selectedEvt = null;
+        
+       for(let eventObj of eventsArray) {
+
+            let _evtName = eventObj.event || ""
+            let _evtSig = eventObj.eventSignature || ""
+            let topicsArray = eventObj.topics || []
+            
+            if(_evtName == eventNameOrSig || 
+                _evtSig == eventNameOrSig || 
+                topicsArray.includes(eventNameOrSig)    ||
+                topicsArray.includes(ethersUtils.id(eventNameOrSig))
+            ){
+                _selectedEvt = eventObj;
+                break;
+            }
+       }
+
+       return _selectedEvt;
+    } //end fun 
 
 }
