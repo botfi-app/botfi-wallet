@@ -556,13 +556,7 @@ ul.list-group {
     text-transform: uppercase !important;
 }
 
-.w-30 {
-    width: calc(30%);
-}
-
-.w-60 {
-    width: calc(60%);
-}
+.w-90p { width: 90% !important; }
 
 .w-20px { width: 20px !important; }
 .h-20px { height: 20px !important; }

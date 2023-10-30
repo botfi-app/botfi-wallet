@@ -455,8 +455,8 @@ const handleSend = async () => {
                                         <GasFeePicker
                                             :nativeTokenInfo="nativeTokenInfo"
                                             :feeData="feeData"
-                                            :txGasLimit="txGasLimit"
-                                            :popoverOpts="{}"
+                                            :gasLimit="txGasLimit"
+                                            :popoverOpts="{ placement: 'right'}"
                                         />
                                     </div>
                                 </div>
