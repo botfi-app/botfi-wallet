@@ -12,6 +12,7 @@ import erc20Abi from "../../data/abi/erc20.json"
 import erc721Abi from "../../data/abi/erc721.json"
 import erc1155Abi from "../../data/abi/erc1155.json"
 
+
 const props = defineProps({
     id: { type: String, required: true },
     recipient: { type: String, required: true },
@@ -39,6 +40,7 @@ const onChainGasLimit = ref(null)
 
 const txGasPrice = ref(null)
 const onChainGasPrice = ref(null)
+const selectedFeeDataName = ref(null)
 
 const gasFeeInETHUint = ref(null)
 const gasFeeInETH = ref(null)
@@ -242,7 +244,8 @@ const fetchFeeData = async () => {
 
     let fd = {...resultStatus.getData()}
 
-      /// gasFeeInEth.value = 
+    
+    /// gasFeeInEth.value = 
     if(fd.maxFeePerGas == null){
         fd.maxFeePerGas = fd.gasPrice
     }
@@ -272,6 +275,9 @@ const fetchGasInfo = async () => {
     //console.log("feeData.value===>", feeData.value)
 
     let gasPrice = feeData.value.maxFeePerGas
+    
+    // default selected 
+    selectedFeeDataName.value = "maxFeePerGas"
 
     // lets set the gas price here
     onChainGasPrice.value = gasPrice
@@ -362,6 +368,12 @@ const handleSend = async () => {
         Utils.mAlert(Utils.generalErrorMsg)
     }
 }
+
+const  onGasPriceChange = ({ name, value, gasLimit }) => {
+    txGasPrice.value = value 
+    selectedFeeDataName.value = name
+    txGasLimit.value = gasLimit
+}
 </script>
 
 <template>
@@ -373,12 +385,16 @@ const handleSend = async () => {
         @show="onShow"
     >
         <template #body>
+            
             <div class="p-2 send-token-modal">
                 <LoadingView :isLoading="isLoading" :loadingText="loadingText">
                     <div v-if="errorMsg != ''">
                     
                     </div>
                     <div v-else>
+                        
+                        <div id="gasfee-picker-container"></div>
+
                         <div class="p-2 center-vh text-center">
                             <div>
                                 <div class="fw-medium fs-3 text-truncate">
@@ -456,8 +472,13 @@ const handleSend = async () => {
                                             :nativeTokenInfo="nativeTokenInfo"
                                             :feeData="feeData"
                                             :gasLimit="txGasLimit"
-                                            :popoverOpts="{ placement: 'right'}"
+                                            :onChainGasLimit="onChainGasLimit"
+                                            :popoverOpts="{ placement: 'left'}"
+                                            :selectedFee="selectedFeeDataName"
+                                            placement="left"
+                                            @change="onGasPriceChange"
                                         />
+                                       
                                     </div>
                                 </div>
                             </div>

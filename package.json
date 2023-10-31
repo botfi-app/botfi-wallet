@@ -32,6 +32,7 @@
     "eth-url-parser": "^1.0.4",
     "ethcall": "^6.0.2",
     "ethers": "^6.7.1",
+    "floating-vue": "^2.0.0-beta.24",
     "helia": "^2.0.3",
     "nice-color-palettes": "^3.0.0",
     "pinia": "^2.1.6",
@@ -49,6 +50,7 @@
     "vue-lazyload": "^3.0.0",
     "vue-router": "^4.2.4",
     "vue3-lazyload": "^0.3.8",
+    "vue3-popper": "^1.5.0",
     "whatwg-fetch": "^3.6.17"
   },
   "devDependencies": {

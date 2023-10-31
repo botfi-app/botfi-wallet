@@ -1,7 +1,7 @@
 <route>
     { 
-      name: "send-token", 
-      path: "/tokens/item/:contract(0x[a-fA-F0-9]{40})/send" 
+      name: "transfe-token", 
+      path: "/tokens/:contract(0x[a-fA-F0-9]{40})/transfer" 
     }
 </route>
 <script setup>

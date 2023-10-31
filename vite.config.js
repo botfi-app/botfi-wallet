@@ -56,7 +56,8 @@ export default defineConfig({
     exclude: [
       "whatwg-fetch",
       "animate.css",
-      "@dotlottie/player-component"
+      "@dotlottie/player-component",
+      "vue3-popper"
     ],
   }
 

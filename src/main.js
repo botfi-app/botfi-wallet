@@ -64,8 +64,7 @@ app
  .use(pinia)
  .use(telegram, { router })
  .use(VueLazyLoad)
- .directive("number", numberInput);
- 
- app.directive("integer", integerInput)
+ .directive("number", numberInput)
+ .directive("integer", integerInput)
     
 app.mount('#app')
