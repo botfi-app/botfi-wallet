@@ -94,8 +94,20 @@ const initPop = () => {
         content: popContentRef.value,
         placement: 'top',
         fallbackPlacement:  'top',
-        customClass: "rounded-lg shadow-lg gas-picker",
+        customClass: "rounded-lg shadow-lg",
         container: "#gasfee-picker-container"
+    })
+
+    let pBtn =  popBtnRef.value
+
+    pBtn.addEventListener('shown.bs.popover', () => {
+        opened.value = true
+        emits("open", popBtnRef, popover)
+    })
+
+    pBtn.addEventListener('hidden.bs.popover', () => {
+        opened.value = false
+        emits("close", popBtnRef, popover)
     })
 }
 
@@ -107,7 +119,8 @@ onBeforeUnmount(() => {
 })
 
 const emitChangeEvent = (name, value ) => {
-    emits("change", { name, value, gasLimit: txGasLimit.value })
+    let gasLimit = BigInt(txGasLimit.value.toString())
+    emits("change", { name, value, gasLimit})
 }
 
 const handleFeeItemClick = (name) => {
@@ -117,6 +130,7 @@ const handleFeeItemClick = (name) => {
 const closePopover = () => {
     if(popover) popover.hide()
 }
+
 </script>
 <template>
     <button 
@@ -128,7 +142,7 @@ const closePopover = () => {
         <Icon v-if="!opened" name="mdi:gear" :size="16" />
         <Icon v-else name="ic:baseline-close" :size="16" />
     </button>
-    <div ref="popContentRef" :key="dataState">
+    <div ref="popContentRef" class="gasfee-picker">
         <div class="contentMain">
             <div class="d-flex justify-content-between">
                 <div class="fs-12 fw-semibold hint mb-2">Network Fee</div>
@@ -157,7 +171,7 @@ const closePopover = () => {
                                 <td :class="feeLabelInfo[key].clazz">
                                     {{ feeLabelInfo[key].duration }}s+
                                 </td>
-                                <td class='text-upper break-text'>
+                                <td class='text-upper break-text' style="max-width: 100px;">
                                     {{  feeLabelInfo[key].totalFee }} {{ props.nativeTokenInfo.symbol }}
                                 </td>
                             </tr>
@@ -179,7 +193,7 @@ const closePopover = () => {
                         class="btn btn-warning p-0 rounded-circle ms-1 w-25px h-25px center-vh"
                         type="button" 
                         id="reset-gas-limit"
-                        onClick="onTxGasResetClick"
+                        @click.prevent="txGasLimit=props.onChainGasLimit"
                     >
                         <Icon name="uiw:reload" :size="16" />
                     </button>
@@ -199,37 +213,58 @@ const closePopover = () => {
     </div>
 </template>
 <style lang="scss">
-.gas-picker {
-    width: 260px !important;
-    max-width: 98% !important;
+.gasfee-picker{
+    display: none;
+}
+
+.popover {
+
+    --bs-popover-bg: var(--bs-body-bg-dark-8);
+    
+    //background: var(--bs-body-bg-dark-8) !important;
+    border-radius: 12px;
+    
 
     .popover-body {
         padding: 10px !important;
+     
     }
 
-    .selected {
-       background: var(--bs-body-bg-dark-5);
-        border-radius: 8px !important;
-    }
+    .gasfee-picker{
 
-    th, td {
-        text-align: center; 
-        vertical-align: middle;
-    }
+        display: inline-block;
 
-    td {
-        padding: 6px 4px;
+        width: 260px !important;
+        max-width: 98% !important;
 
-        border: none;
 
-        &:first-of-type {
-            border-top-left-radius: 8px !important;
-            border-bottom-left-radius: 8px !important;
+        .selected {
+        background: var(--bs-body-bg-dark-12);
+            border-radius: 8px !important;
         }
 
-        &:last-of-type {
-            border-top-right-radius: 8px !important;
-            border-bottom-right-radius: 8px !important;
+        table {
+        }
+
+        th, td {
+            text-align: center; 
+            vertical-align: middle;
+        }
+
+        td {
+            padding: 6px 4px;
+
+            border: none;
+
+            &:first-of-type {
+                border-top-left-radius: 8px !important;
+                border-bottom-left-radius: 8px !important;
+            }
+
+            &:last-of-type {
+                border-top-right-radius: 8px !important;
+                border-bottom-right-radius: 8px !important;
+            }
         }
     }
 }
