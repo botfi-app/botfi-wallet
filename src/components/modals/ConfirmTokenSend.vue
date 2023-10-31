@@ -11,6 +11,7 @@ import GasFeePicker from "../common/GasFeePicker.vue"
 import erc20Abi from "../../data/abi/erc20.json"
 import erc721Abi from "../../data/abi/erc721.json"
 import erc1155Abi from "../../data/abi/erc1155.json"
+import InlineError from "../common/InlineError.vue";
 
 
 const props = defineProps({
@@ -146,6 +147,7 @@ const initialize = async () => {
             return true
         }
 
+        errorMsg.value = ""
         isLoading.value = true 
 
         loadingText.value = "Initializing gas data"
@@ -354,7 +356,9 @@ const handleSend = async () => {
             let ethersTxOpt = { 
                 nonce, 
                 gasPrice: txGasPrice.value, 
-                gasLimit: txGasLimit.value
+                gasLimit: txGasLimit.value,
+                maxFeePerGas: gasFeeInETHUint,
+                maxPriorityFeePerGas: gasFeeInETHUint,
             }
 
             // (method, params = [], minConfirmations = 1, ethersOpts={})
@@ -374,6 +378,12 @@ const  onGasPriceChange = ({ name, value, gasLimit }) => {
     selectedFeeDataName.value = name
     txGasLimit.value = gasLimit
 }
+
+const handleOnRetry = () => {
+    errorMsg.value = ""
+    initialized.value = false 
+    initialize()
+}
 </script>
 
 <template>
@@ -389,7 +399,10 @@ const  onGasPriceChange = ({ name, value, gasLimit }) => {
             <div class="p-2 send-token-modal">
                 <LoadingView :isLoading="isLoading" :loadingText="loadingText">
                     <div v-if="errorMsg != ''">
-                    
+                        <InlineError
+                            :text="errorMsg"
+                            @retry="handleOnRetry"
+                        />
                     </div>
                     <div v-else>
                         
@@ -457,14 +470,16 @@ const  onGasPriceChange = ({ name, value, gasLimit }) => {
 
                         <div class="m-2 details rounded-lg py-3 px-4">
                             <div v-if="nativeTokenInfo != null" 
-                                class="d-flex  justify-content-between my-3"
+                                class="d-flex  justify-content-between align-items-center my-3"
                             >
                                 <div class="fs-11 hint fw-semibold text-upper  text-start pe-3">
                                     Network Fee
                                 </div>
                                 <div class="d-flex ps-3 fw-middle">
-                                    <div class="fs-14 flex-wrap text-end center-vh">
-                                        <div>{{ gasFeeInETH }} {{ nativeTokenInfo.symbol.toUpperCase() }}</div>
+                                    <div class="fs-14 flex-wrap text-end center-vh text-break">
+                                        <div style="max-width: 180px;">
+                                            {{ gasFeeInETH }} {{ nativeTokenInfo.symbol.toUpperCase() }}
+                                        </div>
                                         <div v-if="gasFeeInFiat != null">
                                             ({{ gasFeeInFiat.value }} {{ gasFeeInFiat.symbol.toUpperCase() }})
                                         </div>

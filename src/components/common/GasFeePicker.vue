@@ -190,7 +190,7 @@ const closePopover = () => {
                         id="tx-gas-limit"
                     />
                     <button
-                        class="btn btn-warning p-0 rounded-circle ms-1 w-25px h-25px center-vh"
+                        class="btn btn-info p-0 rounded-circle ms-1 w-25px h-25px center-vh"
                         type="button" 
                         id="reset-gas-limit"
                         @click.prevent="txGasLimit=props.onChainGasLimit"
