@@ -38,6 +38,7 @@ const editNonceInput = ref("")
 const feeData = ref()
 const txGasLimit = ref(null)
 const onChainGasLimit = ref(null)
+const supportsEip1559Tx = ref(false)
 
 const txGasPrice = ref(null)
 const onChainGasPrice = ref(null)
@@ -246,7 +247,8 @@ const fetchFeeData = async () => {
 
     let fd = {...resultStatus.getData()}
 
-    
+    supportsEip1559Tx.value = (fd.maxFeePerGas != null && fd.maxPriorityFeePerGas != null)
+
     /// gasFeeInEth.value = 
     if(fd.maxFeePerGas == null){
         fd.maxFeePerGas = fd.gasPrice
@@ -296,6 +298,9 @@ const toggleEditNonce = () => {
 }
 
 const handleSend = async () => {
+    
+    let loader; 
+
     try {
 
         let nativeToken = nativeTokenInfo.value
@@ -312,14 +317,24 @@ const handleSend = async () => {
                         ? userNonce
                         : txNonce.value
 
+        let maxFeePerGas = txGasPrice.value
+        let maxPriorityFeePerGas = txGasPrice.value
+
+        loader = Utils.loader("Processing Transfer..")
+
         if(p.tokenType == 'native'){
 
             let txParams = { 
                 to: recipient, 
                 value: p.amountUint, 
                 nonce, 
-                gasPrice: txGasPrice.value, 
                 gasLimit: txGasLimit.value
+            }
+
+            if(supportsEip1559Tx.value){
+                txParams = {...txParams, maxFeePerGas, maxPriorityFeePerGas}
+            } else {
+                txParams["gasPrice"] = txGasPrice.value
             }
 
             resultStatus = web3Conn.sendETH(txParams)
@@ -355,11 +370,15 @@ const handleSend = async () => {
 
             let ethersTxOpt = { 
                 nonce, 
-                gasPrice: txGasPrice.value, 
-                gasLimit: txGasLimit.value,
-                maxFeePerGas: gasFeeInETHUint,
-                maxPriorityFeePerGas: gasFeeInETHUint,
+                gasLimit: txGasLimit.value
             }
+
+            if(supportsEip1559Tx.value){
+                ethersTxOpt = {...ethersTxOpt, maxFeePerGas, maxPriorityFeePerGas}
+            } else {
+                ethersTxOpt["gasPrice"] = txGasPrice.value
+            }
+
 
             // (method, params = [], minConfirmations = 1, ethersOpts={})
             //lets send Tx 
@@ -367,9 +386,17 @@ const handleSend = async () => {
         } //en if contract
 
         console.log("resultStatus ==> ", resultStatus)
+
+        if(resultStatus.isError()){
+            return Utils.mAlert(resultStatus.getMessage())
+        }
+
+        
     } catch(e){
         Utils.logError("ConfirmTokenSend#handleSend:", e)
         Utils.mAlert(Utils.generalErrorMsg)
+    } finally {
+        if(loader) loader.close()
     }
 }
 

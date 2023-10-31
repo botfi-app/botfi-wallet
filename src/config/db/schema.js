@@ -37,5 +37,15 @@ export default {
             extraInfo,
             createdAt,
             updatedAt  
-           `
+           `,
+
+activity: `++id, 
+           wallet,
+           userId,
+           chainId,
+           type,
+           txInfo,
+           createdAt,
+           updatedAt      
+        `      
 }
