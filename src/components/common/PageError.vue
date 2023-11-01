@@ -1,4 +1,9 @@
 <script setup>
+/**
+ * BotFi (https://botfi.app)
+ * @author BotFi <hello@botfi.app>
+ */
+
 import Utils from '../../classes/Utils';
 import { useRouter } from 'vue-router'
 

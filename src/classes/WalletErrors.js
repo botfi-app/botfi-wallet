@@ -1,3 +1,7 @@
+/**
+ * BotFi (https://botfi.app)
+ * @author BotFi <hello@botfi.app>
+ */
 export default {
     '-32700': {
       standard: 'JSON RPC 2.0',

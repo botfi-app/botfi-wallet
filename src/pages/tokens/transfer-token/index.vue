@@ -5,6 +5,11 @@
     }
 </route>
 <script setup>
+/**
+ * BotFi (https://botfi.app)
+ * @author BotFi <hello@botfi.app>
+ */
+
 import { onBeforeMount, ref, inject, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useTokens } from '../../../composables/useTokens'

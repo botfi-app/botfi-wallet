@@ -39,12 +39,14 @@ export default {
             updatedAt  
            `,
 
-activity: `++id, 
+activity: `id, 
            wallet,
            userId,
            chainId,
-           type,
-           txInfo,
+           contract,
+           activityType,
+           hash,
+           extraInfo,
            createdAt,
            updatedAt      
         `      

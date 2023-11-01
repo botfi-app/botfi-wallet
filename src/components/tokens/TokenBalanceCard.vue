@@ -1,4 +1,9 @@
 <script setup>
+/**
+ * BotFi (https://botfi.app)
+ * @author BotFi <hello@botfi.app>
+ */
+
 import { useTokens } from '../../composables/useTokens'
 import Utils from '../../classes/Utils';
 import { useSettings } from '../../composables/useSettings'

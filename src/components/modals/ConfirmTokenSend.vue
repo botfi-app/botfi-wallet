@@ -7,12 +7,13 @@ import { formatUnits, getAddress } from "ethers";
 import { useWalletStore } from '../../store/walletStore'
 import { computedAsync } from '@vueuse/core'
 import GasFeePicker from "../common/GasFeePicker.vue"
+import { useRouter } from "vue-router";
 
 import erc20Abi from "../../data/abi/erc20.json"
 import erc721Abi from "../../data/abi/erc721.json"
 import erc1155Abi from "../../data/abi/erc1155.json"
 import InlineError from "../common/InlineError.vue";
-
+import { useActivityStore } from "../../store/activityStore"
 
 const props = defineProps({
     id: { type: String, required: true },
@@ -24,6 +25,7 @@ const props = defineProps({
 })
 
 
+const router = useRouter()
 const title = ref( `Confirm <span class='hinted'>
                         ${props.tokenInfo.symbol.toUpperCase()}
                     </span> Transfer
@@ -33,6 +35,9 @@ const initialized = ref(false)
 const { getTokenByAddr, geTokenFiatValue } = useTokens()
 const { getWeb3Conn, getActiveWalletInfo } = useWalletStore()
 const activeWalletInfo = ref(null)
+
+const activityStore = useActivityStore()
+
 const editNonceInput = ref("")
 
 const feeData = ref()
@@ -61,7 +66,6 @@ const editNonce = ref(false)
 const nativeTokenInfo = ref(null)
 const nativeTokenBalanceInfo = ref(null)
 const hasInsufficientNativeToken = ref(false)
-
 
 
 const finalAmountFiat = computedAsync( async() => (
@@ -297,7 +301,7 @@ const toggleEditNonce = () => {
     }
 }
 
-const handleSend = async () => {
+const processTransfer = async () => {
     
     let loader; 
 
@@ -320,6 +324,11 @@ const handleSend = async () => {
         let maxFeePerGas = txGasPrice.value
         let maxPriorityFeePerGas = txGasPrice.value
 
+        let contractAddr = p.tokenInfo.contract
+
+        let recipient = getAddress(p.recipient)
+        let sender = getAddress(activeWalletInfo.value.address)
+
         loader = Utils.loader("Processing Transfer..")
 
         if(p.tokenType == 'native'){
@@ -340,10 +349,7 @@ const handleSend = async () => {
             resultStatus = web3Conn.sendETH(txParams)
 
         } else {
-
-            let contractAddr = p.tokenInfo.contract
-            let recipient = getAddress(p.recipient)
-            let sender = getAddress(activeWalletInfo.value.address)
+            
             let minConfirmaions = 1
 
             let contract, method, params; 
@@ -391,6 +397,32 @@ const handleSend = async () => {
             return Utils.mAlert(resultStatus.getMessage())
         }
 
+        //lets save the tx 
+        let rawTxInfo = resultStatus.getData()
+
+        let extraInfo = {
+            rawTxInfo, 
+            sender,
+            recipient,
+            token:  contractAddr,
+            amount: p.amountUint,
+            amountDecimal: p.amount
+        }
+
+
+        await activityStore.saveActivity({
+            wallet:         sender, 
+            chainId:        web3Conn.chainId,
+            activityType:   "token_transfer",
+            contract:       contractAddr,
+            hash:           rawTxInfo.hash, 
+            extraInfo          
+        })
+
+        
+        await Utils.mAlert(`${p.tokenInfo.symbol.toUpperCase()} transfer successful`)
+
+        router.push(`/tokens/${contractAddr}`)
         
     } catch(e){
         Utils.logError("ConfirmTokenSend#handleSend:", e)
@@ -550,7 +582,7 @@ const handleOnRetry = () => {
                             </div>
                         </div>
                         <div class='mx-3 mt-4 mb-3'>
-                            <button @click.prevent="handleSend"
+                            <button @click.prevent="processTransfer"
                                 class="btn btn-success w-full rounded-pill"
                             >
                                 Send

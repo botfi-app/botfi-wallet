@@ -1,7 +1,7 @@
 <route>
     { 
       name: "token-item", 
-      path: "/tokens/item/:contract(0x[a-fA-F0-9]{40})" 
+      path: "/tokens/:contract(0x[a-fA-F0-9]{40})" 
     }
 </route>
 <script setup>

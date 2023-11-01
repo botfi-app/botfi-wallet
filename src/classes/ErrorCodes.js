@@ -1,3 +1,7 @@
+/**
+ * BotFi (https://botfi.app)
+ * @author BotFi <hello@botfi.app>
+ */
 export default {
     RPC_CONNECT_FAILED:         100,
     WALLET_NOT_CONNECTED:       101,

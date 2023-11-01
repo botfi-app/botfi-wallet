@@ -144,7 +144,7 @@ const doRemoveToken = async (token) => {
             </div>
             <template v-for="token in dataToRender">
                 <div class="d-flex align-items-center no-select justify-content-between">
-                    <div @click.prevent="$router.push(`/tokens/item/${token.contract}`)"
+                    <div @click.prevent="$router.push(`/tokens/${token.contract}`)"
                         class="d-flex m-pointer justify-content-between align-items-center py-1 my-2 flex-grow-1"
                     >
                         <div class="d-flex">
@@ -169,7 +169,10 @@ const doRemoveToken = async (token) => {
                                 <div class="me-1">{{ token.balanceInfo.balanceDecimal }}</div>
                                 <div>{{ token.symbol.toUpperCase() }}</div>
                             </div>
-                            <div v-if="defaultCurrency in  token.balanceInfo.balanceFiat">
+                            <div v-if="'balanceFiat' in  token.balanceInfo &&
+                                typeof token.balanceInfo.balanceFiat === 'object' && 
+                                defaultCurrency in  token.balanceInfo.balanceFiat"
+                            >
                                 <div class="d-flex fs-12 hint muted fw-semibold monospace">
                                     <div class="me-1">
                                         {{ token.balanceInfo.balanceFiat[defaultCurrency]  }}
