@@ -7,7 +7,7 @@ import {ref, inject, computed, onBeforeMount } from 'vue'
 import { useDB } from "../composables/useDB"
 import Status from '../classes/Status';
 import Utils from '../classes/Utils';
-import { useNetworks } from "./useNetworks"
+import { useNetworks } from "../composables/useNetworks"
 
 const $state = ref({
     activiyList: []
@@ -36,6 +36,8 @@ export const useActivityStore = defineStore('activityStore', () => {
                 wallet,
                 chainId, 
                 contract,
+                title,
+                titleParams={},
                 hash, 
                 activityType, 
                 extraInfo={} 
@@ -53,6 +55,8 @@ export const useActivityStore = defineStore('activityStore', () => {
                 chainId,
                 wallet,
                 contract,
+                title,
+                titleParams,
                 hash,
                 activityType,
                 extraInfo

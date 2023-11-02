@@ -175,7 +175,7 @@ const doRemoveToken = async (token) => {
                             >
                                 <div class="d-flex fs-12 hint muted fw-semibold monospace">
                                     <div class="me-1">
-                                        {{ token.balanceInfo.balanceFiat[defaultCurrency]  }}
+                                        {{ Utils.formatFiat(token.balanceInfo.balanceFiat[defaultCurrency])  }}
                                     </div>
                                     <div>{{ defaultCurrency.toUpperCase() }}</div>
                                 </div>

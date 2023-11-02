@@ -134,7 +134,7 @@ watch(tokens, () => {
             <div v-if="defaultCurrency in  tokenInfo.balanceInfo.balanceFiat">
                 <div class="d-flex fs-6 text-light text-center center-vh mb-2">
                     <div class="me-1">
-                        {{ tokenInfo.balanceInfo.balanceFiat[defaultCurrency]  }}
+                        {{  Utils.formatFiat(tokenInfo.balanceInfo.balanceFiat[defaultCurrency])  }}
                     </div>
                     <div>{{ defaultCurrency.toUpperCase() }}</div>
                 </div>

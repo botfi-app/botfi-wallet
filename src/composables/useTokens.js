@@ -86,7 +86,7 @@ export const useTokens = () => {
             tokensArr.forEach(item => {
 
                 if(!item.balanceInfo || Object.keys(item.balanceInfo).length == 0){
-                    item.balanceInfo =  { balance: 0n, balanceDecimal: "0.0" }
+                    item.balanceInfo =  { balance: 0n, balanceDecimal: "0.0", balanceFiat: {} }
                 }
 
                 tokensObj[item.contract] = item 
@@ -479,6 +479,10 @@ export const useTokens = () => {
         //console.log("value====>", value)
 
         if(value == null || value == NaN) return value
+        
+        if(value.toString().length > 8){
+            value = parseFloat(value).toFixed(8)
+        }
 
         return { value, symbol: defaultCurrency }
     }

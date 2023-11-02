@@ -400,17 +400,23 @@ const processTransfer = async () => {
         //lets save the tx 
         let rawTxInfo = resultStatus.getData()
 
+        let tokenSymbol = p.tokenInfo.symbol
+
         let extraInfo = {
             rawTxInfo, 
             sender,
             recipient,
-            token:  contractAddr,
-            amount: p.amountUint,
-            amountDecimal: p.amount
+            token:          contractAddr,
+            amount:         p.amountUint,
+            amountDecimal:  p.amount,
+            transferType:   "send",
+            tokenSymbol
         }
 
 
         await activityStore.saveActivity({
+            title:          `send_{tokenSymbol}`,
+            titleParams:    { tokenSymbol },
             wallet:         sender, 
             chainId:        web3Conn.chainId,
             activityType:   "token_transfer",
@@ -420,7 +426,7 @@ const processTransfer = async () => {
         })
 
         
-        await Utils.mAlert(`${p.tokenInfo.symbol.toUpperCase()} transfer successful`)
+        await Utils.mAlert(`${p.tokenInfo.symbol.toUpperCase()} transfer successful`, { ttl: 10 })
 
         router.push(`/tokens/${contractAddr}`)
         

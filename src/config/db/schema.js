@@ -44,9 +44,12 @@ activity: `id,
            userId,
            chainId,
            contract,
+           title,
+           titleParams,
            activityType,
            hash,
            extraInfo,
+           txDate,
            createdAt,
            updatedAt      
         `      

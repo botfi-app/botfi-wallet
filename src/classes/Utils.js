@@ -57,7 +57,11 @@ export default class Utils {
         return (this.toBool(root.dataset.isExpanded) || false)
     }
 
-    static mAlert(text) {
+    static mAlert(text, opts = {}) {
+
+        let {
+            ttl = null
+        } = opts
 
         let position = (this.isExpanded()) ? "center" : "top"
 
@@ -68,6 +72,12 @@ export default class Utils {
             html,
             icon: null,
             position
+        }
+
+        if(ttl != null) {
+            params.timer = (ttl * 1000)
+            params.timerProgressBar = true 
+            params.allowOutsideClick = false
         }
 
         return this.getSwal().fire(params)
@@ -374,5 +384,20 @@ export default class Utils {
         no = no.toString()
         let dotCount = Utils.countStrInstance(no, ".")
         return (/[0-9\.]+/g.test(no) &&  [0,1].includes(dotCount))
+    }
+
+    static formatFiat(val) {
+
+        let factionLen = 4;
+
+        val = val.toString()
+
+        if(val.startsWith("0.")){
+            if(val.length > 8){
+                factionLen = 8
+            }
+        }
+
+        return parseFloat(val).toFixed(factionLen)
     }
 }

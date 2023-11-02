@@ -73,10 +73,10 @@ const initialize = async () => {
 
       <div class='mt-4'>
         <div class="fw-bold text-uppercase fs-12 hint muted ls-2 px-1 pb-3 px-2">
-          Transactions
+          Activity
         </div>
 
-        
+         <ActivityList :contract="tokenAddress" /> 
       </div>
     </div>
 

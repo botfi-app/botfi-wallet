@@ -192,7 +192,7 @@ const confirmSendToken = async () => {
     >   
 
         <NativeBackBtn 
-            :url="`/tokens/item/${tokenAddress}`"
+            :url="`/tokens/${tokenAddress}`"
         />
     
         <div class="w-400 mb-5">
