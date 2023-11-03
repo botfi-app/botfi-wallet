@@ -15,6 +15,8 @@ declare module '@vue/runtime-core' {
     Activity: typeof import('./src/components/activity/index.vue')['default']
     ActivityList: typeof import('./src/components/activity/ActivityList.vue')['default']
     ActivityTab: typeof import('./src/components/wallet/tabs/ActivityTab.vue')['default']
+    ActivityViewer: typeof import('./src/components/modals/ActivityViewer.vue')['default']
+    ActivityViewerModal: typeof import('./src/components/modals/ActivityViewerModal.vue')['default']
     AddressesMenus: typeof import('./src/components/modals/AddressesMenus.vue')['default']
     AddToken: typeof import('./src/components/modals/AddToken.vue')['default']
     AddWallet: typeof import('./src/components/modals/AddWallet.vue')['default']

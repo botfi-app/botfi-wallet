@@ -26,6 +26,8 @@
     "buffer": "^6.0.3",
     "clipboard": "^2.0.11",
     "copy-text-to-clipboard": "^3.2.0",
+    "date-and-time": "^3.0.3",
+    "dayjs": "^1.11.10",
     "dexie": "^3.2.4",
     "easyqrcodejs": "^4.5.0",
     "esm-seedrandom": "^3.0.5",

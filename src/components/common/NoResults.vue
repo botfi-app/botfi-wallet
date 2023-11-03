@@ -19,9 +19,15 @@ onBeforeMount(() => {
 </script>
 <template>
     <div :class="`mt-2 d-flex flex-column align-items-center justify-content-center ${containerClass}`">
-        <div><Lottie name="empty_ghost" class="" /></div>
-        <h5 class="fw-medium text-muted hint"> 
+        <div><img src='/images/empty_box.png' alt=''  /></div>
+        <h5 class="fw-normal text-muted hint mt-1"> 
             {{ noResultsText }} 
         </h5>
     </div>
 </template>
+<style scoped>
+img {
+    width: 100px;
+    height: auto;
+}
+</style>

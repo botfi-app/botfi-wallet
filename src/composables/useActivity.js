@@ -2,18 +2,18 @@
  * BotFi (https://botfi.app)
  * @author BotFi <hello@botfi.app>
  */
-import { defineStore } from 'pinia' 
+
 import {ref, inject, computed, onBeforeMount } from 'vue'
-import { useDB } from "../composables/useDB"
+import { useDB } from "./useDB"
 import Status from '../classes/Status';
 import Utils from '../classes/Utils';
-import { useNetworks } from "../composables/useNetworks"
+import { useNetworks } from "./useNetworks"
 
 const $state = ref({
     activiyList: []
 })
 
-export const useActivityStore = defineStore('activityStore', () => {
+export const useActivity =  () => {
     
     const net = useNetworks()
     const dbCore = useDB()
@@ -39,7 +39,8 @@ export const useActivityStore = defineStore('activityStore', () => {
                 title,
                 titleParams={},
                 hash, 
-                activityType, 
+                activityType,
+                txDate, 
                 extraInfo={} 
             } = params;
 
@@ -59,7 +60,8 @@ export const useActivityStore = defineStore('activityStore', () => {
                 titleParams,
                 hash,
                 activityType,
-                extraInfo
+                extraInfo,
+                txDate
             }
 
             if(oldData == null){
@@ -106,4 +108,4 @@ export const useActivityStore = defineStore('activityStore', () => {
         activityList,
         getActivityList
     }
-})
+}

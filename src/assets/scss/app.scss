@@ -41,6 +41,10 @@ body {
     background: rgba(var(--bs-primary-rgb), 0.25) !important;
 }
 
+.text-notice {
+    color: darken($info, 1) !important;
+}
+
 .app-main {
     width: 100%;
     max-width: 800px;
@@ -303,8 +307,8 @@ input[type=number] {
     overflow: hidden;
 }
 
-.ls-1 { letter-spacing: 1; }
-.ls-2 { letter-spacing: 2; }
+.ls-1 { letter-spacing: 1px; }
+.ls-2 { letter-spacing: 2px; }
 
 .bg-darken-5 {
     background: var(--bs-bg-dark-5);

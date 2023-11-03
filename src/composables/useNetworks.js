@@ -8,6 +8,13 @@ import { useSimpleDB } from "./useSimpleDB"
 import Wallet from "../classes/Wallet"
 import Status from "../classes/Status"
 
+const $state = ref({
+    isReady: false, 
+    userActiveNetwork:      null,
+    userNetworkInfo:        null,
+    defaultNetworkInfo:     null
+})
+
 export const useNetworks = () => {
     
     const USER_NETWORKS = "_user_networks"
@@ -15,12 +22,6 @@ export const useNetworks = () => {
     const DB = useSimpleDB()
     const web3Conns = []
 
-    const $state = ref({
-        isReady: false, 
-        userActiveNetwork:      null,
-        userNetworkInfo:        null,
-        defaultNetworkInfo:     null
-    })
 
     onBeforeMount(async () => getUserNetworks())
 
@@ -225,6 +226,26 @@ export const useNetworks = () => {
         return Status.successData(wInfo)
     }
 
+    const getExplorer = async (chainId, uri="") => {
+       
+        let nets = (await getUserNetworks()).networks || {}
+        let netInfo = nets[chainId]
+
+        let explorers = netInfo.explorers || []
+
+        if(explorers.length == 0) {
+            return ""
+        }
+
+        let exp = explorers[0]
+
+        if(uri != ""){
+            exp = `${exp}/${uri}`
+        }
+
+        return exp
+    }
+
     return {
         isNetReady,
         getUserNetworks,
@@ -238,6 +259,7 @@ export const useNetworks = () => {
         fetchNetworkInfo,
         saveNetwork,
         clearNetworks,
-        getWeb3Conn
+        getWeb3Conn,
+        getExplorer
     }
  }

@@ -13,7 +13,7 @@ import erc20Abi from "../../data/abi/erc20.json"
 import erc721Abi from "../../data/abi/erc721.json"
 import erc1155Abi from "../../data/abi/erc1155.json"
 import InlineError from "../common/InlineError.vue";
-import { useActivityStore } from "../../store/activityStore"
+import { useActivity } from "../../composables/useActivity"
 
 const props = defineProps({
     id: { type: String, required: true },
@@ -36,7 +36,7 @@ const { getTokenByAddr, geTokenFiatValue } = useTokens()
 const { getWeb3Conn, getActiveWalletInfo } = useWalletStore()
 const activeWalletInfo = ref(null)
 
-const activityStore = useActivityStore()
+const activity = useActivity()
 
 const editNonceInput = ref("")
 
@@ -391,7 +391,7 @@ const processTransfer = async () => {
             resultStatus = await contract.sendTx(method, params, minConfirmaions, ethersTxOpt)
         } //en if contract
 
-        console.log("resultStatus ==> ", resultStatus)
+        //console.log("resultStatus ==> ", resultStatus)
 
         if(resultStatus.isError()){
             return Utils.mAlert(resultStatus.getMessage())
@@ -412,9 +412,10 @@ const processTransfer = async () => {
             transferType:   "send",
             tokenSymbol
         }
+        
+        //let blockInfo = await web3Conn.getBlock(rawTxInfo.blockNumber)
 
-
-        await activityStore.saveActivity({
+        await activity.saveActivity({
             title:          `send_{tokenSymbol}`,
             titleParams:    { tokenSymbol },
             wallet:         sender, 
@@ -422,6 +423,7 @@ const processTransfer = async () => {
             activityType:   "token_transfer",
             contract:       contractAddr,
             hash:           rawTxInfo.hash, 
+            txDate:        (rawTxInfo.timestamp || null),
             extraInfo          
         })
 

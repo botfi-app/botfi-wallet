@@ -11,6 +11,8 @@ import { isAddress as ethersIsAddress, getAddress } from 'ethers';
 import copyText from 'copy-text-to-clipboard';
 import { v5 as uuidv5 } from 'uuid';
 import appConfig from "../config/app"
+import * as dayjs from 'dayjs'
+
 
 export default class Utils {
 
@@ -400,4 +402,10 @@ export default class Utils {
 
         return parseFloat(val).toFixed(factionLen)
     }
+
+
+    static formatDateMillis(dateMillis, format="lll"){
+        return dayjs(dateMillis).format(format)
+    }
+
 }

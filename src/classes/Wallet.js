@@ -559,6 +559,16 @@ export default class Wallet {
                         return this.__getEventData(txReceipt.events, eventNameOrSig);
                     }
                 }
+
+                // lets get block info 
+                let blockInfoStatus = await this.getBlock(tx.blockNumber)
+
+                if(!blockInfoStatus.isError()){
+                    let blockInfo = blockInfoStatus.getData()
+                    let timestamp = (blockInfo.timestamp * 1000)
+                    tx.timestamp = timestamp
+                    tx.txDate = new Date(timestamp)
+                }
             } //end if
 
             return Status.successPromise(null, tx);
@@ -631,4 +641,26 @@ export default class Wallet {
        return _selectedEvt;
     } //end fun 
 
+
+    // get block info 
+    async getBlock(blockNo) {
+        try {
+
+            if(!this.provider){
+                return this.notConnectedError()
+            }
+
+            let blockInfo = await this.provider.getBlock( blockNo ) 
+
+            //console.log("blockInfo===>", blockInfo)
+
+            return Status.successData(blockInfo)
+
+        } catch(e){
+            Utils.logError("Wallet#getBlock:", e)
+            return Status.error("Failed to fetch block info")
+        }
+    }
+
+    
 }

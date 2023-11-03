@@ -2243,6 +2243,16 @@ datastore-core@^9.0.0, datastore-core@^9.0.1:
     it-take "^3.0.1"
     uint8arrays "^4.0.2"
 
+date-and-time@^3.0.3:
+  version "3.0.3"
+  resolved "https://registry.npmjs.org/date-and-time/-/date-and-time-3.0.3.tgz"
+  integrity sha512-CmHCeTixc3KA5pcLTVs9JCFhmJMFTBsmSsgHnNed4YDNw9yUOrjjRn3zALy8eMgqmTO+4U8k5jl1peC7IoezfA==
+
+dayjs@^1.11.10:
+  version "1.11.10"
+  resolved "https://registry.npmjs.org/dayjs/-/dayjs-1.11.10.tgz"
+  integrity sha512-vjAczensTgRcqDERK0SR2XMwsF/tSvnvlv6VcF2GIhg6Sx4yOIt/irsr1RDJsKiIyBzJDpCoXiWWq28MqH2cnQ==
+
 debounce@^1.2.1:
   version "1.2.1"
   resolved "https://registry.npmjs.org/debounce/-/debounce-1.2.1.tgz"
