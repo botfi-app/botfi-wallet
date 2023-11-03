@@ -662,5 +662,27 @@ export default class Wallet {
         }
     }
 
-    
+
+    /**
+     * fetch last 5 blocks data
+     */
+    async getPastTxByBlocks(blockSince = 5){
+        try {
+
+            if(!this.provider){
+                return this.notConnectedError()
+            }
+            
+            //let latest blockNumber 
+            let latestBlockNo = await this.provider.getBlockNumber()
+
+            let blockStart = latestBlockNo - blockSince
+
+        } catch(e){
+            Utils.logError("Wallet#getBlock:", e)
+            return Status.error("Failed to fetch block info")
+        }
+    }
+
+
 }

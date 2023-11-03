@@ -291,6 +291,8 @@ export const useTokens = () => {
 
             await db.balances.bulkPut(bulkData)
 
+            await fetchTxHistory(web3Conn)
+
             let tokens = await getTokens()
 
             updateDataState()
@@ -303,6 +305,16 @@ export const useTokens = () => {
             return Status.error(`balance update failed: ${e.message}`)
         } finally {
             window.__botFibalanceUpdating = false
+        }
+    }
+
+    const fetchTxHistory = async (web3Conn) => {
+        try {
+
+            let resultStatus = await web3Conn.getTx
+        } catch(e) {
+            Utils.logError("useToken#fetchTxHistory:", e)
+            return Status.error(`balance update failed: ${e.message}`)
         }
     }
 

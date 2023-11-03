@@ -41,7 +41,7 @@ body {
     background: rgba(var(--bs-primary-rgb), 0.25) !important;
 }
 
-.text-notice {
+.text-info {
     color: darken($info, 1) !important;
 }
 
@@ -576,4 +576,18 @@ ul.list-group {
     white-space: -o-pre-wrap;   
     word-wrap: break-word;   
     overflow-wrap: break-word;  
+}
+
+.icon {
+    width: 24px;
+    height: 24px;
+
+    .icon-sm {
+        width: 16px;
+        height: 16px;
+    }
+}
+
+.d-inline-block {
+    display: inline-block !important;
 }
