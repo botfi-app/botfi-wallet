@@ -6,10 +6,11 @@
 import { computed, inject, onBeforeMount, toValue, ref, toRaw } from "vue"
 import { useDB } from "./useDB"
 import { useNetworks } from "./useNetworks"
+import { useActivity } from "./useActivity"
 import Utils from "../classes/Utils"
 import erc20Abi from "../data/abi/erc20.json"
 import Status from "../classes/Status"
-import { formatUnits, getAddress } from "ethers"
+import { formatUnits, getAddress, parseUnits } from "ethers"
 import EventBus from "../classes/EventBus"
 import Http from "../classes/Http"
 import { useSettings } from "./useSettings"
@@ -29,6 +30,7 @@ export const useTokens = () => {
     const botUtils = inject("botUtils")
     const { fetchSettings } = useSettings()
     const { getWalletAddresses } = useWalletStore()
+    const activityCore = useActivity()
 
     const updateDataState = () => {
         $state.value.dataState = Date.now()
@@ -151,12 +153,15 @@ export const useTokens = () => {
             }
 
             let web3Conn = web3ConnStatus.getData()
-
+            
             let tokensArray = await db.tokens.where({ chainId, userId }).toArray()
 
             let contractsAddrs = []
 
             let inputs = []
+
+            let balanceHasChanged = false
+            let balanceChangesInfo = {}
 
             for(let index in tokensArray){
 
@@ -274,6 +279,15 @@ export const useTokens = () => {
                     }
                 }
 
+                let oldBalanceInfo = await db.balances.get({wallet: walletAddr, token: contract})
+
+                if(oldBalanceInfo != null){
+                    //console.log("oldBalanceInfo==>", oldBalanceInfo)
+                    if(oldBalanceInfo.balance != balance){
+                        balanceHasChanged = true
+                    }
+                }
+
                 bulkData.push({
                     id,
                     token: contract,
@@ -291,15 +305,18 @@ export const useTokens = () => {
 
             await db.balances.bulkPut(bulkData)
 
-            await fetchPastTxByBlocks(web3Conn, { tokensAddrs: contractsAddrs, walletAddrs })
-
             let tokens = await getTokens()
 
             updateDataState()
 
             EventBus.emit("balance-updated", tokens)
 
+            if(balanceHasChanged){
+                await fetchPastTxByBlocks(web3Conn, { tokensAddrs: contractsAddrs, walletAddrs })
+            }
+
             return Status.success()
+
         } catch(e){
             Utils.logError("useToken#updateBalances:", e)
             return Status.error(`balance update failed: ${e.message}`)
@@ -313,7 +330,8 @@ export const useTokens = () => {
 
             let resultStatus = await web3Conn.getPastTxByBlocks()
 
-            console.log("resultStatus==>", resultStatus)
+            //console.log("tokensAddrs==>", tokensAddrs)
+            //console.log("walletAddrs==>", walletAddrs)
 
             if(resultStatus.isError()){
                 return resultStatus;
@@ -323,18 +341,155 @@ export const useTokens = () => {
 
             let iface = new ethersInterface(erc20Abi)
             let filteredTxArr = []
-
+             
             for(let tx of txDataArr){
                 
                 tx = {...tx}
 
-                if(tokensAddrs.includes(txInfo.to) && tx.data != ''){
-                    
-                    tx.isERC20 = true
+                if(!['0x', '', null].includes(tx.data.trim())){
 
-                    let decodedData = iface.parseTransaction({ data: tx.data, value: tx.value });
-                    filteredTxArr.push(txInfo)
+                    if(!tokensAddrs.includes(tx.to)) continue
+
+                    //decoded data
+                    let dd = iface.parseTransaction({ data: tx.data, value: tx.value });
+
+                    //console.log("dd===>", dd)
+
+                    if(!dd || typeof dd != 'object') continue
+
+                    if(!("args" in dd) || dd.args == null) continue
+
+                    let [recipient, amountUint] = (dd.args || [])
+
+                    let transferSig = '0xa9059cbb'
+
+                    if([transferSig].includes(dd.selector)  && 
+                        (walletAddrs.includes(recipient) || walletAddrs.includes(tx.from))
+                    ){
+                        
+                        tx.isERC20 = true
+                        tx.isNative = false
+                        tx.tokenContract = tx.to
+                        tx.tokenRecipient = recipient
+                        tx.tokenAmount = amountUint
+                        tx.activityType = 'token_transfer'
+
+                        if(walletAddrs.includes(recipient)){
+                            tx.transferType = "receive"
+                            filteredTxArr.push(tx)
+                        }
+
+                        if(walletAddrs.includes(tx.from)){
+                            tx.transferType = "send"
+                            filteredTxArr.push(tx)
+                        }
+
+                       // console.log("tx===>", tx)
+                       // console.log("dd===>>>", dd)
+                    }
+                }  
+                else if (walletAddrs.includes(tx.to) && tx.value > 0n) {
+                   
+                    tx.isNative = true
+                    tx.isERC20 = false
+                    tx.activityType = 'token_transfer'
+                    
+                    if(walletAddrs.includes(tx.to)){
+                        tx.transferType = "receive"
+                        filteredTxArr.push(tx)
+                    }
+
+                    if(walletAddrs.includes(tx.from)){
+                        tx.transferType = "send"
+                        filteredTxArr.push(tx)
+                    }
                 }
+            }
+
+            //console.log("filteredTxArr ==>", filteredTxArr)
+
+            if(filteredTxArr.length == 0) return Status.success()
+
+            //console.log("filteredTxArr ==>", filteredTxArr)
+
+            for(let tx of filteredTxArr){
+
+                let recipient;
+                let sender = tx.from;
+                let amount;
+                let contractAddr;
+
+                //console.log("tx===>", tx)
+
+                if(tx.isERC20) {
+                    
+                    recipient = tx.tokenRecipient
+                    amount = tx.tokenAmount
+                    contractAddr = tx.tokenContract
+   
+                } else if(tx.isNative){
+                    recipient = tx.to;
+                    amount = tx.value
+                    contractAddr = Utils.nativeTokenAddr
+                } else {
+                    continue
+                }
+
+
+                let transferType = tx.transferType;
+
+                let wallet = (transferType == 'send')
+                                ? sender
+                                : recipient
+
+
+                let tokenInfo = await getTokenByAddr(contractAddr)
+                let tokenSymbol = tokenInfo.symbol;
+
+                let amountDecimal = formatUnits(amount, tokenInfo.decimals)
+
+                let extraInfo = {
+                    rawTxInfo: tx, 
+                    sender,
+                    recipient,
+                    token: contractAddr,
+                    amount,
+                    amountDecimal,
+                    transferType,
+                    tokenSymbol
+                }   
+                /*
+                console.log("wallet===>", wallet)
+                console.log("transfer===>", transferType)
+                console.log("extraInfo===>", extraInfo)
+                console.log("tx===>", tx)
+                */
+
+                let activityType = tx.activityType;
+                
+                let title;
+
+                if(activityType == 'token_transfer'){
+                    title = (transferType == 'send') 
+                            ?`sent_{tokenSymbol}`
+                            : "received_{tokenSymbol}"
+
+                } else if(activityType == 'token_approval'){
+                    title = `approved_${tokenSymbol}`
+                }
+    
+                await activityCore.saveActivity({
+                    title,
+                    titleParams:    { tokenSymbol },
+                    wallet, 
+                    chainId:        Number(tx.chainId),
+                    activityType,
+                    contract:       contractAddr,
+                    hash:           tx.hash, 
+                    txDate:        (tx.timestamp || null),
+                    extraInfo          
+                })
+                
             }
         } catch(e) {
             Utils.logError("useToken#fetchTxHistory:", e)
@@ -523,6 +678,15 @@ export const useTokens = () => {
         return { value, symbol: defaultCurrency }
     }
 
+
+    const removeUsersTokensAndBalances = async () => {
+        let userId = botUtils.getUid()
+        let db = await dbCore.getDB()
+        await db.tokens.where({ userId }).delete()
+        await db.balances.where({ userId }).delete()
+        return Status.successPromise()
+    }
+
     return {
         getTokens,
         importToken,
@@ -533,6 +697,7 @@ export const useTokens = () => {
         tokensDataState: dataState,
         removeToken,
         getTokenByAddr,
-        geTokenFiatValue
+        geTokenFiatValue,
+        removeUsersTokensAndBalances
     }
 }

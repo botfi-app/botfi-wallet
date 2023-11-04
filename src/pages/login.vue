@@ -1,6 +1,9 @@
 <script setup>
 import { inject, onBeforeMount, ref, watch } from 'vue';
 import { useWalletStore } from "../store/walletStore"
+import { useTokens } from "../composable/useTokens"
+import { useActivity } from "../composable/useActivity"
+import { useNFT } from "../composable/removeAllUserNFTs"
 import { useRouter } from 'vue-router';
 import Utils from '../classes/Utils'
 import PinCode from '../components/common/PinCode.vue';
@@ -9,6 +12,8 @@ const initialized = ref(false)
 const walletStore = useWalletStore()
 const router      = useRouter()
 const pin         = ref("")
+const { removeUsersTokensAndBalances } = useTokens()
+const { removeUserActivity } = useActivity()
 
 onBeforeMount(() => {
     initialize()
@@ -86,6 +91,10 @@ const resetWallets = async () => {
     if(resetStatus.isError()){
         return Utils.mAlert(resetStatus.getMessage())
     }
+
+    await removeUsersTokensAndBalances()
+    await removeUserActivity()
+    await removeAllUserNFTs()
 
     Utils.toast("Account reset completed")
 

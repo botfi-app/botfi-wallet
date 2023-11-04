@@ -32,7 +32,7 @@ const title = ref( `Confirm <span class='hinted'>
                 `)
 
 const initialized = ref(false)
-const { getTokenByAddr, geTokenFiatValue } = useTokens()
+const { getTokenByAddr, geTokenFiatValue, updateBalances } = useTokens()
 const { getWeb3Conn, getActiveWalletInfo } = useWalletStore()
 const activeWalletInfo = ref(null)
 
@@ -346,7 +346,7 @@ const processTransfer = async () => {
                 txParams["gasPrice"] = txGasPrice.value
             }
 
-            resultStatus = web3Conn.sendETH(txParams)
+            resultStatus = await web3Conn.sendETH(txParams, 1)
 
         } else {
             
@@ -416,7 +416,7 @@ const processTransfer = async () => {
         //let blockInfo = await web3Conn.getBlock(rawTxInfo.blockNumber)
 
         await activity.saveActivity({
-            title:          `send_{tokenSymbol}`,
+            title:          `sent_{tokenSymbol}`,
             titleParams:    { tokenSymbol },
             wallet:         sender, 
             chainId:        web3Conn.chainId,
@@ -427,6 +427,7 @@ const processTransfer = async () => {
             extraInfo          
         })
 
+        updateBalances(null, true)
         
         await Utils.mAlert(`${p.tokenInfo.symbol.toUpperCase()} transfer successful`, { ttl: 10 })
 

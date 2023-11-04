@@ -9,5 +9,10 @@ const props = defineProps({
 
 </script>
 <template>
-    Activity
+    <div class="mt-3">    
+        <ActivityList 
+            :limit="props.limit"
+            :enableViewAllBtn="props.enableViewAllBtn"
+        />
+    </div>
 </template>

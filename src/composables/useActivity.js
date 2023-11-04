@@ -3,11 +3,12 @@
  * @author BotFi <hello@botfi.app>
  */
 
-import {ref, inject, computed, onBeforeMount } from 'vue'
+import {ref, inject, computed, onBeforeMount, onBeforeUnmount } from 'vue'
 import { useDB } from "./useDB"
 import Status from '../classes/Status';
 import Utils from '../classes/Utils';
 import { useNetworks } from "./useNetworks"
+import EventBus from '../classes/EventBus';
 
 const $state = ref({
     activiyList: []
@@ -23,6 +24,11 @@ export const useActivity =  () => {
 
     onBeforeMount(() => {
         getActivityList()
+        EventBus.on("balance-updated", () => getActivityList() )
+    })
+
+    onBeforeUnmount(()=> {
+        EventBus.off("balance-updated")
     })
 
     const saveActivity = async (params={}) => {
@@ -43,6 +49,11 @@ export const useActivity =  () => {
                 txDate, 
                 extraInfo={} 
             } = params;
+
+            // chain tx are in seconds
+            if(txDate){
+                txDate = txDate * 1000;
+            }
 
             let id = Utils.generateUID(`${userId}-${chainId}-${wallet}-${contract}-${hash}`)
 
@@ -102,10 +113,20 @@ export const useActivity =  () => {
         }
     }
 
+    const removeUserActivity = async () => {
+        
+        let userId = botUtils.getUid()
+        let db = await dbCore.getDB()
+
+        await db.activity.where({ userId }).delete()
+
+        return Status.success()
+    }
 
     return {
         saveActivity,
         activityList,
-        getActivityList
+        getActivityList,
+        removeUserActivity
     }
 }

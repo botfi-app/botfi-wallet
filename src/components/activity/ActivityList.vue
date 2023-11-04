@@ -26,7 +26,7 @@ watch(activityList, () => {
 })
 
 onMounted(() => {
-
+  //  console.log("props===>", props)
 })
 
 const processActivityList = () => {
@@ -42,6 +42,11 @@ const processActivityList = () => {
 
         data.push(item)
     }
+
+    if(p.limit != null){
+        data = data.slice(0, p.limit + 1)
+    }
+
     activityArr.value = data
 
     
@@ -101,10 +106,10 @@ const iconInfo = (item) => {
                                 <Icon :name="item.iconInfo.icon" />
                             </div>
                             <div>
-                                <h6 class="fw-semibold my-0 py-0 text-capitalize ">
+                                <h6 class="fw-medium my-0 py-0 text-capitalize ">
                                     {{ item.title }}
                                 </h6>
-                                <div class="text-success mt-1 fw-semibold fs-12 ls-2">
+                                <div class="text-success mt-1 fs-12 ls-1">
                                     Confirmed
                                 </div>
                             </div>
@@ -128,6 +133,17 @@ const iconInfo = (item) => {
                 </div>
             </div>
         </template>
+
+        <div v-if="props.enableViewAllBtn" class='w-full d-flex justify-content-end'>
+            <router-link to="/activity" 
+                class="btn btn-outline-primary rounded-pill shadow"
+            >
+                <div class="d-flex align-items-center">
+                    <div class="me-2">View All</div>
+                    <Icon name="solar:arrow-right-line-duotone" />
+                </div>
+            </router-link>
+        </div>
         <ActivityViewerModal 
             v-if="viewerData != null"
             :data="viewerData"

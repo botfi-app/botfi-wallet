@@ -406,7 +406,7 @@ export default class Wallet {
     * @param {*} params 
     * @returns 
     */
-    async sendETH(params = {}, minConfirmations = 0){
+    async sendETH(params = {}, minConfirmations = 1){
         try {
 
             //let { to, value, nonce, gasPrice, gasLimit } = params;
@@ -420,13 +420,24 @@ export default class Wallet {
             if(minConfirmations > 0 && typeof tx.wait === 'function') {
                  
                 txReceipt = await tx.wait(minConfirmations);
-                
+
+                //console.log("txReceipt===>", txReceipt)
+                //console.log("tx===>", tx)
+
                 //lets merge 
                 tx = {...tx, ...txReceipt};
 
                  //lets check if status is 1 then its success
                  if(txReceipt.status != 1){
                     return Status.errorPromise("Transaction failed", tx)
+                }
+                
+                // lets get block info 
+                let blockInfoStatus = await this.getBlock(tx.blockNumber)
+
+                if(!blockInfoStatus.isError()){
+                    let blockInfo = blockInfoStatus.getData()
+                    tx.timestamp = blockInfo.timestamp
                 }
             }
 
@@ -565,9 +576,7 @@ export default class Wallet {
 
                 if(!blockInfoStatus.isError()){
                     let blockInfo = blockInfoStatus.getData()
-                    let timestamp = (blockInfo.timestamp * 1000)
-                    tx.timestamp = timestamp
-                    tx.txDate = new Date(timestamp)
+                    tx.timestamp = blockInfo.timestamp
                 }
             } //end if
 
@@ -683,7 +692,14 @@ export default class Wallet {
             for(let i = blockStart; i <= latestBlockNo; i++) {
                 try{
                     let blockInfo = await this.provider.getBlock(i, true)
-                    txDataArr.push(...blockInfo.prefetchedTransactions)
+
+                    let txArr = blockInfo.prefetchedTransactions.map(tx => {
+                                    tx.timestamp = blockInfo.timestamp
+                                    return tx
+                                })
+
+                    txDataArr.push(...txArr)
+
                 } catch(e){}
 
                 await Utils.sleep(delay)
