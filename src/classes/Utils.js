@@ -408,4 +408,11 @@ export default class Utils {
         return dayjs(dateMillis).format(format)
     }
 
+    static sleep(delayInSecs) {
+        return (new Promise((resolve, reject)=> {
+            setTimeout(()=>{
+                resolve()
+            }, (delayInSecs * 1000))
+        }))
+    }
 }

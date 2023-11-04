@@ -666,7 +666,7 @@ export default class Wallet {
     /**
      * fetch last 5 blocks data
      */
-    async getPastTxByBlocks(blockSince = 5){
+    async getPastTxByBlocks(blockSince = 5, delay=3){
         try {
 
             if(!this.provider){
@@ -678,6 +678,18 @@ export default class Wallet {
 
             let blockStart = latestBlockNo - blockSince
 
+            let txDataArr = []
+
+            for(let i = blockStart; i <= latestBlockNo; i++) {
+                try{
+                    let blockInfo = await this.provider.getBlock(i, true)
+                    txDataArr.push(...blockInfo.prefetchedTransactions)
+                } catch(e){}
+
+                await Utils.sleep(delay)
+            }
+
+            return Status.successData(txDataArr)
         } catch(e){
             Utils.logError("Wallet#getBlock:", e)
             return Status.error("Failed to fetch block info")

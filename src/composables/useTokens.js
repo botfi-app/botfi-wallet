@@ -14,7 +14,7 @@ import EventBus from "../classes/EventBus"
 import Http from "../classes/Http"
 import { useSettings } from "./useSettings"
 import { useWalletStore } from "../store/walletStore"
-
+import { Interface as ethersInterface } from "ethers"
 
 const $state = ref({
     tokens: {},
@@ -291,7 +291,7 @@ export const useTokens = () => {
 
             await db.balances.bulkPut(bulkData)
 
-            await fetchTxHistory(web3Conn)
+            await fetchPastTxByBlocks(web3Conn, { tokensAddrs: contractsAddrs, walletAddrs })
 
             let tokens = await getTokens()
 
@@ -308,10 +308,34 @@ export const useTokens = () => {
         }
     }
 
-    const fetchTxHistory = async (web3Conn) => {
+    const fetchPastTxByBlocks = async (web3Conn, { tokensAddrs = [], walletAddrs = [] }) => {
         try {
 
-            let resultStatus = await web3Conn.getTx
+            let resultStatus = await web3Conn.getPastTxByBlocks()
+
+            console.log("resultStatus==>", resultStatus)
+
+            if(resultStatus.isError()){
+                return resultStatus;
+            }
+
+            let txDataArr = resultStatus.getData() || []
+
+            let iface = new ethersInterface(erc20Abi)
+            let filteredTxArr = []
+
+            for(let tx of txDataArr){
+                
+                tx = {...tx}
+
+                if(tokensAddrs.includes(txInfo.to) && tx.data != ''){
+                    
+                    tx.isERC20 = true
+
+                    let decodedData = iface.parseTransaction({ data: tx.data, value: tx.value });
+                    filteredTxArr.push(txInfo)
+                }
+            }
         } catch(e) {
             Utils.logError("useToken#fetchTxHistory:", e)
             return Status.error(`balance update failed: ${e.message}`)
