@@ -200,7 +200,7 @@ export default class TelegramCore {
 
     clipboard() {
 
-        console.log("this.webApp.version====>", this.webApp.version)
+        //console.log("this.webApp.version====>", this.webApp.version)
         //let _p = this.webApp.platform.toLowerCase()
         let isSupported =  (this.isMinVersion(6.4))
 
