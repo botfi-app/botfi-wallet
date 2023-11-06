@@ -59,7 +59,7 @@ router.afterEach(() => {
 })
 
 
-app
+app 
  .use(bugsnagVue)
  .use(router)
  .use(pinia)
