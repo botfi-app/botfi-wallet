@@ -8,7 +8,6 @@ import "sweetalert2/src/sweetalert2.scss"
 import Status from './Status'
 import {prng_alea} from 'esm-seedrandom';
 import { isAddress as ethersIsAddress, getAddress } from 'ethers';
-import copyText from 'copy-text-to-clipboard';
 import { v5 as uuidv5 } from 'uuid';
 import appConfig from "../config/app"
 import * as dayjs from 'dayjs'
@@ -227,7 +226,8 @@ export default class Utils {
     static async copyText(opts = {}) {
 
         let { text, showToast=false, successText = "Copied", failedText = "Copy failed" } = opts
-        let copied = copyText(text)
+       
+        let copied = window.navigator.clipboard.writeText(text);
 
         if(showToast){
             Utils.toast((copied) ? successText: failedText)

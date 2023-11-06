@@ -117,7 +117,7 @@ const onSave = async () => {
      
         <div class="w-400">
             
-            <NativeBackBtn  />
+            <NativeBackBtn  url="/set-pin?next=create-wallet"  />
 
             <loading-view :isLoading="isLoading">
 
@@ -133,7 +133,7 @@ const onSave = async () => {
                         <template v-for="(word,index) in seedPhraseArray" :key="index">
                             <div class="col-6 col-md-4 p-1 px-2">
                                 <div
-                                    click.prevent 
+                                    click.prevent
                                     class="phrase-word bg-darken3-alpha px-4 py-3 w-full rounded text-dark" 
                                     :disabled="true"
                                 >  
