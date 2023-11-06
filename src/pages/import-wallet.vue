@@ -32,8 +32,11 @@ onBeforeMount(async () => {
 
     clipboard.value = botUtils.clipboard()
 
-    console.log("clipboard===>", clipboard.value)
+   // console.log("clipboard===>", clipboard.value)
 
+   let seed = "human repeat parent mango head razor outer dance horn monster exhaust distance"
+
+  seedPhraseArray.value = seed.split(" ")
 })
 
 
@@ -47,7 +50,31 @@ const onSave = async () => {
             return false
         }
 
+        let seedPhraseArr = seedPhraseArray.value 
+
+        console.log("seedPhraseArr.length ===>", seedPhraseArr.length )
+
+        if(seedPhraseArr.length != 12){
+          return Utils.mAlert("Provide all the words below")
+        }
+
+        for(let index in seedPhraseArr){
+          let wordNo = parseInt(index) + 1
+          let word = (seedPhraseArr[index] || "").trim()
+          if(word == ""){
+            return Utils.mAlert(`Word #${wordNo} cannot be empty`)
+          }
+        }
+
         let loader = Utils.loader("Saving on device")
+
+        let walletInfoStatus = await Wallet.createWalletFromSeedPhrase(seedPhraseArr.join(" "))
+
+        if(walletInfoStatus.isError()){
+          return Utils.mAlert(walletInfoStatus.getMessage())
+        }
+
+        let walletInfo = walletInfoStatus.getData()
 
         let saveStatus =   await Utils.runBlocking(
                                 () => walletStore.saveDefaultWallet(toValue(walletInfo))
@@ -75,11 +102,8 @@ const pasteWords = async () => {
 
   let c = clipboard.value; 
 
-  //if(!c.isSupported()) return; 
+  if(!c.isSupported()) return; 
 
-  c.readText((text) => {
-    console.log("text====>", text)
-  })
 }
 </script>
 
@@ -119,7 +143,7 @@ const pasteWords = async () => {
                 <input type="text" 
                   class="form-control rounded" 
                   :id="`phrase-word-${index}`"
-                  v-model="seedPhraseArray[index]"
+                  v-model="seedPhraseArray[parseInt(index)]"
                 />
                 <label :for="`phrase-word-${index}`">
                   Word #{{ index+1 }}
@@ -128,7 +152,24 @@ const pasteWords = async () => {
             </div>
           </template>
         </div>
-
+        <div class="form-check my-4">
+          <input 
+              v-model="hasAgreedSeedPhraseTerms"
+              class="form-check-input" 
+              type="checkbox" 
+              id="hasAgreedSeedPhraseTerms"
+          />
+          <label class="form-check-label hint" for="hasAgreedSeedPhraseTerms">
+              I understand that the seed phrase won't be saved on BotFi's servers
+          </label>
+        </div>
+        <div class=" w-full">
+          <button @click.prevent="onSave" 
+            class="btn btn-success w-full rounded-pill"
+          >
+            Import
+          </button>
+        </div>
       </div>
     </div>
   </main-layout>

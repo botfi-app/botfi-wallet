@@ -1,9 +1,9 @@
 <script setup>
 import { inject, onBeforeMount, ref, watch } from 'vue';
 import { useWalletStore } from "../store/walletStore"
-import { useTokens } from "../composable/useTokens"
-import { useActivity } from "../composable/useActivity"
-import { useNFT } from "../composable/removeAllUserNFTs"
+import { useTokens } from "../composables/useTokens"
+import { useActivity } from "../composables/useActivity"
+import { useNFT } from "../composables/useNFT"
 import { useRouter } from 'vue-router';
 import Utils from '../classes/Utils'
 import PinCode from '../components/common/PinCode.vue';
@@ -14,6 +14,7 @@ const router      = useRouter()
 const pin         = ref("")
 const { removeUsersTokensAndBalances } = useTokens()
 const { removeUserActivity } = useActivity()
+const { removeAllUserNFTs } = useNFT()
 
 onBeforeMount(() => {
     initialize()

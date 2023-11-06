@@ -94,6 +94,18 @@ export default class Wallet {
 
         } catch(e){
             Utils.logError("Wallet#generateMnemonic:", e)
+            return Status.error("Failed to generate seed phrase")
+        }
+    }
+
+    static createWalletFromSeedPhrase(seedPhrase) {
+        try {
+
+            let walletInfo = ethersWallet.fromPhrase(seedPhrase)
+            return Status.successData(walletInfo)
+
+        } catch(e) {
+            Utils.logError("Wallet#createWalletFromSeedPhrase:", e)
             return Status.error("Failed to generate key phrase")
         }
     }
