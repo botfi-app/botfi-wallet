@@ -15,6 +15,7 @@ import "./assets/scss/app.scss"
 import App from './App.vue'
 import router from "./router"
 
+
 window.Buffer = Buffer
 
 // very important

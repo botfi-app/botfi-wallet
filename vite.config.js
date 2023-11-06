@@ -59,6 +59,11 @@ export default defineConfig({
       "@dotlottie/player-component",
       "vue3-popper"
     ],
+  },
+
+  server: {
+    host: 'localhost',
+    port: 5173
   }
 
 })

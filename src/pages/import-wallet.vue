@@ -32,11 +32,8 @@ onBeforeMount(async () => {
 
     clipboard.value = botUtils.clipboard()
 
-   // console.log("clipboard===>", clipboard.value)
+    ///console.log("clipboard===>", clipboard.value)
 
-   //let seed = "human repeat parent mango head razor outer dance horn monster exhaust distance"
-
-  //seedPhraseArray.value = seed.split(" ")
 })
 
 
@@ -52,7 +49,7 @@ const onSave = async () => {
 
         let seedPhraseArr = seedPhraseArray.value 
 
-        console.log("seedPhraseArr.length ===>", seedPhraseArr.length )
+       // console.log("seedPhraseArr.length ===>", seedPhraseArr.length )
 
         if(seedPhraseArr.length != 12){
           return Utils.mAlert("Provide all the words below")
@@ -104,13 +101,27 @@ const pasteWords = async () => {
 
   if(!c.isSupported()) return; 
 
+  c.readText((textData) => {
+
+    textData = textData.trim()
+
+    if(textData == '') return true;
+
+    let dataArr = textData
+                    .replace(/^\s+|\s+$/g,'')
+                    .split(/\s+/);
+
+    if(dataArr.length != 12) return true;
+
+    seedPhraseArray.value = dataArr
+
+  })
+
 }
 
 const onFirstInputPaste = (e, index) => {
 
   let pastedData = e.clipboardData.getData('text')
-
-  console.log("e====>", pastedData)
 
   if(pastedData == '') return true;
 
@@ -118,7 +129,7 @@ const onFirstInputPaste = (e, index) => {
                         .replace(/^\s+|\s+$/g,'')
                         .split(/\s+/);
 
-  if(pastedDataArr.length < 12) return true;
+  if(pastedDataArr.length != 12) return true;
 
   seedPhraseArray.value = pastedDataArr
 

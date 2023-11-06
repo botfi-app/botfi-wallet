@@ -43,7 +43,9 @@ export const useNetworks = () => {
             return $s.defaultNetworkInfo
         }
 
-        let results = await import(`/data/networks.js?url=1&r=${Date.now()}`)
+        let results = await import( /* @vite-ignore */
+                                `/data/networks.js?url=1&r=${Date.now()}`
+                            )
            
         let data = results.default;
 
