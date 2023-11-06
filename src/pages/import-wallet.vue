@@ -4,7 +4,6 @@ import { useWalletStore } from "../store/walletStore";
 import { useRouter } from "vue-router";
 import Wallet from "../classes/Wallet";
 import LoadingView from "../layouts/LoadingView.vue";
-import clipboard from "clipboard"
 import Utils from "../classes/Utils";
 
 const botUtils = inject("botUtils")
@@ -32,6 +31,8 @@ onBeforeMount(async () => {
     }
 
     clipboard.value = botUtils.clipboard()
+
+    console.log("clipboard===>", clipboard)
 
 })
 
