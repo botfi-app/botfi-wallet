@@ -34,9 +34,9 @@ onBeforeMount(async () => {
 
    // console.log("clipboard===>", clipboard.value)
 
-   let seed = "human repeat parent mango head razor outer dance horn monster exhaust distance"
+   //let seed = "human repeat parent mango head razor outer dance horn monster exhaust distance"
 
-  seedPhraseArray.value = seed.split(" ")
+  //seedPhraseArray.value = seed.split(" ")
 })
 
 
@@ -105,6 +105,26 @@ const pasteWords = async () => {
   if(!c.isSupported()) return; 
 
 }
+
+const onFirstInputPaste = (e, index) => {
+
+  let pastedData = e.clipboardData.getData('text')
+
+  console.log("e====>", pastedData)
+
+  if(pastedData == '') return true;
+
+  let pastedDataArr = pastedData
+                        .replace(/^\s+|\s+$/g,'')
+                        .split(/\s+/);
+
+  if(pastedDataArr.length < 12) return true;
+
+  seedPhraseArray.value = pastedDataArr
+
+  e.preventDefault()
+
+}
 </script>
 
 <template>
@@ -144,6 +164,8 @@ const pasteWords = async () => {
                   class="form-control rounded" 
                   :id="`phrase-word-${index}`"
                   v-model="seedPhraseArray[parseInt(index)]"
+                  :data-index="index"
+                  @paste="e => onFirstInputPaste(e,index)"
                 />
                 <label :for="`phrase-word-${index}`">
                   Word #{{ index+1 }}

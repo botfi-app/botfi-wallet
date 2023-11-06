@@ -14,7 +14,7 @@ const router      = useRouter()
 const pin         = ref("")
 const { removeUsersTokensAndBalances } = useTokens()
 const { removeUserActivity } = useActivity()
-const { removeAllUserNFTs } = useNFT()
+const { removeUserNFTs } = useNFT()
 
 onBeforeMount(() => {
     initialize()
@@ -95,9 +95,9 @@ const resetWallets = async () => {
 
     await removeUsersTokensAndBalances()
     await removeUserActivity()
-    await removeAllUserNFTs()
+    await removeUserNFTs()
 
-    Utils.toast("Account reset completed")
+    Utils.toast("Reset completed")
 
     router.push("/")
 }

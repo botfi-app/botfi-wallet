@@ -731,7 +731,20 @@ export const useNFT = () => {
         }
     }
 
-    
+    const removeUserNFTs = async () => {
+        try {
+
+            let userId = botUtils.getUid()
+
+            let db = await dbCore.getDB()
+ 
+            await db.nfts.where({userId }).delete()
+
+        } catch(e) {
+            Utils.logError("useNFT#removeUserNFTs:", e)
+            return Status.error(Utils.generalErrorMsg)
+        }
+    }
 
     return {
         nfts,
@@ -742,6 +755,7 @@ export const useNFT = () => {
         updateOnChainNFTData,
         removeNFT,
         getNFTStandard,
-        fetchNFTOnChain
+        fetchNFTOnChain,
+        removeUserNFTs
     }
 }

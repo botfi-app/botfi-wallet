@@ -1,14 +1,9 @@
 import { createApp } from 'vue'
-import "./assets/scss/app.scss"
-import App from './App.vue'
-import router from "./router"
 import { createPinia } from 'pinia'
 import telegram from './plugins/telegram'
 import SimpleBar from 'simplebar'
 import 'simplebar/dist/simplebar.css';
-//simport { Dropdown } from 'bootstrap'
 import '@dotlottie/player-component';
-const pinia = createPinia()
 import Bugsnag from '@bugsnag/js'
 import BugsnagPluginVue from '@bugsnag/plugin-vue'
 import appConfig from "./config/app"
@@ -16,9 +11,14 @@ import VueLazyLoad from 'vue3-lazyload'
 import { Buffer } from "buffer/"
 import numberInput from './directives/numberInput'
 import integerInput from './directives/integerInput'
+import "./assets/scss/app.scss"
+import App from './App.vue'
+import router from "./router"
 
 window.Buffer = Buffer
 
+// very important
+const pinia = createPinia()
 
 Bugsnag.start({
   apiKey:   appConfig.bugsnag_key,
