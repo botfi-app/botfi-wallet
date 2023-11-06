@@ -197,4 +197,20 @@ export default class TelegramCore {
         }
     }
 
+
+    clipboard() {
+
+        //let _p = this.webApp.platform.toLowerCase()
+        let isSupported =  (this.isMinVersion(6.4))
+
+        if(!isSupported){
+            return this.notSupported()
+        }
+
+        return {
+            isSupported: () => isSupported,
+            readText: (callback) => this.webApp.readTextFromClipboard(callback)
+        }
+    }
+
 }

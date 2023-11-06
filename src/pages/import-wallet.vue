@@ -15,7 +15,7 @@ const router = useRouter()
 const isLoading                = ref(false)
 const hasAgreedSeedPhraseTerms = ref(false)
 const backUrl = ref("/set-pin?next=import-wallet")
-
+const clipboard = ref()
 
 onBeforeMount(async () => {
     
@@ -28,8 +28,10 @@ onBeforeMount(async () => {
     let password = await walletStore.getPassword()
 
     if(password == '' || password.length < 6){
-        return router.push(backUrl.value)
+      return router.push(backUrl.value)
     }
+
+    clipboard.value = botUtils.clipboard()
 
 })
 
@@ -70,6 +72,13 @@ const onSave = async () => {
 
 const pasteWords = async () => {
 
+  let c = clipboard.value; 
+
+  if(!c.isSupported()) return; 
+
+  c.readText((text) => {
+    console.log("text====>", text)
+  })
 }
 </script>
 
@@ -92,6 +101,7 @@ const pasteWords = async () => {
           <div class="my-1">
             <a href="#" @click.prevent="pasteWords" 
               class="btn btn-primary btn-sm rounded-pill"
+              v-if="clipboard && clipboard.isSupported()"
             >
               <div class="d-flex center-vh">
                 <Icon name="material-symbols-light:content-paste" />
