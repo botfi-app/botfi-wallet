@@ -11,7 +11,6 @@ const botUtils = inject("botUtils")
 const walletStore = useWalletStore()
 const walletInfo = ref(null)
 const seedPhraseArray = ref([])
-const initialized = ref(false)
 const router = useRouter()
 const isLoading                = ref(false)
 const hasAgreedSeedPhraseTerms = ref(false)
@@ -68,6 +67,10 @@ const onSave = async () => {
     }
 
 }
+
+const pasteWords = async () => {
+
+}
 </script>
 
 <template>
@@ -87,7 +90,9 @@ const onSave = async () => {
         <div class="text-md text-center my-2 muted hint">
           <div>Paste the 12 words seed phrase below</div> 
           <div class="my-1">
-            <a href="#" class="btn btn-primary btn-sm rounded-pill">
+            <a href="#" @click.prevent="pasteWords" 
+              class="btn btn-primary btn-sm rounded-pill"
+            >
               <div class="d-flex center-vh">
                 <Icon name="material-symbols-light:content-paste" />
                 <div>Paste Words</div>
@@ -95,8 +100,25 @@ const onSave = async () => {
             </a>
           </div>
         </div>
+
+        <div class="row px-3">
+          <template v-for="(_,index) in (new Array(12))" :key="index">
+            <div class="col-6 col-md-4 p-2">
+              <div class="form-floating">
+                <input type="text" 
+                  class="form-control rounded" 
+                  :id="`phrase-word-${index}`"
+                  v-model="seedPhraseArray[index]"
+                />
+                <label :for="`phrase-word-${index}`">
+                  Word #{{ index+1 }}
+                </label>
+              </div>
+            </div>
+          </template>
+        </div>
+
       </div>
-      
     </div>
   </main-layout>
 </template>
