@@ -164,12 +164,12 @@
       },
       {
         "internalType": "bytes32",
-        "name": "adapter",
+        "name": "group",
         "type": "bytes32"
       },
       {
         "internalType": "address payable",
-        "name": "route",
+        "name": "router",
         "type": "address"
       },
       {
@@ -188,7 +188,7 @@
         "type": "bool"
       }
     ],
-    "name": "addRouter",
+    "name": "addRoute",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -215,6 +215,74 @@
       }
     ],
     "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "id",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bool",
+        "name": "opt",
+        "type": "bool"
+      }
+    ],
+    "name": "enableRoute",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getAllRoutes",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "bytes32",
+            "name": "id",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "group",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "address payable",
+            "name": "router",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "factory",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "weth",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "createdAt",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "enabled",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct Defs.RouteParams[]",
+        "name": "rp",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -301,7 +369,7 @@
         "type": "bytes32"
       }
     ],
-    "name": "routers",
+    "name": "routes",
     "outputs": [
       {
         "internalType": "bytes32",
@@ -310,12 +378,12 @@
       },
       {
         "internalType": "bytes32",
-        "name": "adapter",
+        "name": "group",
         "type": "bytes32"
       },
       {
         "internalType": "address payable",
-        "name": "route",
+        "name": "router",
         "type": "address"
       },
       {
@@ -350,7 +418,7 @@
         "type": "uint256"
       }
     ],
-    "name": "routersIds",
+    "name": "routesIds",
     "outputs": [
       {
         "internalType": "bytes32",
@@ -391,7 +459,7 @@
     "inputs": [
       {
         "internalType": "bytes32",
-        "name": "routerId",
+        "name": "routeId",
         "type": "bytes32"
       },
       {
