@@ -1,2 +1,2 @@
 #!/usr/bin/env bash 
-autossh -R botfi-dev:80:localhost:5173 serveo.net
+autossh -M 0 -R botfi-dev:80:localhost:5174 serveo.net
