@@ -16,8 +16,8 @@ export default [
     },*/
     {
         name: "Settings", 
-        icon: "uiw:more",
-        url: "/menu"
+        icon: "basil:settings-solid",
+        url: "/settings"
     },
  ]
  

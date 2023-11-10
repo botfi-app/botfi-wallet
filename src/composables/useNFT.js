@@ -705,7 +705,7 @@ export const useNFT = () => {
                     image: {
                         url: processNFTMetadataUrl(image),
                         urlOriginal: image
-                     }
+                    }
                 }
             }
 
