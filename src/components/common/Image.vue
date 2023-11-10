@@ -14,12 +14,6 @@ const pColor = ref("rgba(255,255,255,0.95)")
 
 onMounted(() => {
     imgRef.value.classList.add("hidden")
-    let pRef = placeholderRef.value;
-
-    pRef.classList.add([ "text-center"])
-    pRef.style.background = pBg.value
-    pRef.style.color = pColor.value
-
     //console.log($attrs)
 })
 
@@ -28,6 +22,12 @@ const onImgLoad = () => {
     imgRef.value.classList.remove("hidden")
 }
 
+const onImgLoadError = () => {
+    let pRef = placeholderRef.value;
+    pRef.classList.add([ "text-center"])
+    pRef.style.background = pBg.value
+    pRef.style.color = pColor.value
+}
 </script>
 <template>
     <div v-bind="{
@@ -47,5 +47,6 @@ const onImgLoad = () => {
         v-bind="$attrs"
         ref="imgRef"
         @load="onImgLoad"
+        @error="onImgLoadError"
     />
 </template>

@@ -63,7 +63,12 @@ export default defineConfig({
 
   server: {
     host: 'localhost',
-    port: 5173
+    port: 5173,
+    strictPort: true, 
+    headers: {
+      "Bypass-Tunnel-Reminder": "1",
+      "User-Agent": "BotFi v1"
+    }
   }
 
 })

@@ -3,13 +3,19 @@ import { onBeforeMount, ref } from 'vue';
 import { useTokens } from '../../composables/useTokens';
 import { useNetworks } from '../../composables/useNetworks';
 import TokenSelectorModal from '../../components/modals/TokenSelectorModal.vue';
+import Utils from '../../classes/Utils';
+import Image from '../../components/common/Image.vue';
+import TokenSelectBtn from '../../components/swap/TokenSelectBtn.vue';
 
-const initialized = ref(false)
-const isLoading = ref(false)
-const errorMsg = ref("")
+const initialized   = ref(false)
+const isLoading     = ref(false)
+const errorMsg      = ref("")
+const tokensCore    = useTokens()
+const networks      = useNetworks()
+const netInfo       = ref()
 
-const tokenA = ref()
-const tokenB = ref()
+const tokenA = ref(null)
+const tokenB = ref(null)
 
 onBeforeMount(() => {
     initialize()
@@ -17,13 +23,12 @@ onBeforeMount(() => {
 
 const initialize = async () => {
 
-    activeNetInfo.value = await networks.getActiveNetworkInfo()
+    netInfo.value = await networks.getActiveNetworkInfo()
+    tokenA.value = await tokensCore.getTokenByAddr(Utils.nativeTokenAddr)
 
-    let params = { keyword: keyword.value, chainId: activeNetInfo.value.chainId }
-
-    isLoading.value = true 
-
+    initialized.value = true  
     
+    //console.log("tokenA.value====>", tokenA.value)
 }
 </script>
 <template>
@@ -35,18 +40,18 @@ const initialize = async () => {
         :pageError="errorMsg"
     >   
         <NativeBackBtn url="/wallet" />
-        <div class="w-400 mb-5" v-if="initialized">
-            <div id="swap">
-                <div class="d-flex input-wrapper">
-                    <div class="asset from">
-                        <Image src=""/>
-                    </div>
-                </div>
+
+        <div class="w-400 mb-5 px-2">
+            <div id="swap" class="mt-4">
+                <TokenSelectBtn
+                    :tokenInfo="tokenA"
+                />
             </div>
 
             <TokenSelectorModal 
                 :includeVerified="true"
                 :includeUserTokens="true"
+                @init=""
             />
         </div>
     </WalletLayout>

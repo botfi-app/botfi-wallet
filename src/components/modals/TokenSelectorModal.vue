@@ -3,6 +3,7 @@ import { onBeforeMount, ref } from 'vue';
 import { useTokens } from '../../composables/useTokens';
 import { useNetworks } from '../../composables/useNetworks';
 import Utils from '../../classes/Utils';
+import Http from '../../classes/Http';
 
 const props = defineProps({
                 includeUserTokens: { type: Boolean, default: true },
@@ -11,21 +12,26 @@ const props = defineProps({
 
 const networks  = useNetworks()
 const tokensCore = useTokens()
-const userTokens = ref({})
-const swapTokens = ref({})
+const tokensDataArr = ref([])
+const activeNetInfo = ref({})
+const keyword = ref("")
 const errorMsg = ref("")
 const id = ref("token-selector-modal")
+const isLoading = ref(false) 
 
 onBeforeMount(() => {
-    initialize()
+    fetchData()
 })
 
-const initialize = async () => {
+
+const fetchData = async () => {
     try {
 
-        activeNetInfo.value = await networks.getActiveNetworkInfo()
+        let netInfo = await networks.getActiveNetworkInfo()
 
-        let params = { keyword: keyword.value, chainId: activeNetInfo.value.chainId }
+        let params = { keyword: keyword.value, chainId: netInfo.chainId }
+
+        //activeNetInfo.value = netInfo
 
         isLoading.value = true 
 
@@ -36,10 +42,47 @@ const initialize = async () => {
             return false;
         }
 
-        console.log("")
+        let resultDataArr = resultStatus.getData() || []
+        let dataObj = {}
+
+        for(let item of resultDataArr){
+            let contractAddr =  (item.contracts.filter((c) => (
+                                    c.chainId == netInfo.chainId))[0]
+                                ).contract.toLowerCase();
+
+            item.contract = contractAddr
+            dataObj[contractAddr] = item;
+            //console.log("contract===>", contract)
+        }
+
+        if(props.includeUserTokens){
+            let usersTokens = await tokensCore.getTokens()
+
+            for(let addr of Object.keys(usersTokens)){
+                let addrLower = addr.toLowerCase()
+                if(!(addrLower in dataObj)){
+                    dataObj[addrLower]= usersTokens[addr]
+                }
+            }
+        }
+
+        //console.log("dataObj==>", dataObj)
     } catch(e){
         errorMsg.value = Utils.generalErrorMsg
         Utils.logError("TokenSelectorModal#initialize:", e)
+    } finally {
+        isLoading.value = false
+    }
+}
+
+const onSearch = async (_keyword) => {
+    _keyword = _keyword.trim()
+    keyword.value = _keyword
+
+    if(_keyword.trim() == ""){
+        //tokensDataArr.value = initialData.value
+    } else {
+        //fetchData()
     }
 }
 </script>
@@ -52,7 +95,15 @@ const initialize = async () => {
         size="modal-sm"
     >
         <template #body>
-
+            <div>
+                <div class="import-search-form px-2">
+                    <SearchForm
+                        :dataToFilter="null"
+                        :filterKeys="[]"
+                        @change="onSearch"
+                    />
+                </div>
+            </div>
         </template>
     </Modal>
 </template>

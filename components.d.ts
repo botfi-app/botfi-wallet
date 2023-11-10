@@ -98,6 +98,7 @@ declare module '@vue/runtime-core' {
     Tokens: typeof import('./src/components/wallet/Tokens.vue')['default']
     TokensAndActivityTabs: typeof import('./src/components/wallet/TokensAndActivityTabs.vue')['default']
     TokensCore: typeof import('./src/components/wallet/TokensCore.vue')['default']
+    TokenSelectBtn: typeof import('./src/components/swap/TokenSelectBtn.vue')['default']
     TokenSelectorModal: typeof import('./src/components/modals/TokenSelectorModal.vue')['default']
     TokensModal: typeof import('./src/components/modals/TokensModal.vue')['default']
     TopBackBtn: typeof import('./src/components/header/TopBackBtn.vue')['default']
