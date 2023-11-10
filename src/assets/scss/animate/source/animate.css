@@ -1,0 +1,19 @@
+@import '_vars.css';
+@import '_base.css';
+
+@import 'attention_seekers/pulse.css';
+
+/* Zooming entrances */
+@import 'zooming_entrances/zoomIn.css';
+@import 'zooming_entrances/zoomInDown.css';
+@import 'zooming_entrances/zoomInLeft.css';
+@import 'zooming_entrances/zoomInRight.css';
+@import 'zooming_entrances/zoomInUp.css';
+
+/* Zooming exits */
+@import 'zooming_exits/zoomOut.css';
+@import 'zooming_exits/zoomOutDown.css';
+@import 'zooming_exits/zoomOutLeft.css';
+@import 'zooming_exits/zoomOutRight.css';
+@import 'zooming_exits/zoomOutUp.css';
+
