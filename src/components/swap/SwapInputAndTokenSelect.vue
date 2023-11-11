@@ -4,13 +4,18 @@ import Image from '../common/Image.vue';
 
 const p = defineProps({
     tokenInfo: { type: null, required: true },
-    isFocused: { type: Boolean, default: false }
+    isFocused: { type: Boolean, default: false },
+    inputAttrs: { type: Object, default: {} }
 })
 
-const emits = defineEmits(['open-token-select-modal'])
+const emit = defineEmits(['open-token-select-modal', 'input-change'])
 
 const openTokenSelectModal = () => {
-    emits("open-token-select-modal")
+    emit("open-token-select-modal")
+}
+
+const handleOnItemChange = (e) => {
+    emit("input-change", e.target.value)
 }
 </script>
 <template>
@@ -26,7 +31,7 @@ const openTokenSelectModal = () => {
                         :width="24"
                         :height="24"
                     />
-                    <div class="fw-semibold px-2">{{ p.tokenInfo.symbol }}</div>
+                    <div class="fw-semibold px-2 text-upper">{{ p.tokenInfo.symbol }}</div>
                     <Icon name="fluent:chevron-down-24-filled" />
                 </button>
             </div>
@@ -35,7 +40,7 @@ const openTokenSelectModal = () => {
                     class="btn fw-medium btn-primary rounded-pill"
                 >
                     <div class="d-flex align-items-center">
-                        <div class="me-2">Select</div>
+                        <div class="me-2 fw-semibold">Select</div>
                         <Icon name="fluent:chevron-down-24-filled" />
                     </div>
                 </button>
@@ -48,6 +53,8 @@ const openTokenSelectModal = () => {
                 class="w-full amount-input fw-bold fs-4 text-end"
                 placeholder="0"
                 :autofocus="isFocused"
+                v-bind="p.inputAttrs"
+                @change="handleOnItemChange"
             />
         </div>  
     </div>

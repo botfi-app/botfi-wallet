@@ -36,8 +36,8 @@ BigInt.prototype["toJSON"] = function () {
 }
 
 router.beforeResolve(() => {
-    const appDom = document.querySelector("#app")
-    const mainLoader = document.querySelector("#main-loader")
+    let appDom = document.getElementById("app");
+    let mainLoader = document.getElementById("main-loader");
     appDom.classList.add("hidden")
     mainLoader.classList.remove("hidden")
 })

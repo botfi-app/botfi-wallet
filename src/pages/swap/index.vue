@@ -5,8 +5,9 @@ import { useNetworks } from '../../composables/useNetworks';
 import TokenSelectorModal from '../../components/modals/TokenSelectorModal.vue';
 import Utils from '../../classes/Utils';
 import Image from '../../components/common/Image.vue';
-import TokenSelectBtn from '../../components/swap/TokenSelectBtn.vue';
+import SwapInputAndTokenSelect from '../../components/swap/SwapInputAndTokenSelect.vue';
 import { Modal as bsModal } from 'bootstrap';
+import BotFiLoader from "../../components/common/BotFiLoader.vue"
 
 const initialized   = ref(false)
 const isLoading     = ref(false)
@@ -18,7 +19,12 @@ const netInfo       = ref()
 const tokenA = ref(null)
 const tokenB = ref(null)
 
+const tokenAInputValue = ref("")
+const tokenBInputValue = ref("")
+
 const activeTokenVarName = ref("tokenA")
+
+const isFetchingQuotes = ref(false)
 
 onBeforeMount(() => {
     initialize()
@@ -38,6 +44,44 @@ const openTokenSelectModal = (tokenVarName) => {
     activeTokenVarName.value = tokenVarName
     bsModal.getInstance("#token-selector-modal").show()
 }
+
+const onTokenSelect = (token) => {
+
+    let tc = token.contract.toLowerCase()
+    let tAc = (tokenA.value || {contract: ''}).contract.toLowerCase()
+    let tBc = (tokenB.value || {contract: ''}).contract.toLowerCase()
+
+    if(tc == tAc && tc == tBc) return; 
+
+   if(activeTokenVarName.value == "tokenA"){
+        if(tBc == tc) token = null
+        tokenA.value = token;
+   } else {
+     if(tAc == tc) token = null
+     tokenB.value = token
+   }
+    
+}
+
+const flipTokensData = () => {
+    let tA = tokenA.value
+    let tB = tokenB.value
+
+    tokenA.value = tB 
+    tokenB.value = tA 
+}
+
+const fetchRouters = async () => {
+    try {
+
+    } catch(e){
+        
+    }
+}
+
+const fetchQuote = () => {
+
+}
 </script>
 <template>
     <WalletLayout
@@ -51,30 +95,47 @@ const openTokenSelectModal = (tokenVarName) => {
 
         <div  class="swap-engine w-400 mb-5 px-2">
             <div  class="mt-4 token-a">
-                <TokenSelectBtn
+                <SwapInputAndTokenSelect
                     :tokenInfo="tokenA"
-                    :isFocused="true"
-                    @open-token-select-modal="openTokenSelectModal('token_a')"
+                    @open-token-select-modal="openTokenSelectModal('tokenA')"
+                    :key="(tokenA || {}).contract"
+                    @input-change="v => tokenAInputValue = v"
+                    :inputAttrs="{
+                        focused: ''
+                    }"
                 />
             </div>
             <div class="center-vh w-full flip-btn-parent">
                 <a href="#" 
-                   @click.prevent 
+                   @click.prevent="flipTokensData"
                    class="flip-btn center-vh rounded-lg"
                 >
                     <Icon name="gg:arrows-exchange-alt-v" :size="24" />
                 </a>
             </div>
             <div  class="token-b">
-                <TokenSelectBtn
+                <SwapInputAndTokenSelect
                     :tokenInfo="tokenB"
-                    @open-token-select-modal="openTokenSelectModal('token_b')"
+                    @open-token-select-modal="openTokenSelectModal('tokenB')"
+                    :key="(tokenB || {}).contract"
+                    :inputAttrs="{
+                        disabled: true,
+                        value: tokenBInputValue,
+                        placeholder: ''
+                    }"
                 />
             </div>
 
             <TokenSelectorModal 
                 :includeVerified="true"
                 :includeUserTokens="true"
+                @select="onTokenSelect"
+            />
+
+
+            <BotFiLoader
+                v-if="isFetchingQuotes"
+                text="fetching Quotes"
             />
         </div>
     </WalletLayout>

@@ -1,0 +1,92 @@
+.spinner-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: transparent;
+
+    &::after {
+      content: '';
+      position: absolute;
+      z-index: 200 !important;
+      width:  60px !important;
+      height: 60px !important;
+      background-image: url(/images/svg/logo.svg);
+      background-repeat: no-repeat;
+      background-size: 40px 40px;
+      background-position: center;
+    }
+}
+
+  /* X-ROTATING BOXES */
+
+.configure-border-1 {
+    width: 65px;
+    height: 65px;
+    padding: 3px;
+    border-radius: 4px;
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #FAB612;
+    animation: configure-clockwise 3s ease-in-out 0s infinite alternate;
+  }
+  
+  .configure-border-2 {
+    width: 65px;
+    height: 65px;
+    padding: 3px;
+    border-radius: 4px;
+    left: -115px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgb(63,249,220);
+    transform: rotate(45deg);
+    animation: configure-xclockwise 3s ease-in-out 0s infinite alternate;
+  }
+  
+  .configure-core {
+    width: 100%;
+    height: 100%;
+    background-color: #1d2630;
+    
+
+  }
+  
+  @keyframes configure-clockwise {
+    0% {
+      transform: rotate(0);
+    }
+    25% {
+      transform: rotate(90deg);
+    }
+    50% {
+      transform: rotate(180deg);
+    }
+    75% {
+      transform: rotate(270deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  
+  @keyframes configure-xclockwise {
+    0% {
+      transform: rotate(45deg);
+    }
+    25% {
+      transform: rotate(-45deg);
+    }
+    50% {
+      transform: rotate(-135deg);
+    }
+    75% {
+      transform: rotate(-225deg);
+    }
+    100% {
+      transform: rotate(-315deg);
+    }
+  }
+  

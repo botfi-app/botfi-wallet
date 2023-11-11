@@ -12,7 +12,7 @@ $danger:  #ec407a;
 @import "~/bootswatch/dist/cosmo/variables";
 @import "./bootstrap";
 @import "~/bootswatch/dist/cosmo/bootswatch";
-
+@import "./botfi_loader.scss";
 
 [data-bs-theme=dark] {
     .text-dark {
@@ -31,10 +31,10 @@ $danger:  #ec407a;
 body {
     background: var(--bs-body-bg);
     overflow-x: hidden !important;
-    scroll-behavior: smooth !important;
+   // scroll-behavior: smooth !important;
     overflow-y: auto;
     font-family: -apple-system,BlinkMacSystemFont,avenir next,avenir,helvetica neue,helvetica,ubuntu,roboto,noto,segoe ui,arial,sans-serif;
-    padding-bottom: 60px;
+    padding-bottom: 30px;
 }
 
 .btn-primary-soft {
@@ -351,8 +351,8 @@ input[type=number] {
 }
 
 .import-search-form, .search-sticky {
-    position: sticky;
-    top: 0px;
+    position: sticky !important;
+    top: 0px !important;
     background: var(--bs-body-bg) !important;
     padding: 15px 0px;
     z-index: 100;
