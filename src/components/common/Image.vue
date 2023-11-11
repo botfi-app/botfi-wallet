@@ -13,7 +13,7 @@ const pBg = ref(randomColor({  luminosity: 'dark' }))
 const pColor = ref("rgba(255,255,255,0.95)")
 
 onMounted(() => {
-    imgRef.value.classList.add("hidden")
+    //imgRef.value.classList.add("hidden")
     //console.log($attrs)
 })
 

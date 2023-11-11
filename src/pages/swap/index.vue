@@ -6,6 +6,7 @@ import TokenSelectorModal from '../../components/modals/TokenSelectorModal.vue';
 import Utils from '../../classes/Utils';
 import Image from '../../components/common/Image.vue';
 import TokenSelectBtn from '../../components/swap/TokenSelectBtn.vue';
+import { Modal as bsModal } from 'bootstrap';
 
 const initialized   = ref(false)
 const isLoading     = ref(false)
@@ -16,6 +17,8 @@ const netInfo       = ref()
 
 const tokenA = ref(null)
 const tokenB = ref(null)
+
+const activeTokenVarName = ref("tokenA")
 
 onBeforeMount(() => {
     initialize()
@@ -30,6 +33,11 @@ const initialize = async () => {
     
     //console.log("tokenA.value====>", tokenA.value)
 }
+
+const openTokenSelectModal = (tokenVarName) => {
+    activeTokenVarName.value = tokenVarName
+    bsModal.getInstance("#token-selector-modal").show()
+}
 </script>
 <template>
     <WalletLayout
@@ -41,17 +49,32 @@ const initialize = async () => {
     >   
         <NativeBackBtn url="/wallet" />
 
-        <div class="w-400 mb-5 px-2">
-            <div id="swap" class="mt-4">
+        <div  class="swap-engine w-400 mb-5 px-2">
+            <div  class="mt-4 token-a">
                 <TokenSelectBtn
                     :tokenInfo="tokenA"
+                    :isFocused="true"
+                    @open-token-select-modal="openTokenSelectModal('token_a')"
+                />
+            </div>
+            <div class="center-vh w-full flip-btn-parent">
+                <a href="#" 
+                   @click.prevent 
+                   class="flip-btn center-vh rounded-lg"
+                >
+                    <Icon name="gg:arrows-exchange-alt-v" :size="24" />
+                </a>
+            </div>
+            <div  class="token-b">
+                <TokenSelectBtn
+                    :tokenInfo="tokenB"
+                    @open-token-select-modal="openTokenSelectModal('token_b')"
                 />
             </div>
 
             <TokenSelectorModal 
                 :includeVerified="true"
                 :includeUserTokens="true"
-                @init=""
             />
         </div>
     </WalletLayout>

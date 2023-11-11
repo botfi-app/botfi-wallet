@@ -592,8 +592,32 @@ ul.list-group {
     display: inline-block !important;
 }
 
-#swap {
+.swap-engine {
     .input-wrapper{
         background: var(--bs-body-bg-dark-5);
+        .amount-input{
+            height: 40px;
+            border: none !important;
+            box-shadow: none !important;
+            background: none !important;
+            outline: none !important;
+        }
+    }
+
+    .flip-btn-parent{
+        position: relative;
+        top: -19.5px;
+        z-index: 10;
+        .flip-btn {
+            width: 42px !important;
+            height: 42px !important;
+            background: var(--bs-body-bg-dark-5);
+            border: 2.5px solid var(--bs-body-bg);
+        }
+    }
+
+   .token-b{
+        position: relative;
+        top: -39px;
     }
 }
