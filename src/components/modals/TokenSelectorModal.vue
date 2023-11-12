@@ -4,7 +4,6 @@ import { useTokens } from '../../composables/useTokens';
 import { useNetworks } from '../../composables/useNetworks';
 import Utils from '../../classes/Utils';
 import Http from '../../classes/Http';
-import ScrollToTop from '../common/ScrollToTop.vue';
 import { Modal as bsModal } from 'bootstrap';
 
 const props = defineProps({

@@ -20,6 +20,7 @@ const initialized   = ref(false)
 const isLoading     = ref(false)
 const pageError      = ref("")
 const processingError = ref("")
+const swapError = ref("")
 
 const tokensCore    = useTokens()
 const wallets       = useWalletStore()
@@ -140,25 +141,33 @@ const fetchSwapRoutes = async () => {
 const fetchQuotes = async () => {
     try {
 
+        isFetchingQuotes.value = true 
+
         await Utils.sleep(1)
 
-        isFetchingQuotes.value = true 
+        swapError.value = ""
 
         if(!(tokenA.value || tokenB.value)) return;
 
-        let tokenAInputVal = tokenAInputValue.value
-
-        if(!Utils.isValidFloat(tokenAInputVal)) return; 
+        if(!Utils.isValidFloat(tokenAInputValue.value)) return; 
 
         //lets now enocde the amount into tokenA's format
-        let tokenAInputVal2 = parseUnits(tokenAInputVal.toString(), tokenA.decimals)
+        let tokenAInputVal2 = parseUnits(tokenAInputValue.value.toString(), tokenA.decimals)
 
         console.log("tokenAInputVal2===>", tokenAInputVal2)
+
+        let mCallInputs = []
+
+        for(let route of swapRoutes.value){
+
+            console.log("route===>", route)
+        }
+
     } catch(e){
         processingError.value = "Failed to fetch quotes, try again"
         Utils.logError("swap#index#fetchQuotes:",e)
     } finally {
-        isFetchingQuotes.value = false
+        //isFetchingQuotes.value = false
     }
 }
 </script>
@@ -172,7 +181,7 @@ const fetchQuotes = async () => {
     >   
         <NativeBackBtn url="/wallet" />
 
-        <div  class="swap-engine w-400 mb-5 px-2">
+        <div  class="swap-engine w-400 mb-5 pt-1 px-2">
             <div  class="mt-4 token-a">
                 <SwapInputAndTokenSelect
                     :tokenInfo="tokenA"
@@ -211,11 +220,21 @@ const fetchQuotes = async () => {
                 @select="onTokenSelect"
             />
 
-
-            <BotFiLoader
-                v-if="isFetchingQuotes"
-                text="fetching Quotes"
-            />
+            <div class="mb-4" v-if="isFetchingQuotes">
+                <BotFiLoader
+                    text="fetching Quotes"
+                    size="loader-sm"
+                />
+            </div>
+            <div>
+                <button class="btn btn-success rounded-lg w-full" 
+                    :disabled="swapError != ''"
+                >
+                    {{ (swapError != '') ? swapError : "Swap" }}
+                </button>
+            </div>
         </div>
+
+        <BottomNav />
     </WalletLayout>
 </template>

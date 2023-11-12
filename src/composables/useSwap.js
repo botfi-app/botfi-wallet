@@ -102,11 +102,17 @@ export const useSwap =  () => {
         return Status.successData(processedData)
     }
 
+    const processSwapRequestData = async ({ web3, chainId, amount, routeId }) => {
+
+        
+    }
+
     return {
         isSupported,
         isChainSupported,
         routes,
-        getRoutes
+        getRoutes,
+        processSwapRequestData
     }
 }
     
