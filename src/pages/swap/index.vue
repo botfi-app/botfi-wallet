@@ -1,5 +1,5 @@
 <script setup>
-import { onBeforeMount, ref } from 'vue';
+import { onBeforeMount, ref, watch } from 'vue';
 import { useTokens } from '../../composables/useTokens';
 import { useNetworks } from '../../composables/useNetworks';
 import { useWalletStore } from '../../store/walletStore';
@@ -11,6 +11,7 @@ import { Modal as bsModal } from 'bootstrap';
 import BotFiLoader from "../../components/common/BotFiLoader.vue"
 import swapConfig from "../../config/swap"
 import  { useSwap } from '../../composables/useSwap';
+import { parseUnits } from 'ethers';
 
 
 const web3 = ref()
@@ -18,6 +19,8 @@ const web3 = ref()
 const initialized   = ref(false)
 const isLoading     = ref(false)
 const pageError      = ref("")
+const processingError = ref("")
+
 const tokensCore    = useTokens()
 const wallets       = useWalletStore()
 //const { isSupported: isSwapSupported }      = useSwap()
@@ -44,6 +47,14 @@ const swapRoutes = ref()
 onBeforeMount(() => {
     initialize()
 })
+
+watch(tokenAInputValue, () => {
+    fetchQuotes()
+});
+
+watch(tokenBInputValue, () => {
+    fetchQuotes()
+});
 
 const initialize = async () => {
 
@@ -73,7 +84,6 @@ const initialize = async () => {
     if(!fetchRoutes) return;
 
 
-
     initialized.value = true  
     
     //console.log("tokenA.value====>", tokenA.value)
@@ -100,7 +110,8 @@ const onTokenSelect = (token) => {
      tokenB.value = token
    }
     
-}
+   fetchQuotes()
+}   
 
 const flipTokensData = () => {
     let tA = tokenA.value
@@ -108,6 +119,8 @@ const flipTokensData = () => {
 
     tokenA.value = tB 
     tokenB.value = tA 
+
+    fetchQuotes()
 }
 
 const fetchSwapRoutes = async () => {
@@ -124,8 +137,29 @@ const fetchSwapRoutes = async () => {
     return true
 }
 
-const fetchQuote = () => {
+const fetchQuotes = async () => {
+    try {
 
+        await Utils.sleep(1)
+
+        isFetchingQuotes.value = true 
+
+        if(!(tokenA.value || tokenB.value)) return;
+
+        let tokenAInputVal = tokenAInputValue.value
+
+        if(!Utils.isValidFloat(tokenAInputVal)) return; 
+
+        //lets now enocde the amount into tokenA's format
+        let tokenAInputVal2 = parseUnits(tokenAInputVal.toString(), tokenA.decimals)
+
+        console.log("tokenAInputVal2===>", tokenAInputVal2)
+    } catch(e){
+        processingError.value = "Failed to fetch quotes, try again"
+        Utils.logError("swap#index#fetchQuotes:",e)
+    } finally {
+        isFetchingQuotes.value = false
+    }
 }
 </script>
 <template>
@@ -162,7 +196,7 @@ const fetchQuote = () => {
                 <SwapInputAndTokenSelect
                     :tokenInfo="tokenB"
                     @open-token-select-modal="openTokenSelectModal('tokenB')"
-                    :key="(tokenB || {}).contract"
+                    :key="(tokenB || {}).contract+'-'+tokenBInputValue"
                     :inputAttrs="{
                         disabled: true,
                         value: tokenBInputValue,
