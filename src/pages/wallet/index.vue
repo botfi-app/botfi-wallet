@@ -52,7 +52,10 @@ const initialize = async() => {
                             </div>
                         </div>
                         <div class="d-flex">
-                            <NetworkSelect backUrl="/wallet" />
+                            <NetworkSelect 
+                                backUrl="/wallet" 
+                                maxWidth="50vw"
+                            />
                         </div>
                     </div>
 

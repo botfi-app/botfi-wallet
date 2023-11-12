@@ -288,30 +288,6 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "uniV2Router",
-        "type": "address"
-      }
-    ],
-    "name": "getUniV2RouterInfo",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "factory",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "weth",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "pure",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "bytes[]",
         "name": "data",
         "type": "bytes[]"
@@ -487,19 +463,6 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "newOwner",
-        "type": "address"
-      }
-    ],
-    "name": "transferOwnership",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
         "name": "token",
         "type": "address"
       },
@@ -509,7 +472,20 @@
         "type": "uint256"
       }
     ],
-    "name": "withdraw",
+    "name": "sweep",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "transferOwnership",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
