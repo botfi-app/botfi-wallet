@@ -11,6 +11,7 @@ import { useNetworks } from "./useNetworks"
 import EventBus from '../classes/EventBus';
 import swapConfig from "../config/swap"
 import { useNetwork } from '@vueuse/core';
+import { decodeBytes32String } from 'ethers';
 
 const supportedChains = swapConfig.supported_chains;
 const $state = ref({
@@ -73,17 +74,32 @@ export const useSwap =  () => {
 
         let contractsInfo =  await web3.getSystemContracts()
 
-        console.log("contractsInfo===>", contractsInfo)
+        //console.log("contractsInfo===>", contractsInfo)
         
         let swapContract = contractsInfo.swap.factory;
 
-        console.log("swapFactory==>", swapContract)
+        //console.log("swapFactory==>", swapContract)
 
-        let results = swapContract.getAllRoutes() 
+        let resultsData = await swapContract.getAllRoutes() 
 
-        console.log("results==>", results)
+        let processedData = []
 
-        return Status.successData()
+        for(let routeItem of resultsData){
+            
+            routeItem = { ...routeItem.toObject() }
+
+            let parsedId = decodeBytes32String(routeItem.id)
+            let parsedGroup = decodeBytes32String(routeItem.group)
+
+            routeItem["parsedId"] = parsedId
+            routeItem["parsedGroup"] = parsedGroup
+
+            //console.log("routeItem==>", routeItem)
+
+            processedData.push(routeItem)
+        }
+        
+        return Status.successData(processedData)
     }
 
     return {
