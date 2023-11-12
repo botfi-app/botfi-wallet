@@ -171,27 +171,27 @@ const onSearch = async (keyword, filteredData) => {
                         role="button" 
                         @click="onItemClick(item)"
                     >
-                        <div class="d-flex">
-                            <Icon name="clarity:check-line" 
-                                :size="24"
-                                v-if="activeNetwork != null && 
-                                      activeNetwork.chainId == item.chainId"
-                                class="me-2 text-primary"
+                        <div class="d-flex align-items-center">
+                            <Image 
+                                :width="16"
+                                :height="16"
+                                :src="item.icon" 
+                                alt=""
+                                :placeholder="item.name.charAt(0)"
+                                class="rounded-circle mselect-icon"
                             />
-                            <div class="no-select">
-                                <div>{{ item.name }} &nbsp;
+                        
+                            <div class="no-select ms-2">
+                                <div class="fw-medium">{{ item.name }} &nbsp;
                                     <span class='fs-12 hint'>{{item.chainId}} </span>
                                 </div>
                                 
                             </div>
                         </div>
-                        <Image 
-                            :width="28"
-                            :height="28"
-                            :src="item.icon" 
-                            alt=""
-                            :placeholder="item.name.charAt(0)"
-                            class="rounded-circle mselect-icon"
+                        <Icon name="clarity:check-line" 
+                            :size="24"
+                            v-if="activeNetwork != null && activeNetwork.chainId == item.chainId"
+                            class="me-2 text-primary"
                         />
                     </li>
                 </ul>

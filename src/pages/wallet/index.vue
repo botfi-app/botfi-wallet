@@ -52,9 +52,7 @@ const initialize = async() => {
                             </div>
                         </div>
                         <div class="d-flex">
-                            <router-link to="/settings" title="Settings" class="text-primary">
-                                <Icon name="basil:settings-solid" :size="26" />
-                            </router-link>
+                            <NetworkSelect backUrl="/wallet" />
                         </div>
                     </div>
 

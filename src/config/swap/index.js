@@ -1,5 +1,6 @@
 
-const supported_chains = require("./supported_chains.js")
+
+import supported_chains from "./supported_chains.json"
 
 export default {
     enabled: true, 

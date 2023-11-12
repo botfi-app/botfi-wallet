@@ -132,6 +132,21 @@ export default {
             rpc: ["https://rpc.linea.build"],
             explorers: [ "https://lineascan.build/"],
             icon: "/images/crypto/linea.svg"
-        }
+        },
+
+        43114: { 
+            name: "Avalanche Network",
+            chainId: 43114,
+            chain: "AVAX",
+            shortName: "eth",
+            nativeCurrency: {
+                name:       "Avalanche",
+                symbol:     "AVAX",
+                decimals:   18
+            },
+            rpc: ["https://api.avax.network/ext/bc/C/rpc"],
+            explorers: [ "https://snowtrace.io/"],
+            icon: "/images/crypto/avax.svg"
+        },
     }
 }

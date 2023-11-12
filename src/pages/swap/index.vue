@@ -8,11 +8,16 @@ import Image from '../../components/common/Image.vue';
 import SwapInputAndTokenSelect from '../../components/swap/SwapInputAndTokenSelect.vue';
 import { Modal as bsModal } from 'bootstrap';
 import BotFiLoader from "../../components/common/BotFiLoader.vue"
+import swapConfig from "../../config/swap"
+import  { useSwap } from '../../composables/useSwap';
+
+const supportedChains = swapConfig.supported_chains || {}
 
 const initialized   = ref(false)
 const isLoading     = ref(false)
-const errorMsg      = ref("")
+const pageError      = ref("")
 const tokensCore    = useTokens()
+//const { isSupported: isSwapSupported }      = useSwap()
 const networks      = useNetworks()
 const netInfo       = ref()
 
@@ -26,6 +31,8 @@ const activeTokenVarName = ref("tokenA")
 
 const isFetchingQuotes = ref(false)
 
+const isChainSupported = ref(false)
+
 onBeforeMount(() => {
     initialize()
 })
@@ -34,6 +41,14 @@ const initialize = async () => {
 
     netInfo.value = await networks.getActiveNetworkInfo()
     tokenA.value = await tokensCore.getTokenByAddr(Utils.nativeTokenAddr)
+
+    let chainId = netInfo.value.chainId
+
+    isChainSupported.value  = (chainId in supportedChains && supportedChains[chainId] == true)
+
+    if(!isChainSupported.value){
+        return pageError.value = `BotFi swap is not supported on ${netInfo.value.name}`
+    }
 
     initialized.value = true  
     
@@ -75,7 +90,7 @@ const fetchRouters = async () => {
     try {
 
     } catch(e){
-        
+
     }
 }
 
@@ -89,7 +104,7 @@ const fetchQuote = () => {
         :showNav="true"
         :hasNetSelect="true"
         :hasAddrSelect="true"
-        :pageError="errorMsg"
+        :pageError="pageError"
     >   
         <NativeBackBtn url="/wallet" />
 
