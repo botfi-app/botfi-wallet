@@ -316,7 +316,9 @@ export const useWalletStore = defineStore('walletStore', () => {
 
         let currentWallet = await getActiveWalletInfo()
 
-        //console.log("password.value--->", password.value)
+        if(!isLoggedIn()){
+            return Status.error("Wallet Connection Required")
+        }
 
         let decryptedPkStatus = await keyStore.decryptWallet(currentWallet, password.value)
 

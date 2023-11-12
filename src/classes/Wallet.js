@@ -29,6 +29,7 @@ export default class Wallet {
     signer   = null
     chainId  = null
     netInfo  = null  
+    contractsInfo = {}
 
     async connect (netInfo, wallet = null) {
 
@@ -60,7 +61,8 @@ export default class Wallet {
                       .setCode(ErrorCodes.RPC_CONNECT_FAILED)
             }
 
-            //console.log("blockNo===>", blockNo)
+            //lets fetch system contrats 
+            await  this.getSystemContracts();
 
             return Status.successData(this)
 
@@ -69,6 +71,59 @@ export default class Wallet {
             return Status.error("Failed to connect to network's rpc")
                          .setCode(ErrorCodes.RPC_CONNECT_FAILED)
         }
+    }
+
+    async getSystemContracts() {
+
+        if(this.chainId != null){
+            let cachedContracts = this.contractsInfo[this.chainId] || null 
+
+            //console.log("cachedContracts===>", cachedContracts)
+
+            if(cachedContracts != null){
+                return cachedContracts
+            }
+        }
+
+        let processedData = {}
+
+        let contractsObj = (await import(`../config/contracts/botfi/${this.chainId}.json`)).default;
+
+        for(let contractGroupName of Object.keys(contractsObj)){
+
+            let groupedContracts = contractsObj[contractGroupName]
+
+            for(let contractName of Object.keys(groupedContracts)){
+                //console.log("contractName====>", contractName)
+
+                let abiUri = `../data/abi/botfi/${contractGroupName}/${contractName}.json`
+
+                //lets now fetch the abi 
+                let abi = (await import(abiUri)).default;
+
+                //console.log("abiData===>", abiData)
+
+                let contractAddr = groupedContracts[contractName]
+
+                let pContractInfo = processedData[contractGroupName] || {}
+
+                // merge the data but becareful of not ignoring existing data in same group
+                pContractInfo[contractName] = this.contract(contractAddr, abi)
+
+                processedData = {
+                    ...processedData,
+                    ...{ [contractGroupName]: pContractInfo }
+                }
+            }
+        }
+
+        if(this.chainId != null){
+            this.contractsInfo[this.chainId] = processedData
+        }
+
+        //console.log("processedData===>", processedData)
+
+        return processedData
     }
 
     notConnectedError = () => Status.error("Wallet not connected")
@@ -507,7 +562,7 @@ export default class Wallet {
                     onTxCreatedCallback
                 });
             }
-
+            
             return contract;
         } catch (e) {
             Utils.logError(`Failed to initialize contract at ${address} with abi: ${abi}`, e)

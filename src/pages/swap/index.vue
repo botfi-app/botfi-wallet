@@ -2,6 +2,7 @@
 import { onBeforeMount, ref } from 'vue';
 import { useTokens } from '../../composables/useTokens';
 import { useNetworks } from '../../composables/useNetworks';
+import { useWalletStore } from '../../store/walletStore';
 import TokenSelectorModal from '../../components/modals/TokenSelectorModal.vue';
 import Utils from '../../classes/Utils';
 import Image from '../../components/common/Image.vue';
@@ -11,15 +12,20 @@ import BotFiLoader from "../../components/common/BotFiLoader.vue"
 import swapConfig from "../../config/swap"
 import  { useSwap } from '../../composables/useSwap';
 
-const supportedChains = swapConfig.supported_chains || {}
+
+const web3 = ref()
 
 const initialized   = ref(false)
 const isLoading     = ref(false)
 const pageError      = ref("")
 const tokensCore    = useTokens()
+const wallets       = useWalletStore()
 //const { isSupported: isSwapSupported }      = useSwap()
 const networks      = useNetworks()
 const netInfo       = ref()
+
+const swapCore = useSwap()
+const swapContracts = ref(null)
 
 const tokenA = ref(null)
 const tokenB = ref(null)
@@ -33,22 +39,40 @@ const isFetchingQuotes = ref(false)
 
 const isChainSupported = ref(false)
 
+const swapRoutes = ref()
+
 onBeforeMount(() => {
     initialize()
 })
 
 const initialize = async () => {
 
+    if(!wallets.isLoggedIn()){
+        return pageError.value = `Connect Wallet`
+    }
+
     netInfo.value = await networks.getActiveNetworkInfo()
     tokenA.value = await tokensCore.getTokenByAddr(Utils.nativeTokenAddr)
 
-    let chainId = netInfo.value.chainId
-
-    isChainSupported.value  = (chainId in supportedChains && supportedChains[chainId] == true)
+    isChainSupported.value  = await swapCore.isChainSupported()
 
     if(!isChainSupported.value){
         return pageError.value = `BotFi swap is not supported on ${netInfo.value.name}`
     }
+
+    let web3Status = await wallets.getWeb3Conn()
+
+    if(web3Status.isError()){
+        return pageError.value = `Failed to initialize network RPC: ${web3Status.getMessage()}`
+    }
+
+    web3.value = web3Status.getData()
+
+    let fetchRoutes = await fetchSwapRoutes()
+
+    if(!fetchRoutes) return;
+
+
 
     initialized.value = true  
     
@@ -86,12 +110,18 @@ const flipTokensData = () => {
     tokenB.value = tA 
 }
 
-const fetchRouters = async () => {
-    try {
+const fetchSwapRoutes = async () => {
+    
+    let routesStatus = await swapCore.getRoutes(web3.value)
 
-    } catch(e){
-
+    if(routesStatus.isError()){
+        pageError.value = `Failed to fetch swap routes: ${routesStatus.getMessage()}`
+        return false
     }
+
+    swapRoutes.value = routesStatus.getData()
+
+    return true
 }
 
 const fetchQuote = () => {
