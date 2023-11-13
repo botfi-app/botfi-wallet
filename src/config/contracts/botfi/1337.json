@@ -1,5 +1,6 @@
 {
   "swap": {
-    "factory": "0x7ca86a49D1E29B1c66460E7416fb1Ddd782DC24c"
+    "factory": "0xEB4076A714c6785D2C420EbC70203CFeCf87cd4e",
+    "multicall3": "0x6b863a6b44F67FF2AE3e556AEfc955F6C330a695"
   }
 }
