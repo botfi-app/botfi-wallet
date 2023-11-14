@@ -43,7 +43,7 @@ const isFetchingQuotes = ref(false)
 
 const isChainSupported = ref(false)
 
-const swapRoutes = ref()
+const swapRoutes = ref([])
 
 onBeforeMount(() => {
     initialize()
@@ -59,7 +59,7 @@ watch(tokenBInputValue, () => {
 
 const initialize = async () => {
 
-    //console.log("swapConfig===>", swapConfig)
+    console.log("swapConfig===>", swapConfig)
 
     if(!wallets.isLoggedIn()){
         return pageError.value = `Connect Wallet`
@@ -83,6 +83,8 @@ const initialize = async () => {
     web3.value = web3Status.getData()
 
     let fetchRoutes = await fetchSwapRoutes()
+
+    console.log("fetchRoutes===>", fetchRoutes)
 
     if(!fetchRoutes) return;
 
@@ -135,7 +137,9 @@ const fetchSwapRoutes = async () => {
         return false
     }
 
-    swapRoutes.value = routesStatus.getData()
+    swapRoutes.value = routesStatus.getData() || []
+
+    console.log(" swapRoutes.value ===>",  swapRoutes.value )
 
     return true
 }
@@ -168,9 +172,11 @@ const fetchQuotes = async () => {
 
         let mCallInputs = []
 
+        console.log("swapRoutes===>", swapRoutes.value)
 
         for(let route of swapRoutes.value){
 
+            let routeGroup = route.group
             let abi;
             let _dataArr = []
 
@@ -179,24 +185,29 @@ const fetchQuotes = async () => {
                 abi = routesABIs[route.group]
 
                 if(Utils.isNativeToken(tokenAInfo.contract)){
-                    _dataArr.push({
-                        func: swapCore.getSwapFunctionName("swap_exact_native_for_tokens")
-                    })
-                    _dataArr.push({
-                        func: swapCore.getSwapFunctionName("swap_exact_native_for_tokens_with_transfer_tax")
-                    })
+                    _dataArr.push(...[
+                        ["swap_exact_native_for_tokens"],
+                        ["swap_exact_native_for_tokens_with_transfer_tax"]
+                    ])
                 } 
                 else if(Utils.isNativeToken(tokenBInfo.contract)) {
-                    _dataArr.push({
-                        func: swapCore.getSwapFunctionName("swap_exact_native_for_tokens")
-                    })
-                    _dataArr.push({
-                        func: swapCore.getSwapFunctionName("swap_exact_native_for_tokens_with_transfer_tax")
-                    })
+                    _dataArr.push(...[
+                        ["swap_exact_tokens_for_native"],
+                        ["swap_exact_tokens_for_native_with_transfer_tax"]
+                    ])
+                } else {
+                    _dataArr.push(...[
+                        ["swap_exact_tokens_for_tokens"],
+                        ["swap_exact_tokens_for_tokens_with_transfer_tax"]
+                    ])
                 }
             }
 
-            let swapFunction = swapCore.getSwapFunctionName(route.group)
+            for(let itemArr of _dataArr){
+                let swapFunction = swapCore.getSwapFunctionName(routeGroup, itemArr[0])
+                console.log("swapFunction===>", swapFunction)
+            }
+           
             
         }
 
