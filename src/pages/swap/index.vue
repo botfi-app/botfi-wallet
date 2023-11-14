@@ -11,7 +11,7 @@ import { Modal as bsModal } from 'bootstrap';
 import BotFiLoader from "../../components/common/BotFiLoader.vue"
 import swapConfig from "../../config/swap"
 import  { useSwap } from '../../composables/useSwap';
-import { parseUnits } from 'ethers';
+import { Interface, parseUnits } from 'ethers';
 
 
 const web3 = ref()
@@ -24,7 +24,8 @@ const swapError = ref("")
 
 const tokensCore    = useTokens()
 const wallets       = useWalletStore()
-//const { isSupported: isSwapSupported }      = useSwap()
+const activeWallet     = ref()
+
 const networks      = useNetworks()
 const netInfo       = ref()
 
@@ -45,6 +46,8 @@ const isChainSupported = ref(false)
 
 const swapRoutes = ref([])
 
+const protocolFee = ref(swapConfig.protocol_fee)
+
 onBeforeMount(() => {
     initialize()
 })
@@ -59,11 +62,12 @@ watch(tokenBInputValue, () => {
 
 const initialize = async () => {
 
-    console.log("swapConfig===>", swapConfig)
 
     if(!wallets.isLoggedIn()){
         return pageError.value = `Connect Wallet`
     }
+
+    activeWallet.value = await wallets.getActiveWalletInfo()
 
     netInfo.value = await networks.getActiveNetworkInfo()
     tokenA.value = await tokensCore.getTokenByAddr(Utils.nativeTokenAddr)
@@ -71,7 +75,7 @@ const initialize = async () => {
     isChainSupported.value  = await swapCore.isChainSupported()
 
     if(!isChainSupported.value){
-        return pageError.value = `BotFi swap is not supported on ${netInfo.value.name}`
+        return pageError.value = `Swap not supported on ${netInfo.value.name}`
     }
 
     let web3Status = await wallets.getWeb3Conn()
@@ -80,14 +84,14 @@ const initialize = async () => {
         return pageError.value = `Failed to initialize network RPC: ${web3Status.getMessage()}`
     }
 
+    //sconsole.log("swapConfig===>", swapConfig)
+
+
     web3.value = web3Status.getData()
 
     let fetchRoutes = await fetchSwapRoutes()
 
-    console.log("fetchRoutes===>", fetchRoutes)
-
-    if(!fetchRoutes) return;
-
+    if(!fetchRoutes) return false;
 
     initialized.value = true  
     
@@ -139,8 +143,6 @@ const fetchSwapRoutes = async () => {
 
     swapRoutes.value = routesStatus.getData() || []
 
-    console.log(" swapRoutes.value ===>",  swapRoutes.value )
-
     return true
 }
 
@@ -153,7 +155,7 @@ const fetchQuotes = async () => {
 
         swapError.value = ""
 
-        if(!(tokenA.value || tokenB.value)) return;
+        if(!(tokenA.value && tokenB.value)) return;
 
         if(!Utils.isValidFloat(tokenAInputValue.value)) return; 
         
@@ -163,6 +165,12 @@ const fetchQuotes = async () => {
 
         if(tokenAInputVal2 == 0) return;
 
+        let feeAmt = Utils.calPercentBPS(tokenAInputVal2, protocolFee.value)
+
+        //console.log("feeAmt===>", feeAmt)
+
+        let amountIn = tokenAInputVal2 - feeAmt;
+
         //console.log("tokenAInputVal2===>", tokenAInputVal2)
 
         let tokenAInfo = tokenA.value
@@ -170,46 +178,124 @@ const fetchQuotes = async () => {
 
         let routesABIs = swapConfig.routes_ABIs;
 
-        let mCallInputs = []
+        let recipient = activeWallet.value.address;
+        let deadline  = (Date.now() / 1000) + 15;
 
-        console.log("swapRoutes===>", swapRoutes.value)
+        let _dataArr = []
 
         for(let route of swapRoutes.value){
 
-            let routeGroup = route.group
-            let abi;
-            let _dataArr = []
+            ///console.log("route===>", route)
 
-            if(["uni_v2", "tjoe_v20", "tjoe_v21"].includes(route.group)){
+            let routeGroup = route.parsedGroup
+            let abi = routesABIs[routeGroup]
+
+            console.log("routeGroup====>", routeGroup)
+            console.log("abi===>", abi)
+
+            if(["uni_v2", "tjoe_v20", "tjoe_v21"].includes(routeGroup)){
                 
-                abi = routesABIs[route.group]
 
                 if(Utils.isNativeToken(tokenAInfo.contract)){
-                    _dataArr.push(...[
-                        ["swap_exact_native_for_tokens"],
-                        ["swap_exact_native_for_tokens_with_transfer_tax"]
-                    ])
+
+                    let path = [route.weth, tokenBInfo.contract]
+
+                    let args = [
+                        0, //amountOutMin
+                        path,
+                        recipient,
+                        deadline
+                    ]
+
+                    _dataArr.push({
+                        route,
+                        abi,
+                        func: [ 
+                            ["swap_exact_native_for_tokens", args],
+                            ["swap_exact_native_for_tokens_with_transfer_tax", args]
+                        ]
+                    })
                 } 
                 else if(Utils.isNativeToken(tokenBInfo.contract)) {
-                    _dataArr.push(...[
-                        ["swap_exact_tokens_for_native"],
-                        ["swap_exact_tokens_for_native_with_transfer_tax"]
-                    ])
-                } else {
-                    _dataArr.push(...[
-                        ["swap_exact_tokens_for_tokens"],
-                        ["swap_exact_tokens_for_tokens_with_transfer_tax"]
-                    ])
-                }
-            }
 
-            for(let itemArr of _dataArr){
-                let swapFunction = swapCore.getSwapFunctionName(routeGroup, itemArr[0])
-                console.log("swapFunction===>", swapFunction)
-            }
-           
+                    let path = [tokenAInfo.contract, route.weth]
+
+                    let args = [
+                        amountIn, // amountIn
+                        0, //amountOutMin
+                        path,
+                        recipient,
+                        deadline
+                    ]
+
+                    _dataArr.push({
+                        route,
+                        abi,
+                        func: [
+                            ["swap_exact_tokens_for_native", args],
+                            ["swap_exact_tokens_for_native_with_transfer_tax", args]
+                        ]
+                    })
+
+                } else {
+
+                    let args = [
+                        amountIn, // amountIn
+                        0, //amountOutMin
+                        path,
+                        recipient,
+                        deadline
+                    ]
+
+                    _dataArr.push({
+                        route,
+                        abi,
+                        func: [
+                            ["swap_exact_tokens_for_tokens", args],
+                            ["swap_exact_tokens_for_tokens_with_transfer_tax", args]
+                        ]
+                    })
+                }
+            } //ens if its uniswap v2 or its modified version
+
+            else if(["uni_v3"].includes(routeGroup)) {
+
+            } //end if its uniswap v3 or its modified version
+
+        } //end for loop 
+
+        console.log("_dataArr====>", _dataArr)
+
+        let mcallLabels = []
+        let mcallInputs = []
+
+        for(let itemObj of _dataArr){
             
-        }
+            console.log("itemObj===>", itemObj)
+
+            let {abi, func: funcDataArr, route: routeInfo} = itemObj
+
+            let routeGroup = routeInfo.parsedGroup
+            let routeId = routeInfo.parsedId
+
+            for(let funcData of funcDataArr) {
+
+                let _funcNameKey = funcData[0]
+                let method =  swapCore.getSwapFunctionName(routeGroup, _funcNameKey)
+                let  args = funcData[1]
+
+                let label = `${routeId}|${routeGroup}|${_funcNameKey}`
+
+                let iface = new Interface(abi);
+                let data = iface.encodeFunctionData(method, args)
+
+                mcallInputs.push(data)
+                mcallLabels.push(label)
+            }
+        } //end loop
+        
+        console.log("mcallInputs===>", mcallInputs) 
+        console.log("mcallLabels===>", mcallLabels)   
 
     } catch(e){
         processingError.value = "Failed to fetch quotes, try again"

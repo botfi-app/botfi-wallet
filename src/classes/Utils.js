@@ -419,4 +419,8 @@ export default class Utils {
             }, (delayInSecs * 1000))
         }))
     }
+
+    static calPercentBPS(value, bps) {
+        return (BigInt(value.toString()) * BigInt(bps.toString())) * BigInt(10_000)
+    }
 }

@@ -3,7 +3,7 @@
  * @author BotFi <hello@botfi.app>
  */
 
-import {ref, inject, computed, onBeforeMount, onBeforeUnmount } from 'vue'
+import {ref, inject, computed, onBeforeMount, onBeforeUnmount, toRaw } from 'vue'
 import { useDB } from "./useDB"
 import Status from '../classes/Status';
 import Utils from '../classes/Utils';
@@ -73,15 +73,19 @@ export const useSwap =  () => {
 
         if(web3 == null) web3 = await getWeb3()
 
+        web3 = toRaw(web3)
+
         let contractsInfo =  await web3.getSystemContracts()
 
         //console.log("contractsInfo===>", contractsInfo)
         
         let swapContract = contractsInfo.swap.factory;
 
-        //console.log("swapFactory==>", swapContract)
-
+        ///console.log("swapFactory==>", swapContract)
+  
         let resultsData = await swapContract.getAllRoutes() 
+
+        //console.log("resultsData===>", resultsData)
 
         let processedData = []
 
