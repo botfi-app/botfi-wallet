@@ -224,7 +224,7 @@ export const useNFT = () => {
 
            let requiredFields = [
                'name',
-               'symbol',
+               //'symbol',
                'tokenId', 
                'chainId',  
                'collection',

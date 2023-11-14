@@ -20,6 +20,10 @@ export default class Utils {
     static generalErrorStatus =  Status.error(this.generalErrorMsg)
     static openAppFromChatPlatform = "open the app from a chat platform such as telegram"
 
+    static isNativeToken(token) {
+        return (token.toLowerCase() == this.nativeTokenAddr.toLowerCase())
+    }
+
     static logError(msg, err){
         console.log(msg)
         if(err){

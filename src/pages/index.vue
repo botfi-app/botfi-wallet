@@ -34,6 +34,7 @@ const initialize = async () => {
                 <router-link 
                     to="/set-pin?next=create-wallet" 
                     class="my-2 no-underline  w-full"
+                    rel="prefetch"
                 >
                     <button class="btn w-full btn-primary rounded-pill ">
                         Create Wallet
@@ -42,6 +43,7 @@ const initialize = async () => {
                 <router-link  
                     to="/set-pin?next=import-wallet" 
                     class="my-2 no-underline  w-full"
+                    rel="prefetch"
                 >
                     <button class="btn w-full btn-success rounded-pill">
                         Import Wallet

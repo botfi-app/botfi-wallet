@@ -61,8 +61,6 @@ export default class Wallet {
                       .setCode(ErrorCodes.RPC_CONNECT_FAILED)
             }
 
-            //lets fetch system contrats 
-            await  this.getSystemContracts();
 
             return Status.successData(this)
 
@@ -562,7 +560,7 @@ export default class Wallet {
                     onTxCreatedCallback
                 });
             }
-            
+
             return contract;
         } catch (e) {
             Utils.logError(`Failed to initialize contract at ${address} with abi: ${abi}`, e)

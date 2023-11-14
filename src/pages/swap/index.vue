@@ -59,6 +59,8 @@ watch(tokenBInputValue, () => {
 
 const initialize = async () => {
 
+    //console.log("swapConfig===>", swapConfig)
+
     if(!wallets.isLoggedIn()){
         return pageError.value = `Connect Wallet`
     }
@@ -150,17 +152,52 @@ const fetchQuotes = async () => {
         if(!(tokenA.value || tokenB.value)) return;
 
         if(!Utils.isValidFloat(tokenAInputValue.value)) return; 
+        
 
         //lets now enocde the amount into tokenA's format
         let tokenAInputVal2 = parseUnits(tokenAInputValue.value.toString(), tokenA.decimals)
 
-        console.log("tokenAInputVal2===>", tokenAInputVal2)
+        if(tokenAInputVal2 == 0) return;
+
+        //console.log("tokenAInputVal2===>", tokenAInputVal2)
+
+        let tokenAInfo = tokenA.value
+        let tokenBInfo = tokenB.value;
+
+        let routesABIs = swapConfig.routes_ABIs;
 
         let mCallInputs = []
 
+
         for(let route of swapRoutes.value){
 
-            console.log("route===>", route)
+            let abi;
+            let _dataArr = []
+
+            if(["uni_v2", "tjoe_v20", "tjoe_v21"].includes(route.group)){
+                
+                abi = routesABIs[route.group]
+
+                if(Utils.isNativeToken(tokenAInfo.contract)){
+                    _dataArr.push({
+                        func: swapCore.getSwapFunctionName("swap_exact_native_for_tokens")
+                    })
+                    _dataArr.push({
+                        func: swapCore.getSwapFunctionName("swap_exact_native_for_tokens_with_transfer_tax")
+                    })
+                } 
+                else if(Utils.isNativeToken(tokenBInfo.contract)) {
+                    _dataArr.push({
+                        func: swapCore.getSwapFunctionName("swap_exact_native_for_tokens")
+                    })
+                    _dataArr.push({
+                        func: swapCore.getSwapFunctionName("swap_exact_native_for_tokens_with_transfer_tax")
+                    })
+                }
+            }
+
+            let swapFunction = swapCore.getSwapFunctionName(route.group)
+            
         }
 
     } catch(e){

@@ -35,15 +35,16 @@ const onTabClick = (item) => {
          <div class="b-tabs mt-2 shadow-xl">
             <div class="b-tabs-items">
                <template v-for="(item, index) in tabItems" :key="index">
-                  <div
+                  <router-link
+                     :to="item.url"
                      :class="`b-tab-item text-center ${isTabActive(index) ? 'active': ''}`" 
-                     @click.prevent="onTabClick(item)"
+                     rel="prefetch"
                   >  
                      <Icon class='rounded-pill icon mb-1' :name="item.icon" :size="20" />
                      <div class="ms-1 fs-12">
                         {{ item.name }}
                      </div>
-                  </div>
+                  </router-link>
                </template>
             </div>
          </div>

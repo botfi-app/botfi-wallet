@@ -12,6 +12,7 @@ import EventBus from '../classes/EventBus';
 import swapConfig from "../config/swap"
 import { useNetwork } from '@vueuse/core';
 import { decodeBytes32String } from 'ethers';
+import swapFunctionMap from "../config/swap/swap_function_map"
 
 const supportedChains = swapConfig.supported_chains;
 const $state = ref({
@@ -102,17 +103,19 @@ export const useSwap =  () => {
         return Status.successData(processedData)
     }
 
-    const processSwapRequestData = async ({ web3, chainId, amount, routeId }) => {
-
-        
+    const getSwapFunctionName = async(routeGroup, functionName) => {
+        let funcsObj = swapFunctionMap[routeGroup] || {}
+        return (funcsObj[functionName] || functionName)
     }
+
+    //const 
 
     return {
         isSupported,
         isChainSupported,
         routes,
         getRoutes,
-        processSwapRequestData
+        getSwapFunctionName
     }
 }
     

@@ -14,8 +14,8 @@ export default {
                 symbol:     "ETH",
                 decimals:   18
             },
-            rpc: ["https://eth.llamarpc.com"],
-            explorers: [ "https://Ethercan.io"],
+            rpc: ["https://ethereum.publicnode.com"],
+            explorers: [ "https://ethercan.io"],
             icon: "/images/crypto/eth.svg"
         },
 
@@ -29,7 +29,7 @@ export default {
                 symbol:     "MATIC",
                 decimals:   18
             },
-            rpc: ["https://polygon.llamarpc.com"],
+            rpc: ["https://polygon-bor.publicnode.com"],
             explorers: [ "https://polygonscan.com"],
             icon: "/images/crypto/matic.svg"
         },
@@ -44,7 +44,7 @@ export default {
                 symbol:     "BNB",
                 decimals:   18
             },
-            rpc: ["https://bsc-dataseed.bnbchain.org", "https://bsc-dataseed1.defibit.io", "https://bsc-dataseed1.ninicoin.io"],
+            rpc: ["https://bsc.publicnode.com"],
             explorers: [ "https://bscscan.com"],
             icon: "/images/crypto/bnb.svg"
         },
