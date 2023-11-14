@@ -3,6 +3,7 @@ export default {
 
     uni_v2: {
         "native_token":                                     "WETH",
+        "get_amounts_out":                                  "getAmountsOut",
         "swap_tokens_for_exact_native":                     "swapTokensForExactETH",
         "swap_exact_tokens_for_native":                     "swapExactTokensForETH",
         "swap_exact_native_for_tokens":                     "swapExactETHForTokens",
@@ -15,6 +16,7 @@ export default {
     
     tjoe_v20: {
         "native_token":                                     "wavax",
+        "get_amounts_out":                                  "findBestPathFromAmountIn",
         "swap_tokens_for_exact_native":                     "swapTokensForExactAVAX",
         "swap_exact_tokens_for_native":                     "swapExactTokensForAVAX",
         "swap_exact_native_for_tokens":                     "swapExactAVAXForTokens",
@@ -27,6 +29,7 @@ export default {
 
     tjoe_v21: {
         "native_token":                                     "getWNATIVE",
+        "get_amounts_out":                                  "findBestPathFromAmountIn",
         "swap_tokens_for_exact_native":                     "swapTokensForExactNATIVE",
         "swap_exact_tokens_for_native":                     "swapExactTokensForNATIVE",
         "swap_native_for_exact_tokens":                     "swapNATIVEForExactTokens",

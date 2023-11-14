@@ -1,12 +1,20 @@
 
-import uni_v2 from "../../data/abi/routes/uniswap_v2.json";
-import uni_v3 from "../../data/abi/routes/uniswap_v3.json";
-import tjoe_20 from "../../data/abi/routes/trader_joe_v2_0.json";
-import tjoe_21 from "../../data/abi/routes/trader_joe_v2_1.json";
+import uni_v2_router from "../../data/abi/routes/uni_v2_router.json";
+import uni_v3_router from "../../data/abi/routes/uni_v3_router.json";
+
+import tjoe_v20_router from "../../data/abi/routes/tjoe_v20_router.json";
+import tjoe_v21_router from "../../data/abi/routes/tjoe_v21_router.json";
+
+import tjoe_v20_quoter from "../../data/abi/routes/tjoe_v20_quoter.json";
+import tjoe_v21_quoter from "../../data/abi/routes/tjoe_v21_quoter.json";
 
 export default {
-    uni_v2,
-    uni_v3,
-    tjoe_20,
-    tjoe_21
+    uni_v2_router,
+    uni_v3_router,
+
+    tjoe_v20_router,
+    tjoe_v21_router,
+
+    tjoe_v20_quoter,
+    tjoe_v21_quoter
 }

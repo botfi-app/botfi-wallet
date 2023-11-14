@@ -11,7 +11,7 @@ import { Modal as bsModal } from 'bootstrap';
 import BotFiLoader from "../../components/common/BotFiLoader.vue"
 import swapConfig from "../../config/swap"
 import  { useSwap } from '../../composables/useSwap';
-import { Interface, parseUnits } from 'ethers';
+import { Interface, getAddress, parseUnits } from 'ethers';
 
 
 const web3 = ref()
@@ -179,123 +179,64 @@ const fetchQuotes = async () => {
         let routesABIs = swapConfig.routes_ABIs;
 
         let recipient = activeWallet.value.address;
-        let deadline  = (Date.now() / 1000) + 15;
+        let deadline  = Math.ceil((Date.now() / 1000)) + 15;
 
-        let _dataArr = []
+        let tokenAddress = getAddress(tokenAInfo.contract)
+        let tokenBAddress = getAddress(tokenBInfo.contract)
+
+        let quoteFunc = "get_amounts_out"
+
+        let mcallInputs = []
 
         for(let route of swapRoutes.value){
 
-            ///console.log("route===>", route)
-
             let routeGroup = route.parsedGroup
-            let abi = routesABIs[routeGroup]
+            let routeId = route.pasedId;
+            let abi;
+            let target;
 
-            console.log("routeGroup====>", routeGroup)
-            console.log("abi===>", abi)
+            if(Utils.isZeroAddr(route.quoter)) {
+                abi = routesABIs[`${routeGroup}_router`]
+                target = route.router;
+            } else {
+                abi = routesABIs[`${routeGroup}_quoter`]
+                target = route.quoter;
+            }
 
-            if(["uni_v2", "tjoe_v20", "tjoe_v21"].includes(routeGroup)){
-                
+            let tokenAAddr = (Utils.isNativeToken(tokenAInfo.contract))
+                            ? route.weth 
+                            : tokenAInfo.contract
 
-                if(Utils.isNativeToken(tokenAInfo.contract)){
+            let tokenBAddr = (Utils.isNativeToken(tokenBInfo.contract))
+                                ? route.weth 
+                                : tokenBInfo.contract
 
-                    let path = [route.weth, tokenBInfo.contract]
+            let path = [tokenAAddr, tokenBAddr]
 
-                    let args = [
-                        0, //amountOutMin
-                        path,
-                        recipient,
-                        deadline
-                    ]
+            let args = [];
 
-                    _dataArr.push({
-                        route,
-                        abi,
-                        func: [ 
-                            ["swap_exact_native_for_tokens", args],
-                            ["swap_exact_native_for_tokens_with_transfer_tax", args]
-                        ]
-                    })
-                } 
-                else if(Utils.isNativeToken(tokenBInfo.contract)) {
+            if(["uni_v2"].includes(routeGroup)){
+                args = [amountIn, path]
+            }
+            else if(["tjoe_v20", "tjoe_v21"].includes(routeGroup)){
+                args = [path, amountIn]
+            } 
+            else {
+                continue;
+            }
 
-                    let path = [tokenAInfo.contract, route.weth]
+            let method =  await swapCore.getSwapFunctionName(routeGroup, quoteFunc)
 
-                    let args = [
-                        amountIn, // amountIn
-                        0, //amountOutMin
-                        path,
-                        recipient,
-                        deadline
-                    ]
+            let label = `${routeId}|${routeGroup}`
 
-                    _dataArr.push({
-                        route,
-                        abi,
-                        func: [
-                            ["swap_exact_tokens_for_native", args],
-                            ["swap_exact_tokens_for_native_with_transfer_tax", args]
-                        ]
-                    })
+            console.log("abi====>", abi)
+            console.log("method=====>", method)
+            console.log("args=====>", args)
 
-                } else {
-
-                    let args = [
-                        amountIn, // amountIn
-                        0, //amountOutMin
-                        path,
-                        recipient,
-                        deadline
-                    ]
-
-                    _dataArr.push({
-                        route,
-                        abi,
-                        func: [
-                            ["swap_exact_tokens_for_tokens", args],
-                            ["swap_exact_tokens_for_tokens_with_transfer_tax", args]
-                        ]
-                    })
-                }
-            } //ens if its uniswap v2 or its modified version
-
-            else if(["uni_v3"].includes(routeGroup)) {
-
-            } //end if its uniswap v3 or its modified version
+            let iface = new Interface(abi);
+            let data = iface.encodeFunctionData(method, args)
 
         } //end for loop 
-
-        console.log("_dataArr====>", _dataArr)
-
-        let mcallLabels = []
-        let mcallInputs = []
-
-        for(let itemObj of _dataArr){
-            
-            console.log("itemObj===>", itemObj)
-
-            let {abi, func: funcDataArr, route: routeInfo} = itemObj
-
-            let routeGroup = routeInfo.parsedGroup
-            let routeId = routeInfo.parsedId
-
-            for(let funcData of funcDataArr) {
-
-                let _funcNameKey = funcData[0]
-                let method =  swapCore.getSwapFunctionName(routeGroup, _funcNameKey)
-                let  args = funcData[1]
-
-                let label = `${routeId}|${routeGroup}|${_funcNameKey}`
-
-                let iface = new Interface(abi);
-                let data = iface.encodeFunctionData(method, args)
-
-                mcallInputs.push(data)
-                mcallLabels.push(label)
-            }
-        } //end loop
-        
-        console.log("mcallInputs===>", mcallInputs) 
-        console.log("mcallLabels===>", mcallLabels)   
 
     } catch(e){
         processingError.value = "Failed to fetch quotes, try again"

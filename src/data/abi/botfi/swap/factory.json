@@ -183,6 +183,11 @@
         "type": "address"
       },
       {
+        "internalType": "address",
+        "name": "quoter",
+        "type": "address"
+      },
+      {
         "internalType": "bool",
         "name": "enabled",
         "type": "bool"
@@ -267,6 +272,11 @@
             "type": "address"
           },
           {
+            "internalType": "address",
+            "name": "quoter",
+            "type": "address"
+          },
+          {
             "internalType": "uint256",
             "name": "createdAt",
             "type": "uint256"
@@ -288,9 +298,21 @@
   {
     "inputs": [
       {
-        "internalType": "bytes[]",
-        "name": "data",
-        "type": "bytes[]"
+        "components": [
+          {
+            "internalType": "address payable",
+            "name": "target",
+            "type": "address"
+          },
+          {
+            "internalType": "bytes",
+            "name": "data",
+            "type": "bytes"
+          }
+        ],
+        "internalType": "struct Multicall.Call[]",
+        "name": "calls",
+        "type": "tuple[]"
       },
       {
         "internalType": "bool",
@@ -301,9 +323,21 @@
     "name": "multicall",
     "outputs": [
       {
-        "internalType": "bytes[]",
+        "components": [
+          {
+            "internalType": "bool",
+            "name": "success",
+            "type": "bool"
+          },
+          {
+            "internalType": "bytes",
+            "name": "data",
+            "type": "bytes"
+          }
+        ],
+        "internalType": "struct Multicall.Result[]",
         "name": "results",
-        "type": "bytes[]"
+        "type": "tuple[]"
       }
     ],
     "stateMutability": "payable",
@@ -375,6 +409,11 @@
       {
         "internalType": "address",
         "name": "weth",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "quoter",
         "type": "address"
       },
       {

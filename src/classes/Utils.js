@@ -7,7 +7,7 @@ import Swal from 'sweetalert2'
 import "sweetalert2/src/sweetalert2.scss"
 import Status from './Status'
 import {prng_alea} from 'esm-seedrandom';
-import { isAddress as ethersIsAddress, getAddress } from 'ethers';
+import { ZeroAddress, isAddress as ethersIsAddress, getAddress } from 'ethers';
 import { v5 as uuidv5 } from 'uuid';
 import appConfig from "../config/app"
 import * as dayjs from 'dayjs'
@@ -19,10 +19,13 @@ export default class Utils {
     static generalErrorMsg = "An unknown error occured, try again later"
     static generalErrorStatus =  Status.error(this.generalErrorMsg)
     static openAppFromChatPlatform = "open the app from a chat platform such as telegram"
+    static zeroAddr = ZeroAddress
 
     static isNativeToken(token) {
         return (token.toLowerCase() == this.nativeTokenAddr.toLowerCase())
     }
+
+    static isZeroAddr = (addr) => addr == ZeroAddress
 
     static logError(msg, err){
         console.log(msg)
@@ -421,6 +424,6 @@ export default class Utils {
     }
 
     static calPercentBPS(value, bps) {
-        return (BigInt(value.toString()) * BigInt(bps.toString())) * BigInt(10_000)
+        return (BigInt(value.toString()) * BigInt(bps.toString())) / BigInt(10_000)
     }
 }
