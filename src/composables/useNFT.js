@@ -165,7 +165,7 @@ export const useNFT = () => {
            //console.log("nftInfo.standard===>", nftInfo.standard);
 
 
-           let resultStatus = await web3Conn.staticMulticall(inputs)
+           let resultStatus = await web3Conn.deploylessMuticall(inputs)
 
            //console.log("resultStatus===>", resultStatus)
 
@@ -559,9 +559,9 @@ export const useNFT = () => {
                 })
             }
 
-            let resultStatus = await web3Conn.staticMulticall(inputs)
+            let resultStatus = await web3Conn.deploylessMuticall(inputs)
 
-            console.log("resultStatus===>", resultStatus)
+            //console.log("resultStatus===>", resultStatus)
 
            if(resultStatus.isError()){
                Utils.logError("useToken#fetchNFTMetadata:"+ resultStatus.getMessage())

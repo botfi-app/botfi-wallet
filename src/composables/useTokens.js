@@ -196,7 +196,7 @@ export const useTokens = () => {
                 })
             }
 
-            let resultStatus = await web3Conn.staticMulticall(inputs)
+            let resultStatus = await web3Conn.deploylessMuticall(inputs)
 
             if(resultStatus.isError()){
                 Utils.logError("useToken#updateBalances:"+ resultStatus.getMessage())
@@ -324,6 +324,7 @@ export const useTokens = () => {
             window.__botFibalanceUpdating = false
         }
     }
+
 
     const fetchPastTxByBlocks = async (web3Conn, { tokensAddrs = [], walletAddrs = [] }) => {
         try {
@@ -532,7 +533,7 @@ export const useTokens = () => {
 
         ///console.log("inputs===>", inputs)
 
-        let resultStatus = await web3Conn.staticMulticall(inputs)
+        let resultStatus = await web3Conn.deploylessMuticall(inputs)
 
         if(resultStatus.isError()){
             return resultStatus
@@ -547,6 +548,99 @@ export const useTokens = () => {
 
         return Status.successData(resultData)
     } 
+
+
+        //////////FETCH BULK TOKENS INFO ////////////
+
+    const getBulkERC20TokenInfo = async (tokensArr=[], walletsArr=[]) => {
+
+         //lets get the web3 conn
+         let web3ConnStatus = await net.getWeb3Conn()
+
+         if(web3ConnStatus.isError()){
+             return web3ConnStatus
+         }
+ 
+         let web3 = web3ConnStatus.getData()
+
+         let abi = erc20Abi
+         let inputs = []
+
+        for(let i  in tokensArr){
+            
+            let target = tokensArr[i]
+
+            inputs.push({target, abi, label: `symbol_${i}`, method: "symbol", args: [] })
+            inputs.push({target, abi, label: `name_${i}`, method: "name", args: [] })
+            inputs.push({target, abi, label: `decimals_${i}`, method: "decimals", args: [] })
+        
+
+            if(walletsArr.length > 0){
+                walletsArr.forEach(addr => {
+                    let label = `balanceOf_${i}_${addr}`
+                    let method = "balanceOf"
+                    inputs.push({target, abi, label, method, args: [addr] })
+                })
+            }
+
+        }
+        
+        let resultStatus = await web3.deploylessMuticall(inputs)
+
+        if(resultStatus.isError()) return resultStatus
+
+        let resultsObj = resultStatus.getData()
+
+        //console.log("resultsObj===>", resultsObj)
+
+        let processedData = {}
+
+        for(let label of Object.keys(resultsObj)) {
+
+            let labelObj= label.split("_")
+            let value = resultsObj[label]
+
+            //console.log("labelObj===>", labelObj)
+            
+            let [method, index] = labelObj
+            let wallet;
+
+            if(method == 'balanceOf'){
+                wallet = labelObj[2]
+            }
+
+            let token = tokensArr[index];
+            let tokenLower = token.toLowerCase()
+           
+            let tokenItem = processedData[tokenLower] || { balances: {}}
+
+            if(method != 'balanceOf'){
+                tokenItem[method.toLowerCase()] = value;
+            } else {
+                tokenItem.balances[wallet.toLowerCase()] = value
+            }
+
+            processedData[tokenLower] = tokenItem
+        }
+
+       Object.keys(processedData).forEach(tokenAddr => {
+            
+            let tInfo = processedData[tokenAddr]
+
+            //console.log("tInfo==>", tInfo)
+            
+            Object.keys(tInfo.balances).forEach(walletAddr => {
+                let balance = tInfo.balances[walletAddr]
+                let formatedBalance = formatUnits(balance, tInfo.decimals)
+                tInfo.balances[walletAddr] = { value: balance, formatted: formatedBalance}
+            })
+
+            processedData[tokenAddr] = tInfo
+       })  
+       
+       
+       return Status.successData(processedData)
+    }
 
     const importToken = async (tokenInfo={}) => {
         
@@ -698,6 +792,7 @@ export const useTokens = () => {
         removeToken,
         getTokenByAddr,
         geTokenFiatValue,
-        removeUsersTokensAndBalances
+        removeUsersTokensAndBalances,
+        getBulkERC20TokenInfo
     }
 }

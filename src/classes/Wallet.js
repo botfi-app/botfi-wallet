@@ -185,7 +185,7 @@ export default class Wallet {
     }
 
 
-    async staticMulticall(inputsArray) {
+    async deploylessMuticall(inputsArray) {
         try {
 
             let labels = []
@@ -199,15 +199,13 @@ export default class Wallet {
 
                 labels[index] = item.label;
 
-                //console.log("item.method=====>", item.method)
-
                 // if its eth native balance, then use
                 if(item.method == 'getEthBalance') {
                     inputs[index] = ethcallProvider.getEthBalance(item.args[0])
                 } else {
                     let contract = new ethcallContract(item.target, item.abi)
                     inputs[index] = contract[item.method](...item.args)
-                }
+                } 
             }
 
             const dataArray = await ethcallProvider.all(inputs, {blockTag: 'latest'});
@@ -221,12 +219,81 @@ export default class Wallet {
             //console.log("processedData==>", processedData)
 
             return Status.successData(processedData)
+
         } catch(e){
             Utils.logError("Wallet#deploylessMuticall:", e)
             return Status.error("onchain operation failed")
         }
     }
 
+    multicall(mcallContract) {
+
+        const staticcall = async (inputs, revertOnError=true) => {
+            return __exec(inputs, revertOnError, true)
+        }
+
+        const __exec = async (inputsArr, revertOnError = true, staticcall = false) => {
+            
+            try{
+                
+                let inputs = []
+
+                for(let i in inputsArr){
+                
+                    let { abi, target, method, args, label } = inputsArr[i]
+
+
+                    let iface = new Interface(abi);
+                    let data = iface.encodeFunctionData(method, args)
+
+                    inputs.push({
+                        target, 
+                        data 
+                    })
+                }
+
+                let resultsArr = (staticcall)
+                                    ? await mcallContract.staticCall(inputs, revertOnError)
+                                    : await mcallContract(inputs, revertOnError)
+
+                let processedResult = []
+
+                for(let i in resultsArr) {
+
+                    ///console.log("resultsArr[i]===>", resultsArr[i])
+
+                    let [success, result] = resultsArr[i]
+                    let { abi, method, label } = inputsArr[i]
+
+                    let iface = new Interface(abi);
+                    let decodedResult = null
+                    
+                    if(success){
+                        decodedResult = iface.decodeFunctionResult(
+                                            iface.getFunction(method), 
+                                            result
+                                        )
+
+                        decodedResult = decodedResult[0]
+                    }
+
+                    processedResult.push({
+                        label,
+                        data: decodedResult
+                    })
+                }
+
+                return Status.successData(processedResult)
+
+            } catch(e){
+                Utils.logError("Wallet#multicall:", e)
+                return Status.error("onchain operation failed")
+            }
+        } //end __exec
+
+
+        return { staticcall }
+    }
 
     /**
      * get proxy implementation address from storage

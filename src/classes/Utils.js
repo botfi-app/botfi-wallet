@@ -426,4 +426,6 @@ export default class Utils {
     static calPercentBPS(value, bps) {
         return (BigInt(value.toString()) * BigInt(bps.toString())) / BigInt(10_000)
     }
+
+    
 }

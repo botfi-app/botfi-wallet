@@ -1,5 +1,5 @@
 <script setup>
-import { onBeforeMount, ref, watch } from 'vue';
+import { onBeforeMount, ref, toRaw, watch } from 'vue';
 import { useTokens } from '../../composables/useTokens';
 import { useNetworks } from '../../composables/useNetworks';
 import { useWalletStore } from '../../store/walletStore';
@@ -11,10 +11,11 @@ import { Modal as bsModal } from 'bootstrap';
 import BotFiLoader from "../../components/common/BotFiLoader.vue"
 import swapConfig from "../../config/swap"
 import  { useSwap } from '../../composables/useSwap';
-import { Interface, getAddress, parseUnits } from 'ethers';
+import { Interface, formatUnits, getAddress, parseUnits } from 'ethers';
 
 
-const web3 = ref()
+let web3 = null;
+let contracts;
 
 const initialized   = ref(false)
 const isLoading     = ref(false)
@@ -30,7 +31,6 @@ const networks      = useNetworks()
 const netInfo       = ref()
 
 const swapCore = useSwap()
-const swapContracts = ref(null)
 
 const tokenA = ref(null)
 const tokenB = ref(null)
@@ -41,6 +41,7 @@ const tokenBInputValue = ref("")
 const activeTokenVarName = ref("tokenA")
 
 const isFetchingQuotes = ref(false)
+const quotesError = ref("")
 
 const isChainSupported = ref(false)
 
@@ -87,7 +88,9 @@ const initialize = async () => {
     //sconsole.log("swapConfig===>", swapConfig)
 
 
-    web3.value = web3Status.getData()
+    web3 = toRaw(web3Status.getData())
+
+    contracts = await web3.getSystemContracts()
 
     let fetchRoutes = await fetchSwapRoutes()
 
@@ -134,7 +137,7 @@ const flipTokensData = () => {
 
 const fetchSwapRoutes = async () => {
     
-    let routesStatus = await swapCore.getRoutes(web3.value)
+    let routesStatus = await swapCore.getRoutes(web3)
 
     if(routesStatus.isError()){
         pageError.value = `Failed to fetch swap routes: ${routesStatus.getMessage()}`
@@ -169,7 +172,7 @@ const fetchQuotes = async () => {
 
         //console.log("feeAmt===>", feeAmt)
 
-        let amountIn = tokenAInputVal2 - feeAmt;
+        let amountIn = tokenAInputVal2 //- feeAmt;
 
         //console.log("tokenAInputVal2===>", tokenAInputVal2)
 
@@ -178,12 +181,6 @@ const fetchQuotes = async () => {
 
         let routesABIs = swapConfig.routes_ABIs;
 
-        let recipient = activeWallet.value.address;
-        let deadline  = Math.ceil((Date.now() / 1000)) + 15;
-
-        let tokenAddress = getAddress(tokenAInfo.contract)
-        let tokenBAddress = getAddress(tokenBInfo.contract)
-
         let quoteFunc = "get_amounts_out"
 
         let mcallInputs = []
@@ -191,7 +188,7 @@ const fetchQuotes = async () => {
         for(let route of swapRoutes.value){
 
             let routeGroup = route.parsedGroup
-            let routeId = route.pasedId;
+            let routeId = route.parsedId;
             let abi;
             let target;
 
@@ -229,15 +226,52 @@ const fetchQuotes = async () => {
 
             let label = `${routeId}|${routeGroup}`
 
-            console.log("abi====>", abi)
-            console.log("method=====>", method)
-            console.log("args=====>", args)
-
-            let iface = new Interface(abi);
-            let data = iface.encodeFunctionData(method, args)
-
+            mcallInputs.push({ label, target, method, args, abi })
         } //end for loop 
+        
+        let _mcallContract = toRaw(contracts.swap.factory.multicall)
+        
+        let resultStatus = await web3.multicall(_mcallContract)
+                                  .staticcall(mcallInputs)
 
+        if(resultStatus.isError()){
+            return quotesError.value = `Failed to fetch quote: ${resultStatus.getMessage()}`
+        }
+
+        let resultData = resultStatus.getData() || []
+
+        //console.log("resultData===>", resultData)
+
+        let processedQuotes = []
+
+        for(let item of resultData) {
+
+            let { label, data } = item; 
+
+            let [ routeId, routeGroup ] = label.split("|")
+
+            let dataObj = {...data.toObject()}
+
+
+            dataObj['routeId'] = routeId
+            dataObj['routeGroup'] = routeGroup
+
+            let amountOut;
+
+            if(["tjoe_v20", "tjoe_v21"].includes(routeGroup)){
+                amountOut = dataObj.amounts[1]
+            }
+
+            console.log("tokenBInfo.decimals===>", tokenBInfo)
+            let formattedAmountOut = formatUnits(amountOut, 6)
+
+            dataObj.amountOut = amountOut
+            dataObj.formattedAmountOut = formattedAmountOut
+
+            console.log("dataObj===>", dataObj)
+
+            processedQuotes.push(dataObj)
+        }
     } catch(e){
         processingError.value = "Failed to fetch quotes, try again"
         Utils.logError("swap#index#fetchQuotes:",e)

@@ -5,6 +5,7 @@ import { useNetworks } from '../../composables/useNetworks';
 import Utils from '../../classes/Utils';
 import Http from '../../classes/Http';
 import { Modal as bsModal } from 'bootstrap';
+import { useWalletStore } from '../../store/walletStore';
 
 const props = defineProps({
                 includeUserTokens: { type: Boolean, default: true },
@@ -26,8 +27,16 @@ const errorMsg = ref("")
 const id = ref("token-selector-modal")
 const isLoading = ref(false) 
 const initialData = ref({})
+const walletStore = useWalletStore()
+const walletAddrs = ref([])
+const activeWallet = ref()
+
 
 onBeforeMount(async () => {
+
+    activeWallet.value = await walletStore.getActiveWalletInfo()
+    walletAddrs.value = await walletStore.getWalletAddresses()
+
     await fetchData()
     initialData.value = searchResults.value
     initialized.value = true 
@@ -71,14 +80,24 @@ const fetchData = async () => {
             let usersTokens = await tokensCore.getTokens()
 
             for(let addr of Object.keys(usersTokens)){
+                
                 let addrLower = addr.toLowerCase()
+                //tokensContracts[addrLower] = true 
+
                 if(!(addrLower in tokensContracts)){
                     tokensDataArr.unshift(usersTokens[addr])
                 }
             }
         }
 
-        searchResults.value = tokensDataArr
+        let tokensOnChainData = await fetchTokensOnChainDataAndBalances(
+                                    tokensContracts,
+                                    tokensDataArr
+                                )
+
+        if(!Array.isArray(tokensOnChainData)) return false;
+
+        searchResults.value = tokensOnChainData
 
     } catch(e){
         errorMsg.value = Utils.generalErrorMsg
@@ -86,6 +105,64 @@ const fetchData = async () => {
     } finally {
         isLoading.value = false
     }
+}
+
+const fetchTokensOnChainDataAndBalances = async (tokensContracts, tokensDataArr) => {
+
+    let tokensContractsArr = Object.keys(tokensContracts)
+        
+    let onChainTokenDataStatus = await tokensCore.getBulkERC20TokenInfo(
+                                    tokensContractsArr,
+                                    walletAddrs.value
+                                )
+
+    if(onChainTokenDataStatus.isError()){
+        errorMsg.value =  "Failed to onchain fetch token data"
+        return false
+    }
+
+    let onchainTokenData = onChainTokenDataStatus.getData() || {}
+
+    let processedTokenData = []
+
+
+    for(let item of tokensDataArr){
+
+        let onChainItem = onchainTokenData[item.contract.toLowerCase()] || null 
+        if(onChainItem == null) continue;
+
+        item.balances = onChainItem.balances; 
+        item.decimals = Number(onChainItem.decimals)
+
+        processedTokenData.push(item)
+    }
+    
+    let acctAddr = activeWallet.value.address.toLowerCase()
+
+    let processedTokenDataSorted = processedTokenData.sort(( item1, item2 ) => {
+        let balance1 = item1.balances[acctAddr].value || 0n
+        let balance2 = item2.balances[acctAddr].value || 0n
+
+        if(balance1 > balance2) return -1;
+        else if(balance1 < balance2) return 1
+        else return 0
+    })    
+
+    return processedTokenDataSorted
+}
+
+const getBalance = (tokenItem) => {
+    
+    let balances = tokenItem.balances || null 
+
+    if(balances == null) return ""
+    
+    let wallet = activeWallet.value.address.toLowerCase()
+    let balance = balances[wallet].formatted;
+
+    if(balance == 0) return ""
+
+    return `${balance} ${tokenItem.symbol.toUpperCase()}`
 }
 
 const onSearch = async (_keyword) => {
@@ -150,13 +227,18 @@ const onItemSelect = async (item) => {
                                             <div class="ms-2 muted hint">
                                                 {{ item.symbol.toUpperCase() }}
                                             </div>
-                                        </div> 
-                                        <Icon 
-                                            v-if="item.contract == selected"
-                                            name="teenyicons:tick-solid" 
-                                            class="text-success" 
-                                            
-                                        />
+                                        </div>
+                                        
+                                        <div>
+                                            <div>{{ getBalance(item) }}</div>
+                                            <Icon 
+                                                v-if="item.contract == selected"
+                                                name="teenyicons:tick-solid" 
+                                                class="text-success" 
+                                                
+                                            />
+                                        </div>
+                                     
                                     </div>
                                 </li>
                             </template>
