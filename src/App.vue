@@ -14,7 +14,7 @@ const router = useRouter()
 onBeforeMount(() => {
   
   updateBalances()
-  setInterval(updateBalances, 40_000);
+  setInterval(updateBalances, 30_000);
 
   EventBus.on("login", () => updateBalances())
   EventBus.on("update-balance",  () => updateBalances())

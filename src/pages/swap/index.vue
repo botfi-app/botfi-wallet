@@ -11,8 +11,8 @@ import { Modal as bsModal } from 'bootstrap';
 import BotFiLoader from "../../components/common/BotFiLoader.vue"
 import swapConfig from "../../config/swap"
 import  { useSwap } from '../../composables/useSwap';
-import { Interface, formatUnits, getAddress, parseUnits, solidityPacked } from 'ethers';
 import InlineError from '../../components/common/InlineError.vue';
+import SwapSettings from '../../components/modals/SwapSettings.vue';
 
 
 let web3 = null;
@@ -24,9 +24,11 @@ const pageError      = ref("")
 const processingError = ref("")
 const swapError = ref("")
 
-const tokensCore    = useTokens()
-const wallets       = useWalletStore()
+const tokensCore        = useTokens()
+const wallets           = useWalletStore()
 const activeWallet     = ref()
+const balanceInfo      = ref(null)
+const slippage         = ref(1) 
 
 const networks      = useNetworks()
 const netInfo       = ref()
@@ -43,16 +45,21 @@ const activeTokenVarName = ref("tokenA")
 
 const isFetchingQuotes = ref(false)
 const quotesError = ref("")
+const quotesDataArr = ref([])
 
 const isChainSupported = ref(false)
-
 const swapRoutes = ref([])
+const  isApprovingToken = ref(false)
 
-const protocolFee = ref(swapConfig.protocol_fee)
 
 onBeforeMount(() => {
     initialize()
 })
+
+watch(tokenA, () => {
+    balanceInfo.value = tokenA.value.balances[activeWallet.value.address.toLowerCase()]
+   // console.log(" balance.value====>",  balance.value)
+}, { deep: true })
 
 watch(tokenAInputValue, () => {
     fetchQuotes()
@@ -87,7 +94,7 @@ const initialize = async () => {
     }
 
     //sconsole.log("swapConfig===>", swapConfig)
-
+    console.log(tokenA.value)
 
     web3 = toRaw(web3Status.getData())
 
@@ -97,9 +104,18 @@ const initialize = async () => {
 
     if(!fetchRoutes) return false;
 
+    // lets mimic the balances from TokenSelect modal
+    let tA = tokenA.value
+    tokenA.value.balances = { 
+        [activeWallet.value.address.toLowerCase()]: {
+            value: tA.balanceInfo.balance,
+            formatted: tA.balanceInfo.balanceDecimal
+        }
+    }
+
     initialized.value = true  
     
-    //console.log("tokenA.value====>", tokenA.value)
+   // console.log("tokenA.value====>", tokenA.value)
 }
 
 const openTokenSelectModal = (tokenVarName) => {
@@ -179,14 +195,13 @@ const fetchQuotes = async () => {
                         })
 
     isFetchingQuotes.value = false 
-    console.log("resultStatus===>", resultStatus)
 
-    if(resultStatus.isError()){
+    if(!resultStatus.isError()){
         quotesError.value = resultStatus.getMessage()
         return false
     }
 
-
+    quotesDataArr.value = resultStatus.getData() || []
 }
 </script>
 <template>
@@ -201,6 +216,24 @@ const fetchQuotes = async () => {
 
         <div  class="swap-engine w-400 mb-5 pt-1 px-2">
             <div  class="mt-4 token-a">
+                <div class="d-flex my-1 mx-1 justify-content-between align-items-center">
+                    <div>
+                        <button
+                            class="mb-1 btn btn-info rounded-circle p-0 center-vh"
+                            data-bs-toggle="modal" 
+                            data-bs-target="#swapSettings"
+                            @click.prevent
+                            style="width: 24px; height: 24px;"
+                        >
+                            <Icon name="ant-design:setting-filled" :size="20" />
+                        </button>
+                    </div>
+                    <div v-if="tokenA != null && balanceInfo != null" class="fs-14 fw-medium ls-1">
+                        <a href="#" @click.prevent="tokenAInputValue = balanceInfo.formatted">
+                            Max: {{ Utils.formatFiat( balanceInfo.formatted) }} {{ tokenA.symbol }}
+                        </a>
+                    </div>
+                </div>
                 <SwapInputAndTokenSelect
                     :tokenInfo="tokenA"
                     @open-token-select-modal="openTokenSelectModal('tokenA')"
@@ -232,35 +265,77 @@ const fetchQuotes = async () => {
                 />
             </div>
 
-            <TokenSelectorModal 
-                :includeVerified="true"
-                :includeUserTokens="true"
-                @select="onTokenSelect"
-            />
-
-            <div class="mb-4" v-if="isFetchingQuotes">
+            <div v-if="isFetchingQuotes" class="mb-4">
                 <BotFiLoader
                     text="fetching Quotes"
                     size="loader-sm"
                 />
             </div>
             <div v-else>
-                <div v-if="quotesError != ''">
-                    <InlineError :text="quotesError" />
+                <div v-if="quotesError != ''" class="mb-4 pb-4">
+                    <InlineError 
+                        :text="quotesError" 
+                        :hasImage="false"
+                        @retry="fetchQuotes"
+                    />
                 </div>
-                <div v-else>
-
+                <div v-else class="w-full mb-2">
+                    <div style="position:relative; top: -20px;"
+                        class="d-flex justify-content-end fs-12 fw-medium ls-2"
+                    >
+                        <div>
+                            <div class="center-vh">
+                                <div>Slippage: {{ slippage }}%</div>
+                                <a href="#" 
+                                    class="ms-1"
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#swapSettings"
+                                    @click.prevent
+                                >
+                                    <Icon name="lucide:pencil-line" class="text-primary" />
+                                </a>
+                            </div>
+                            <div class="center-vh my-1">
+                                <div>Protocol Fee: {{ swapConfig.protocol_fee / 100 }}%</div>
+                            </div>
+                        </div>
+                   </div>
                 </div>
             </div>
-            <div>
+            <div class="">
                 <button class="btn btn-success rounded-lg w-full" 
-                    :disabled="swapError != ''"
+                    :disabled="isFetchingQuotes || quotesError != ''"
                 >
-                    {{ (swapError != '') ? swapError : "Swap" }}
+                    <div v-if="isFetchingQuotes" class="fst-italic">Fetching Quotes..</div>
+                    <div v-else-if="quotesError !=''" class="text-truncate">
+                        {{ quotesError  }}
+                    </div>
+                    <div v-else-if="isApprovingToken" class="fst-italic">
+                        Approving {{ tokenB.symbol.toUperCase() }}..
+                    </div>
+                    <div v-else>
+                        Swap
+                    </div>
                 </button>
             </div>
+
+            <TokenSelectorModal 
+                :includeVerified="true"
+                :includeUserTokens="true"
+                @select="onTokenSelect"
+            />
+            <SwapSettings
+                :slippage="slippage"
+            />
         </div>
 
         <BottomNav />
     </WalletLayout>
 </template>
+<style scoped lang="scss">
+button[disabled] {
+    background: #546e7a !important;
+    color: #fff !important;
+    border:none;
+}
+</style>
