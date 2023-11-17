@@ -11,7 +11,8 @@ import { Modal as bsModal } from 'bootstrap';
 import BotFiLoader from "../../components/common/BotFiLoader.vue"
 import swapConfig from "../../config/swap"
 import  { useSwap } from '../../composables/useSwap';
-import { Interface, formatUnits, getAddress, parseUnits } from 'ethers';
+import { Interface, formatUnits, getAddress, parseUnits, solidityPacked } from 'ethers';
+import InlineError from '../../components/common/InlineError.vue';
 
 
 let web3 = null;
@@ -150,134 +151,42 @@ const fetchSwapRoutes = async () => {
 }
 
 const fetchQuotes = async () => {
-    try {
 
-        isFetchingQuotes.value = true 
+    await Utils.sleep(1)
 
-        await Utils.sleep(1)
+    quotesError.value = ""
 
-        swapError.value = ""
+    if(!(tokenA.value && tokenB.value)) return;
 
-        if(!(tokenA.value && tokenB.value)) return;
+    if(!Utils.isValidFloat(tokenAInputValue.value)) return; 
+    
+    isFetchingQuotes.value = true 
 
-        if(!Utils.isValidFloat(tokenAInputValue.value)) return; 
-        
+    let tokenAInfo = tokenA.value
+    let tokenBInfo = tokenB.value;
 
-        //lets now enocde the amount into tokenA's format
-        let tokenAInputVal2 = parseUnits(tokenAInputValue.value.toString(), tokenA.decimals)
+    //lets now enocde the amount into tokenA's format
+    let tokenAInputVal2 = parseUnits(tokenAInputValue.value.toString(), tokenAInfo.decimals)
 
-        if(tokenAInputVal2 == 0) return;
+    if(tokenAInputVal2 == 0) return;
 
-        let feeAmt = Utils.calPercentBPS(tokenAInputVal2, protocolFee.value)
+    let resultStatus =  await swapCore.fetchQuotes({
+                            web3,
+                            swapRoutes: swapRoutes.value,
+                            amountInBigInt: tokenAInputVal2,
+                            tokenAInfo,
+                            tokenBInfo
+                        })
 
-        //console.log("feeAmt===>", feeAmt)
+    isFetchingQuotes.value = false 
+    console.log("resultStatus===>", resultStatus)
 
-        let amountIn = tokenAInputVal2 //- feeAmt;
-
-        //console.log("tokenAInputVal2===>", tokenAInputVal2)
-
-        let tokenAInfo = tokenA.value
-        let tokenBInfo = tokenB.value;
-
-        let routesABIs = swapConfig.routes_ABIs;
-
-        let quoteFunc = "get_amounts_out"
-
-        let mcallInputs = []
-
-        for(let route of swapRoutes.value){
-
-            let routeGroup = route.parsedGroup
-            let routeId = route.parsedId;
-            let abi;
-            let target;
-
-            if(Utils.isZeroAddr(route.quoter)) {
-                abi = routesABIs[`${routeGroup}_router`]
-                target = route.router;
-            } else {
-                abi = routesABIs[`${routeGroup}_quoter`]
-                target = route.quoter;
-            }
-
-            let tokenAAddr = (Utils.isNativeToken(tokenAInfo.contract))
-                            ? route.weth 
-                            : tokenAInfo.contract
-
-            let tokenBAddr = (Utils.isNativeToken(tokenBInfo.contract))
-                                ? route.weth 
-                                : tokenBInfo.contract
-
-            let path = [tokenAAddr, tokenBAddr]
-
-            let args = [];
-
-            if(["uni_v2"].includes(routeGroup)){
-                args = [amountIn, path]
-            }
-            else if(["tjoe_v20", "tjoe_v21"].includes(routeGroup)){
-                args = [path, amountIn]
-            } 
-            else {
-                continue;
-            }
-
-            let method =  await swapCore.getSwapFunctionName(routeGroup, quoteFunc)
-
-            let label = `${routeId}|${routeGroup}`
-
-            mcallInputs.push({ label, target, method, args, abi })
-        } //end for loop 
-        
-        let _mcallContract = toRaw(contracts.swap.factory.multicall)
-        
-        let resultStatus = await web3.multicall(_mcallContract)
-                                  .staticcall(mcallInputs)
-
-        if(resultStatus.isError()){
-            return quotesError.value = `Failed to fetch quote: ${resultStatus.getMessage()}`
-        }
-
-        let resultData = resultStatus.getData() || []
-
-        //console.log("resultData===>", resultData)
-
-        let processedQuotes = []
-
-        for(let item of resultData) {
-
-            let { label, data } = item; 
-
-            let [ routeId, routeGroup ] = label.split("|")
-
-            let dataObj = {...data.toObject()}
-
-
-            dataObj['routeId'] = routeId
-            dataObj['routeGroup'] = routeGroup
-
-            let amountOut;
-
-            if(["tjoe_v20", "tjoe_v21"].includes(routeGroup)){
-                amountOut = dataObj.amounts[1]
-            }
-
-            console.log("tokenBInfo.decimals===>", tokenBInfo)
-            let formattedAmountOut = formatUnits(amountOut, 6)
-
-            dataObj.amountOut = amountOut
-            dataObj.formattedAmountOut = formattedAmountOut
-
-            console.log("dataObj===>", dataObj)
-
-            processedQuotes.push(dataObj)
-        }
-    } catch(e){
-        processingError.value = "Failed to fetch quotes, try again"
-        Utils.logError("swap#index#fetchQuotes:",e)
-    } finally {
-        //isFetchingQuotes.value = false
+    if(resultStatus.isError()){
+        quotesError.value = resultStatus.getMessage()
+        return false
     }
+
+
 }
 </script>
 <template>
@@ -334,6 +243,14 @@ const fetchQuotes = async () => {
                     text="fetching Quotes"
                     size="loader-sm"
                 />
+            </div>
+            <div v-else>
+                <div v-if="quotesError != ''">
+                    <InlineError :text="quotesError" />
+                </div>
+                <div v-else>
+
+                </div>
             </div>
             <div>
                 <button class="btn btn-success rounded-lg w-full" 

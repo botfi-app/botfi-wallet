@@ -54,7 +54,7 @@ const handleOnItemChange = (e) => {
                 placeholder="0"
                 :autofocus="isFocused"
                 v-bind="p.inputAttrs"
-                @change="handleOnItemChange"
+                @keyup="handleOnItemChange"
             />
         </div>  
     </div>

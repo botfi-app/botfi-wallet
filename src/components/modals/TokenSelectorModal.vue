@@ -1,11 +1,12 @@
 <script setup>
-import { onBeforeMount, ref } from 'vue';
+import { onBeforeMount, onMounted, ref } from 'vue';
 import { useTokens } from '../../composables/useTokens';
 import { useNetworks } from '../../composables/useNetworks';
 import Utils from '../../classes/Utils';
 import Http from '../../classes/Http';
 import { Modal as bsModal } from 'bootstrap';
 import { useWalletStore } from '../../store/walletStore';
+
 
 const props = defineProps({
                 includeUserTokens: { type: Boolean, default: true },
@@ -82,7 +83,10 @@ const fetchData = async () => {
             for(let addr of Object.keys(usersTokens)){
                 
                 let addrLower = addr.toLowerCase()
-                //tokensContracts[addrLower] = true 
+                
+                if(!Utils.isNativeToken(addr)){
+                    tokensContracts[addrLower] = true 
+                }
 
                 if(!(addrLower in tokensContracts)){
                     tokensDataArr.unshift(usersTokens[addr])
@@ -94,7 +98,8 @@ const fetchData = async () => {
                                     tokensContracts,
                                     tokensDataArr
                                 )
-
+        
+        //console.log("tokensOnChainData===>", tokensOnChainData)
         if(!Array.isArray(tokensOnChainData)) return false;
 
         searchResults.value = tokensOnChainData
@@ -125,14 +130,25 @@ const fetchTokensOnChainDataAndBalances = async (tokensContracts, tokensDataArr)
 
     let processedTokenData = []
 
-
     for(let item of tokensDataArr){
 
-        let onChainItem = onchainTokenData[item.contract.toLowerCase()] || null 
-        if(onChainItem == null) continue;
+        let contractAddr = item.contract.toLowerCase()
 
-        item.balances = onChainItem.balances; 
-        item.decimals = Number(onChainItem.decimals)
+
+        if(Utils.isNativeToken(contractAddr)){
+
+            let userBalances = await tokensCore.getUserBalances()
+            item.balances  = userBalances[contractAddr]
+
+        } else {
+            
+            let onChainItem = onchainTokenData[contractAddr] || null 
+            
+            if(onChainItem == null) continue;
+
+            item.balances = onChainItem.balances; 
+            item.decimals = Number(onChainItem.decimals)
+        }
 
         processedTokenData.push(item)
     }
@@ -198,7 +214,7 @@ const onItemSelect = async (item) => {
                :scrollElement="`#${id}`"
             />
 
-            <div style="position: relative;">
+            <div>
                 <div class="import-search-form px-2">
                     <SearchForm
                         :dataToFilter="null"
@@ -229,13 +245,15 @@ const onItemSelect = async (item) => {
                                             </div>
                                         </div>
                                         
-                                        <div>
-                                            <div>{{ getBalance(item) }}</div>
+                                        <div class="d-flex">
+                                            <div class="fs-12 fw-semibold">
+                                                {{ getBalance(item) }}
+                                            </div>
                                             <Icon 
                                                 v-if="item.contract == selected"
                                                 name="teenyicons:tick-solid" 
-                                                class="text-success" 
-                                                
+                                                class="text-success ms-2" 
+                                                :size="14"
                                             />
                                         </div>
                                      

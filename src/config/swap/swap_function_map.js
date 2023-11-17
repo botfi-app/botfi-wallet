@@ -13,6 +13,16 @@ export default {
         "swap_exact_tokens_for_native_with_transfer_tax":   "swapExactTokensForETHSupportingFeeOnTransferTokens",
         "swap_exact_tokens_for_tokens_with_transfer_tax":   "swapExactTokensForTokensSupportingFeeOnTransferTokens"
     },
+
+    uni_v3: {
+        "native_token":                                     "",
+        "get_amounts_out":                                  "quoteExactInput",
+        "swap_tokens_for_exact_native":                     "swapTokensForExactETH",
+        "swap_exact_tokens_for_native":                     "swapExactTokensForETH",
+        "swap_exact_native_for_tokens":                     "swapExactETHForTokens",
+        "swap_native_for_exact_tokens":                     "swapETHForExactTokens",
+        "swap_exact_tokens_for_tokens":                     "swapExactTokensForTokens",
+    },
     
     tjoe_v20: {
         "native_token":                                     "wavax",

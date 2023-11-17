@@ -232,7 +232,7 @@ export default class Wallet {
             return __exec(inputs, revertOnError, true)
         }
 
-        const __exec = async (inputsArr, revertOnError = true, staticcall = false) => {
+        const __exec = async (inputsArr, revertOnError = true, staticcall = true) => {
             
             try{
                 
@@ -244,17 +244,18 @@ export default class Wallet {
 
 
                     let iface = new Interface(abi);
-                    let data = iface.encodeFunctionData(method, args)
+                    let callData = iface.encodeFunctionData(method, args)
 
                     inputs.push({
                         target, 
-                        data 
+                        callData 
                     })
-                }
-
+                }   
+                
                 let resultsArr = (staticcall)
-                                    ? await mcallContract.staticCall(inputs, revertOnError)
-                                    : await mcallContract(inputs, revertOnError)
+                                    ? await mcallContract.tryAggregate.staticCall(revertOnError,inputs)
+                                    : await mcallContract.tryAggregate(revertOnError, inputs)
+                
 
                 let processedResult = []
 
@@ -275,6 +276,12 @@ export default class Wallet {
                                         )
 
                         decodedResult = decodedResult[0]
+                    } else {
+                        let decodedError = iface.decodeErrorResult(
+                                                iface.getFunction(method), 
+                                                result
+                                            )
+                        Utils.logError("Wallets#multicall", decodedError)
                     }
 
                     processedResult.push({

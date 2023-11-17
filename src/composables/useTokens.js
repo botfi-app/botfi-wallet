@@ -123,6 +123,35 @@ export const useTokens = () => {
         }
     }
 
+    const getUserBalances = async () => {
+
+
+        let netInfo = await net.getActiveNetworkInfo()
+            
+        let chainId = netInfo.chainId
+        let userId = botUtils.getUid()
+
+        let db = await dbCore.getDB()
+
+        // lets get the token balances 
+        let balancesArr = await db.balances.where({ chainId, userId }).toArray()
+        let processedBalances = {}
+
+        for(let item of balancesArr){
+
+            item.value = item.balance; 
+            item.formatted = item.balanceDecimal;
+
+            let token = item.token.toLowerCase()
+            let balanceInfo = processedBalances[token] || {}
+
+            balanceInfo[item.wallet.toLowerCase()] = item
+
+            processedBalances[token] = balanceInfo
+        }
+
+        return processedBalances
+    }
 
     const updateBalances = async (walletAddrs, force=false) => {
 
@@ -550,9 +579,42 @@ export const useTokens = () => {
     } 
 
 
-        //////////FETCH BULK TOKENS INFO ////////////
+    //////////FETCH BULK TOKENS INFO ////////////
+    // query chain in chunks as deployless has data limit
+    const  getBulkERC20TokenInfo  = async (tokensArr=[], walletsArr=[]) => {
 
-    const getBulkERC20TokenInfo = async (tokensArr=[], walletsArr=[]) => {
+        let tokensChunks = Utils.arrayChunk(tokensArr, 50)
+
+        //console.log("tokensChunks===>", tokensChunks)
+
+        let requests = [] 
+
+        tokensChunks.forEach(chunk => (
+            requests.push(__getBulkERC20TokenInfo(chunk, walletsArr))
+        ))
+
+        let resultArr = await Promise.all(requests)
+
+        //console.log("resultArr=====>", resultArr)
+
+        let finalResults = {}
+
+        for(let resultStatus of resultArr){
+            if(resultStatus.isError()) {
+                return resultStatus
+            }
+
+            let dataArr = resultStatus.getData() || []
+
+            //console.log("dataArr===>", dataArr)
+
+            finalResults = {...finalResults, ...dataArr}
+        }
+
+        return Status.successData(finalResults)
+    }
+
+    const __getBulkERC20TokenInfo = async (tokensArr=[], walletsArr=[]) => {
 
          //lets get the web3 conn
          let web3ConnStatus = await net.getWeb3Conn()
@@ -786,6 +848,7 @@ export const useTokens = () => {
         importToken,
         getERC20TokenInfo,
         updateBalances,
+        getUserBalances,
         tokens,
         updatedAt,
         tokensDataState: dataState,

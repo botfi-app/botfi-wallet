@@ -427,5 +427,18 @@ export default class Utils {
         return (BigInt(value.toString()) * BigInt(bps.toString())) / BigInt(10_000)
     }
 
-    
+    static arrayChunk(arr, chunkSize) {
+        const chunks = [];
+
+        for (let i = 0; i < arr.length; i += chunkSize) {
+            const chunk = arr.slice(i, i + chunkSize);
+            chunks.push(chunk);
+        }
+
+        return chunks
+    }
+
+    static lastArrayItem(arr) {
+        return (arr[arr.length - 1] || null)
+    }
 }
