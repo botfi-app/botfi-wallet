@@ -161,7 +161,7 @@ const onSave = async () => {
                 </label>
             </div>
 
-            <div class="mt-4 w-full px-4">
+            <div class="mt-4 w-full">
                 <button @click.prevent="onSave" class="btn rounded-pill btn-primary w-full">
                     Continue
                 </button>

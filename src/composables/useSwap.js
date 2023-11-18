@@ -153,15 +153,18 @@ export const useSwap =  () => {
         swapRoutes,
         amountInBigInt,
         tokenAInfo,
-        tokenBInfo
+        tokenBInfo,
+        slippage 
     }) => {
         try {
 
-            let protocolFee = swapConfig.protocol_fee
+            let protocolFee = swapConfig.protocol_fee * 100;
 
             let protocolFeeAmt = Utils.calPercentBPS(amountInBigInt, protocolFee)
     
             let amountIn = amountInBigInt - protocolFeeAmt;
+
+            let slippageBPS = slippage * 100
 
             let routesABIs = swapConfig.routes_ABIs;
     
@@ -258,9 +261,16 @@ export const useSwap =  () => {
                 else {
                     continue;
                 }
-    
+
+                let amountOutWithSlippage = Utils.calPercentBPS(amountOut, slippageBPS)
+                
+                dataObj.amountOutWithSlippage = amountOutWithSlippage 
                 dataObj.amountOut = amountOut
                 dataObj.formattedAmountOut = formatUnits(amountOut, tokenBInfo.decimals)
+                dataObj.formattedAmountOutWithSlppage = formatUnits(
+                                                            amountOutWithSlippage, 
+                                                            tokenBInfo.decimals
+                                                        )
     
                 processedQuotes.push(dataObj)
             }

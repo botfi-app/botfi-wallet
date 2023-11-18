@@ -13,7 +13,8 @@ import swapConfig from "../../config/swap"
 import  { useSwap } from '../../composables/useSwap';
 import InlineError from '../../components/common/InlineError.vue';
 import SwapSettings from '../../components/modals/SwapSettings.vue';
-
+import { parseUnits } from 'ethers';
+import { useSettings } from '../../composables/useSettings';
 
 let web3 = null;
 let contracts;
@@ -24,11 +25,13 @@ const pageError      = ref("")
 const processingError = ref("")
 const swapError = ref("")
 
+const settings = useSettings()
+
 const tokensCore        = useTokens()
 const wallets           = useWalletStore()
 const activeWallet     = ref()
 const balanceInfo      = ref(null)
-const slippage         = ref(1) 
+const slippage         = ref(swapConfig.default_slippage) 
 
 const networks      = useNetworks()
 const netInfo       = ref()
@@ -38,6 +41,7 @@ const swapCore = useSwap()
 const tokenA = ref(null)
 const tokenB = ref(null)
 
+const tokenAInputEl    = ref()
 const tokenAInputValue = ref("")
 const tokenBInputValue = ref("")
 
@@ -76,6 +80,12 @@ const initialize = async () => {
         return pageError.value = `Connect Wallet`
     }
 
+    let swapSettings = await settings.fetchSettings("swap") || {}
+
+    if("slippage" in swapSettings){
+        slippage.value = swapSettings.slippage
+    }
+
     activeWallet.value = await wallets.getActiveWalletInfo()
 
     netInfo.value = await networks.getActiveNetworkInfo()
@@ -94,7 +104,7 @@ const initialize = async () => {
     }
 
     //sconsole.log("swapConfig===>", swapConfig)
-    console.log(tokenA.value)
+    //console.log(tokenA.value)
 
     web3 = toRaw(web3Status.getData())
 
@@ -191,17 +201,30 @@ const fetchQuotes = async () => {
                             swapRoutes: swapRoutes.value,
                             amountInBigInt: tokenAInputVal2,
                             tokenAInfo,
-                            tokenBInfo
+                            tokenBInfo,
+                            slippage: slippage.value
                         })
 
     isFetchingQuotes.value = false 
 
-    if(!resultStatus.isError()){
+    if(resultStatus.isError()){
         quotesError.value = resultStatus.getMessage()
         return false
     }
 
     quotesDataArr.value = resultStatus.getData() || []
+
+    console.log("quotesDataArr.value ===>", quotesDataArr.value )
+}
+
+const onTokenAInputReady = (input) => {
+    tokenAInputEl.value = input
+}
+
+const setMaxBalance = (val) => {
+    let input = tokenAInputEl.value 
+    input["value"] = val
+    input.dispatchEvent(new Event('change'))
 }
 </script>
 <template>
@@ -223,14 +246,16 @@ const fetchQuotes = async () => {
                             data-bs-toggle="modal" 
                             data-bs-target="#swapSettings"
                             @click.prevent
-                            style="width: 24px; height: 24px;"
+                            style="width: 22px; height: 22px;"
                         >
-                            <Icon name="ant-design:setting-filled" :size="20" />
+                            <Icon name="ant-design:setting-filled" :size="16" />
                         </button>
                     </div>
                     <div v-if="tokenA != null && balanceInfo != null" class="fs-14 fw-medium ls-1">
-                        <a href="#" @click.prevent="tokenAInputValue = balanceInfo.formatted">
-                            Max: {{ Utils.formatFiat( balanceInfo.formatted) }} {{ tokenA.symbol }}
+                        <a href="#" 
+                            @click.prevent="setMaxBalance(balanceInfo.formatted)"
+                        >
+                            Max: {{ Utils.formatFiat( balanceInfo.formatted ) }} {{ tokenA.symbol }}
                         </a>
                     </div>
                 </div>
@@ -238,6 +263,7 @@ const fetchQuotes = async () => {
                     :tokenInfo="tokenA"
                     @open-token-select-modal="openTokenSelectModal('tokenA')"
                     :key="(tokenA || {}).contract"
+                    @ready="onTokenAInputReady"
                     @input-change="v => tokenAInputValue = v"
                     :inputAttrs="{
                         focused: ''
@@ -292,7 +318,7 @@ const fetchQuotes = async () => {
                                     data-bs-target="#swapSettings"
                                     @click.prevent
                                 >
-                                    <Icon name="lucide:pencil-line" class="text-primary" />
+                                    <Icon name="basil:edit-outline" class="text-info" />
                                 </a>
                             </div>
                             <div class="center-vh my-1">

@@ -1,6 +1,8 @@
 <script setup>
+import { nextTick, onMounted, ref } from 'vue';
 import Icon from '../common/Icon.vue';
 import Image from '../common/Image.vue';
+import Utils from '../../classes/Utils';
 
 const p = defineProps({
     tokenInfo: { type: null, required: true },
@@ -8,15 +10,32 @@ const p = defineProps({
     inputAttrs: { type: Object, default: {} }
 })
 
-const emit = defineEmits(['open-token-select-modal', 'input-change'])
+const emit = defineEmits(['ready','open-token-select-modal', 'input-change'])
+
+const inputVal = ref()
+const inputRef = ref()
 
 const openTokenSelectModal = () => {
     emit("open-token-select-modal")
 }
 
-const handleOnItemChange = (e) => {
-    emit("input-change", e.target.value)
+const handleOnItemChange = async (e) => {
+    
+    let inputVal2 = inputVal.value
+
+    await Utils.sleep(2)
+
+    // if user is still typing, dont send the event yet
+    if(inputVal.value != inputVal2) return false;
+
+    emit("input-change", inputVal.value)
 }
+
+onMounted(() => {
+    nextTick(() => {
+        emit("ready", inputRef.value)
+    })
+})
 </script>
 <template>
     <div class="d-flex input-wrapper align-items-center px-3 py-3 rounded-lg">
@@ -54,7 +73,9 @@ const handleOnItemChange = (e) => {
                 placeholder="0"
                 :autofocus="isFocused"
                 v-bind="p.inputAttrs"
-                @keyup="handleOnItemChange"
+                @input="handleOnItemChange"
+                ref="inputRef"
+                v-model="inputVal"
             />
         </div>  
     </div>

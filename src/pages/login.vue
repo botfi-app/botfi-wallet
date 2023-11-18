@@ -122,7 +122,7 @@ const resetWallets = async () => {
                 />
             </div>
 
-            <div class="my-5 px-5 d-flex flex-column align-items-center w-full">
+            <div class="my-4 px-3 d-flex flex-column align-items-center w-full">
                 <button
                     class="btn w-full  rounded-pill shadow btn-primary mb-4"
                     @click.prevent="handleLogin"
