@@ -326,6 +326,9 @@ export const useSwap =  () => {
     }) => {
         try {   
 
+            console.log("amountInWithFee===>", amountInWithFee)
+            console.log("amountInWithoutFee===>", amountInWithoutFee)
+
             let routeId = routeInfo.parsedId
             let routeGroup = routeInfo.parsedGroup;
             let tokenAAddr = tokenAInfo.contract;
@@ -333,7 +336,7 @@ export const useSwap =  () => {
 
             let funcDataArr = [];
 
-            let deadline = (Date.now() / 1000) + 60 * 3; // 3mins
+            let deadline = parseInt(Math.ceil((Date.now() / 1000) + (60 * 30))); // 30mins
 
             let path = getPath(routeInfo, tokenAInfo, tokenBInfo)
         
@@ -345,7 +348,7 @@ export const useSwap =  () => {
                     Version[] versions;
                     IERC20[] tokenPath;
                 }*/
-                
+
                 if(routeGroup == "tjoe_v20"){
                     path =  quoteInfo.route.toArray()
                 }
@@ -385,7 +388,8 @@ export const useSwap =  () => {
                         deadline
                     ]]
 
-                    let nativeValue = amountInWithFee
+                    // value we will pass to ethers as Native asset
+                    let nativeValue = amountInWithoutFee
 
                     funcDataArr = [
                         { name: funcName1, 
@@ -429,7 +433,7 @@ export const useSwap =  () => {
                         deadline
                     ]]
 
-                    let nativeValue;
+                    let nativeValue = 0;
 
                     funcDataArr = [
                         { name: funcName1, 
@@ -505,7 +509,8 @@ export const useSwap =  () => {
                 let nativeValue = 0;
 
                 if(Utils.isNativeToken(tokenAAddr)){
-                    nativeValue = amountInWithFee
+                    // value we will pass to ethers as Native asset
+                    nativeValue = amountInWithoutFee
                 }
 
                 funcDataArr = [
@@ -528,7 +533,7 @@ export const useSwap =  () => {
             let callDataArr = []
             
             for(let funcItem of funcDataArr){
-                console.log("item.args===>", funcItem)
+                console.log("funcItem.args===>", funcItem.args)
                 let callData = iface.encodeFunctionData(funcItem.name, funcItem.args)
                 callDataArr.push(callData)
             }
@@ -587,6 +592,10 @@ export const useSwap =  () => {
                 let payload = callDataArr[index]
 
                 try {
+
+                    console.log("amountInWithoutFee===>", amountInWithoutFee)
+                    console.log("funcData.nativeValue===>", funcData.nativeValue)
+
                     result = swapFactory.swap.estimateGas(
                                 routeIdBytes32,
                                 amountInWithoutFee,
