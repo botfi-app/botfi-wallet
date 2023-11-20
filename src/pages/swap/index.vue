@@ -200,6 +200,8 @@ const fetchQuotes = async () => {
 
     if(tokenAInputVal2 == 0) return;
 
+    let recipient = activeWallet.value.address 
+
     let resultStatus =  await swapCore.fetchQuotes({
                             web3,
                             swapRoutes: swapRoutes.value,
@@ -207,7 +209,7 @@ const fetchQuotes = async () => {
                             tokenAInfo,
                             tokenBInfo,
                             slippage: slippage.value,
-                            recipient: activeWallet.value
+                            recipient
                         })
 
     isFetchingQuotes.value = false 

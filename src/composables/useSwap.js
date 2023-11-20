@@ -291,6 +291,8 @@ export const useSwap =  () => {
                                             routeInfo,
                                             recipient,
                                             amountInWithFee,
+                                            quoteInfo: dataObj,
+                                            amountInWithoutFee: amountInBigInt,
                                             amountOutMin: amountOutWithSlippage
                                         })
     
@@ -318,6 +320,8 @@ export const useSwap =  () => {
         tokenAInfo,
         tokenBInfo, 
         amountInWithFee,
+        amountInWithoutFee,
+        quoteInfo,
         recipient
     }) => {
         try {   
@@ -327,13 +331,31 @@ export const useSwap =  () => {
             let tokenAAddr = tokenAInfo.contract;
             let tokenBAddr = tokenBInfo.contract;
 
-            let funcInfoArr = [];
+            let funcDataArr = [];
 
             let deadline = (Date.now() / 1000) + 60 * 3; // 3mins
 
             let path = getPath(routeInfo, tokenAInfo, tokenBInfo)
         
             if(["tjoe_v20", "tjoe_v21", "uni_v2"].includes(routeGroup)){
+
+                /*v2.1 
+                struct Path {
+                    uint256[] pairBinSteps;
+                    Version[] versions;
+                    IERC20[] tokenPath;
+                }*/
+                
+                if(routeGroup == "tjoe_v20"){
+                    path =  quoteInfo.route.toArray()
+                }
+                else if(routeGroup == "tjoe_v21"){
+                    path = {
+                        pairBinSteps: quoteInfo.binSteps.toArray(),
+                        versions:     quoteInfo.versions.toArray(),
+                        tokenPath:    quoteInfo.route.toArray()
+                    }
+                }
 
                 // if token A is weth or native
                 if(Utils.isNativeToken(tokenAAddr)) {
@@ -350,15 +372,22 @@ export const useSwap =  () => {
                     )
 
                     let args = [
-                        amountOutMin,
+                        amountOutMin
+                    ]
+
+                    if(routeGroup == "tjoe_v20"){
+                        args.push(quoteInfo.binSteps.toArray())
+                    }
+
+                    args = [...args, ...[
                         path,
                         recipient,
                         deadline
-                    ]
+                    ]]
 
                     let nativeValue = amountInWithFee
 
-                    funcInfoArr = [
+                    funcDataArr = [
                         { name: funcName1, 
                           args, 
                           nativeValue
@@ -387,15 +416,22 @@ export const useSwap =  () => {
 
                     let args = [
                         amountInWithFee,
-                        amountOutMin,
+                        amountOutMin
+                    ]
+
+                    if(routeGroup == "tjoe_v20"){
+                        args.push(quoteInfo.binSteps.toArray())
+                    }
+
+                    args = [...args, ...[
                         path,
                         recipient,
                         deadline
-                    ]
+                    ]]
 
                     let nativeValue;
 
-                    funcInfoArr = [
+                    funcDataArr = [
                         { name: funcName1, 
                           args, 
                           nativeValue
@@ -422,15 +458,22 @@ export const useSwap =  () => {
 
                     let args = [
                         amountInWithFee,
-                        amountOutMin,
+                        amountOutMin
+                    ]
+
+                    if(routeGroup == "tjoe_v20"){
+                        args.push(quoteInfo.binSteps.toArray())
+                    }
+
+                    args = [...args, ...[
                         path,
                         recipient,
                         deadline
-                    ]
+                    ]]
 
                     let nativeValue = 0;
 
-                    funcInfoArr = [
+                    funcDataArr = [
                         { name: funcName1, 
                           args, 
                           nativeValue
@@ -465,7 +508,7 @@ export const useSwap =  () => {
                     nativeValue = amountInWithFee
                 }
 
-                funcInfoArr = [
+                funcDataArr = [
                     { name: funcName, 
                       args: [params], 
                       nativeValue
@@ -476,12 +519,23 @@ export const useSwap =  () => {
             }
 
             // lets get abi 
-            let abi = swapConfig.routes_ABIs[routeId]
+            let abi = swapConfig.routes_ABIs[`${routeGroup}_router`]
+
+            //console.log("abi====>", abi)
 
             let iface = new Interface(abi)
 
+            let callDataArr = []
             
+            for(let funcItem of funcDataArr){
+                console.log("item.args===>", funcItem)
+                let callData = iface.encodeFunctionData(funcItem.name, funcItem.args)
+                callDataArr.push(callData)
+            }
 
+            //console.log("callDataArr===>", callDataArr)
+
+            return { callDataArr, funcDataArr }
         } catch(e){
             Utils.logError("useSwap#prepareSwap:",e)
             return Status.error("Failed to prepare swap, try again")
@@ -497,16 +551,22 @@ export const useSwap =  () => {
         tokenAInfo,
         tokenBInfo, 
         amountInWithFee,
+        amountInWithoutFee,
+        quoteInfo,
         recipient
     }) => {
         try {
 
-            let swapDataArr = await getSwapPayload({
+            let routeIdBytes32 = routeInfo.id;
+
+            let swapDataObj = await getSwapPayload({
                                 routeInfo,
                                 amountOutMin, 
                                 tokenAInfo,
                                 tokenBInfo,  
-                                amountInWithFee,
+                                quoteInfo,
+                                amountInWithoutFee, // for botfi swap
+                                amountInWithFee, // for constructing the calldata payload
                                 recipient
                             })
             // lets get swap contract
@@ -516,20 +576,22 @@ export const useSwap =  () => {
 
 
             console.log("swapFactory===>", swapFactory)
-
+            
+            let { callDataArr, funcDataArr } = swapDataObj
 
            let result; 
 
-           for(let index in swapDataArr) {
+           for(let index in callDataArr) {
 
-                let funcData = swapDataArr[index]
-
-
-                console.log("swapFactory[funcData.name]===>",funcData.name)
+                let funcData = funcDataArr[index]
+                let payload = callDataArr[index]
 
                 try {
-                    result = swapFactory[funcData.name].estimateGas(
-                                ...(funcData.args), 
+                    result = swapFactory.swap.estimateGas(
+                                routeIdBytes32,
+                                amountInWithoutFee,
+                                tokenAInfo.contract,
+                                payload,
                                 { value: funcData.nativeValue }
                             )
                 } catch(e){
@@ -542,6 +604,7 @@ export const useSwap =  () => {
                 }
             } //end loop
 
+            console.log("result===>", result)
         } catch(e){
             Utils.logError("useSwap#prepareSwap:",e)
             return Status.error(e.message)
