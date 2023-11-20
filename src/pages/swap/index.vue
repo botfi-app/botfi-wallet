@@ -15,6 +15,7 @@ import InlineError from '../../components/common/InlineError.vue';
 import SwapSettings from '../../components/modals/SwapSettings.vue';
 import { parseUnits } from 'ethers';
 import { useSettings } from '../../composables/useSettings';
+import SwapQuotesModal from '../../components/modals/SwapQuotesModal.vue';
 
 let web3 = null;
 let contracts;
@@ -43,6 +44,8 @@ const tokenB = ref(null)
 
 const tokenAInputEl    = ref()
 const tokenAInputValue = ref("")
+
+const tokenBInputEl = ref()
 const tokenBInputValue = ref("")
 
 const activeTokenVarName = ref("tokenA")
@@ -50,6 +53,7 @@ const activeTokenVarName = ref("tokenA")
 const isFetchingQuotes = ref(false)
 const quotesError = ref("")
 const quotesDataArr = ref([])
+const selectedQuote = ref(0)
 
 const isChainSupported = ref(false)
 const swapRoutes = ref([])
@@ -69,9 +73,6 @@ watch(tokenAInputValue, () => {
     fetchQuotes()
 });
 
-watch(tokenBInputValue, () => {
-    fetchQuotes()
-});
 
 const initialize = async () => {
 
@@ -178,15 +179,18 @@ const fetchSwapRoutes = async () => {
 
 const fetchQuotes = async () => {
 
-    await Utils.sleep(1)
-
+    if(isFetchingQuotes.value) return false;
+    
+    quotesDataArr.value = []
     quotesError.value = ""
 
-    if(!(tokenA.value && tokenB.value)) return;
+    if(!(tokenA.value && tokenB.value)) return false;
 
-    if(!Utils.isValidFloat(tokenAInputValue.value)) return; 
+    if(!Utils.isValidFloat(tokenAInputValue.value)) return false; 
     
     isFetchingQuotes.value = true 
+
+    console.log("Helloo Booomm===>")
 
     let tokenAInfo = tokenA.value
     let tokenBInfo = tokenB.value;
@@ -202,7 +206,8 @@ const fetchQuotes = async () => {
                             amountInBigInt: tokenAInputVal2,
                             tokenAInfo,
                             tokenBInfo,
-                            slippage: slippage.value
+                            slippage: slippage.value,
+                            recipient: activeWallet.value
                         })
 
     isFetchingQuotes.value = false 
@@ -212,9 +217,16 @@ const fetchQuotes = async () => {
         return false
     }
 
-    quotesDataArr.value = resultStatus.getData() || []
+    let resultsData = resultStatus.getData() || []
 
-    console.log("quotesDataArr.value ===>", quotesDataArr.value )
+    /// console.log("quotesDataArr ===>", resultsData )
+
+    if(resultsData.length == 0){
+        quotesError.value = "No liquidity"
+    } else {
+        quotesDataArr.value = resultsData
+        selectQuote(0)
+    }
 }
 
 const onTokenAInputReady = (input) => {
@@ -225,6 +237,12 @@ const setMaxBalance = (val) => {
     let input = tokenAInputEl.value 
     input["value"] = val
     input.dispatchEvent(new Event('change'))
+}
+
+const selectQuote = (index) => {
+    let quote = Utils.formatFiat(quotesDataArr.value[index].formattedAmountOutWithSlippage)
+    tokenBInputValue.value = quote
+    selectedQuote.value = index
 }
 </script>
 <template>
@@ -262,7 +280,6 @@ const setMaxBalance = (val) => {
                 <SwapInputAndTokenSelect
                     :tokenInfo="tokenA"
                     @open-token-select-modal="openTokenSelectModal('tokenA')"
-                    :key="(tokenA || {}).contract"
                     @ready="onTokenAInputReady"
                     @input-change="v => tokenAInputValue = v"
                     :inputAttrs="{
@@ -282,7 +299,6 @@ const setMaxBalance = (val) => {
                 <SwapInputAndTokenSelect
                     :tokenInfo="tokenB"
                     @open-token-select-modal="openTokenSelectModal('tokenB')"
-                    :key="(tokenB || {}).contract+'-'+tokenBInputValue"
                     :inputAttrs="{
                         disabled: true,
                         value: tokenBInputValue,
@@ -302,12 +318,13 @@ const setMaxBalance = (val) => {
                     <InlineError 
                         :text="quotesError" 
                         :hasImage="false"
+                        :has-title="false"
                         @retry="fetchQuotes"
                     />
                 </div>
                 <div v-else class="w-full mb-2">
                     <div style="position:relative; top: -20px;"
-                        class="d-flex justify-content-end fs-12 fw-medium ls-2"
+                        class="d-flex justify-content-end fs-12 fw-medium ls-1"
                     >
                         <div>
                             <div class="center-vh">
@@ -322,7 +339,19 @@ const setMaxBalance = (val) => {
                                 </a>
                             </div>
                             <div class="center-vh my-1">
-                                <div>Protocol Fee: {{ swapConfig.protocol_fee / 100 }}%</div>
+                                <div>Protocol Fee: {{ swapConfig.protocol_fee }}%</div>
+                            </div>
+                            <div class="center-vh my-1" v-if="quotesDataArr.length > 0">
+                                <div>
+                                    Quotes: 
+                                    <span class='btn fs-12 btn-success rounded fw-semibold p-0 px-1'>AGG</span> - 
+                                    <a href="#" 
+                                        class="text-info"
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#quotesModal"
+                                        @click.prevent
+                                    >View All</a>
+                                </div>
                             </div>
                         </div>
                    </div>
@@ -352,6 +381,13 @@ const setMaxBalance = (val) => {
             />
             <SwapSettings
                 :slippage="slippage"
+            />
+            <SwapQuotesModal
+                :data="quotesDataArr"
+                :key="quotesDataArr.length+'_'+tokenA.address"
+                :tokenA="tokenA"
+                :tokenB="tokenB"
+                @select="selectQuote"
             />
         </div>
 

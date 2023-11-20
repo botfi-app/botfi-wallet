@@ -15,13 +15,9 @@ export default {
     },
 
     uni_v3: {
-        "native_token":                                     "",
-        "get_amounts_out":                                  "quoteExactInput",
-        "swap_tokens_for_exact_native":                     "swapTokensForExactETH",
-        "swap_exact_tokens_for_native":                     "swapExactTokensForETH",
-        "swap_exact_native_for_tokens":                     "swapExactETHForTokens",
-        "swap_native_for_exact_tokens":                     "swapETHForExactTokens",
-        "swap_exact_tokens_for_tokens":                     "swapExactTokensForTokens",
+        "native_token":         "",
+        "get_amounts_out":      "quoteExactInput",
+        "exact_input":          "exactInput",
     },
     
     tjoe_v20: {

@@ -144,7 +144,7 @@ export default {
                 symbol:     "AVAX",
                 decimals:   18
             },
-            rpc: ["https://api.avax.network/ext/bc/C/rpc"],
+            rpc: ["https://avalanche-c-chain.publicnode.com"],
             explorers: [ "https://snowtrace.io/"],
             icon: "/images/crypto/avax.svg"
         },

@@ -58,6 +58,7 @@ declare module '@vue/runtime-core' {
     SearchForm: typeof import('./src/components/common/SearchForm.vue')['default']
     SlippageModal: typeof import('./src/components/modals/SlippageModal.vue')['default']
     SwapInputAndTokenSelect: typeof import('./src/components/swap/SwapInputAndTokenSelect.vue')['default']
+    SwapQuotesModal: typeof import('./src/components/modals/SwapQuotesModal.vue')['default']
     SwapSettings: typeof import('./src/components/modals/SwapSettings.vue')['default']
     TabbedContent: typeof import('./src/components/common/TabbedContent.vue')['default']
     Toast: typeof import('./src/components/Toast.vue')['default']

@@ -11,7 +11,7 @@ import { useNetworks } from "./useNetworks"
 import EventBus from '../classes/EventBus';
 import swapConfig from "../config/swap"
 import { useNetwork } from '@vueuse/core';
-import { decodeBytes32String, formatUnits, solidityPacked } from 'ethers';
+import { Interface, decodeBytes32String, formatUnits, solidityPacked } from 'ethers';
 import swapFunctionMap from "../config/swap/swap_function_map"
 
 const supportedChains = swapConfig.supported_chains;
@@ -154,7 +154,8 @@ export const useSwap =  () => {
         amountInBigInt,
         tokenAInfo,
         tokenBInfo,
-        slippage 
+        slippage,
+        recipient
     }) => {
         try {
 
@@ -162,7 +163,7 @@ export const useSwap =  () => {
 
             let protocolFeeAmt = Utils.calPercentBPS(amountInBigInt, protocolFee)
     
-            let amountIn = amountInBigInt - protocolFeeAmt;
+            let amountInWithFee = amountInBigInt - protocolFeeAmt;
 
             let slippageBPS = slippage * 100
 
@@ -173,8 +174,10 @@ export const useSwap =  () => {
             let mcallInputs = []
             
     
-            for(let route of swapRoutes){
-    
+            for(let routeIndex in swapRoutes){
+                
+                let route = swapRoutes[routeIndex]
+
                 let routeGroup = route.parsedGroup
                 let routeId = route.parsedId;
                 let abi;
@@ -195,15 +198,13 @@ export const useSwap =  () => {
                 let args = [];
     
                 if(["uni_v2"].includes(routeGroup)){
-                    args = [amountIn, path]
+                    args = [amountInWithFee, path]
                 }
                 else if(["tjoe_v20", "tjoe_v21"].includes(routeGroup)){
-                    args = [path, amountIn]
+                    args = [path, amountInWithFee]
                 } 
                 else if (routeGroup == 'uni_v3'){
-           
-                    args = [path, amountIn]
-    
+                    args = [path, amountInWithFee]
                 }
                 else {
                     continue;
@@ -211,7 +212,7 @@ export const useSwap =  () => {
     
                 let method =  await getSwapFunctionName(routeGroup, quoteFunc)
     
-                let label = `${routeId}|${routeGroup}`
+                let label = `${routeIndex}|${routeId}`
     
                 mcallInputs.push({ label, target, method, args, abi })
             } //end for loop 
@@ -224,7 +225,7 @@ export const useSwap =  () => {
                                       .staticcall(mcallInputs, false)
     
             if(resultStatus.isError()){
-                return quotesError.value = `Failed to fetch quote: ${resultStatus.getMessage()}`
+                return resultStatus
             }
     
             let resultData = resultStatus.getData() || []
@@ -236,19 +237,22 @@ export const useSwap =  () => {
                 let { label, data } = item; 
     
                 if(data == null) continue;
+
+                ///console.log("label===>", label)
     
-                let [ routeId, routeGroup ] = label.split("|")
+                let [ routeIndex, routeId ] = label.split("|")
+
+                let routeInfo = swapRoutes[routeIndex]
+
+                let routeGroup = routeInfo.parsedGroup
     
                 let dataObj = {}
-    
-                dataObj['routeId'] = routeId
-                dataObj['routeGroup'] = routeGroup
-    
                 let amountOut;
+                //let estimatedGas;
     
                 if(["tjoe_v20", "tjoe_v21"].includes(routeGroup)){
                     
-                    dataObj = {...dataObj, ...data.toObject()}
+                    dataObj = data.toObject()
     
                     //console.log("dataObj====>", dataObj)
                     amountOut = Utils.lastArrayItem(dataObj.virtualAmountsWithoutSlippage) // get last item in the array
@@ -256,21 +260,39 @@ export const useSwap =  () => {
                     if(amountOut == null) continue; 
                 } 
                 else if(routeGroup == 'uni_v3') {
-                    amountOut = data 
+
+                    let dataArr = data.toArray()
+                    amountOut    = dataArr[0]
                 } 
                 else {
                     continue;
                 }
 
-                let amountOutWithSlippage = Utils.calPercentBPS(amountOut, slippageBPS)
-                
-                dataObj.amountOutWithSlippage = amountOutWithSlippage 
+            
+                dataObj['routeId'] = routeId
+                dataObj['routeGroup'] = routeGroup
+
+                let slippageAmt = Utils.calPercentBPS(amountOut, slippageBPS)
+                let amountOutWithSlippage = (amountOut - slippageAmt)
+
+                dataObj.amountOutWithSlippage = amountOutWithSlippage
                 dataObj.amountOut = amountOut
                 dataObj.formattedAmountOut = formatUnits(amountOut, tokenBInfo.decimals)
-                dataObj.formattedAmountOutWithSlppage = formatUnits(
+                dataObj.formattedAmountOutWithSlippage = formatUnits(
                                                             amountOutWithSlippage, 
                                                             tokenBInfo.decimals
                                                         )
+
+                // lets fetch the gas info 
+                let gasEstimateStatus = await getSwapGasEstimate({
+                                            web3,
+                                            tokenAInfo,
+                                            tokenBInfo,
+                                            routeInfo,
+                                            recipient,
+                                            amountInWithFee,
+                                            amountOutMin: amountOutWithSlippage
+                                        })
     
                 processedQuotes.push(dataObj)
             }
@@ -284,6 +306,245 @@ export const useSwap =  () => {
         } catch(e){
             Utils.logError("useSwap#fetchQuote:",e)
             return Status.error("Failed to fetch quotes, try again")
+        } 
+    }
+
+    /**
+     * prepareSwap
+     */
+    const getSwapPayload = async ({
+        routeInfo,
+        amountOutMin, 
+        tokenAInfo,
+        tokenBInfo, 
+        amountInWithFee,
+        recipient
+    }) => {
+        try {   
+
+            let routeId = routeInfo.parsedId
+            let routeGroup = routeInfo.parsedGroup;
+            let tokenAAddr = tokenAInfo.contract;
+            let tokenBAddr = tokenBInfo.contract;
+
+            let funcInfoArr = [];
+
+            let deadline = (Date.now() / 1000) + 60 * 3; // 3mins
+
+            let path = getPath(routeInfo, tokenAInfo, tokenBInfo)
+        
+            if(["tjoe_v20", "tjoe_v21", "uni_v2"].includes(routeGroup)){
+
+                // if token A is weth or native
+                if(Utils.isNativeToken(tokenAAddr)) {
+
+                    tokenAAddr = routeInfo.weth;
+
+                    let funcName1 = await getSwapFunctionName(
+                                    routeGroup, 
+                                    "swap_exact_native_for_tokens"
+                                )
+                    let funcName2 = await getSwapFunctionName(
+                        routeGroup, 
+                        "swap_exact_native_for_tokens_with_transfer_tax"
+                    )
+
+                    let args = [
+                        amountOutMin,
+                        path,
+                        recipient,
+                        deadline
+                    ]
+
+                    let nativeValue = amountInWithFee
+
+                    funcInfoArr = [
+                        { name: funcName1, 
+                          args, 
+                          nativeValue
+                        },
+                        { name: funcName2,
+                           args, 
+                           nativeValue  
+                        }
+                    ]
+
+                } 
+                    // if token B is native
+                else if(Utils.isNativeToken(tokenBAddr)) { 
+
+                    tokenBAddr = routeInfo.weth;
+
+                    let funcName1 = await getSwapFunctionName(
+                                    routeGroup, 
+                                    "swap_exact_tokens_for_native"
+                                )
+
+                    let funcName2 = await getSwapFunctionName(
+                        routeGroup, 
+                        "swap_exact_tokens_for_native_with_transfer_tax"
+                    )
+
+                    let args = [
+                        amountInWithFee,
+                        amountOutMin,
+                        path,
+                        recipient,
+                        deadline
+                    ]
+
+                    let nativeValue;
+
+                    funcInfoArr = [
+                        { name: funcName1, 
+                          args, 
+                          nativeValue
+                        },
+                        { name: funcName2,
+                           args,
+                           nativeValue
+                        }
+                    ]
+
+                }
+                // transfer token for tokens 
+                else {
+
+                    let funcName1 = await getSwapFunctionName(
+                        routeGroup, 
+                        "swap_exact_tokens_for_tokens"
+                    )
+
+                    let funcName2 = await getSwapFunctionName(
+                        routeGroup, 
+                        "swap_exact_tokens_for_tokens_with_transfer_tax"
+                    )
+
+                    let args = [
+                        amountInWithFee,
+                        amountOutMin,
+                        path,
+                        recipient,
+                        deadline
+                    ]
+
+                    let nativeValue = 0;
+
+                    funcInfoArr = [
+                        { name: funcName1, 
+                          args, 
+                          nativeValue
+                        },
+                        { name: funcName2,
+                          args,
+                          nativeValue
+                        }
+                    ]
+
+                } //end token to token swap 
+            } //end if uni v2 or trader joe v2 or 2.1
+
+            else if(routeGroup == 'uni_v3') {
+
+                let funcName = await getSwapFunctionName(
+                    routeGroup, 
+                    "exact_input"
+                )
+
+                let params = {
+                    path, 
+                    recipient,
+                    deadline,
+                    amountIn: amountInWithFee,
+                    amountOutMinimum: amountOutMin
+                }
+
+                let nativeValue = 0;
+
+                if(Utils.isNativeToken(tokenAAddr)){
+                    nativeValue = amountInWithFee
+                }
+
+                funcInfoArr = [
+                    { name: funcName, 
+                      args: [params], 
+                      nativeValue
+                    }
+                ]
+            } else {
+                return null 
+            }
+
+            // lets get abi 
+            let abi = swapConfig.routes_ABIs[routeId]
+
+            let iface = new Interface(abi)
+
+            
+
+        } catch(e){
+            Utils.logError("useSwap#prepareSwap:",e)
+            return Status.error("Failed to prepare swap, try again")
+        } 
+    }
+
+
+    // lets get gas etimate for a swap 
+    const getSwapGasEstimate = async ({
+        web3,
+        routeInfo,
+        amountOutMin, 
+        tokenAInfo,
+        tokenBInfo, 
+        amountInWithFee,
+        recipient
+    }) => {
+        try {
+
+            let swapDataArr = await getSwapPayload({
+                                routeInfo,
+                                amountOutMin, 
+                                tokenAInfo,
+                                tokenBInfo,  
+                                amountInWithFee,
+                                recipient
+                            })
+            // lets get swap contract
+            let contracts = await web3.getSystemContracts()
+
+            let swapFactory = contracts.swap.factory;
+
+
+            console.log("swapFactory===>", swapFactory)
+
+
+           let result; 
+
+           for(let index in swapDataArr) {
+
+                let funcData = swapDataArr[index]
+
+
+                console.log("swapFactory[funcData.name]===>",funcData.name)
+
+                try {
+                    result = swapFactory[funcData.name].estimateGas(
+                                ...(funcData.args), 
+                                { value: funcData.nativeValue }
+                            )
+                } catch(e){
+                    
+                    Utils.logError("useSwap#getSwapGasEstimate", e)
+
+                    if(index == swapDataArr.length - 1){
+                        throw e;
+                    }
+                }
+            } //end loop
+
+        } catch(e){
+            Utils.logError("useSwap#prepareSwap:",e)
+            return Status.error(e.message)
         } 
     }
 

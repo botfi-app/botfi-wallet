@@ -41,8 +41,12 @@ body {
     background: rgba(var(--bs-primary-rgb), 0.25) !important;
 }
 
+.btn-soft-warning {
+    background: rgba($warning, 0.5);
+}
+
 .text-info {
-    color: darken($info, 1) !important;
+    color: $info !important;
 }
 
 .app-main {
@@ -620,4 +624,8 @@ ul.list-group {
         position: relative;
         top: -39px;
     }
+}
+
+.flex-end { 
+    justify-content: end !important;
 }

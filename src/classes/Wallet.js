@@ -261,34 +261,56 @@ export default class Wallet {
 
                 for(let i in resultsArr) {
 
-                    ///console.log("resultsArr[i]===>", resultsArr[i])
+                        let [success, result] = resultsArr[i]
+                        let { abi, method, label } = inputsArr[i]
 
-                    let [success, result] = resultsArr[i]
-                    let { abi, method, label } = inputsArr[i]
+                        let iface = new Interface(abi);
+                        let decodedResult = null
 
-                    let iface = new Interface(abi);
-                    let decodedResult = null
+                        if(result == '0x') {
+                            processedResult.push({
+                                label,
+                                data: null
+                            })
+                        }
                     
-                    if(success){
-                        decodedResult = iface.decodeFunctionResult(
-                                            iface.getFunction(method), 
-                                            result
-                                        )
-
-                        decodedResult = decodedResult[0]
-                    } else {
-                        let decodedError = iface.decodeErrorResult(
+                    try {
+                        if(success){
+                            decodedResult = iface.decodeFunctionResult(
                                                 iface.getFunction(method), 
                                                 result
                                             )
-                        Utils.logError("Wallets#multicall", decodedError)
-                    }
+                            
+                            //console.log("decodedResult===>", decodedResult)
 
-                    processedResult.push({
-                        label,
-                        data: decodedResult
-                    })
-                }
+                            // if multiple results were not returned 
+                            // then send the 1 result, else just maintain the 
+                            // multiple result
+                            if(decodedResult.length == 1){
+                                decodedResult = decodedResult[0]
+                            }
+
+                        } else {
+                            let decodedError = iface.decodeErrorResult(
+                                                    iface.getFunction(method), 
+                                                    result
+                                                )
+                            Utils.logError("Wallets#multicall", decodedError)
+                        }
+
+                        processedResult.push({
+                            label,
+                            data: decodedResult
+                        })
+
+                    } catch(e){
+                        Utils.logError("Wallet#__exec:", e)
+                        processedResult.push({
+                            label,
+                            data: null
+                        })
+                    }
+                } //end loop
 
                 return Status.successData(processedResult)
 

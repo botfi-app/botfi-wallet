@@ -23,11 +23,12 @@ const handleOnItemChange = async (e) => {
     
     let inputVal2 = inputVal.value
 
-    await Utils.sleep(2)
+   // await Utils.sleep(2)
 
     // if user is still typing, dont send the event yet
-    if(inputVal.value != inputVal2) return false;
+    //if(inputVal.value != inputVal2) return true;
 
+    //console.log("inputVal.value===>", inputVal.value)
     emit("input-change", inputVal.value)
 }
 

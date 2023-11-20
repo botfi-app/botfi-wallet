@@ -395,19 +395,17 @@ export default class Utils {
         return (/[0-9\.]+/g.test(no) &&  [0,1].includes(dotCount))
     }
 
-    static formatFiat(val) {
-
-        let factionLen = 4;
+    static formatFiat(val, decimals=8) {
 
         val = val.toString()
 
         if(val.startsWith("0.")){
             if(val.length > 8){
-                factionLen = 8
+                decimals = 8
             }
         }
 
-        return parseFloat(val).toFixed(factionLen)
+        return parseFloat(val).toFixed(decimals)
     }
 
 
@@ -440,5 +438,13 @@ export default class Utils {
 
     static lastArrayItem(arr) {
         return (arr[arr.length - 1] || null)
+    }
+
+    static getSwapSource(group) {
+        if(['uni_v2', 'uni_v3', 'tjoe_v20', 'tjoe_v21'].includes(group)){
+            return "direct"
+        } else {
+            return "aggregate"
+        }
     }
 }
