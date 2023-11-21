@@ -22,6 +22,9 @@ import {
 } from 'ethcall';
 
 //import { Buffer } from "buffer/";
+import multicall3Config from "../config/multicall3";
+import multicall3Abi from "../data/abi/multicall3.json"
+import deploylessMCall from "@botfi/multicall";
 
 export default class Wallet {
 
@@ -184,144 +187,137 @@ export default class Wallet {
         }
     }
 
-
-    async deploylessMuticall(inputsArray) {
+    async getBalances(addrsArr) {
         try {
 
-            let labels = []
-            let inputs = []
+            let mCall = deploylessMCall(this.provider)
 
-            const ethcallProvider = new ethcallProviderClazz(this.chainId, this.provider);
+            let balances = await mCall.getBalances(addrsArr)
 
-            for(let index in inputsArray){
-                
-                let item = inputsArray[index]
-
-                labels[index] = item.label;
-
-                // if its eth native balance, then use
-                if(item.method == 'getEthBalance') {
-                    inputs[index] = ethcallProvider.getEthBalance(item.args[0])
-                } else {
-                    let contract = new ethcallContract(item.target, item.abi)
-                    inputs[index] = contract[item.method](...item.args)
-                } 
-            }
-
-            const dataArray = await ethcallProvider.all(inputs, {blockTag: 'latest'});
-            
-            let processedData = {}
-
-            for(let index in dataArray){
-                processedData[labels[index]] = dataArray[index]
-            }
-
-            //console.log("processedData==>", processedData)
-
-            return Status.successData(processedData)
-
+            return Status.successData(balances)
         } catch(e){
-            Utils.logError("Wallet#deploylessMuticall:", e)
-            return Status.error("onchain operation failed")
+            Utils.logError("Wallet#deploylessMulticall:", e)
+            return Status.error("multicall failed")
         }
     }
 
-    multicall(mcallContract) {
+    deploylessMulticall(inputsArr) {
+        try {
+            
+            let inputs = []
 
-        const staticcall = async (inputs, revertOnError=true) => {
-            return __exec(inputs, revertOnError, true)
+            for(let item of inputsArr) {
+
+                let { target, method, abi: interface, args } = item
+
+                inputs.push({
+                    target,
+                    interface, 
+                    function: method,
+                    args
+                })
+            }
+
+            let results = deploylessMCall.multiCall(inputs)
+
+            console.log("results===>", results)
+        } catch(e){
+            Utils.logError("Wallet#deploylessMulticall:", e)
+            return Status.error("multicall failed")
+        }
+    }
+
+    async multicall3(inputs, { contractAddr = "", strict=false }) {
+        
+        if(!this.provider){
+            return Status.error("Connect Wallet")
         }
 
-        const __exec = async (inputsArr, revertOnError = true, staticcall = true) => {
-            
-            try{
+        if(!(this.chainId in multicall3Config.supported_chains) && !Utils.isAddress(contractAddr)){
+            return this.deploylessMulticall(inputs)
+        }
+
+        let mCallAddr = (Utils.isAddress(contractAddr)) 
+                        ? contractAddr
+                        : multicall3Config.contract
+
+        let mcallContract = this.contract(mCallAddr, multicall3Abi)
+
+        let inputsArr = []
+
+        for(let i in inputs){
                 
-                let inputs = []
+            let { abi, target, method, args, label } = inputs[i]
 
-                for(let i in inputsArr){
-                
-                    let { abi, target, method, args, label } = inputsArr[i]
+            let iface = new Interface(abi);
+            let callData = iface.encodeFunctionData(method, args)
 
+            inputsArr.push({
+                target, 
+                callData 
+            })
+        }  
+        
+        let resultsArr =  await mcallContract.tryAggregate.staticCall(strict, inputsArr)
+                                 
+        let processedResult = []
 
-                    let iface = new Interface(abi);
-                    let callData = iface.encodeFunctionData(method, args)
+        for(let i in resultsArr) {
 
-                    inputs.push({
-                        target, 
-                        callData 
+                let [success, result] = resultsArr[i]
+                let { abi, method, label } = inputs[i]
+
+                let iface = new Interface(abi);
+                let decodedResult = null
+
+                if(result == '0x') {
+                    processedResult.push({
+                        label,
+                        data: null
                     })
-                }   
-                
-                let resultsArr = (staticcall)
-                                    ? await mcallContract.tryAggregate.staticCall(revertOnError,inputs)
-                                    : await mcallContract.tryAggregate(revertOnError, inputs)
-                
+                }
+            
+            try {
 
-                let processedResult = []
-
-                for(let i in resultsArr) {
-
-                        let [success, result] = resultsArr[i]
-                        let { abi, method, label } = inputsArr[i]
-
-                        let iface = new Interface(abi);
-                        let decodedResult = null
-
-                        if(result == '0x') {
-                            processedResult.push({
-                                label,
-                                data: null
-                            })
-                        }
+                if(success){
+                    decodedResult = iface.decodeFunctionResult(
+                                        iface.getFunction(method), 
+                                        result
+                                    )
                     
-                    try {
-                        if(success){
-                            decodedResult = iface.decodeFunctionResult(
-                                                iface.getFunction(method), 
-                                                result
-                                            )
-                            
-                            //console.log("decodedResult===>", decodedResult)
+                    //console.log("decodedResult===>", decodedResult)
 
-                            // if multiple results were not returned 
-                            // then send the 1 result, else just maintain the 
-                            // multiple result
-                            if(decodedResult.length == 1){
-                                decodedResult = decodedResult[0]
-                            }
-
-                        } else {
-                            let decodedError = iface.decodeErrorResult(
-                                                    iface.getFunction(method), 
-                                                    result
-                                                )
-                            Utils.logError("Wallets#multicall", decodedError)
-                        }
-
-                        processedResult.push({
-                            label,
-                            data: decodedResult
-                        })
-
-                    } catch(e){
-                        Utils.logError("Wallet#__exec:", e)
-                        processedResult.push({
-                            label,
-                            data: null
-                        })
+                    // if multiple results were not returned 
+                    // then send the 1 result, else just maintain the 
+                    // multiple result
+                    if(decodedResult.length == 1){
+                        decodedResult = decodedResult[0]
                     }
-                } //end loop
 
-                return Status.successData(processedResult)
+                } else {
+                    let decodedError = iface.decodeErrorResult(
+                                            iface.getFunction(method), 
+                                            result
+                                        )
+                    Utils.logError("Wallets#multicall", decodedError)
+                }
+
+                processedResult.push({
+                    label,
+                    data: decodedResult
+                })
 
             } catch(e){
-                Utils.logError("Wallet#multicall:", e)
-                return Status.error("onchain operation failed")
+                Utils.logError("Wallet#mcall:", e)
+                processedResult.push({
+                    label,
+                    data: null
+                })
             }
-        } //end __exec
+        } //end loop
 
-
-        return { staticcall }
+        return Status.successData(processedResult)
+        
     }
 
     /**
@@ -395,7 +391,6 @@ export default class Wallet {
            throw new Error("Provider required")
         }
 
-         
         let code = await this.provider.getCode(contractAddress);
 
         if(code == '0x') {
@@ -638,7 +633,7 @@ export default class Wallet {
 
             let contract = new ethersContract(_addr, abi, signer)
 
-            console.log("contract===>", contract)
+            //.log("contract===>", contract)
 
             let onTxCreatedCallback = null;
             

@@ -56,7 +56,6 @@ declare module '@vue/runtime-core' {
     RouterView: typeof import('vue-router')['RouterView']
     ScrollToTop: typeof import('./src/components/common/ScrollToTop.vue')['default']
     SearchForm: typeof import('./src/components/common/SearchForm.vue')['default']
-    SlippageModal: typeof import('./src/components/modals/SlippageModal.vue')['default']
     SwapInputAndTokenSelect: typeof import('./src/components/swap/SwapInputAndTokenSelect.vue')['default']
     SwapQuotesModal: typeof import('./src/components/modals/SwapQuotesModal.vue')['default']
     SwapSettings: typeof import('./src/components/modals/SwapSettings.vue')['default']

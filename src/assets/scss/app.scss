@@ -195,7 +195,7 @@ html[data-is-expanded=false] .swal2-popup {
     display: block;
   }
           
-  .hidden { display:none !important; }
+  .hidden, .hide { display:none !important; }
 
   .mselect-icon {
     width: 28px !important; 

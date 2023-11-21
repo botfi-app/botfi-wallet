@@ -27,6 +27,8 @@ const onImgLoadError = () => {
     pRef.classList.add([ "text-center"])
     pRef.style.background = pBg.value
     pRef.style.color = pColor.value
+
+    imgRef.value.classList.add("hide")
 }
 </script>
 <template>

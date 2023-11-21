@@ -4,11 +4,12 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --host",
-    "build": "vite build",
+    "dev": "sh ./scripts/dev.sh",
+    "build": "sh ./scripts/build.sh",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@botfi/multicall": "github:botfi-app/multicall",
     "@bugsnag/js": "^7.21.0",
     "@bugsnag/plugin-vue": "^7.19.0",
     "@dotlottie/player-component": "^2.7.0",
@@ -59,10 +60,13 @@
   },
   "devDependencies": {
     "@iconify/vue": "^4.1.1",
+    "@nomiclabs/hardhat-ethers": "^2.2.3",
     "@types/whatwg-fetch": "^0.0.33",
     "@uniswap/v3-periphery": "^1.4.4",
     "@vitejs/plugin-vue": "^4.2.3",
     "autoprefixer": "^10.4.15",
+    "hardhat": "^2.19.1",
+    "node-fetch": "^3.3.2",
     "postcss": "^8.4.28",
     "sass": "^1.65.1",
     "unplugin-auto-import": "^0.16.6",

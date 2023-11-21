@@ -9,7 +9,7 @@ import Status from './Status'
 import {prng_alea} from 'esm-seedrandom';
 import { ZeroAddress, isAddress as ethersIsAddress, getAddress } from 'ethers';
 import { v5 as uuidv5 } from 'uuid';
-import appConfig from "../config/app"
+import appConfig from "../config/app.js"
 import * as dayjs from 'dayjs'
 
 

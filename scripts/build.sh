@@ -3,4 +3,4 @@
 BASEDIR=$(dirname "$0")
 
 node $BASEDIR/multicall3.js
-npx vite --host
+npx vite build
