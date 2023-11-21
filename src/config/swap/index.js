@@ -5,8 +5,9 @@ import routes_ABIs from "./routes_ABIs"
 
 export default {
     enabled:      true, 
-    protocol_fee: 0.8, //1%
+    protocol_fee: 0.01, //1%
     supported_chains,
     routes_ABIs,
-    default_slippage: 0.5 // 0.5
+    default_slippage: 1 // 0.5
 }
+

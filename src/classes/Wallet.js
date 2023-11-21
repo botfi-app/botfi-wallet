@@ -638,6 +638,8 @@ export default class Wallet {
 
             let contract = new ethersContract(_addr, abi, signer)
 
+            console.log("contract===>", contract)
+
             let onTxCreatedCallback = null;
             
             contract.onTxCreated = (callback=null) => {

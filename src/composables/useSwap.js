@@ -132,17 +132,19 @@ export const useSwap =  () => {
         let pathBytes;
         let univ3Fee = 3000; // 0.3
 
-//if(path.length == 2){
+        console.log("path====>", path)
+
+        if(path.length == 2){
             pathBytes = solidityPacked(
                             ["address", "uint24", "address"], 
                             [path[0], univ3Fee, path[1]]
                         )
-/*} else {
+        } else {
             pathBytes = solidityPacked(
                             ["address", "uint24", "address", "uint24", "address"], 
                             [path[0], univ3Fee, path[1], univ3Fee, path[2]]
                         )
-        }*/
+        }
         
         return pathBytes
     }
@@ -282,6 +284,12 @@ export const useSwap =  () => {
                                                             amountOutWithSlippage, 
                                                             tokenBInfo.decimals
                                                         )
+                
+                console.log("dataObj.amountOut===>", dataObj.amountOut)
+                console.log("dataObj.formattedAmountOut===>", dataObj.formattedAmountOut)
+                                                        
+                console.log("amountOutWithSlippage===>",amountOutWithSlippage)
+                console.log(" dataObj.formattedAmountOutWithSlippage===>",  dataObj.formattedAmountOutWithSlippage)
 
                 // lets fetch the gas info 
                 let gasEstimateStatus = await getSwapGasEstimate({
@@ -325,9 +333,6 @@ export const useSwap =  () => {
         recipient
     }) => {
         try {   
-
-            console.log("amountInWithFee===>", amountInWithFee)
-            console.log("amountInWithoutFee===>", amountInWithoutFee)
 
             let routeId = routeInfo.parsedId
             let routeGroup = routeInfo.parsedGroup;
@@ -510,6 +515,8 @@ export const useSwap =  () => {
 
                 if(Utils.isNativeToken(tokenAAddr)){
                     // value we will pass to ethers as Native asset
+                    // since the fee will be taken on the contract level'
+                    // send the full amount
                     nativeValue = amountInWithoutFee
                 }
 
@@ -533,14 +540,17 @@ export const useSwap =  () => {
             let callDataArr = []
             
             for(let funcItem of funcDataArr){
-                console.log("funcItem.args===>", funcItem.args)
-                let callData = iface.encodeFunctionData(funcItem.name, funcItem.args)
+               // console.log("funcItem.args===>", funcItem.args)
+                let callData = iface.encodeFunctionData(
+                                    iface.getFunction(funcItem.name), 
+                                    funcItem.args
+                                )
                 callDataArr.push(callData)
             }
 
-            //console.log("callDataArr===>", callDataArr)
+           //iface.parseError()
 
-            return { callDataArr, funcDataArr }
+            return { callDataArr, funcDataArr, iface }
         } catch(e){
             Utils.logError("useSwap#prepareSwap:",e)
             return Status.error("Failed to prepare swap, try again")
@@ -562,6 +572,10 @@ export const useSwap =  () => {
     }) => {
         try {
 
+            let routeGroup = routeInfo.parsedGroup
+
+            if(routeGroup != 'uni_v3') return;
+
             let routeIdBytes32 = routeInfo.id;
 
             let swapDataObj = await getSwapPayload({
@@ -580,9 +594,9 @@ export const useSwap =  () => {
             let swapFactory = contracts.swap.factory;
 
 
-            console.log("swapFactory===>", swapFactory)
+            //console.log("swapFactory===>", swapFactory)
             
-            let { callDataArr, funcDataArr } = swapDataObj
+            let { callDataArr, funcDataArr, iface } = swapDataObj
 
            let result; 
 
@@ -591,24 +605,39 @@ export const useSwap =  () => {
                 let funcData = funcDataArr[index]
                 let payload = callDataArr[index]
 
+                console.log("funcData====>", )
+                console.log(funcData)
+
+                console.log("tokenAInfo.contract===>", tokenAInfo.contract)
+
                 try {
 
-                    console.log("amountInWithoutFee===>", amountInWithoutFee)
-                    console.log("funcData.nativeValue===>", funcData.nativeValue)
-
-                    result = swapFactory.swap.estimateGas(
+                    result = await swapFactory.swap.staticCall(
                                 routeIdBytes32,
                                 amountInWithoutFee,
                                 tokenAInfo.contract,
                                 payload,
                                 { value: funcData.nativeValue }
                             )
+
+                    console.log("result====>", result)
                 } catch(e){
                     
-                    Utils.logError("useSwap#getSwapGasEstimate", e)
+                    //Utils.logError("useSwap#getSwapGasEstimate", e)
 
-                    if(index == swapDataArr.length - 1){
-                        throw e;
+                    console.log("Route Group===>", routeInfo.parsedGroup)
+                    console.log("e===>", e.code)
+
+                    if(index == callDataArr.length - 1){
+                        
+                        let errData = e.data || null
+                        let decodedError = null;
+
+                        if(errData != null && !['0x','0x0'].includes(errData.toLowerCase())){
+                            decodedError = iface.parseError(errData)
+                        }
+
+                        console.log("decodedError===>", decodedError)
                     }
                 }
             } //end loop

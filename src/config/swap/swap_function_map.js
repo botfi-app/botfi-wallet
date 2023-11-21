@@ -18,6 +18,7 @@ export default {
         "native_token":         "",
         "get_amounts_out":      "quoteExactInput",
         "exact_input":          "exactInput",
+        'extact_input_single':  "exactInputSingle"
     },
     
     tjoe_v20: {
