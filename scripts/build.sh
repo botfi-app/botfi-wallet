@@ -2,5 +2,5 @@
 
 BASEDIR=$(dirname "$0")
 
-node $BASEDIR/multicall3.js
+sh $BASEDIR/core.sh 
 npx vite build

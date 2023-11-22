@@ -87,7 +87,7 @@ export const useNFT = () => {
    }
 
    const updateOnChainNFTData = async () => {
-       try {
+       /*try {
 
            if(window.__botFiNFTsUpdating) return;
 
@@ -213,7 +213,7 @@ export const useNFT = () => {
            return Status.errorPromise()
        } finally {
            window.__botFiNFTsUpdating = false
-       }
+       }*/
    }
    
    const importNFT = async (nftInfo={}, walletAddr) => {

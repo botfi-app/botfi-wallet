@@ -1,18 +1,17 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
-pragma experimental ABIEncoderV2;
-
 
 interface IERC20 {
   function balanceOf(address) external view returns (uint256);
 }
 
-struct Call {
-    address token;
-    address  account;
-}
+contract Balances {
 
-contract BalancesMulticall {
+    struct Call {
+        address token;
+        address  account;
+    }
+
     constructor(Call[] memory calls){
 
         uint256 len = calls.length;

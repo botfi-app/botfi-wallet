@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "sh ./scripts/dev.sh",
     "build": "sh ./scripts/build.sh",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "compile": "npx hardhat compile"
   },
   "dependencies": {
     "@botfi/multicall": "github:botfi-app/multicall",
@@ -60,13 +61,15 @@
   },
   "devDependencies": {
     "@iconify/vue": "^4.1.1",
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
     "@nomiclabs/hardhat-ethers": "^2.2.3",
+    "@nomiclabs/hardhat-waffle": "^2.0.6",
     "@types/whatwg-fetch": "^0.0.33",
     "@uniswap/v3-periphery": "^1.4.4",
     "@vitejs/plugin-vue": "^4.2.3",
     "autoprefixer": "^10.4.15",
     "hardhat": "^2.19.1",
-    "node-fetch": "^3.3.2",
+    "node-fetch": "^2.7.0",
     "postcss": "^8.4.28",
     "sass": "^1.65.1",
     "unplugin-auto-import": "^0.16.6",
