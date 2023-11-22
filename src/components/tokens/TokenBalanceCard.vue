@@ -125,7 +125,7 @@ watch(tokens, () => {
             <div class="h-divider mb-3" />
             <div class="text-center text-light m-0 p-0 d-flex center-vh mb-1">
                 <h2 class="m-0 p-0">
-                    {{ tokenInfo.balanceInfo.balanceDecimal }} 
+                    {{ Utils.formatCrypto(tokenInfo.balanceInfo.balanceDecimal, 4) }} 
                 </h2>
                 <h3 class="m-0 p-0 ms-1">
                     {{ tokenInfo.symbol }}

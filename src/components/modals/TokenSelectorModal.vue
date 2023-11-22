@@ -57,8 +57,11 @@ const fetchData = async () => {
 
         let resultStatus = await Http.getApi("/tokens/verified", params)
 
+        //console.log("resultStatus===>", resultStatus)
+
         if(resultStatus.isError()){
-            errorMsg.value = resultStatus.getMessage()
+            //errorMsg.value = resultStatus.getMessage()
+            Utils.logError(`modals#TokenSelectorModal#fetchData: ${resultStatus.getMessage()}`)
             return false;
         }
 
@@ -76,24 +79,30 @@ const fetchData = async () => {
             return item 
         })
 
+        //console.log("tokensContracts====>", tokensContracts)
+
         // include users tokens
         if(props.includeUserTokens){
             let usersTokens = await tokensCore.getTokens()
 
+            //console.log("usersTokens===>", usersTokens)
+
             for(let addr of Object.keys(usersTokens)){
                 
                 let addrLower = addr.toLowerCase()
-                
-                if(!Utils.isNativeToken(addr)){
-                    tokensContracts[addrLower] = true 
-                }
 
                 if(!(addrLower in tokensContracts)){
                     tokensDataArr.unshift(usersTokens[addr])
+                    tokensContracts[addrLower] = true 
                 }
             }
         }
 
+        //console.log("tokensDataArr====>", tokensDataArr)
+
+        // remove the native token as we are only fethcing erc20 info
+        delete tokensContracts[Utils.nativeTokenAddr.toLowerCase()]
+        
         let tokensOnChainData = await fetchTokensOnChainDataAndBalances(
                                     tokensContracts,
                                     tokensDataArr
@@ -128,12 +137,17 @@ const fetchTokensOnChainDataAndBalances = async (tokensContracts, tokensDataArr)
 
     let onchainTokenData = onChainTokenDataStatus.getData() || {}
 
+    //console.log("tokensContractsArr===>", tokensContractsArr)
+    //console.log("onchainTokenData====>", onchainTokenData)
+    //console.log("tokensDataArr===>", tokensDataArr)
+
     let processedTokenData = []
 
     for(let item of tokensDataArr){
 
         let contractAddr = item.contract.toLowerCase()
 
+        //console.log("contractAddr===>", contractAddr)
 
         if(Utils.isNativeToken(contractAddr)){
 
@@ -142,7 +156,11 @@ const fetchTokensOnChainDataAndBalances = async (tokensContracts, tokensDataArr)
 
         } else {
             
+            //console.log("contractAddr==>", contractAddr)
+
             let onChainItem = onchainTokenData[contractAddr] || null 
+
+            //console.log("onChainItem===>", onChainItem)
             
             if(onChainItem == null) continue;
 
@@ -151,6 +169,7 @@ const fetchTokensOnChainDataAndBalances = async (tokensContracts, tokensDataArr)
         }
 
         processedTokenData.push(item)
+        
     }
     
     let acctAddr = activeWallet.value.address.toLowerCase()

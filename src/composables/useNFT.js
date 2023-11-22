@@ -87,7 +87,7 @@ export const useNFT = () => {
    }
 
    const updateOnChainNFTData = async () => {
-       /*try {
+       try {
 
            if(window.__botFiNFTsUpdating) return;
 
@@ -165,7 +165,7 @@ export const useNFT = () => {
            //console.log("nftInfo.standard===>", nftInfo.standard);
 
 
-           let resultStatus = await web3Conn.deploylessMuticall(inputs)
+           let resultStatus = await web3Conn.multicall3(inputs)
 
            //console.log("resultStatus===>", resultStatus)
 
@@ -213,7 +213,7 @@ export const useNFT = () => {
            return Status.errorPromise()
        } finally {
            window.__botFiNFTsUpdating = false
-       }*/
+       }
    }
    
    const importNFT = async (nftInfo={}, walletAddr) => {

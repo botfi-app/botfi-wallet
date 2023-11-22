@@ -50,6 +50,7 @@ onMounted(() => {
                         :placeholder="p.tokenInfo.symbol" 
                         :width="24"
                         :height="24"
+                        class="rounded-circle"
                     />
                     <div class="fw-semibold px-2 text-upper">{{ p.tokenInfo.symbol }}</div>
                     <Icon name="fluent:chevron-down-24-filled" />

@@ -405,7 +405,11 @@ export default class Utils {
             }
         }
 
-        return parseFloat(val).toFixed(decimals)
+        return Number(parseFloat(val).toFixed(decimals))
+    }
+
+    static formatCrypto(val, decimals=8) {
+        return this.formatFiat(val, decimals)
     }
 
 

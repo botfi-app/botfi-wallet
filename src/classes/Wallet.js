@@ -265,7 +265,7 @@ export default class Wallet {
 
             let resultArr = decodedData.toArray().flat()
             
-            return this.processMulticallResults(inputsArr, resultArr)
+            return this.___processMulticallResults(inputsArr, resultArr)
 
         } catch(e){
             Utils.logError("Wallet#deploylessMulticall:", e)
@@ -273,35 +273,36 @@ export default class Wallet {
         }
     }
 
-    async multicall3(inputsArr, opts = {}) {
-        
-        const { mCallAddr = "", revertOnError=false } = opts;
+    async multicall3(inputsArr, revertOnError=false) {
 
         if(!this.provider){
             return Status.error("Connect Wallet")
         }
 
-        if(!Utils.isAddress(mCallAddr)){
-            if(!(this.chainId in multicall3Config.supported_chains)){
-                return this.___deploylessMulticall(inputsArr, opts)
-            }
+        console.log("supported_chains==>", multicall3Config.supported_chains.includes(this.chainId))
+        console.log("this.chainId===>", this.chainId)
+
+        if(!multicall3Config.supported_chains.includes(this.chainId)){
+            return this.___deploylessMulticall(inputsArr, revertOnError)
         }
 
         let inputs = this.__prepareMuticallInputs(inputsArr) 
 
-        let mCallContractAddr = (Utils.isAddress(mCallAddr)) 
-                            ? mCallAddr
+        let sysMcallAddrs = multicall3Config.system_multicall_addrs
+
+        let mCallContractAddr = (this.chainId in sysMcallAddrs) 
+                            ? sysMcallAddrs[this.chainId]
                             : multicall3Config.contract
 
         let mCallContract = this.contract(mCallContractAddr, multicall3Abi)
      
         let resultsArr =  await mCallContract.tryAggregate.staticCall(revertOnError, inputs)
      
-        return processMulticallResults(inputsArr, resultsArr)
+        return this.___processMulticallResults(inputsArr, resultsArr)
     }
 
 
-    processMulticallResults(inputsArr, resultsArr) {
+    ___processMulticallResults(inputsArr, resultsArr) {
                                     
         let processedResult = []
 

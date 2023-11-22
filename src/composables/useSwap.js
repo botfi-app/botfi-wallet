@@ -219,12 +219,14 @@ export const useSwap =  () => {
                 mcallInputs.push({ label, target, method, args, abi })
             } //end for loop 
             
-            let contracts = await web3.getSystemContracts()
+            //let contracts = await web3.getSystemContracts()
 
-            let _mcallContract = contracts.swap.multicall3
+            //let mcallAddr = contracts.swap.multicall3.address;
             
-            let resultStatus = await web3.multicall(_mcallContract)
-                                      .staticcall(mcallInputs, false)
+            let resultStatus =  await web3.multicall3(
+                                    mcallInputs, 
+                                   false
+                                )
     
             if(resultStatus.isError()){
                 return resultStatus

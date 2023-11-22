@@ -328,7 +328,7 @@ export const useTokens = () => {
 
            let result =  await db.balances.bulkPut(bulkData)
 
-           console.log("result===>", result)
+           //console.log("result===>", result)
 
             let tokens = await getTokens()
 
@@ -558,7 +558,7 @@ export const useTokens = () => {
 
         ///console.log("inputs===>", inputs)
 
-        let resultStatus = await web3Conn.deploylessMuticall(inputs)
+        let resultStatus = await web3Conn.multicall3(inputs)
 
         if(resultStatus.isError()){
             return resultStatus
@@ -643,22 +643,25 @@ export const useTokens = () => {
 
         }
         
-        let resultStatus = await web3.deploylessMuticall(inputs)
+        let resultStatus = await web3.multicall3(inputs)
 
         if(resultStatus.isError()) return resultStatus
 
-        let resultsObj = resultStatus.getData()
+        let resultsArr = resultStatus.getData() || []
 
         //console.log("resultsObj===>", resultsObj)
 
         let processedData = {}
 
-        for(let label of Object.keys(resultsObj)) {
+        for(let i in resultsArr) {
+
+            let item  = resultsArr[i]
+
+            let label = item.label 
 
             let labelObj= label.split("_")
-            let value = resultsObj[label]
 
-            //console.log("labelObj===>", labelObj)
+            let value = item.data
             
             let [method, index] = labelObj
             let wallet;
@@ -696,7 +699,8 @@ export const useTokens = () => {
             processedData[tokenAddr] = tInfo
        })  
        
-       
+       //console.log("processedData===>", processedData)
+
        return Status.successData(processedData)
     }
 
