@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "/Volumes/SuccessLab/drive/Projects/Dapps/botfi/botfi-wallet/contracts/Balances.sol": {
-      "lastModificationDate": 1700590518000,
-      "contentHash": "e7256dac54f90ce6dc52d61be53587d2",
+      "lastModificationDate": 1700648283000,
+      "contentHash": "db200794fbbdaae6146253c1dcebbe4a",
       "sourceName": "contracts/Balances.sol",
       "solcConfig": {
         "version": "0.8.19",

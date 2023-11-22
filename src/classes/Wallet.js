@@ -17,16 +17,13 @@ import {
     ZeroAddress,
     AbiCoder
 } from "ethers"
-import { 
-    Contract as ethcallContract, 
-    Provider as ethcallProviderClazz
-} from 'ethcall';
 
 //import { Buffer } from "buffer/";
 import multicall3Config from "../config/multicall3";
 import multicall3Abi from "../data/abi/multicall3.json"
 import deploylessContractsBytes from "../config/deployless/bytecodes.json"
-import deploylessMultiCall2ABI from "../data/abi/deployless/DeploylessMulticall2.json"
+
+const defaultAbiCoder = AbiCoder.defaultAbiCoder()
 
 export default class Wallet {
 
@@ -189,14 +186,35 @@ export default class Wallet {
         }
     }
 
-    async getBalances(addrsArr) {
+    // inputsArr = [{ token, account }]
+    async getBalances(inputsArr) {
         try {
 
-            let mCall = deploylessMCall(this.provider)
+            //console.log("inputsArr===>", inputsArr)
 
-            let balances = await mCall.getBalances(addrsArr)
+            //bool requireSuccess, tuple(address target, bytes callData)[] calls
+            let inputData = defaultAbiCoder.encode(
+                                [ "tuple(address token,address account)[] calls" ], 
+                                [ inputsArr ]
+                            )
+            
+            const bytecode = deploylessContractsBytes.Balances
+                                .concat(inputData.slice(2))    
+        
+            const encodedReturnData =   await this.provider.call({ 
+                                            data: bytecode
+                                        });
 
-            return Status.successData(balances)
+            //console.log("encodedReturnData===>", encodedReturnData)
+
+            let decodedData = defaultAbiCoder.decode(
+                                    ["uint256[]"],
+                                    encodedReturnData
+                                )
+            
+            let resultData = decodedData[0].toArray()
+
+            return Status.successData(resultData)
         } catch(e){
             Utils.logError("Wallet#deploylessMulticall:", e)
             return Status.error("multicall failed")
@@ -210,10 +228,6 @@ export default class Wallet {
         for(let i in inputsArr){
                 
             let { abi, target, method, args, label } = inputsArr[i]
-
-            if(method == "getEthBalance") continue;
-
-            //console.log("inputsArr[i]===>", inputsArr[i])
 
             let iface = new Interface(abi);
             let callData = iface.encodeFunctionData(method, args)
@@ -229,10 +243,8 @@ export default class Wallet {
 
             let inputs = this.__prepareMuticallInputs(inputsArr)
 
-            let coder = AbiCoder.defaultAbiCoder()
-
             //bool requireSuccess, tuple(address target, bytes callData)[] calls
-            let inputData = coder.encode(
+            let inputData = defaultAbiCoder.encode(
                                 [ "bool requireSuccess",
                                   "tuple(address target, bytes callData)[] calls" 
                                 ], 
@@ -246,7 +258,7 @@ export default class Wallet {
                                             data: bytecode
                                         });
 
-            let decodedData = coder.decode(
+            let decodedData = defaultAbiCoder.decode(
                                 ["tuple(bool,bytes)[]"],
                                 encodedReturnData
                             )

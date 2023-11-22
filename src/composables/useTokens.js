@@ -10,7 +10,7 @@ import { useActivity } from "./useActivity"
 import Utils from "../classes/Utils"
 import erc20Abi from "../data/abi/erc20.json"
 import Status from "../classes/Status"
-import { formatUnits, getAddress, parseUnits } from "ethers"
+import { ZeroAddress, formatUnits, getAddress, parseUnits } from "ethers"
 import EventBus from "../classes/EventBus"
 import Http from "../classes/Http"
 import { useSettings } from "./useSettings"
@@ -184,6 +184,7 @@ export const useTokens = () => {
             let web3Conn = web3ConnStatus.getData()
             
             let tokensArray = await db.tokens.where({ chainId, userId }).toArray()
+            let tokensObj = {}
 
             let contractsAddrs = []
 
@@ -197,42 +198,40 @@ export const useTokens = () => {
                 let token = tokensArray[index]
                 let contract = token.contract; 
 
+                tokensObj[contract] = token;
+
                 contractsAddrs.push(contract)
 
                 for(let addr of walletAddrs) {
-
-                    let label = `balanceOf_${index}_${contract}_${addr}`
                     
                     inputs.push({
-                        target: contract, 
-                        abi:    erc20Abi, 
-                        label, 
-                        method: "balanceOf", 
-                        args: [addr] 
+                        token: contract, 
+                        account: addr
                     })
                 }
             } //end 
 
+            //native addr
             let nativeAddr = Utils.nativeTokenAddr
 
+            // lets include native tokens 
             for(let addr of walletAddrs) {
-                /*inputs.push({
-                    target: "", 
-                    abi:    "", 
-                    label:  `ethBalance_${addr}`, 
-                    method: "getEthBalance", 
-                    args:   [addr] 
-                })*/
+                inputs.push({
+                   token: ZeroAddress,
+                   account: addr
+                })
             }
 
-            let resultStatus = await web3Conn.multicall3(inputs)
+            //console.log("inputs===>", inputs)
+
+            let resultStatus = await web3Conn.getBalances(inputs)
 
             if(resultStatus.isError()){
                 Utils.logError("useToken#updateBalances:"+ resultStatus.getMessage())
                 return resultStatus;
             }
 
-            let resultDataArr = resultStatus.getData() || {}
+            let balancesArr = resultStatus.getData() || []
 
             let contracts = nativeAddr+","+contractsAddrs.join(",")
 
@@ -261,36 +260,28 @@ export const useTokens = () => {
             let bulkData = []
 
             // lets insert balances 
-            for(let i in resultDataArr) {
+            for(let i in balancesArr) {
 
-                let { label, data: balance } =  resultDataArr[i]
+                let balance =  balancesArr[i]
+                let item = inputs[i]
 
-                let labelSplit = label.split("_")
+                //console.log("balance===>", balance)
 
-                let contract; 
-                let walletAddr;
+                let contract = item.token;
+                let walletAddr = item.account;
                 let decimals;
 
-                if(label.startsWith("balanceOf")){
-                    
-                    let tokenIndex = labelSplit[1]
-                    contract =   labelSplit[2]
-                    walletAddr = labelSplit[3]
-
-                    let tokenInfo = tokensArray[tokenIndex]
-                    decimals = tokenInfo.decimals
-
-                } else if(label.startsWith("ethBalance")){
-                    
-                    walletAddr = labelSplit[1]
-                    contract   = nativeAddr
+               if(contract == ZeroAddress){
                     decimals   = 18
+                    contract = Utils.nativeTokenAddr
+                } else {
+                    decimals = tokensObj[contract].decimals
                 }
 
                 let balanceFiat = {}
                 let tokenPriceObj;
 
-                console.log("contract===>", contract)
+                ///console.log("contract===>", contract)
 
                 let tokenPriceInfo = tokenPricesData[contract.toLowerCase()] || null
 
@@ -333,8 +324,11 @@ export const useTokens = () => {
                 })
             } //end foreach
 
+            ///console.log("bulkData===>", bulkData)
 
-            await db.balances.bulkPut(bulkData)
+           let result =  await db.balances.bulkPut(bulkData)
+
+           console.log("result===>", result)
 
             let tokens = await getTokens()
 
