@@ -166,9 +166,7 @@ const doRemoveToken = async (token) => {
                             class="d-flex flex-column align-items-end m-pointer"
                         >
                             <div class="d-flex">
-                                <div class="me-1">
-                                    {{ Utils.formatCrypto(token.balanceInfo.balanceDecimal, 4) }}
-                                </div>
+                                <div class="me-1">{{ token.balanceInfo.balanceDecimal }}</div>
                                 <div>{{ token.symbol.toUpperCase() }}</div>
                             </div>
                             <div v-if="'balanceFiat' in  token.balanceInfo &&

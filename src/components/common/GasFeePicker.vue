@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onBeforeUnmount, watch, nextTick } from "vue"
+import { ref, onMounted, onBeforeUnmount, watch, nextTick, onBeforeMount } from "vue"
 import { Popover as bsPopover } from 'bootstrap'
 import { formatUnits } from "ethers";
 import Utils from "../../classes/Utils"
@@ -11,65 +11,68 @@ const props = defineProps({
     gasLimit: { type: BigInt, required: true },
     onChainGasLimit: { type: BigInt, required: true },
     placement:   { type: String, default: 'left' },
-    selectedFee: { type: String, default: 'maxFeePerGas' }
+    selected: { type: String, default: 'market' }
 })
 
 
-const feeLabelInfo = ref({
-    gasPrice: { 
-        name: "Low", 
-        icon: "emojione:turtle", 
-        duration: 60, 
-        clazz: 'text-danger',
-        totalFee: ''
-    },
-    maxFeePerGas: { 
-        name: "Market", 
-        icon: "emojione:horse", 
-        duration: 30, 
-        clazz: 'text-warning',
-        totalFee: '' 
-    },
-    maxPriorityFeePerGas: { 
-        name: "Priority", 
-        icon: "fluent-emoji:rocket", 
-        duration: 15, 
-        clazz: 'text-success',
-        totalFee: ''
-     },
-})
+const UIFeeDataArr = ref([])
 
 const emits = defineEmits(["open", "close", "change"])
 
 let popover = null;
 const   txGasLimit = ref(props.gasLimit)
+const   txGasLimitUint = ref(BigInt(props.gasLimit.toString()))
 const   popBtnRef = ref()
 const   popContentRef = ref()
 const   opened = ref(false)
-const   selected = ref(props.selectedFee)
+const   selected = ref(props.selected)
 const   dataState = ref(Date.now())
 //const   editGasLimit = ref(false)
 
+onBeforeMount(() => {
+    processFeeData()
+})
 
 onMounted(() => {
-    processFeeData()
     //popContentRef.value.classList.add("hidden")
-    window.setTimeout(() => initPop(), 200)
+    setTimeout(() => initPop(), 10)
 })
+
 
 const processFeeData = () => {
 
-    let fLabels = feeLabelInfo.value
     let feeData = props.feeData
-    let gas = BigInt(txGasLimit.value.toString())
+    let gasLimit = BigInt(txGasLimit.value.toString())
 
-    fLabels["gasPrice"].totalFee = formatUnits(feeData.gasPrice * gas, 18)
-    fLabels["maxFeePerGas"].totalFee = formatUnits(feeData.maxFeePerGas * gas, 18)
-    fLabels["maxPriorityFeePerGas"].totalFee = formatUnits(feeData.maxPriorityFeePerGas * gas, 18)
+    let aggresiveFeeUint = (feeData.maxFeePerGas + feeData.maxFeePerGas)
+    let feeDec = (value) =>  formatUnits(value * gasLimit, 18)
 
-    feeLabelInfo.value = fLabels
-
-    //console.log("feeLabelInfo.value===>", feeLabelInfo.value)
+    UIFeeDataArr.value = [
+        { 
+            name: "low",
+            icon: "emojione:turtle", 
+            duration: 60, 
+            clazz: 'text-danger',
+            feeUint: feeData.gasPrice,
+            feeDecimals: feeDec(feeData.gasPrice)
+        },
+        { 
+            name: "market", 
+            icon: "emojione:horse", 
+            duration: 30, 
+            clazz:   'text-warning',
+            feeUint: feeData.maxFeePerGas,
+            feeDecimals: feeDec(feeData.maxFeePerGas)
+        },
+        { 
+            name: "aggresive", 
+            icon: "fluent-emoji:rocket", 
+            duration: 15, 
+            clazz: 'text-success',
+            feeUint: aggresiveFeeUint,
+            feeDecimals: feeDec(aggresiveFeeUint)
+        }
+    ]
 
     dataState.value = Date.now()
     return true
@@ -123,8 +126,9 @@ const emitChangeEvent = (name, value ) => {
     emits("change", { name, value, gasLimit})
 }
 
-const handleFeeItemClick = (name) => {
-    selected.value = name
+const handleFeeItemClick = (feeItem) => {
+    selected.value = feeItem.name;
+    console.log("feeItem====>", feeItem)
 }
 
 const closePopover = () => {
@@ -157,22 +161,22 @@ const closePopover = () => {
                         </tr>
                     </thead>
                     <tbody class="fs-14 fw-middle  w-full">
-                        <template v-for="(key, index) in Object.keys(props.feeData)">
-                            <tr @click.prevent="handleFeeItemClick(key)"
-                                :class="`py-4 m-pointer break-text ${key==selected ? 'selected': ''}`"
-                                :data-name="key"
+                        <template v-for="(item, index) in UIFeeDataArr">
+                            <tr @click.prevent="handleFeeItemClick(item)"
+                                :class="`py-4 m-pointer break-text ${index==selected ? 'selected': ''}`"
+                                :data-idx="index"
                             >
                                 <td>
                                     <div class="d-flex">
-                                        <Icon :name='feeLabelInfo[key].icon' />
-                                        <div class="ms-1">{{ feeLabelInfo[key].name }}</div>
+                                        <Icon :name='item.icon' />
+                                        <div class="ms-1">{{ item.name }}</div>
                                     </div>
                                 </td> 
-                                <td :class="feeLabelInfo[key].clazz">
-                                    {{ feeLabelInfo[key].duration }}s+
+                                <td :class="item.clazz">
+                                    {{ item.duration }}s+
                                 </td>
                                 <td class='text-upper break-text' style="max-width: 100px;">
-                                    {{  feeLabelInfo[key].totalFee }} {{ props.nativeTokenInfo.symbol }}
+                                    {{  item.feeDecimals }} {{ props.nativeTokenInfo.symbol }}
                                 </td>
                             </tr>
                         </template>
@@ -239,7 +243,7 @@ const closePopover = () => {
 
 
         .selected {
-        background: var(--bs-body-bg-dark-12);
+            background: rgba(var(--bs-primary-rgb),0.3);
             border-radius: 8px !important;
         }
 

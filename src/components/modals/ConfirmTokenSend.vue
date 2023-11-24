@@ -243,6 +243,10 @@ const getGasLimit = async () => {
 
 const fetchFeeData = async () => {
 
+    let curBlockInfo = await web3Conn.currentBlockInfo()
+
+    console.log("curBlockInfo====>", curBlockInfo)
+
     let resultStatus = await web3Conn.getFeeData()
 
     if(resultStatus.isError()) {
@@ -250,6 +254,8 @@ const fetchFeeData = async () => {
     }
 
     let fd = {...resultStatus.getData()}
+
+    console.log("fd===>", fd)
 
     supportsEip1559Tx.value = (fd.maxFeePerGas != null && fd.maxPriorityFeePerGas != null)
 
@@ -270,6 +276,9 @@ const fetchFeeData = async () => {
 
 const fetchGasInfo = async () => {
 
+    //lets get base fee 
+   // let baseFee = await web3Conn.getBlock()
+
     let resulstArr = await (Promise.all([fetchFeeData(), getGasLimit(), getTxNonce() ]))
 
     //console.log("resulstArr===>", resulstArr)
@@ -280,7 +289,7 @@ const fetchGasInfo = async () => {
         }
     }
 
-    //console.log("feeData.value===>", feeData.value)
+    console.log("feeData.value===>", feeData.value)
 
     let gasPrice = feeData.value.maxFeePerGas
     
@@ -310,7 +319,7 @@ const processTransfer = async () => {
         let nativeToken = nativeTokenInfo.value
         let p = props;
 
-        if(hasInsufficientNativeToken.value){
+        if(!hasInsufficientNativeToken.value){
             return Utils.mAlert(`Insufficient ${nativeToken.symbol.toUpperCase()} for gas fee`)
         }
 
@@ -464,7 +473,7 @@ const handleOnRetry = () => {
     >
         <template #body>
             
-            <div class="p-2 send-token-modal">
+            <div class="p-2 send-token-modal mt-4">
                 <LoadingView :isLoading="isLoading" :loadingText="loadingText">
                     <div v-if="errorMsg != ''">
                         <InlineError
@@ -557,7 +566,7 @@ const handleOnRetry = () => {
                                             :gasLimit="txGasLimit"
                                             :onChainGasLimit="onChainGasLimit"
                                             :popoverOpts="{ placement: 'left'}"
-                                            :selectedFee="selectedFeeDataName"
+                                            selected="market"
                                             placement="left"
                                             @change="onGasPriceChange"
                                         />

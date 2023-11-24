@@ -13,6 +13,7 @@ const props = defineProps({
     hasNetSelect: { type: Boolean, default: false },
     hasAddrSelect: { type: Boolean, default: false },
     icon: { type: String, default: ''},
+    isLoading: { type: Boolean, default: false },
 })
 
 const walletStore = useWalletStore()
@@ -45,9 +46,20 @@ onBeforeMount(() => {
             />
         </div>
         
-        <slot />
+        <template v-if="isLoading">
+            <div class="center-vh loader-h">
+                <BotFiLoader
+                    text="Loading.."
+                    size="loader-sm"
+                />
+            </div>
+        </template>
+        <template v-else>
+            <slot />
+        </template>
     </MainLayout>
 </template>
 <style>
 .addr-btn { padding: 0px !important; }
+.loader-h { height: 90vh !important;}
 </style>

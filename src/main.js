@@ -3,7 +3,6 @@ import { createPinia } from 'pinia'
 import telegram from './plugins/telegram'
 import SimpleBar from 'simplebar'
 import 'simplebar/dist/simplebar.css';
-import '@dotlottie/player-component';
 import Bugsnag from '@bugsnag/js'
 import BugsnagPluginVue from '@bugsnag/plugin-vue'
 import appConfig from "./config/app"

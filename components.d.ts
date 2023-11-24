@@ -35,7 +35,6 @@ declare module '@vue/runtime-core' {
     InfiniteScroll: typeof import('./src/components/common/InfiniteScroll.vue')['default']
     InlineError: typeof import('./src/components/common/InlineError.vue')['default']
     LoadingView: typeof import('./src/layouts/LoadingView.vue')['default']
-    Lottie: typeof import('./src/components/common/Lottie.vue')['default']
     MainBtn: typeof import('./src/components/common/MainBtn.vue')['default']
     MainLayout: typeof import('./src/layouts/MainLayout.vue')['default']
     Modal: typeof import('./src/components/modals/Modal.vue')['default']

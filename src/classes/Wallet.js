@@ -96,10 +96,9 @@ export default class Wallet {
             for(let contractName of Object.keys(groupedContracts)){
                 //console.log("contractName====>", contractName)
 
-                let abiUri = `../data/abi/botfi/${contractGroupName}/${contractName}.json`
-
                 //lets now fetch the abi 
-                let abi = (await import(abiUri)).default;
+                let abi = (await import(`../data/abi/botfi/${contractGroupName}/${contractName}.json`))
+                            .default;
 
                 //console.log("abiData===>", abiData)
 
@@ -279,9 +278,6 @@ export default class Wallet {
             return Status.error("Connect Wallet")
         }
 
-        console.log("supported_chains==>", multicall3Config.supported_chains.includes(this.chainId))
-        console.log("this.chainId===>", this.chainId)
-
         if(!multicall3Config.supported_chains.includes(this.chainId)){
             return this.___deploylessMulticall(inputsArr, revertOnError)
         }
@@ -316,6 +312,15 @@ export default class Wallet {
 
             let iface = new Interface(abi);
             let decodedResult = null
+
+            if(result == '0x') {
+                processedResult.push({
+                    label,
+                    data: decodedResult
+                })
+                
+                continue;
+            }
             
             try {
 
@@ -325,8 +330,6 @@ export default class Wallet {
                                         result
                                     )
                     
-                    //console.log("decodedResult===>", decodedResult)
-
                     // if multiple results were not returned 
                     // then send the 1 result, else just maintain the 
                     // multiple result
@@ -636,11 +639,11 @@ export default class Wallet {
             }
 
             return Status.successData(tx)
-        } catch(e){
+        } catch(error){
 
             Utils.logError(`
                 Wallet::sendETH Error: 
-                params: ${JSON.stringify(contractParams)}
+                params: ${JSON.stringify(params)}
             `, error)
         
             let requestError = this.__getFailedTxReason(error).trim();
@@ -866,7 +869,11 @@ export default class Wallet {
             return Status.error("Failed to fetch block info")
         }
     }
-
+    
+    async currentBlockInfo () {
+        let latestBlockNo = await this.provider.getBlockNumber()
+        return this.getBlock(latestBlockNo)
+    }
 
     /**
      * fetch last 5 blocks data

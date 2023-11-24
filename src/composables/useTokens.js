@@ -3,7 +3,7 @@
  * @author BotFi <hello@botfi.app>
  */
 
-import { computed, inject, onBeforeMount, toValue, ref, toRaw } from "vue"
+import { computed, inject, onBeforeMount, toValue, ref, toRaw, watch } from "vue"
 import { useDB } from "./useDB"
 import { useNetworks } from "./useNetworks"
 import { useActivity } from "./useActivity"
@@ -29,15 +29,27 @@ export const useTokens = () => {
     const dbCore = useDB()
     const botUtils = inject("botUtils")
     const { fetchSettings } = useSettings()
-    const { getWalletAddresses } = useWalletStore()
+
+    const { 
+        getWalletAddresses, 
+        getActiveWalletInfo, 
+        activeWallet
+    } = useWalletStore()
     const activityCore = useActivity()
 
     const updateDataState = () => {
         $state.value.dataState = Date.now()
     }
 
+    const _activeWallet = computed(() => activeWallet)
+
     onBeforeMount(async () =>{
-        await getTokens()
+        await getTokens(true)
+        updateDataState()
+    })
+
+    watch(_activeWallet, async () => {
+        await getTokens(true)
         updateDataState()
     })
 
@@ -63,56 +75,63 @@ export const useTokens = () => {
         }
     }
 
-    const getTokens = async (limit=null) => {
+    const getTokens = async (force=true) => {
 
         try {
 
             //console.log("Calling getTokens")
+            let tokensObj = $state.value.tokens
 
-            let netInfo = await net.getActiveNetworkInfo()
-            
-            let chainId = netInfo.chainId
-            let userId = botUtils.getUid()
+            if(Object.keys(tokensObj) == 0 || force){
 
-            let db = await dbCore.getDB()
+                let netInfo = await net.getActiveNetworkInfo()
+                
+                let chainId = netInfo.chainId
+                let userId = botUtils.getUid()
 
-            let tokensArr =  await db.tokens.where({ chainId, userId })
-                                .reverse()
-                                .sortBy("createdAt")
+                let db = await dbCore.getDB()
 
-            let tokensObj = {}
+                let tokensArr =  await db.tokens.where({ chainId, userId })
+                                    .reverse()
+                                    .sortBy("createdAt")
 
-            tokensObj[Utils.nativeTokenAddr] = await getNativeTokenInfo()
+                // add the native token to the top of the data
+                tokensArr.unshift((await getNativeTokenInfo()))
 
-            
-            tokensArr.forEach(item => {
+                let balancesObj = await getUserBalances()
 
-                if(!item.balanceInfo || Object.keys(item.balanceInfo).length == 0){
-                    item.balanceInfo =  { balance: 0n, balanceDecimal: "0.0", balanceFiat: {} }
-                }
+                let _activeWallet =  (await getActiveWalletInfo()) || {}
 
-                tokensObj[item.contract] = item 
-            })
+                //console.log("_activeWallet====>", _activeWallet)
 
-            // lets get the token balances 
-            let balancesArr = await db.balances.where({ chainId, userId }).toArray()
+                let walletAddr = (_activeWallet.address || "").toLowerCase()
 
-            for(let balance of balancesArr){
-                if(balance.token in tokensObj){
-                    tokensObj[balance.token].balanceInfo = balance
-                }
+                //console.log("walletAddr====>", walletAddr)
+
+                tokensArr.forEach(item => {
+                    let token = item.contract;
+                    let balanceInfo = balancesObj[token.toLowerCase()][walletAddr]
+
+                    if(!balanceInfo || Object.keys(balanceInfo).length == 0){
+                        balanceInfo =  { balance: 0n, balanceDecimal: "0.0", balanceFiat: {} }
+                    }
+
+                    item.balanceInfo = balanceInfo
+                    //console.log("item.balanceInfo===>", item.balanceInfo)
+                    tokensObj[token] = item 
+                })
+
+                $state.value.tokens = tokensObj;
             }
 
-            $state.value.tokens = tokensObj;
+            //let tokensCount = Object.keys(tokensObj).length  // the +1 is the native token
 
-            let tokensCount = tokensArr.length + 1 // the +1 is the native token
-
-            if(limit != null && Number.isInteger(limit) && tokensCount > (limit+1)) {
+            /*if(limit != null && Number.isInteger(limit) && tokensCount > (limit+1)) {
                 let slicedItems = Object.fromEntries(
                     Object.entries(tokensObj).slice(0,limit+1)
                 )
                 return slicedItems
-            }
+            }*/
 
             //console.log("Calling getTokens===>", tokensObj)
 
@@ -233,6 +252,8 @@ export const useTokens = () => {
 
             let balancesArr = resultStatus.getData() || []
 
+            //console.log("balancesArr====>", balancesArr)
+
             let contracts = nativeAddr+","+contractsAddrs.join(",")
 
             // user settings 
@@ -285,7 +306,11 @@ export const useTokens = () => {
 
                 let tokenPriceInfo = tokenPricesData[contract.toLowerCase()] || null
 
-                let id = Utils.generateUID(`${userId}-${chainId}-${walletAddr}-${contract}`)
+                let idStr = `${userId}-${chainId}-${walletAddr}-${contract}`
+
+                ///console.log("idStr===>", idStr)
+
+                let id = Utils.generateUID(idStr)
                 
                 let balanceDecimal = formatUnits(balance, decimals)
 
@@ -324,15 +349,16 @@ export const useTokens = () => {
                 })
             } //end foreach
 
-            ///console.log("bulkData===>", bulkData)
+            //console.log("bulkData===>", bulkData)
 
-           let result =  await db.balances.bulkPut(bulkData)
+            //no need to wait for it
+            db.balances.bulkPut(bulkData).then(async () => {
+                await getTokens(true)
+                updateDataState()
+                window.__botFibalanceUpdating = false
+            })
 
            //console.log("result===>", result)
-
-            let tokens = await getTokens()
-
-            updateDataState()
 
             EventBus.emit("balance-updated", tokens)
 
@@ -343,10 +369,9 @@ export const useTokens = () => {
             return Status.success()
 
         } catch(e){
+            window.__botFibalanceUpdating = false
             Utils.logError("useToken#updateBalances:", e)
             return Status.error(`balance update failed: ${e.message}`)
-        } finally {
-            window.__botFibalanceUpdating = false
         }
     }
 
@@ -564,14 +589,22 @@ export const useTokens = () => {
             return resultStatus
         }
 
-        let resultData = resultStatus.getData()
+        let resultData = resultStatus.getData() || []
+
+        //console.log("resultData===>", resultData)
+        let resultObj = {}
+
+        resultData.forEach( item => resultObj[item.label] = item.data)
 
 
-        if("balanceOf" in resultData){
-            resultData.balanceOfDecimal = formatUnits(resultData.balanceOf, Number(resultData.decimals))
+        if("balanceOf" in resultObj){
+            resultObj.balanceOfDecimal = formatUnits(
+                                resultObj.balanceOf, 
+                                Number(resultObj.decimals)
+                        )
         }
 
-        return Status.successData(resultData)
+        return Status.successData(resultObj)
     } 
 
 

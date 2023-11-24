@@ -451,4 +451,9 @@ export default class Utils {
             return "aggregate"
         }
     }
+
+
+    static toBPS(value) {
+        return (value * 10_000); // 10_000 = 100 * 100
+    }
 }

@@ -91,8 +91,12 @@ export const useWalletStore = defineStore('walletStore', () => {
     } //end do login 
 
     const getWalletByAddr =  (addr) => {
-        let index = wallets.value.findIndex((item) => item.address == addr)
-        return (index== -1) ? null : wallets.value[index]
+        let idx;
+        let w = wallets.value
+
+        for(let i in w){ if(w[i].address == addr) idx = i; break; }
+        
+        return (!idx) ? null : w[idx]
     }
 
     const setActiveWallet = async (addr) => {

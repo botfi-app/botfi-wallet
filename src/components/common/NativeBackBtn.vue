@@ -11,14 +11,15 @@ const router = useRouter()
 let backBtn = null
 
 onBeforeMount(() => {
-    let backFun = (props.url.trim() == '') 
-                    ? () => router.back()
-                    : () => router.push(props.url) 
-    
-    //console.log("backFun===>", backFun)
-    ///console.log("props===>", props.url)
+    let url = props.url.trim();
 
-    backBtn = botUtils.backBtn(backFun)
+    if(url == '') {
+        url = "/wallet"
+    }
+
+    let func = () => router.push(url) 
+
+    backBtn = botUtils.backBtn(func)
     backBtn.enable()
     backBtn.show()
 })

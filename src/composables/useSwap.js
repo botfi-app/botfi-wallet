@@ -161,7 +161,7 @@ export const useSwap =  () => {
     }) => {
         try {
 
-            let protocolFee = swapConfig.protocol_fee * 100;
+            let protocolFee = Utils.toBPS(swapConfig.protocol_fee);
 
             let protocolFeeAmt = Utils.calPercentBPS(amountInBigInt, protocolFee)
     
@@ -219,10 +219,7 @@ export const useSwap =  () => {
                 mcallInputs.push({ label, target, method, args, abi })
             } //end for loop 
             
-            //let contracts = await web3.getSystemContracts()
-
-            //let mcallAddr = contracts.swap.multicall3.address;
-            
+     
             let resultStatus =  await web3.multicall3(
                                     mcallInputs, 
                                    false
@@ -233,16 +230,20 @@ export const useSwap =  () => {
             }
     
             let resultData = resultStatus.getData() || []
+
+            ///console.log("routeGroup====>", routeGroup)
+            //console.log("resultData===>", resultData)
         
             let processedQuotes = []
     
             for(let item of resultData) {
     
                 let { label, data } = item; 
+
+                //console.log("label===>", label)
+                ///console.log("data===>", data)
     
                 if(data == null) continue;
-
-                ///console.log("label===>", label)
     
                 let [ routeIndex, routeId ] = label.split("|")
 
@@ -286,12 +287,13 @@ export const useSwap =  () => {
                                                             amountOutWithSlippage, 
                                                             tokenBInfo.decimals
                                                         )
-                
+                /*
                 console.log("dataObj.amountOut===>", dataObj.amountOut)
                 console.log("dataObj.formattedAmountOut===>", dataObj.formattedAmountOut)
                                                         
                 console.log("amountOutWithSlippage===>",amountOutWithSlippage)
                 console.log(" dataObj.formattedAmountOutWithSlippage===>",  dataObj.formattedAmountOutWithSlippage)
+                */
 
                 // lets fetch the gas info 
                 let gasEstimateStatus = await getSwapGasEstimate({
@@ -576,7 +578,7 @@ export const useSwap =  () => {
 
             let routeGroup = routeInfo.parsedGroup
 
-            if(routeGroup != 'uni_v3') return;
+            //if(routeGroup != 'uni_v3') return;
 
             let routeIdBytes32 = routeInfo.id;
 
@@ -590,6 +592,10 @@ export const useSwap =  () => {
                                 amountInWithFee, // for constructing the calldata payload
                                 recipient
                             })
+
+            //console.log("routeGroup===>", routeGroup)
+            //console.log("swapDataObj===>", swapDataObj)
+            
             // lets get swap contract
             let contracts = await web3.getSystemContracts()
 
@@ -607,14 +613,14 @@ export const useSwap =  () => {
                 let funcData = funcDataArr[index]
                 let payload = callDataArr[index]
 
-                console.log("funcData====>", )
-                console.log(funcData)
+                //console.log("funcData====>", )
+                //console.log(funcData)
 
                 console.log("tokenAInfo.contract===>", tokenAInfo.contract)
 
                 try {
 
-                    result = await swapFactory.swap.staticCall(
+                    result = await swapFactory.swap.estimateGas(
                                 routeIdBytes32,
                                 amountInWithoutFee,
                                 tokenAInfo.contract,
@@ -628,7 +634,7 @@ export const useSwap =  () => {
                     //Utils.logError("useSwap#getSwapGasEstimate", e)
 
                     console.log("Route Group===>", routeInfo.parsedGroup)
-                    console.log("e===>", e.code)
+                    console.log("e===>", e)
 
                     if(index == callDataArr.length - 1){
                         

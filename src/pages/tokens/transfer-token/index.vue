@@ -22,7 +22,7 @@ import { Modal as bsModal } from 'bootstrap'
 
 
 const route = useRoute()
-const initialized  = ref(false)
+const isPageLoading  = ref(true)
 const tokenAddress = ref(null)
 const tokenInfo    = ref(null)
 const tokenType    = ref(null)
@@ -85,9 +85,7 @@ const initialize = async () => {
 
     try {
 
-        isLoading.value = true
-
-        await updateBalances(null, true) 
+        isPageLoading.value = true 
 
         qrCodeReader.value = botUtils.qrCodeReader()
 
@@ -106,16 +104,15 @@ const initialize = async () => {
         }
 
         balanceInfo.value = tokenInfo.value.balanceInfo
-
-        initialized.value = true
-
+        
+        updateBalances(null, true)
     } catch(e){
 
         Utils.logError("send-token#initialize:",e)
         pageError.value = Utils.generalErrorMsg
 
     } finally {
-        isLoading.value = false
+        isPageLoading.value = false
     }
 }
 
@@ -188,7 +185,7 @@ const confirmSendToken = async () => {
       :hasNetSelect="false"
       :hasAddrSelect="false"
       :pageError="pageError"
-      v-if="initialized && tokenInfo != null"
+     
     >   
 
         <NativeBackBtn 

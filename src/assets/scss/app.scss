@@ -629,3 +629,8 @@ ul.list-group {
 .flex-end { 
     justify-content: end !important;
 }
+
+.popover{  
+    --bs-popover-zindex: 2000;
+   // z-index: 2000 !important; 
+}

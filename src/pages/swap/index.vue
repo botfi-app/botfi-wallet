@@ -65,7 +65,11 @@ onBeforeMount(() => {
 })
 
 watch(tokenA, () => {
+
+    if(!tokenA.value) return false;
+
     balanceInfo.value = tokenA.value.balances[activeWallet.value.address.toLowerCase()]
+
    // console.log(" balance.value====>",  balance.value)
 }, { deep: true })
 
@@ -117,10 +121,13 @@ const initialize = async () => {
 
     // lets mimic the balances from TokenSelect modal
     let tA = tokenA.value
-    tokenA.value.balances = { 
-        [activeWallet.value.address.toLowerCase()]: {
-            value: tA.balanceInfo.balance,
-            formatted: tA.balanceInfo.balanceDecimal
+
+    if(tA){
+        tokenA.value.balances = { 
+            [activeWallet.value.address.toLowerCase()]: {
+                value: tA.balanceInfo.balance,
+                formatted: tA.balanceInfo.balanceDecimal
+            }
         }
     }
 
@@ -184,13 +191,14 @@ const fetchQuotes = async () => {
     quotesDataArr.value = []
     quotesError.value = ""
 
+    if(!tokenA.value ) return false;
     if(!(tokenA.value && tokenB.value)) return false;
 
     if(!Utils.isValidFloat(tokenAInputValue.value)) return false; 
     
     isFetchingQuotes.value = true 
 
-    console.log("Helloo Booomm===>")
+    //console.log("Helloo Booomm===>")
 
     let tokenAInfo = tokenA.value
     let tokenBInfo = tokenB.value;
@@ -386,7 +394,7 @@ const selectQuote = (index) => {
             />
             <SwapQuotesModal
                 :data="quotesDataArr"
-                :key="quotesDataArr.length+'_'+tokenA.address"
+                :key="quotesDataArr.length+'_'+(tokenA || {address: ''}).address"
                 :tokenA="tokenA"
                 :tokenB="tokenB"
                 @select="selectQuote"
