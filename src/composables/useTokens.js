@@ -548,12 +548,11 @@ export const useTokens = () => {
         }
     }
 
-    const getERC20TokenInfo = async ( 
-        opts = {}
+    const getERC20TokenInfo = async (
+        contract= null, wallet = null, spender = null
     ) => {
         
         contract = toValue(contract)
-        let { contract= null, wallet = null, spender = null } = opts;
         
         if(contract == null || !Utils.isAddress(contract)){
             return Status.error("Invalid contract address")
@@ -582,9 +581,19 @@ export const useTokens = () => {
                 method: "balanceOf", 
                 args: [wallet] 
             })
+
+            if(spender != null && Utils.isAddress(spender)){
+                inputs.push({
+                    target, 
+                    abi, 
+                    label: `allowance_${i}`, 
+                    method: 
+                    "allowance", 
+                    args: [wallet,spender] 
+                })
+            }
         }
 
-        ///console.log("inputs===>", inputs)
 
         let resultStatus = await web3Conn.multicallToObj(inputs)
 
@@ -671,29 +680,26 @@ export const useTokens = () => {
             inputs.push({target, abi, label: `name_${i}`, method: "name", args: [] })
             inputs.push({target, abi, label: `decimals_${i}`, method: "decimals", args: [] })
             
-            if(allowanceInfo != null){
-
-                console.log("allowanceInfo===>", allowanceInfo)
-
-                let {owner="", spender="" } = allowanceInfo
-
-                if(Utils.isAddress(owner) && Utils.isAddress(spender)){
-                    inputs.push({
-                        target, 
-                        abi, 
-                        label: `allowance_${i}`, 
-                        method: 
-                        "allowance", 
-                        args: [owner,spender] 
-                    })
-                }
-            }
 
             if(walletsArr.length > 0){
-                walletsArr.forEach(addr => {
-                    let label = `balanceOf_${i}_${addr}`
+                walletsArr.forEach(wallet => {
+                    
+                    let label = `balanceOf_${i}_${wallet}`
                     let method = "balanceOf"
-                    inputs.push({target, abi, label, method, args: [addr] })
+                    
+                    inputs.push({target, abi, label, method, args: [wallet] })
+
+                    if(spender != null && Utils.isAddress(spender)){
+                        inputs.push({
+                            target, 
+                            abi, 
+                            label: `allowance_${i}_${wallet}`, 
+                            method: 
+                            "allowance", 
+                            args: [wallet,spender] 
+                        })
+                    }
+
                 })
             }
 
@@ -722,19 +728,23 @@ export const useTokens = () => {
             let [method, index] = labelObj
             let wallet;
 
-            if(method == 'balanceOf'){
+            if(['balanceOf', 'allowance'].includes(method)){
                 wallet = labelObj[2]
             }
 
             let token = tokensArr[index];
             let tokenLower = token.toLowerCase()
            
-            let tokenItem = processedData[tokenLower] || { balances: {}}
+            let tokenItem = processedData[tokenLower] || { balances: {}, allowances: {}}
 
-            if(method != 'balanceOf'){
-                tokenItem[method.toLowerCase()] = value;
-            } else {
+            if(method == 'balanceOf'){
                 tokenItem.balances[wallet.toLowerCase()] = value
+            }
+            else if(method == 'allowance') {
+                tokenItem.allowances[wallet.toLowerCase()] = value
+            }
+            else {
+                tokenItem[method.toLowerCase()] = value;
             }
 
             processedData[tokenLower] = tokenItem

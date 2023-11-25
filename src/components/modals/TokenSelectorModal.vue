@@ -130,15 +130,11 @@ const fetchData = async () => {
 const fetchTokensOnChainDataAndBalances = async (tokensContracts, tokensDataArr) => {
 
     let tokensContractsArr = Object.keys(tokensContracts)
-
-    let acctAddr = activeWallet.value.address.toLowerCase()
-
-    let allowanceInfo = { owner: acctAddr, spender: props.tokenSpender }
         
     let onChainTokenDataStatus = await tokensCore.getBulkERC20TokenInfo(
                                     tokensContractsArr,
                                     walletAddrs.value,
-                                    allowanceInfo
+                                    props.tokenSpender
                                 )
 
     if(onChainTokenDataStatus.isError()){
@@ -183,10 +179,11 @@ const fetchTokensOnChainDataAndBalances = async (tokensContracts, tokensDataArr)
         
     }
     
+    let activeWalletAddr = activeWallet.value.address.toLowerCase()
     
     let processedTokenDataSorted = processedTokenData.sort(( item1, item2 ) => {
-        let balance1 = item1.balances[acctAddr].value || 0n
-        let balance2 = item2.balances[acctAddr].value || 0n
+        let balance1 = item1.balances[activeWalletAddr].value || 0n
+        let balance2 = item2.balances[activeWalletAddr].value || 0n
 
         if(balance1 > balance2) return -1;
         else if(balance1 < balance2) return 1

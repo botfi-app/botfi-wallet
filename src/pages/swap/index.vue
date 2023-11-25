@@ -10,7 +10,6 @@ import { useNetworks } from '../../composables/useNetworks';
 import { useWalletStore } from '../../store/walletStore';
 import TokenSelectorModal from '../../components/modals/TokenSelectorModal.vue';
 import Utils from '../../classes/Utils';
-import Image from '../../components/common/Image.vue';
 import SwapInputAndTokenSelect from '../../components/swap/SwapInputAndTokenSelect.vue';
 import { Modal as bsModal } from 'bootstrap';
 import BotFiLoader from "../../components/common/BotFiLoader.vue"
