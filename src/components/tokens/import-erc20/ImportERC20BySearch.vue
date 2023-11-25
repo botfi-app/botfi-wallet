@@ -88,7 +88,10 @@ const onItemSelect = async (item) => {
 
         loader = Utils.loader("Verifying contract onchain")
 
-        let verifyStatus = await tokensCore.getERC20TokenInfo(contractAddr, activeWallet.address)
+        let verifyStatus =  await tokensCore.getERC20TokenInfo({
+                                contract: contractAddr, 
+                                wallet: activeWallet.address
+                            })
 
         if(verifyStatus.isError()){
            return Utils.errorAlert(verifyStatus.getMessage())

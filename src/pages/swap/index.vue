@@ -1,4 +1,9 @@
 <script setup>
+/**
+ * BotFi (https://botfi.app)
+ * @author BotFi <hello@botfi.app>
+ */
+
 import { onBeforeMount, ref, toRaw, watch } from 'vue';
 import { useTokens } from '../../composables/useTokens';
 import { useNetworks } from '../../composables/useNetworks';
@@ -55,9 +60,10 @@ const quotesError = ref("")
 const quotesDataArr = ref([])
 const selectedQuote = ref(0)
 
-const isChainSupported = ref(false)
-const swapRoutes = ref([])
-const  isApprovingToken = ref(false)
+const   isChainSupported = ref(false)
+const   swapRoutes = ref([])
+const   swapFactory = ref()
+const   isApprovingToken = ref(false)
 
 
 onBeforeMount(() => {
@@ -114,6 +120,11 @@ const initialize = async () => {
     web3 = toRaw(web3Status.getData())
 
     contracts = await web3.getSystemContracts()
+
+    swapFactory.value = contracts.swap.factory;
+
+
+    console.log("swapFactory.value===>", swapFactory.value)
 
     let fetchRoutes = await fetchSwapRoutes()
 
@@ -387,6 +398,7 @@ const selectQuote = (index) => {
             <TokenSelectorModal 
                 :includeVerified="true"
                 :includeUserTokens="true"
+                :tokenSpender="swapFactory.target"
                 @select="onTokenSelect"
             />
             <SwapSettings

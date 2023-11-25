@@ -548,12 +548,15 @@ export const useTokens = () => {
         }
     }
 
-    const getERC20TokenInfo = async (contract, walletAddress = null) => {
-
-        contract = toValue(contract)
+    const getERC20TokenInfo = async ( 
+        opts = {}
+    ) => {
         
-        if(!Utils.isAddress(contract)){
-            return Status.error("Invalid address")
+        contract = toValue(contract)
+        let { contract= null, wallet = null, spender = null } = opts;
+        
+        if(contract == null || !Utils.isAddress(contract)){
+            return Status.error("Invalid contract address")
         }
 
         //lets get the web3 conn
@@ -571,13 +574,13 @@ export const useTokens = () => {
             {target: contract, abi: erc20Abi, label: "decimals", method: "decimals", args: [] }
         ]
 
-        if(walletAddress != null && Utils.isAddress(walletAddress)){
+        if(wallet != null && Utils.isAddress(wallet)){
             inputs.push({
                 target: contract, 
                 abi: erc20Abi, 
                 label: "balanceOf", 
                 method: "balanceOf", 
-                args: [walletAddress] 
+                args: [wallet] 
             })
         }
 
@@ -605,7 +608,11 @@ export const useTokens = () => {
 
     //////////FETCH BULK TOKENS INFO ////////////
     // query chain in chunks as deployless has data limit
-    const  getBulkERC20TokenInfo  = async (tokensArr=[], walletsArr=[]) => {
+    const  getBulkERC20TokenInfo  = async (
+        tokensArr=[], 
+        walletsArr=[],
+        allowanceInfo = null
+    ) => {
 
         let tokensChunks = Utils.arrayChunk(tokensArr, 50)
 
@@ -614,7 +621,7 @@ export const useTokens = () => {
         let requests = [] 
 
         tokensChunks.forEach(chunk => (
-            requests.push(__getBulkERC20TokenInfo(chunk, walletsArr))
+            requests.push(__getBulkERC20TokenInfo(chunk, walletsArr, allowanceInfo))
         ))
 
         let resultArr = await Promise.all(requests)
@@ -638,7 +645,11 @@ export const useTokens = () => {
         return Status.successData(finalResults)
     }
 
-    const __getBulkERC20TokenInfo = async (tokensArr=[], walletsArr=[]) => {
+    const __getBulkERC20TokenInfo = async (
+        tokensArr=[], 
+        walletsArr=[], 
+        allowanceInfo=null
+    ) => {
 
          //lets get the web3 conn
          let web3ConnStatus = await net.getWeb3Conn()
@@ -659,7 +670,24 @@ export const useTokens = () => {
             inputs.push({target, abi, label: `symbol_${i}`, method: "symbol", args: [] })
             inputs.push({target, abi, label: `name_${i}`, method: "name", args: [] })
             inputs.push({target, abi, label: `decimals_${i}`, method: "decimals", args: [] })
-        
+            
+            if(allowanceInfo != null){
+
+                console.log("allowanceInfo===>", allowanceInfo)
+
+                let {owner="", spender="" } = allowanceInfo
+
+                if(Utils.isAddress(owner) && Utils.isAddress(spender)){
+                    inputs.push({
+                        target, 
+                        abi, 
+                        label: `allowance_${i}`, 
+                        method: 
+                        "allowance", 
+                        args: [owner,spender] 
+                    })
+                }
+            }
 
             if(walletsArr.length > 0){
                 walletsArr.forEach(addr => {
@@ -727,7 +755,7 @@ export const useTokens = () => {
             processedData[tokenAddr] = tInfo
        })  
        
-       //console.log("processedData===>", processedData)
+       console.log("processedData===>", processedData)
 
        return Status.successData(processedData)
     }

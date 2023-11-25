@@ -1,4 +1,8 @@
 <script setup>
+/**
+ * BotFi (https://botfi.app)
+ * @author BotFi <hello@botfi.app>
+ */
 import {  onBeforeUnmount, onMounted, ref } from 'vue';
 import { Modal as bsModal } from 'bootstrap'
 
@@ -36,7 +40,8 @@ const initModal = () => {
 }
 
 onBeforeUnmount(async () => {
-    _modal.hide()
+    if(!_modal) return;
+    try{ _modal.hide() } catch(e){}
 })
 
 const cleanupModal = () => {

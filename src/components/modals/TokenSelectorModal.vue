@@ -1,4 +1,9 @@
 <script setup>
+/**
+ * BotFi (https://botfi.app)
+ * @author BotFi <hello@botfi.app>
+ */
+
 import { onBeforeMount, onMounted, ref } from 'vue';
 import { useTokens } from '../../composables/useTokens';
 import { useNetworks } from '../../composables/useNetworks';
@@ -10,7 +15,8 @@ import { useWalletStore } from '../../store/walletStore';
 
 const props = defineProps({
                 includeUserTokens: { type: Boolean, default: true },
-                includeAllVerified: { type: Boolean, default: true },  
+                includeAllVerified: { type: Boolean, default: true }, 
+                tokenSpender: { type: String, default: ""},  
                 selected: { type: String, }      
             })
 
@@ -124,10 +130,15 @@ const fetchData = async () => {
 const fetchTokensOnChainDataAndBalances = async (tokensContracts, tokensDataArr) => {
 
     let tokensContractsArr = Object.keys(tokensContracts)
+
+    let acctAddr = activeWallet.value.address.toLowerCase()
+
+    let allowanceInfo = { owner: acctAddr, spender: props.tokenSpender }
         
     let onChainTokenDataStatus = await tokensCore.getBulkERC20TokenInfo(
                                     tokensContractsArr,
-                                    walletAddrs.value
+                                    walletAddrs.value,
+                                    allowanceInfo
                                 )
 
     if(onChainTokenDataStatus.isError()){
@@ -172,8 +183,7 @@ const fetchTokensOnChainDataAndBalances = async (tokensContracts, tokensDataArr)
         
     }
     
-    let acctAddr = activeWallet.value.address.toLowerCase()
-
+    
     let processedTokenDataSorted = processedTokenData.sort(( item1, item2 ) => {
         let balance1 = item1.balances[acctAddr].value || 0n
         let balance2 = item2.balances[acctAddr].value || 0n

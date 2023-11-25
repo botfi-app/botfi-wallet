@@ -37,7 +37,10 @@ const onSubmit = async () => {
 
         loader = Utils.loader("Verifying contract onchain")
 
-        let verifyStatus = await tokensCore.getERC20TokenInfo(contract, activeWallet.address)
+        let verifyStatus = await tokensCore.getERC20TokenInfo({ 
+                                contract, 
+                                wallet: activeWallet.address 
+                            })
 
         if(verifyStatus.isError()){
             return Utils.errorAlert(verifyStatus.getMessage())
