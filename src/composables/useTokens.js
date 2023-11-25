@@ -10,7 +10,7 @@ import { useActivity } from "./useActivity"
 import Utils from "../classes/Utils"
 import erc20Abi from "../data/abi/erc20.json"
 import Status from "../classes/Status"
-import { ZeroAddress, formatUnits, getAddress, parseUnits } from "ethers"
+import { MaxUint256, ZeroAddress, formatUnits, getAddress, parseUnits } from "ethers"
 import EventBus from "../classes/EventBus"
 import Http from "../classes/Http"
 import { useSettings } from "./useSettings"
@@ -549,7 +549,9 @@ export const useTokens = () => {
     }
 
     const getERC20TokenInfo = async (
-        contract= null, wallet = null, spender = null
+        contract= null, 
+        wallet = null, 
+        spender = null
     ) => {
         
         contract = toValue(contract)
@@ -620,7 +622,7 @@ export const useTokens = () => {
     const  getBulkERC20TokenInfo  = async (
         tokensArr=[], 
         walletsArr=[],
-        allowanceInfo = null
+        spender = null
     ) => {
 
         let tokensChunks = Utils.arrayChunk(tokensArr, 50)
@@ -630,7 +632,7 @@ export const useTokens = () => {
         let requests = [] 
 
         tokensChunks.forEach(chunk => (
-            requests.push(__getBulkERC20TokenInfo(chunk, walletsArr, allowanceInfo))
+            requests.push(__getBulkERC20TokenInfo(chunk, walletsArr, spender))
         ))
 
         let resultArr = await Promise.all(requests)
@@ -657,7 +659,7 @@ export const useTokens = () => {
     const __getBulkERC20TokenInfo = async (
         tokensArr=[], 
         walletsArr=[], 
-        allowanceInfo=null
+        spender=null
     ) => {
 
          //lets get the web3 conn
@@ -765,9 +767,21 @@ export const useTokens = () => {
             processedData[tokenAddr] = tInfo
        })  
        
-       console.log("processedData===>", processedData)
+       //console.log("processedData===>", processedData)
 
        return Status.successData(processedData)
+    }
+
+    /**
+     * approve token spend
+     * @param {*} web3 
+     * @param {*} token 
+     * @param {*} spender 
+     * @returns 
+     */
+    const approveTokenSpend = async (web3, token, spender) => {
+        let contract = web3.contract(token, erc20Abi)
+        return contract.sendTx(spender, MaxUint256)
     }
 
     const importToken = async (tokenInfo={}) => {
@@ -922,6 +936,7 @@ export const useTokens = () => {
         getTokenByAddr,
         geTokenFiatValue,
         removeUsersTokensAndBalances,
-        getBulkERC20TokenInfo
+        getBulkERC20TokenInfo,
+        approveTokenSpend
     }
 }

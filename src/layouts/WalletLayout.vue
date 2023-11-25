@@ -61,5 +61,5 @@ onBeforeMount(() => {
 </template>
 <style>
 .addr-btn { padding: 0px !important; }
-.loader-h { height: 90vh !important;}
+.loader-h { height: 60vh !important;}
 </style>

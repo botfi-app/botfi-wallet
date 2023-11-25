@@ -132,7 +132,7 @@ export const useSwap =  () => {
         let pathBytes;
         let univ3Fee = 3000; // 0.3
 
-        console.log("path====>", path)
+        ///console.log("path====>", path)
 
         if(path.length == 2){
             pathBytes = solidityPacked(
@@ -175,7 +175,8 @@ export const useSwap =  () => {
     
             let mcallInputs = []
             
-    
+            let gasEstimateCalls = []
+            
             for(let routeIndex in swapRoutes){
                 
                 let route = swapRoutes[routeIndex]
@@ -287,34 +288,43 @@ export const useSwap =  () => {
                                                             amountOutWithSlippage, 
                                                             tokenBInfo.decimals
                                                         )
-                /*
-                console.log("dataObj.amountOut===>", dataObj.amountOut)
-                console.log("dataObj.formattedAmountOut===>", dataObj.formattedAmountOut)
-                                                        
-                console.log("amountOutWithSlippage===>",amountOutWithSlippage)
-                console.log(" dataObj.formattedAmountOutWithSlippage===>",  dataObj.formattedAmountOutWithSlippage)
-                */
-
+            
                 // lets fetch the gas info 
-                let gasEstimateStatus = await getSwapGasEstimate({
-                                            web3,
-                                            tokenAInfo,
-                                            tokenBInfo,
-                                            routeInfo,
-                                            recipient,
-                                            amountInWithFee,
-                                            quoteInfo: dataObj,
-                                            amountInWithoutFee: amountInBigInt,
-                                            amountOutMin: amountOutWithSlippage
-                                        })
+                gasEstimateCalls.push(
+                    getSwapGasEstimate({
+                        web3,
+                        tokenAInfo,
+                        tokenBInfo,
+                        routeInfo,
+                        recipient,
+                        amountInWithFee,
+                        quoteInfo: dataObj,
+                        amountInWithoutFee: amountInBigInt,
+                        amountOutMin: amountOutWithSlippage
+                    })
+                )
     
                 processedQuotes.push(dataObj)
             }
-    
+
+            let gasEstimatesResultArr = await Promise.all(gasEstimateCalls)
+
+            for(let index in gasEstimatesResultArr){
+                let gasEstimateStatus = gasEstimatesResultArr[index]
+                processedQuotes[index].gasEstimate = gasEstimateStatus.getData() 
+            }
+            
+            // sort with higher output and lower gas
             let sortedData = processedQuotes.sort(( item1, item2 ) => {
                 if(item1.amountOut > item2.amountOut) return -1;
                 else return 0
-            })    
+            }).sort(( item1, item2 ) => {
+                if(item1.amountOut == item2.amountOut &&
+                    item1.gasEstimate != null && item2.gasEstimate != null &&
+                    item1.gasEstimate <= item2.gasEstimate  
+                ) return -1
+                else return 0;
+            })
 
             return Status.successData(sortedData)
         } catch(e){
@@ -606,21 +616,16 @@ export const useSwap =  () => {
             
             let { callDataArr, funcDataArr, iface } = swapDataObj
 
-           let result; 
+            let errMsg;
 
            for(let index in callDataArr) {
 
                 let funcData = funcDataArr[index]
                 let payload = callDataArr[index]
 
-                //console.log("funcData====>", )
-                //console.log(funcData)
-
-                console.log("tokenAInfo.contract===>", tokenAInfo.contract)
-
                 try {
 
-                    result = await swapFactory.swap.estimateGas(
+                    let result = await swapFactory.swap.estimateGas(
                                 routeIdBytes32,
                                 amountInWithoutFee,
                                 tokenAInfo.contract,
@@ -628,29 +633,27 @@ export const useSwap =  () => {
                                 { value: funcData.nativeValue }
                             )
 
-                    console.log("result====>", result)
+                    return Status.successData(result)
                 } catch(e){
                     
-                    //Utils.logError("useSwap#getSwapGasEstimate", e)
+                    Utils.logError("useSwap#getSwapGasEstimate", e)
 
-                    console.log("Route Group===>", routeInfo.parsedGroup)
-                    console.log("e===>", e)
+                    errMsg = e.toString()
 
                     if(index == callDataArr.length - 1){
                         
                         let errData = e.data || null
-                        let decodedError = null;
 
                         if(errData != null && !['0x','0x0'].includes(errData.toLowerCase())){
-                            decodedError = iface.parseError(errData)
+                            errMsg = iface.parseError(errData)
                         }
 
-                        console.log("decodedError===>", decodedError)
                     }
                 }
             } //end loop
 
-            console.log("result===>", result)
+            return Status.error(errMsg)
+
         } catch(e){
             Utils.logError("useSwap#prepareSwap:",e)
             return Status.error(e.message)

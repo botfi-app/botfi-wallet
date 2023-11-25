@@ -145,7 +145,7 @@ const fetchTokensOnChainDataAndBalances = async (tokensContracts, tokensDataArr)
     let onchainTokenData = onChainTokenDataStatus.getData() || {}
 
     //console.log("tokensContractsArr===>", tokensContractsArr)
-    //console.log("onchainTokenData====>", onchainTokenData)
+    //console.log("onchainTokenData====> ", onchainTokenData)
     //console.log("tokensDataArr===>", tokensDataArr)
 
     let processedTokenData = []
@@ -172,6 +172,7 @@ const fetchTokensOnChainDataAndBalances = async (tokensContracts, tokensDataArr)
             if(onChainItem == null) continue;
 
             item.balances = onChainItem.balances; 
+            item.allowances = onChainItem.allowances; 
             item.decimals = Number(onChainItem.decimals)
         }
 

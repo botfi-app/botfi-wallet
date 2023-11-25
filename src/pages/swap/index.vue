@@ -48,6 +48,7 @@ const tokenB = ref(null)
 
 const tokenAInputEl    = ref()
 const tokenAInputValue = ref("")
+const tokenAInputValueUint = ref()
 
 const tokenBInputEl = ref()
 const tokenBInputValue = ref("")
@@ -57,11 +58,14 @@ const activeTokenVarName = ref("tokenA")
 const isFetchingQuotes = ref(false)
 const quotesError = ref("")
 const quotesDataArr = ref([])
-const selectedQuote = ref(0)
+const selectedQuote = ref(null)
 
 const   isChainSupported = ref(false)
 const   swapRoutes = ref([])
 const   swapFactory = ref()
+
+const   hasInsufficientFunds = ref(true)
+const   tokenApproved = ref(false)
 const   isApprovingToken = ref(false)
 
 
@@ -70,18 +74,56 @@ onBeforeMount(() => {
 })
 
 watch(tokenA, () => {
-
-    if(!tokenA.value) return false;
-
-    balanceInfo.value = tokenA.value.balances[activeWallet.value.address.toLowerCase()]
-
-   // console.log(" balance.value====>",  balance.value)
+    updateTokenAVars(true)
 }, { deep: true })
 
 watch(tokenAInputValue, () => {
-    fetchQuotes()
+    updateTokenAVars(false)
 });
 
+const updateTokenAVars = (updateBalance=false) => {
+    
+    if(!initialized) return;
+
+    let tA = tokenA.value;
+    let w = activeWallet.value.address.toLowerCase()
+    hasInsufficientFunds.value = false
+
+    if(!tA) return false;
+    
+    if(updateBalance){
+        balanceInfo.value = tA.balances[w]
+    }
+
+    let tAVal = tokenAInputValue.value.trim()
+    let bal = balanceInfo.value["value"]
+
+
+    if(tAVal != ""){
+        tokenAInputValueUint.value = parseUnits(tAVal, tA.decimals)
+    }
+
+    let tAValUint = tokenAInputValueUint.value
+
+    // lets check if token is approved 
+    if(Utils.isNativeToken(tA.contract)){
+        tokenApproved.value = true
+
+        /// even if its equal the current amount, network fee comes in here for native tokens
+        hasInsufficientFunds.value =  (tAValUint >= bal)
+
+    } else {
+
+        let allwn = tA.allowances[w]
+        tokenApproved.value = (allwn >= tAValUint)
+        hasInsufficientFunds.value =  (tAValUint > bal)
+
+    }
+    
+    //console.log("hasInsufficientFunds.value===>", hasInsufficientFunds.value)
+
+    fetchQuotes()
+}
 
 const initialize = async () => {
 
@@ -123,7 +165,7 @@ const initialize = async () => {
     swapFactory.value = contracts.swap.factory;
 
 
-    console.log("swapFactory.value===>", swapFactory.value)
+    //console.log("swapFactory.value===>", swapFactory.value)
 
     let fetchRoutes = await fetchSwapRoutes()
 
@@ -176,8 +218,6 @@ const flipTokensData = () => {
 
     tokenA.value = tB 
     tokenB.value = tA 
-
-    fetchQuotes()
 }
 
 const fetchSwapRoutes = async () => {
@@ -196,8 +236,9 @@ const fetchSwapRoutes = async () => {
 
 const fetchQuotes = async () => {
 
-    if(isFetchingQuotes.value) return false;
-    
+    if(hasInsufficientFunds.value) return false;
+
+   
     quotesDataArr.value = []
     quotesError.value = ""
 
@@ -205,6 +246,13 @@ const fetchQuotes = async () => {
     if(!(tokenA.value && tokenB.value)) return false;
 
     if(!Utils.isValidFloat(tokenAInputValue.value)) return false; 
+
+    if(isFetchingQuotes.value){
+        while(true){
+            await Utils.sleep(1)
+            if(!isFetchingQuotes.value) break;
+        }
+    }
     
     isFetchingQuotes.value = true 
 
@@ -242,7 +290,7 @@ const fetchQuotes = async () => {
     /// console.log("quotesDataArr ===>", resultsData )
 
     if(resultsData.length == 0){
-        quotesError.value = "No liquidity"
+        quotesError.value = "No Quote Available"
     } else {
         quotesDataArr.value = resultsData
         selectQuote(0)
@@ -264,6 +312,43 @@ const selectQuote = (index) => {
     tokenBInputValue.value = quote
     selectedQuote.value = index
 }
+
+const approveTokenSpend = async () => {
+    
+    let tA = tokenA.value
+    let loader = Utils.loading(`Approving ${tA.symbol.toUpperCase()} for Router`)
+    isApprovingToken.value = true 
+
+    let resultStatus = tokensCore.approveTokenSpend(web3, tA.contract, swapFactory.target)
+
+    loader.hide()
+    isApprovingToken.value = false 
+    
+    if(resultStatus.isError()){
+        Utils.mAlert(resultStatus.getMessage())
+        return false;
+    }
+
+    tA.allowances[activeWallet.address.toLowerCase()] = MaxUint256
+
+    return true 
+}
+
+const performSwap = async () => {
+
+    let tAVal = tokenAInputValue.value 
+
+    if(tAVal <= 0 || 
+       quotesError.value != '' || 
+       selectedQuote.value == null
+    ) return;
+
+    if(!tokenApproved.value){
+        if(!(await approveTokenSpend())) return;
+    }
+
+    
+}
 </script>
 <template>
     <WalletLayout
@@ -272,6 +357,7 @@ const selectQuote = (index) => {
         :hasNetSelect="true"
         :hasAddrSelect="true"
         :pageError="pageError"
+        :isLoading="!initialized"
     >   
         <NativeBackBtn url="/wallet" />
 
@@ -326,7 +412,7 @@ const selectQuote = (index) => {
                     }"
                 />
             </div>
-
+    
             <div v-if="isFetchingQuotes" class="mb-4">
                 <BotFiLoader
                     text="fetching Quotes"
@@ -379,14 +465,18 @@ const selectQuote = (index) => {
             </div>
             <div class="">
                 <button class="btn btn-success rounded-lg w-full" 
-                    :disabled="isFetchingQuotes || quotesError != ''"
-                >
-                    <div v-if="isFetchingQuotes" class="fst-italic">Fetching Quotes..</div>
+                    :disabled="isFetchingQuotes || quotesError != '' || hasInsufficientFunds"
+                >   
+                    <div v-if="hasInsufficientFunds" class="fst-italic">Insufficient Funds</div>
+                    <div v-else-if="isFetchingQuotes" class="fst-italic">Fetching Quotes..</div>
                     <div v-else-if="quotesError !=''" class="text-truncate">
                         {{ quotesError  }}
                     </div>
+                    <div v-else-if="!tokenApproved">
+                        Approve Token
+                    </div>
                     <div v-else-if="isApprovingToken" class="fst-italic">
-                        Approving {{ tokenB.symbol.toUperCase() }}..
+                        Approving Token..
                     </div>
                     <div v-else>
                         Swap
