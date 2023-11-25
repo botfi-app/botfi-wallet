@@ -12,7 +12,8 @@ import IconsResolver from 'unplugin-icons/resolver'
 import ViteCompression2  from 'vite-plugin-compression2'
 import zlib from "node:zlib"
 import VitePreload from "vite-plugin-preload";
-
+import { VitePWA } from 'vite-plugin-pwa'
+import siteManisfest from "./public/site.webmanifest.json"
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -21,11 +22,19 @@ export default defineConfig({
       template: {
         compilerOptions: {
           // i am ignorning my custom '<container>' tag
-          isCustomElement: (tag) => ['dotlottie-player'].includes(tag)
+          //isCustomElement: (tag) => ['dotlottie-player'].includes(tag)
         }
       }
     }),
     
+    /*VitePWA({ 
+      registerType: 'autoUpdate',
+      manifest: siteManisfest,
+      workbox: {*/
+        //globPatterns: ['**/*.{js,css,html,ico,png,svg,json}']
+      //}
+    //}),
+
     VitePreload(),
 
     AutoImport(),

@@ -20,7 +20,7 @@ import {
 
 //import { Buffer } from "buffer/";
 import multicall3Config from "../config/multicall3";
-import multicall3Abi from "../data/abi/multicall3.json"
+import multicall3Abi from "../data/abi_min/multicall3.json"
 import deploylessContractsBytes from "../config/deployless/bytecodes.json"
 
 const defaultAbiCoder = AbiCoder.defaultAbiCoder()
@@ -97,7 +97,7 @@ export default class Wallet {
                 //console.log("contractName====>", contractName)
 
                 //lets now fetch the abi 
-                let abi = (await import(`../data/abi/botfi/${contractGroupName}/${contractName}.json`))
+                let abi = (await import(`../data/abi_min/botfi/${contractGroupName}/${contractName}.json`))
                             .default;
 
                 //console.log("abiData===>", abiData)
