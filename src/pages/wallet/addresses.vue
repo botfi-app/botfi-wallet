@@ -137,7 +137,7 @@ const copyAddress = async (addr) =>{
                     :dataToFilter="walletStore.wallets"
                     :filterKeys="['name', 'address']"
                     :mode="{start: true, end: true }"
-                    :key="`${walletStore.wallets.length}-${walletStore.activeWallet.address}`"
+                    :key="`${walletStore.wallets.length}-${(walletStore.activeWallet || {}).address}`"
                 />
             </div>
             <loading-view :isLoading="isLoading" :key="dataState">

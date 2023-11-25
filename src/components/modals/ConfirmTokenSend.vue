@@ -41,17 +41,19 @@ const activity = useActivity()
 const editNonceInput = ref("")
 
 const feeData = ref()
-const txGasLimit = ref(null)
 const onChainGasLimit = ref(null)
 const supportsEip1559Tx = ref(false)
 
-const txGasPrice = ref(null)
-const onChainGasPrice = ref(null)
-const selectedFeeDataName = ref(null)
+const txGasLimit = ref(null)
 
-const gasFeeInETHUint = ref(null)
-const gasFeeInETH = ref(null)
-const gasFeeInFiat = ref(null)
+const txMaxFeePerGas      = ref(null)
+const txPriorityFeePerGas = ref(null)
+
+const txTotalFeeUint     = ref(null)
+const txTotalFeeDecimals = ref(null)
+const gasFeeInFiat       = ref(null)
+
+
 const errorMsg = ref("")
 const isLoading = ref(false)
 const loadingText = ref("")
@@ -66,7 +68,7 @@ const editNonce = ref(false)
 const nativeTokenInfo = ref(null)
 const nativeTokenBalanceInfo = ref(null)
 const hasInsufficientNativeToken = ref(false)
-
+const mbodyTopMargin = ref(0)
 
 const finalAmountFiat = computedAsync( async() => (
     (finalAmount == null) 
@@ -80,40 +82,31 @@ const onShow = (mElement, mInstance) => {
     initialize()
 }
 
-watch(txGasPrice, () => computeFeeInETH());
-watch(txGasLimit, () => computeFeeInETH())
-
-const computeFeeInETH  = async () => {
-
-    if(txGasPrice.value == null || txGasLimit.value == null){
-        return false;
-    }
-    
-    let txGasFee = txGasPrice.value * txGasLimit.value
-
-    gasFeeInETHUint.value = txGasFee
-    gasFeeInETH.value = formatUnits(txGasFee, 18)
-
-    gasFeeInFiat.value = await geTokenFiatValue(Utils.nativeTokenAddr, gasFeeInETH.value)
-}
-
 const processFeeAndFinalAmount = async () => {
 
     let p = props;
     let balance = balanceInfo.value.balance;
 
+    if(txTotalFeeUint.value == null) return;
+
+    //console.log("txTotalFeeUint.value====>", txTotalFeeUint.value)
+
+    
     //if native token
     if(p.tokenType == 'native') {
 
         nativeTokenInfo.value = p.tokenInfo
         nativeTokenBalanceInfo.value = balanceInfo.value
         
-        if(gasFeeInETHUint.value >= p.amountUint){
+                      
+        if( txTotalFeeUint.value >= balance){
             return  hasInsufficientNativeToken.value = true
         }
 
-        if(p.amountUint == balance){
-            finalAmountUint.value = p.amountUint - gasFeeInETHUint.value
+         let amountWithFee = p.amountUint + txTotalFeeUint.value
+ 
+        if(amountWithFee >= balance){
+            finalAmountUint.value = p.amountUint - txTotalFeeUint.value
         } else {
             finalAmountUint.value = p.amountUint
         }
@@ -135,10 +128,14 @@ const processFeeAndFinalAmount = async () => {
         let nativeBalance = nativeTokenInfo.value.balanceInfo
         nativeTokenBalanceInfo.value = nativeBalance
 
-        if(nativeBalance.balance < gasFeeInETHUint.value){
+        if(nativeBalance.balance < txTotalFeeUint.value){
+            //console.log("2====>")
             return hasInsufficientNativeToken.value = true
         }
     }
+  
+    //console.log(" finalAmount.value===>",  finalAmount.value)
+    //console.log(" hasInsufficientNativeToken.value===>",  hasInsufficientNativeToken.value)
 }
 
 const initialize = async () => {
@@ -171,7 +168,10 @@ const initialize = async () => {
             return errorMsg.value = gasInfoStatus.getMessage()
         }
 
-        await processFeeAndFinalAmount()
+        // lets get native token info
+        nativeTokenInfo.value = await getTokenByAddr(Utils.nativeTokenAddr)
+
+        //await processFeeAndFinalAmount()
 
     } catch(e) {
 
@@ -243,10 +243,6 @@ const getGasLimit = async () => {
 
 const fetchFeeData = async () => {
 
-    let curBlockInfo = await web3Conn.currentBlockInfo()
-
-    console.log("curBlockInfo====>", curBlockInfo)
-
     let resultStatus = await web3Conn.getFeeData()
 
     if(resultStatus.isError()) {
@@ -255,7 +251,7 @@ const fetchFeeData = async () => {
 
     let fd = {...resultStatus.getData()}
 
-    console.log("fd===>", fd)
+    console.log("fd===>", fd) 
 
     supportsEip1559Tx.value = (fd.maxFeePerGas != null && fd.maxPriorityFeePerGas != null)
 
@@ -289,17 +285,6 @@ const fetchGasInfo = async () => {
         }
     }
 
-    console.log("feeData.value===>", feeData.value)
-
-    let gasPrice = feeData.value.maxFeePerGas
-    
-    // default selected 
-    selectedFeeDataName.value = "maxFeePerGas"
-
-    // lets set the gas price here
-    onChainGasPrice.value = gasPrice
-    txGasPrice.value = gasPrice
-
     return Status.success()
 }
 
@@ -319,7 +304,7 @@ const processTransfer = async () => {
         let nativeToken = nativeTokenInfo.value
         let p = props;
 
-        if(!hasInsufficientNativeToken.value){
+        if(hasInsufficientNativeToken.value){
             return Utils.mAlert(`Insufficient ${nativeToken.symbol.toUpperCase()} for gas fee`)
         }
 
@@ -330,8 +315,8 @@ const processTransfer = async () => {
                         ? userNonce
                         : txNonce.value
 
-        let maxFeePerGas = txGasPrice.value
-        let maxPriorityFeePerGas = txGasPrice.value
+        let maxFeePerGas = txMaxFeePerGas.value
+        let maxPriorityFeePerGas = txPriorityFeePerGas.value
 
         let contractAddr = p.tokenInfo.contract
 
@@ -344,7 +329,7 @@ const processTransfer = async () => {
 
             let txParams = { 
                 to: recipient, 
-                value: p.amountUint, 
+                value: finalAmountUint.value, 
                 nonce, 
                 gasLimit: txGasLimit.value
             }
@@ -450,10 +435,25 @@ const processTransfer = async () => {
     }
 }
 
-const  onGasPriceChange = ({ name, value, gasLimit }) => {
-    txGasPrice.value = value 
-    selectedFeeDataName.value = name
-    txGasLimit.value = gasLimit
+const  onGasPriceChange = (data={}) => {
+
+    let { 
+        name, 
+        maxFeePerGas, 
+        totalFee, 
+        totalFeeDecimals,
+        maxPriorityFeePerGas,  
+        gasLimit 
+    } = data
+    
+    console.log("data===>", data)
+    txGasLimit.value         = gasLimit
+    txMaxFeePerGas.value     = maxFeePerGas 
+    txTotalFeeUint.value     = totalFee
+    txTotalFeeDecimals.value = totalFeeDecimals
+    txPriorityFeePerGas.value = maxPriorityFeePerGas
+
+    processFeeAndFinalAmount()
 }
 
 const handleOnRetry = () => {
@@ -473,7 +473,7 @@ const handleOnRetry = () => {
     >
         <template #body>
             
-            <div class="p-2 send-token-modal mt-4">
+            <div :class="`p-2 send-token-modal mt-${mbodyTopMargin}`">
                 <LoadingView :isLoading="isLoading" :loadingText="loadingText">
                     <div v-if="errorMsg != ''">
                         <InlineError
@@ -485,7 +485,7 @@ const handleOnRetry = () => {
                         
                         <div id="gasfee-picker-container"></div>
 
-                        <div class="p-2 center-vh text-center">
+                        <div class="p-2 center-vh text-center my-2">
                             <div>
                                 <div class="fw-medium fs-3 text-truncate">
                                     -{{ finalAmount }} {{ props.tokenInfo.symbol }}
@@ -555,7 +555,7 @@ const handleOnRetry = () => {
                                 <div class="d-flex ps-3 fw-middle">
                                     <div class="fs-14 flex-wrap text-end center-vh text-break">
                                         <div style="max-width: 180px;">
-                                            {{ gasFeeInETH }} {{ nativeTokenInfo.symbol.toUpperCase() }}
+                                            {{ txTotalFeeDecimals }} {{ nativeTokenInfo.symbol.toUpperCase() }}
                                         </div>
                                         <div v-if="gasFeeInFiat != null">
                                             ({{ gasFeeInFiat.value }} {{ gasFeeInFiat.symbol.toUpperCase() }})
@@ -569,6 +569,8 @@ const handleOnRetry = () => {
                                             selected="market"
                                             placement="left"
                                             @change="onGasPriceChange"
+                                            @show="() => mbodyTopMargin = 3"
+                                            @hide="() => mbodyTopMargin = 0"
                                         />
                                        
                                     </div>

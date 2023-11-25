@@ -15,9 +15,9 @@ const props = defineProps({
 })
 
 
-const UIFeeDataArr = ref([])
+const uiFeeItems = ref({})
 
-const emits = defineEmits(["open", "close", "change"])
+const emits = defineEmits(["show", "hide", "change"])
 
 let popover = null;
 const   txGasLimit = ref(props.gasLimit)
@@ -30,6 +30,7 @@ const   dataState = ref(Date.now())
 //const   editGasLimit = ref(false)
 
 onBeforeMount(() => {
+    console.log("Helloo ===>")
     processFeeData()
 })
 
@@ -45,46 +46,69 @@ const processFeeData = () => {
     let gasLimit = BigInt(txGasLimit.value.toString())
 
     let aggresiveFeeUint = (feeData.maxFeePerGas + feeData.maxFeePerGas)
-    let feeDec = (value) =>  formatUnits(value * gasLimit, 18)
+    let totalFeeDecimals = (value) =>  formatUnits(value * gasLimit, 18)
 
-    UIFeeDataArr.value = [
-        { 
-            name: "low",
+    uiFeeItems.value = {
+        low: { 
+            name: "Low",
             icon: "emojione:turtle", 
             duration: 60, 
             clazz: 'text-danger',
-            feeUint: feeData.gasPrice,
-            feeDecimals: feeDec(feeData.gasPrice)
+            maxFeePerGas:           feeData.gasPrice,
+            totalFee:               (feeData.gasPrice * gasLimit),
+            totalFeeDecimals:  totalFeeDecimals(feeData.gasPrice),
+            maxPriorityFeePerGas:    0
         },
-        { 
-            name: "market", 
+        market: { 
+            name: "Market", 
             icon: "emojione:horse", 
             duration: 30, 
             clazz:   'text-warning',
-            feeUint: feeData.maxFeePerGas,
-            feeDecimals: feeDec(feeData.maxFeePerGas)
+            maxFeePerGas:           feeData.maxFeePerGas,
+            totalFee:               (feeData.maxFeePerGas * gasLimit),
+            totalFeeDecimals:       totalFeeDecimals(feeData.maxFeePerGas),
+            maxPriorityFeePerGas:   feeData.maxPriorityFeePerGas
         },
-        { 
-            name: "aggresive", 
+        priority: { 
+            name: "Priority", 
             icon: "fluent-emoji:rocket", 
             duration: 15, 
             clazz: 'text-success',
-            feeUint: aggresiveFeeUint,
-            feeDecimals: feeDec(aggresiveFeeUint)
+            maxFeePerGas:        aggresiveFeeUint,
+            totalFee:            (aggresiveFeeUint * gasLimit),
+            totalFeeDecimals:    totalFeeDecimals(aggresiveFeeUint),
+            maxPriorityFeePerGas:   feeData.maxPriorityFeePerGas,
         }
-    ]
+    }
+
+    //lets emit 
+    emitChangeEvent((selected.value || 'market'))
 
     dataState.value = Date.now()
     return true
 }
 
-watch(selected, () => {
-   let name = selected.value
-    emitChangeEvent(name, props.feeData[name])
-})
+
+const emitChangeEvent = (key) => {
+    
+    selected.value = key
+
+    let item = uiFeeItems.value[key]
+
+    //console.log("item===>", item)
+
+    emits("change",{ 
+        gasLimit:               txGasLimitUint.value, 
+        maxFeePerGas:           item.maxFeePerGas, 
+        totalFee:               item.totalFee,
+        maxPriorityFeePerGas:   item.maxPriorityFeePerGas,
+        totalFeeDecimals:       item.totalFeeDecimals
+    })
+}
+
 
 watch(txGasLimit, () => {
-    emitChangeEvent(selected.value, props.feeData[selected.value])
+    txGasLimitUint.value = BigInt(txGasLimit.value.toString())
     processFeeData()
 })
 
@@ -98,37 +122,32 @@ const initPop = () => {
         placement: 'top',
         fallbackPlacement:  'top',
         customClass: "rounded-lg shadow-lg",
-        container: "#gasfee-picker-container"
+        container: "#gasfee-picker-container",
     })
 
     let pBtn =  popBtnRef.value
 
-    pBtn.addEventListener('shown.bs.popover', () => {
+    pBtn.addEventListener('show.bs.popover', () => {
         opened.value = true
-        emits("open", popBtnRef, popover)
+        emits("show", popBtnRef, popover)
     })
 
-    pBtn.addEventListener('hidden.bs.popover', () => {
+    pBtn.addEventListener('hide.bs.popover', () => {
         opened.value = false
-        emits("close", popBtnRef, popover)
+        emits("hide", popBtnRef, popover)
     })
 }
 
 onBeforeUnmount(() => {
     if(popover){
-        popBtnRef.value.removeEventListener('shown.bs.popover', ()=>{})
-        popBtnRef.value.removeEventListener('hidden.bs.popover', ()=>{})
+        popBtnRef.value.removeEventListener('show.bs.popover', ()=>{})
+        popBtnRef.value.removeEventListener('hide.bs.popover', ()=>{})
     }
 })
 
-const emitChangeEvent = (name, value ) => {
-    let gasLimit = BigInt(txGasLimit.value.toString())
-    emits("change", { name, value, gasLimit})
-}
 
-const handleFeeItemClick = (feeItem) => {
-    selected.value = feeItem.name;
-    console.log("feeItem====>", feeItem)
+const handleFeeItemClick = (key) => {
+    emitChangeEvent(key);
 }
 
 const closePopover = () => {
@@ -161,22 +180,22 @@ const closePopover = () => {
                         </tr>
                     </thead>
                     <tbody class="fs-14 fw-middle  w-full">
-                        <template v-for="(item, index) in UIFeeDataArr">
-                            <tr @click.prevent="handleFeeItemClick(item)"
-                                :class="`py-4 m-pointer break-text ${index==selected ? 'selected': ''}`"
-                                :data-idx="index"
+                        <template v-for="(item, key) in uiFeeItems">
+                            <tr @click.prevent="handleFeeItemClick(key)"
+                                :class="`py-4 m-pointer break-text ${key==selected ? 'selected': ''}`"
+                                :data-key="key"
                             >
                                 <td>
                                     <div class="d-flex">
                                         <Icon :name='item.icon' />
-                                        <div class="ms-1">{{ item.name }}</div>
+                                        <div class="ms-1 text-capitalize">{{ item.name }}</div>
                                     </div>
                                 </td> 
                                 <td :class="item.clazz">
                                     {{ item.duration }}s+
                                 </td>
                                 <td class='text-upper break-text' style="max-width: 100px;">
-                                    {{  item.feeDecimals }} {{ props.nativeTokenInfo.symbol }}
+                                    {{  item.totalFeeDecimals }} {{ props.nativeTokenInfo.symbol }}
                                 </td>
                             </tr>
                         </template>
