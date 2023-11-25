@@ -20,7 +20,7 @@ import {
 
 //import { Buffer } from "buffer/";
 import multicall3Config from "../config/multicall3";
-import multicall3Abi from "../data/abi_min/multicall3.json"
+import multicall3Abi from "../data/abi/multicall3.json"
 import deploylessContractsBytes from "../config/deployless/bytecodes.json"
 
 const defaultAbiCoder = AbiCoder.defaultAbiCoder()
@@ -97,7 +97,7 @@ export default class Wallet {
                 //console.log("contractName====>", contractName)
 
                 //lets now fetch the abi 
-                let abi = (await import(`../data/abi_min/botfi/${contractGroupName}/${contractName}.json`))
+                let abi = (await import(`../data/abi/botfi/${contractGroupName}/${contractName}.json`))
                             .default;
 
                 //console.log("abiData===>", abiData)
@@ -272,7 +272,32 @@ export default class Wallet {
         }
     }
 
-    async multicall3(inputsArr, revertOnError=false) {
+    async multicall(inputsArr, revertOnError=false) {
+        return this. multicall3(inputsArr, revertOnError);
+    }
+
+    /**
+     * This returns an object where the labels are the keys, suited simple queries
+     * @param {*} inputsArr 
+     * @param {*} revertOnError 
+     * @returns 
+     */
+    async multicallToObj(inputsArr, revertOnError=false) {
+        
+        let resultStatus = await this. multicall3(inputsArr, revertOnError);
+
+        if(resultStatus.isError()) return resultStatus
+
+        let dataArr = resultStatus.getData()
+
+        let resultObj = {}
+
+        dataArr.forEach( item => resultObj[item.label] = item.data)
+
+        return Status.successData(resultObj)
+    }
+
+    async multicall3(inputsArr, revertOnError=true) {
 
         if(!this.provider){
             return Status.error("Connect Wallet")
@@ -291,6 +316,8 @@ export default class Wallet {
                             : multicall3Config.contract
 
         let mCallContract = this.contract(mCallContractAddr, multicall3Abi)
+
+        //console.log("mCallContract===>", mCallContract)
      
         let resultsArr =  await mCallContract.tryAggregate.staticCall(revertOnError, inputs)
      

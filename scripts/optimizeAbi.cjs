@@ -22,7 +22,7 @@ const run = async () => {
 
         let filename = path.basename(abiPath)
 
-        let fileSubDir = abiPath.replace(ABIsPath)
+        let fileSubDir = abiPath.replace(ABIsPath, "")
 
         let outPath = path.join(optimizedABIPath, fileSubDir)
 

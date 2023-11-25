@@ -559,7 +559,7 @@ export const useNFT = () => {
                 })
             }
 
-            let resultStatus = await web3Conn.deploylessMuticall(inputs)
+            let resultStatus = await web3Conn.multicallToObj(inputs, false)
 
             //console.log("resultStatus===>", resultStatus)
 

@@ -8,3 +8,6 @@ node $BASEDIR/multicall3.cjs
 npx hardhat compile
 
 node $BASEDIR/deployless.cjs
+
+## the generated abi gives error, so paused for now
+#node $BASEDIR/optimizeAbi.cjs

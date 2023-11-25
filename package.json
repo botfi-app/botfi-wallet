@@ -31,7 +31,6 @@
     "easyqrcodejs": "^4.5.0",
     "esm-seedrandom": "^3.0.5",
     "eth-url-parser": "^1.0.4",
-    "ethcall": "^6.0.2",
     "ethers": "^6.8.1",
     "floating-vue": "^2.0.0-beta.24",
     "helia": "^2.0.3",
@@ -58,6 +57,8 @@
     "whatwg-fetch": "^3.6.17"
   },
   "devDependencies": {
+    "@fullhuman/postcss-purgecss": "^5.0.0",
+    "@fullhuman/vue-cli-plugin-purgecss": "^5.0.0",
     "@iconify/vue": "^4.1.1",
     "@nomicfoundation/hardhat-toolbox": "^4.0.0",
     "@nomiclabs/hardhat-ethers": "^2.2.3",
@@ -71,6 +72,7 @@
     "hardhat": "^2.19.1",
     "node-fetch": "^2.7.0",
     "postcss": "^8.4.28",
+    "rollup-plugin-visualizer": "^5.9.3",
     "sass": "^1.65.1",
     "unplugin-auto-import": "^0.16.6",
     "unplugin-icons": "^0.16.0",

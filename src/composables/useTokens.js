@@ -583,18 +583,13 @@ export const useTokens = () => {
 
         ///console.log("inputs===>", inputs)
 
-        let resultStatus = await web3Conn.multicall3(inputs)
+        let resultStatus = await web3Conn.multicallToObj(inputs)
 
         if(resultStatus.isError()){
             return resultStatus
         }
 
-        let resultData = resultStatus.getData() || []
-
-        //console.log("resultData===>", resultData)
-        let resultObj = {}
-
-        resultData.forEach( item => resultObj[item.label] = item.data)
+        let resultObj = resultStatus.getData() || {}
 
 
         if("balanceOf" in resultObj){
