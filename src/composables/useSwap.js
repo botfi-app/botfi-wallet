@@ -3,22 +3,24 @@
  * @author BotFi <hello@botfi.app>
  */
 
-import {ref, inject, computed, onBeforeMount, onBeforeUnmount, toRaw } from 'vue'
-import { useDB } from "./useDB"
+import {ref,  computed, onBeforeMount, toRaw } from 'vue'
 import Status from '../classes/Status';
 import Utils from '../classes/Utils';
 import { useNetworks } from "./useNetworks"
-import EventBus from '../classes/EventBus';
 import swapConfig from "../config/swap"
-import { useNetwork } from '@vueuse/core';
 import { Interface, decodeBytes32String, formatUnits, solidityPacked } from 'ethers';
 import swapFunctionMap from "../config/swap/swap_function_map"
+import { useSimpleDB  } from './useSimpleDB';
 
 const supportedChains = swapConfig.supported_chains;
+
+const defaultSettings = { slippage: swapConfig.default_slippage}
+
 const $state = ref({
     isSupported: false,
     routes: {},
-    contractsInfo: {}
+    contractsInfo: {},
+    swapSetting:  defaultSettings
 })
 
 export const useSwap =  () => {
@@ -29,14 +31,34 @@ export const useSwap =  () => {
     const isSupported = computed(()=> $state.value.isSupported )
     const routes = computed(() => $state.value.routes)
     const contractsInfo = computed(() => $state.value.contractsInfo)
+    const simpleDB = useSimpleDB()
 
     onBeforeMount(() => {
+        getSwapSetting()
         initialize()
     })
 
     const initialize = async () => {
         await isChainSupported()
     }
+
+    const getSwapSetting = async () => {
+        let net = await networks.getActiveNetworkInfo()
+        let _settings = await simpleDB.getItem(`swap_setting_${net.chainId}`) || {}
+        $state.value.swapSetting = { ...$state.value.swapSetting, ..._settings }
+        return $state.value.swapSetting
+    }
+
+    const saveSwapSetting = async (dataObj={}) => {
+        let data = { ...$state.value.swapSetting, ...dataObj }
+        let net = await networks.getActiveNetworkInfo()
+        await simpleDB.setItem(`swap_setting_${net.chainId}`, data)
+
+        $state.value.swapSetting = data;
+        return true 
+    }
+
+    const swapSetting = computed(()=> $state.value.swapSetting )
 
     const isChainSupported = async () => {
         
@@ -684,6 +706,8 @@ export const useSwap =  () => {
     }
 
     return {
+        swapSetting,
+        saveSwapSetting,
         isSupported,
         isChainSupported,
         routes,

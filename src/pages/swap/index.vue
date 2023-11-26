@@ -18,7 +18,6 @@ import  { useSwap } from '../../composables/useSwap';
 import InlineError from '../../components/common/InlineError.vue';
 import SwapSettings from '../../components/modals/SwapSettings.vue';
 import { parseUnits } from 'ethers';
-import { useSettings } from '../../composables/useSettings';
 import SwapQuotesModal from '../../components/modals/SwapQuotesModal.vue';
 
 let web3 = null;
@@ -30,18 +29,18 @@ const pageError      = ref("")
 const processingError = ref("")
 const swapError = ref("")
 
-const settings = useSettings()
-
 const tokensCore        = useTokens()
 const wallets           = useWalletStore()
 const activeWallet     = ref()
 const balanceInfo      = ref(null)
-const slippage         = ref(swapConfig.default_slippage) 
 
 const networks      = useNetworks()
 const netInfo       = ref()
 
 const swapCore = useSwap()
+const  { swapSetting } = swapCore
+const slippage         = ref(swapSetting.value.slippage) 
+
 
 const tokenA = ref(null)
 const tokenB = ref(null)
@@ -72,6 +71,11 @@ const   isApprovingToken = ref(false)
 onBeforeMount(() => {
     initialize()
 })
+
+watch(swapSetting, () => {
+    slippage.value = swapSetting.value.slippage
+    fetchQuotes()
+}, { deep: true })
 
 watch(tokenA, () => {
     updateTokenAVars(true)
@@ -130,12 +134,6 @@ const initialize = async () => {
 
     if(!wallets.isLoggedIn()){
         return pageError.value = `Connect Wallet`
-    }
-
-    let swapSettings = await settings.fetchSettings("swap") || {}
-
-    if("slippage" in swapSettings){
-        slippage.value = swapSettings.slippage
     }
 
     activeWallet.value = await wallets.getActiveWalletInfo()
@@ -316,9 +314,9 @@ const selectQuote = (index) => {
 const approveTokenSpend = async () => {
     
     let tA = tokenA.value
-    let loader = Utils.loading(`Approving ${tA.symbol.toUpperCase()} for Router`)
+    let loader = Utils.loader(`Approving ${tA.symbol.toUpperCase()} for Router`)
     isApprovingToken.value = true 
-
+    
     let resultStatus = tokensCore.approveTokenSpend(web3, tA.contract, swapFactory.target)
 
     loader.hide()
@@ -439,7 +437,7 @@ const getTotalQuoteText = () => {
                         <div class="d-flex justify-content-end fs-12 fw-medium ls-1">
                             <div>
                                 <div class="center-vh">
-                                    <div>Slippage: {{ slippage }}%</div>
+                                    <div>Slippage: {{ swapSetting.slippage }}%</div>
                                     <a href="#" 
                                         class="ms-1"
                                         data-bs-toggle="modal" 
@@ -473,6 +471,7 @@ const getTotalQuoteText = () => {
             <div class="">
                 <button class="btn btn-success rounded-lg w-full" 
                     :disabled="isFetchingQuotes || quotesError != '' || hasInsufficientFunds"
+                    @click="performSwap"
                 >   
                     <div v-if="hasInsufficientFunds" class="fst-italic">Insufficient Funds</div>
                     <div v-else-if="isFetchingQuotes" class="fst-italic">Fetching Quotes..</div>
@@ -497,9 +496,7 @@ const getTotalQuoteText = () => {
                 :tokenSpender="swapFactory.target"
                 @select="onTokenSelect"
             />
-            <SwapSettings
-                :slippage="slippage"
-            />
+            <SwapSettings />
             <SwapQuotesModal
                 :data="quotesDataArr"
                 :key="quotesDataArr.length+'_'+(tokenA || {address: ''}).address"

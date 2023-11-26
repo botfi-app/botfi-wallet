@@ -1,15 +1,27 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import Modal from './Modal.vue';
+import { useSwap } from '../../composables/useSwap';
 
-const p = defineProps({
-    slippage: { type: Number, required: true }
-})
 
 const id = ref("swapSettings")
 const defaultSlippageArr = [ 0.5, 1, 1.5, 2 ]
 
-const userSlippage = ref(p.slippage)
+const { swapSetting, saveSwapSetting } = useSwap()
+const slippage = ref(swapSetting.value.slippage)
+///const saveSlippage = ref(swapSetting.value.saveSlippage)
+
+
+const updateSetting = async() => {
+    await saveSwapSetting({ 
+        slippage: slippage.value,
+        //saveSlippage: saveSlippage.value
+    })
+}
+
+
+watch(slippage, updateSetting);
+//watch(saveSlippage, updateSetting);
 </script>
 <template>
     <Modal
@@ -33,9 +45,10 @@ const userSlippage = ref(p.slippage)
                                     slippage 
                                     mx-1 
                                     ls-1
-                                    ${(userSlippage == i) ? 'btn-warning' : 'btn-soft-primary' }
+                                    ${(slippage == i) ? 'btn-warning' : 'btn-soft-primary' }
                                     fw-medium
                                 `"
+                                @click="slippage = i"
                             >
                                 {{ i }}%
                             </button>
@@ -44,7 +57,7 @@ const userSlippage = ref(p.slippage)
                             <input 
                                 type="text"
                                 class="rounded-lg px-1 text-center fw-medium custom-slippage"
-                                v-model="userSlippage"
+                                v-model="slippage"
                             />
                             <div class="fw-medium ms-1">
                                 %
@@ -52,10 +65,10 @@ const userSlippage = ref(p.slippage)
                         </div>
                     </div>
                 </div>
-                <div class="mt-4 mx-2">
+                <!--<div class="mt-4 mx-2">
                     <div class="form-check">
                         <input 
-                            v-model="saveSwap"
+                            v-model="saveSlippage"
                             class="form-check-input" 
                             type="checkbox" 
                             id="save-slippage"
@@ -65,6 +78,7 @@ const userSlippage = ref(p.slippage)
                         </label>
                     </div>
                 </div>
+                -->
            </div>
         </template>
     </Modal>

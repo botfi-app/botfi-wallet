@@ -8,6 +8,6 @@ export default {
     protocol_fee_percent: 0.8, //0.8%
     supported_chains,
     routes_ABIs,
-    default_slippage: 1 // 1%
+    default_slippage: 0.5 // 1%
 }
 
