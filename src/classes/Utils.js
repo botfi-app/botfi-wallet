@@ -397,6 +397,8 @@ export default class Utils {
 
     static formatFiat(val, decimals=8) {
 
+        if(!val) return "";
+
         val = val.toString()
 
         if(val.startsWith("0.")){

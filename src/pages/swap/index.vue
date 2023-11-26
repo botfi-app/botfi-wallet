@@ -19,6 +19,7 @@ import InlineError from '../../components/common/InlineError.vue';
 import SwapSettings from '../../components/modals/SwapSettings.vue';
 import { parseUnits } from 'ethers';
 import SwapQuotesModal from '../../components/modals/SwapQuotesModal.vue';
+import ConfirmSwapModal from '../../components/modals/ConfirmSwapModal.vue';
 
 let web3 = null;
 let contracts;
@@ -67,6 +68,7 @@ const   hasInsufficientFunds = ref(true)
 const   tokenApproved = ref(false)
 const   isApprovingToken = ref(false)
 
+const   txNonce = ref()
 
 onBeforeMount(() => {
     initialize()
@@ -285,7 +287,7 @@ const fetchQuotes = async () => {
 
     let resultsData = resultStatus.getData() || []
 
-    /// console.log("quotesDataArr ===>", resultsData )
+     console.log("quotesDataArr ===>", resultsData )
 
     if(resultsData.length == 0){
         quotesError.value = "No Quote Available"
@@ -334,7 +336,7 @@ const approveTokenSpend = async () => {
     return true 
 }
 
-const performSwap = async () => {
+const handleOnSubmit = async () => {
 
     let tAVal = tokenAInputValue.value 
 
@@ -347,13 +349,17 @@ const performSwap = async () => {
         if(!(await approveTokenSpend())) return;
     }
 
-    
+    let activeWalletAddr = activeWallet.value.address
+
+ 
+    bsModal.getInstance("#confirm-swap-modal").show()
 }
 
 const getTotalQuoteText = () => {
     let len = quotesDataArr.value.length
     return `${len} Quote${(len) > 1 ? 's': ''} Found`
 }
+
 </script>
 <template>
     <WalletLayout
@@ -363,6 +369,7 @@ const getTotalQuoteText = () => {
         :hasAddrSelect="true"
         :pageError="pageError"
         :isLoading="!initialized"
+        :hasFooter="true"
     >   
         <NativeBackBtn url="/wallet" />
 
@@ -380,11 +387,11 @@ const getTotalQuoteText = () => {
                             <Icon name="ant-design:setting-filled" :size="16" />
                         </button>
                     </div>
-                    <div v-if="tokenA != null && balanceInfo != null" class="fs-14 fw-medium ls-1">
+                    <div v-if="tokenA != null && balanceInfo != null" class="fs-14 ls-1">
                         <a href="#" 
                             @click.prevent="setMaxBalance(balanceInfo.formatted)"
                         >
-                            Max: {{ Utils.formatFiat( balanceInfo.formatted ) }} {{ tokenA.symbol }}
+                            Balance: {{ Utils.formatFiat( balanceInfo.formatted, 4 ) }}
                         </a>
                     </div>
                 </div>
@@ -473,7 +480,7 @@ const getTotalQuoteText = () => {
             <div class="">
                 <button class="btn btn-success rounded-lg w-full" 
                     :disabled="isFetchingQuotes || quotesError != '' || hasInsufficientFunds"
-                    @click="performSwap"
+                    @click="handleOnSubmit"
                 >   
                     <div v-if="hasInsufficientFunds" class="fst-italic">Insufficient Funds</div>
                     <div v-else-if="isFetchingQuotes" class="fst-italic">Fetching Quotes..</div>
@@ -505,9 +512,19 @@ const getTotalQuoteText = () => {
                 :tokenB="tokenB || {}"
                 @select="selectQuote"
             />
+
+            <ConfirmSwapModal 
+                v-if="selectedQuoteIndex != null && quotesDataArr.length > 0"
+                :quoteInfo="quotesDataArr[selectedQuoteIndex]"
+                :tokenA="tokenA"
+                :tokenB="tokenB"
+                :slippage="slippage"
+                :amountIn="tokenBInputValue"
+                :protocolFee="swapConfig.protocol_fee_percent"
+            />
         </div>
 
-        <BottomNav />
+        
     </WalletLayout>
 </template>
 <style scoped lang="scss">

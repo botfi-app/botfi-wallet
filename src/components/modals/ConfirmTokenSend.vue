@@ -251,7 +251,7 @@ const fetchFeeData = async () => {
 
     let fd = {...resultStatus.getData()}
 
-    console.log("fd===>", fd) 
+    //console.log("fd===>", fd) 
 
     supportsEip1559Tx.value = (fd.maxFeePerGas != null && fd.maxPriorityFeePerGas != null)
 
@@ -446,7 +446,7 @@ const  onGasPriceChange = (data={}) => {
         gasLimit 
     } = data
     
-    console.log("data===>", data)
+    //console.log("data===>", data)
     txGasLimit.value         = gasLimit
     txMaxFeePerGas.value     = maxFeePerGas 
     txTotalFeeUint.value     = totalFee
@@ -464,6 +464,7 @@ const handleOnRetry = () => {
 </script>
 
 <template>
+    <div id="gasfee-picker-container"></div>
     <Modal
         :id="props.id"
         :title="title"
@@ -473,7 +474,7 @@ const handleOnRetry = () => {
     >
         <template #body>
             
-            <div :class="`p-2 send-token-modal mt-${mbodyTopMargin}`">
+            <div :class="`p-2 confirm-tx-modal mt-${mbodyTopMargin}`">
                 <LoadingView :isLoading="isLoading" :loadingText="loadingText">
                     <div v-if="errorMsg != ''">
                         <InlineError
@@ -483,14 +484,14 @@ const handleOnRetry = () => {
                     </div>
                     <div v-else>
                         
-                        <div id="gasfee-picker-container"></div>
+                        
 
                         <div class="p-2 center-vh text-center my-2">
                             <div>
                                 <div class="fw-medium fs-3 text-truncate">
                                     -{{ finalAmount }} {{ props.tokenInfo.symbol }}
                                 </div>
-                                <div v-if="finalAmountFiat != null && finalAmountFiat.value != null" 
+                                <div v-if="finalAmountFiat != null && finalAmountFiat['value'] != null" 
                                     class="fs-12 hint fw-semibold text-upper mt-1"
                                 >
                                     ~{{ finalAmountFiat["value"] }} {{ finalAmountFiat.symbol.toUpperCase() }}
@@ -555,10 +556,10 @@ const handleOnRetry = () => {
                                 <div class="d-flex ps-3 fw-middle">
                                     <div class="fs-14 flex-wrap text-end center-vh text-break">
                                         <div style="max-width: 180px;">
-                                            {{ txTotalFeeDecimals }} {{ nativeTokenInfo.symbol.toUpperCase() }}
+                                            {{  Utils.formatCrypto(txTotalFeeDecimals) }} {{ nativeTokenInfo.symbol.toUpperCase() }}
                                         </div>
                                         <div v-if="gasFeeInFiat != null">
-                                            ({{ gasFeeInFiat.value }} {{ gasFeeInFiat.symbol.toUpperCase() }})
+                                            ({{ Utils.formatFiat(gasFeeInFiat.value) }} {{ gasFeeInFiat.symbol.toUpperCase() }})
                                         </div>
                                         <GasFeePicker
                                             :nativeTokenInfo="nativeTokenInfo"
@@ -615,17 +616,3 @@ const handleOnRetry = () => {
     </Modal>
 
 </template>
-
-<style lang="scss">
-.send-token-modal {
-    .details {
-        background: var(--bs-body-bg-dark-3);
-    }
-
-    .nonce {
-        max-width: 80px;
-        text-align: center;
-    }
-
-}
-</style>

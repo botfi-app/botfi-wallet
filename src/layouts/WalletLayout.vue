@@ -14,6 +14,7 @@ const props = defineProps({
     hasAddrSelect: { type: Boolean, default: false },
     icon: { type: String, default: ''},
     isLoading: { type: Boolean, default: false },
+    hasFooter: { type: Boolean, default: false }
 })
 
 const walletStore = useWalletStore()
@@ -37,14 +38,14 @@ onBeforeMount(() => {
         :page-error="props.pageError"
         v-if="initialized"
     >    
-        <div v-if="props.showNav">
+        <template v-if="props.showNav">
             <Navbar 
                 :title="props.title"
                 :hasNetSelect="props.hasNetSelect"
                 :hasAddrSelect="props.hasAddrSelect"
                 :icon="props.icon"
             />
-        </div>
+        </template>
         
         <template v-if="isLoading">
             <div class="center-vh loader-h">
@@ -56,6 +57,10 @@ onBeforeMount(() => {
         </template>
         <template v-else>
             <slot />
+        </template>
+        
+        <template v-if="hasFooter">
+            <BottomNav />
         </template>
     </MainLayout>
 </template>

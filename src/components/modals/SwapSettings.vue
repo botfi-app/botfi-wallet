@@ -9,7 +9,6 @@ const defaultSlippageArr = [ 0.5, 1, 1.5, 2 ]
 
 const { swapSetting, saveSwapSetting } = useSwap()
 const slippage = ref(swapSetting.value.slippage)
-///const saveSlippage = ref(swapSetting.value.saveSlippage)
 
 
 const updateSetting = async() => {

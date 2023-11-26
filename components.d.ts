@@ -18,6 +18,8 @@ declare module '@vue/runtime-core' {
     BotFiProvider: typeof import('./src/layouts/BotFiProvider.vue')['default']
     BottomNav: typeof import('./src/components/wallet/BottomNav.vue')['default']
     CollapsibleText: typeof import('./src/components/common/CollapsibleText.vue')['default']
+    ConfirmSwap: typeof import('./src/components/modals/ConfirmSwap.vue')['default']
+    ConfirmSwapModal: typeof import('./src/components/modals/ConfirmSwapModal.vue')['default']
     ConfirmTokenSend: typeof import('./src/components/modals/ConfirmTokenSend.vue')['default']
     CopyBtn: typeof import('./src/components/common/CopyBtn.vue')['default']
     DefaultNetAndWallet: typeof import('./src/components/modals/DefaultNetAndWallet.vue')['default']

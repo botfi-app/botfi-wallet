@@ -634,3 +634,15 @@ ul.list-group {
     --bs-popover-zindex: 2000;
    // z-index: 2000 !important; 
 }
+
+.confirm-tx-modal {
+    .details {
+        background: var(--bs-body-bg-dark-3);
+    }
+
+    .nonce {
+        max-width: 80px;
+        text-align: center;
+    }
+
+}

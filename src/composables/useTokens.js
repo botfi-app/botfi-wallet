@@ -877,6 +877,10 @@ export const useTokens = () => {
         return tokens.value[contract] || null
     }
 
+    const getNativeToken = async () => {
+        return getTokenByAddr(Utils.nativeTokenAddr)
+    }
+
     const geTokenFiatValue = async (tokenAddr, tokenAmt) => {
 
         tokenAmt = toValue(tokenAmt)
@@ -937,6 +941,7 @@ export const useTokens = () => {
         geTokenFiatValue,
         removeUsersTokensAndBalances,
         getBulkERC20TokenInfo,
-        approveTokenSpend
+        approveTokenSpend,
+        getNativeToken
     }
 }

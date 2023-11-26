@@ -15,11 +15,11 @@ const emits = defineEmits(['select'])
 
 const id = ref("quotesModal")
 const selected = ref(p.selected)
-const { getTokenByAddr } = useTokens()
-const nativeToken = ref()
+const { getNativeToken } = useTokens()
+const nativeToken = ref({})
 
 onBeforeMount(async ()=> {
-    nativeToken.value = await getTokenByAddr(Utils.nativeTokenAddr)
+    nativeToken.value = await getNativeToken()
 })
 
 const getQuoteSrcInfo = (routeGroup) => {
