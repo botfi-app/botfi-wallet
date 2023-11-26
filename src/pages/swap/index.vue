@@ -314,12 +314,14 @@ const selectQuote = (index) => {
 const approveTokenSpend = async () => {
     
     let tA = tokenA.value
-    let loader = Utils.loader(`Approving ${tA.symbol.toUpperCase()} for Router`)
+    let loader = Utils.loader(`Approving ${tA.symbol.toUpperCase()}`)
     isApprovingToken.value = true 
-    
-    let resultStatus = tokensCore.approveTokenSpend(web3, tA.contract, swapFactory.target)
 
-    loader.hide()
+    let spender = swapFactory.value.target
+    
+    let resultStatus = await tokensCore.approveTokenSpend(web3, tA.contract, spender)
+
+    loader.close()
     isApprovingToken.value = false 
     
     if(resultStatus.isError()){

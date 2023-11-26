@@ -781,7 +781,7 @@ export const useTokens = () => {
      */
     const approveTokenSpend = async (web3, token, spender) => {
         let contract = web3.contract(token, erc20Abi)
-        return contract.sendTx(spender, MaxUint256)
+        return contract.sendTx("approve", [spender, MaxUint256])
     }
 
     const importToken = async (tokenInfo={}) => {
