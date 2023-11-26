@@ -130,7 +130,8 @@ export const useSwap =  () => {
         }
 
         let pathBytes;
-        let univ3Fee = 3000; // 0.3
+        let univ3Fee = 3000; // 0.3%, uniswap uses a millionth 1e6 1_000_000 divisor instead of 
+        //10_000 1e4, this helps handling tiny values
 
         ///console.log("path====>", path)
 
@@ -161,13 +162,15 @@ export const useSwap =  () => {
     }) => {
         try {
 
-            let protocolFee = Utils.toBPS(swapConfig.protocol_fee);
+            let protocolFee = Utils.percentToBPS(swapConfig.protocol_fee_percent);
 
             let protocolFeeAmt = Utils.calPercentBPS(amountInBigInt, protocolFee)
     
             let amountInWithFee = amountInBigInt - protocolFeeAmt;
 
-            let slippageBPS = slippage * 100
+            //console.log("amountInWithFee===>", amountInWithFee)
+
+            let slippageBPS = Utils.percentToBPS(slippage)
 
             let routesABIs = swapConfig.routes_ABIs;
     
@@ -232,7 +235,7 @@ export const useSwap =  () => {
     
             let resultData = resultStatus.getData() || []
 
-            ///console.log("routeGroup====>", routeGroup)
+           // console.log("routeGroup====>", route.routeGroup)
             //console.log("resultData===>", resultData)
         
             let processedQuotes = []
@@ -242,7 +245,7 @@ export const useSwap =  () => {
                 let { label, data } = item; 
 
                 //console.log("label===>", label)
-                ///console.log("data===>", data)
+                //console.log("data===>", data)
     
                 if(data == null) continue;
     
@@ -309,11 +312,29 @@ export const useSwap =  () => {
 
             let gasEstimatesResultArr = await Promise.all(gasEstimateCalls)
 
-            for(let index in gasEstimatesResultArr){
-                let gasEstimateStatus = gasEstimatesResultArr[index]
-                processedQuotes[index].gasEstimate = gasEstimateStatus.getData() 
+            // lets get feeData
+            let feeDataStatus = await web3.getFeeData()
+            let feeData = feeDataStatus.getData()
+
+            //console.log("feeData===>", feeData)
+
+            if(!(feeDataStatus.isError() &&   feeData == null)) {
+                for(let index in gasEstimatesResultArr){
+                    
+                    let gasEstimateStatus = gasEstimatesResultArr[index]
+                    let gasLimit = gasEstimateStatus.getData() 
+                    let totalGasFee;
+
+                    if(gasLimit != null){
+                        totalGasFee = gasLimit * feeData["maxFeePerGas"]
+                    }
+
+                    processedQuotes[index].gasFee = totalGasFee
+                    processedQuotes[index].gasLimit = gasLimit
+                    processedQuotes[index].feeData = feeData
+                }
             }
-            
+
             // sort with higher output and lower gas
             let sortedData = processedQuotes.sort(( item1, item2 ) => {
                 if(item1.amountOut > item2.amountOut) return -1;
@@ -325,6 +346,8 @@ export const useSwap =  () => {
                 ) return -1
                 else return 0;
             })
+
+            //console.log("sortedData===>", sortedData)
 
             return Status.successData(sortedData)
         } catch(e){

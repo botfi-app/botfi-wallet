@@ -43,7 +43,7 @@ const userSlippage = ref(p.slippage)
                         <div class="d-flex align-items-center ms-3">
                             <input 
                                 type="text"
-                                class="rounded-lg px-1 text-center fw-medium"
+                                class="rounded-lg px-1 text-center fw-medium custom-slippage"
                                 v-model="userSlippage"
                             />
                             <div class="fw-medium ms-1">
@@ -52,12 +52,25 @@ const userSlippage = ref(p.slippage)
                         </div>
                     </div>
                 </div>
+                <div class="mt-4 mx-2">
+                    <div class="form-check">
+                        <input 
+                            v-model="saveSwap"
+                            class="form-check-input" 
+                            type="checkbox" 
+                            id="save-slippage"
+                        />
+                        <label class="form-check-label" for="save-slippage">
+                            Save slippage for future swaps
+                        </label>
+                    </div>
+                </div>
            </div>
         </template>
     </Modal>
 </template>
 <style scoped lang="scss">
- .btn.slippage, input {
+ .btn.slippage, .custom-slippage {
     width: 55px !important;
     height: 40px !important;
  }

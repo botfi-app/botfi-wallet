@@ -425,10 +425,6 @@ export default class Utils {
         }))
     }
 
-    static calPercentBPS(value, bps) {
-        return (BigInt(value.toString()) * BigInt(bps.toString())) / BigInt(10_000)
-    }
-
     static arrayChunk(arr, chunkSize) {
         const chunks = [];
 
@@ -444,16 +440,35 @@ export default class Utils {
         return (arr[arr.length - 1] || null)
     }
 
-    static getSwapSource(group) {
+    static getQuoteSrcInfo(group) {
         if(['uni_v2', 'uni_v3', 'tjoe_v20', 'tjoe_v21'].includes(group)){
-            return "direct"
+            return { name: "direct", cssClass: "btn-warning" }
         } else {
-            return "aggregate"
+            return { name: "aggregator", cssClass: "btn-success" }
         }
     }
 
 
-    static toBPS(value) {
-        return (value * 10_000); // 10_000 = 100 * 100
+    static percentToBPS(valuePercent) {
+       /**
+         * using the standed percentage * 100 = basis point,
+         * so from our basis point (value * bps) / (100 * 100)
+         * the first 100 is for percentage to fraction, the second 100 is the 100 we multiplied 
+         * to achieve the basis point
+         */
+        return (valuePercent * 100); 
     }
+
+    
+    static calPercentBPS(value, bps) {
+        /**
+         * using the standed percentage * 100 = basis point,
+         * so from our basis point (value * bps) / (100 * 100)
+         * the first 100 is for percentage to fraction, the second 100 is the 100 we multiplied 
+         * to achieve the basis point
+         */
+        let DIVISOR = 10_000;
+        return (BigInt(value.toString()) * BigInt(bps.toString())) / BigInt(DIVISOR)
+    }
+
 }

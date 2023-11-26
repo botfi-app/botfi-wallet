@@ -58,7 +58,7 @@ const activeTokenVarName = ref("tokenA")
 const isFetchingQuotes = ref(false)
 const quotesError = ref("")
 const quotesDataArr = ref([])
-const selectedQuote = ref(null)
+const selectedQuoteIndex = ref(null)
 
 const   isChainSupported = ref(false)
 const   swapRoutes = ref([])
@@ -308,9 +308,9 @@ const setMaxBalance = (val) => {
 }
 
 const selectQuote = (index) => {
-    let quote = Utils.formatFiat(quotesDataArr.value[index].formattedAmountOutWithSlippage)
-    tokenBInputValue.value = quote
-    selectedQuote.value = index
+    let quoteAmtOut = Utils.formatFiat(quotesDataArr.value[index].formattedAmountOutWithSlippage)
+    tokenBInputValue.value = quoteAmtOut
+    selectedQuoteIndex.value = index
 }
 
 const approveTokenSpend = async () => {
@@ -340,7 +340,7 @@ const performSwap = async () => {
 
     if(tAVal <= 0 || 
        quotesError.value != '' || 
-       selectedQuote.value == null
+       selectedQuoteIndex.value == null
     ) return;
 
     if(!tokenApproved.value){
@@ -348,6 +348,11 @@ const performSwap = async () => {
     }
 
     
+}
+
+const getTotalQuoteText = () => {
+    let len = quotesDataArr.value.length
+    return `${len} Quote${(len) > 1 ? 's': ''} Found`
 }
 </script>
 <template>
@@ -430,34 +435,36 @@ const performSwap = async () => {
                 </div>
                 <div v-else class="w-full mb-2">
                     <div style="position:relative; top: -20px;"
-                        class="d-flex justify-content-end fs-12 fw-medium ls-1"
                     >
-                        <div>
-                            <div class="center-vh">
-                                <div>Slippage: {{ slippage }}%</div>
-                                <a href="#" 
-                                    class="ms-1"
-                                    data-bs-toggle="modal" 
-                                    data-bs-target="#swapSettings"
-                                    @click.prevent
-                                >
-                                    <Icon name="basil:edit-outline" class="text-info" />
-                                </a>
-                            </div>
-                            <div class="center-vh my-1">
-                                <div>Protocol Fee: {{ swapConfig.protocol_fee }}%</div>
-                            </div>
-                            <div class="center-vh my-1" v-if="quotesDataArr.length > 0">
-                                <div>
-                                    Quotes: 
-                                    <span class='btn fs-12 btn-success rounded fw-semibold p-0 px-1'>AGG</span> - 
+                        <div class="d-flex justify-content-end fs-12 fw-medium ls-1">
+                            <div>
+                                <div class="center-vh">
+                                    <div>Slippage: {{ slippage }}%</div>
                                     <a href="#" 
-                                        class="text-info"
+                                        class="ms-1"
                                         data-bs-toggle="modal" 
-                                        data-bs-target="#quotesModal"
+                                        data-bs-target="#swapSettings"
                                         @click.prevent
-                                    >View All</a>
+                                    >
+                                        <Icon name="basil:edit-outline" class="text-info" />
+                                    </a>
                                 </div>
+                                <div class="center-vh my-1">
+                                    <div>Protocol Fee: {{ swapConfig.protocol_fee_percent }}%</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="center-vh my-1" v-if="quotesDataArr.length > 0">
+                            <div class="py-2 d-flex center-vh">
+                                <div>
+                                    {{ getTotalQuoteText() }}
+                                </div>
+                                <a href="#" 
+                                    class="btn btn-sm rounded-lg btn-warning ms-2"
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#quotesModal"
+                                    @click.prevent
+                                >View All</a>
                             </div>
                         </div>
                    </div>
@@ -496,8 +503,7 @@ const performSwap = async () => {
             <SwapQuotesModal
                 :data="quotesDataArr"
                 :key="quotesDataArr.length+'_'+(tokenA || {address: ''}).address"
-                :tokenA="tokenA"
-                :tokenB="tokenB"
+                :tokenB="tokenB || {}"
                 @select="selectQuote"
             />
         </div>

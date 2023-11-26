@@ -583,6 +583,12 @@ export default class Wallet {
             
             let feeData = await this.provider.getFeeData()
 
+            let { gasPrice, maxFeePerGas=null } = feeData
+
+            if(maxFeePerGas == null){
+                feeData["maxFeePerGas"] = gasPrice
+            }
+
             return Status.successPromise(null, feeData)
 
         } catch(e){

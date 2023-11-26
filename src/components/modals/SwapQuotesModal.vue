@@ -1,10 +1,13 @@
 <script setup>
-import { ref } from 'vue';
+import { onBeforeMount, ref } from 'vue';
 import Utils from '../../classes/Utils';
 import { Modal as bsModal } from 'bootstrap';
+import  { useTokens } from "../../composables/useTokens"
+import { formatUnits } from 'ethers';
 
 const p = defineProps({
     data: { type: Array, default: [] },
+    tokenB: { type: Object, default: {} },
     selected: { type: Number, default: 0}
 })
 
@@ -12,11 +15,15 @@ const emits = defineEmits(['select'])
 
 const id = ref("quotesModal")
 const selected = ref(p.selected)
+const { getTokenByAddr } = useTokens()
+const nativeToken = ref()
 
-//console.log(p.data)
+onBeforeMount(async ()=> {
+    nativeToken.value = await getTokenByAddr(Utils.nativeTokenAddr)
+})
 
-const getSrc = (item) => {
-    return Utils.getSwapSource(item.routeGroup)
+const getQuoteSrcInfo = (routeGroup) => {
+    return Utils.getQuoteSrcInfo(routeGroup)
 }
 
 const onItemClick = (index) => {
@@ -41,7 +48,11 @@ const onItemClick = (index) => {
                 <div v-else>
                     <table class="table align-middle table-borderless">
                         <thead>
-                            <tr><th>Receive</th><th>Gas Fee</th><th>Source</th></tr>
+                            <tr class="fs-14 fw-semibold">
+                                <th>Receive ({{ p.tokenB.symbol.toUpperCase() }})</th>
+                                <th>Gas Fee ({{ nativeToken.symbol.toUpperCase() }})</th>
+                                <th>Source</th>
+                            </tr>
                         </thead>
                         <tbody>
                             <template v-for="(item, index) in p.data" :key="index">
@@ -52,16 +63,14 @@ const onItemClick = (index) => {
                                         {{ Utils.formatFiat(item.formattedAmountOutWithSlippage, 8) }}
                                     </td>
                                     <td>
-                                       N/A
+                                        <div v-if="!item.gasFee">N/A</div>
+                                        <div v-else>
+                                            {{ Utils.formatCrypto(formatUnits(item.gasFee, nativeToken.decimals), 4) }} 
+                                        </div>
                                     </td>
                                     <td>
-                                        <div class="btn btn-warning btn-sm rounded-lg" 
-                                            v-if="getSrc(item) == 'direct'"
-                                        >
-                                            Direct
-                                        </div>
-                                        <div v-else class="btn btn-soft-success btn-sm rounded-lg">
-                                            Aggregate
+                                        <div :class="`btn btn-sm rounded-lg ${getQuoteSrcInfo(item.routeGroup).cssClass}`">
+                                            {{ getQuoteSrcInfo(item.routeGroup).name }}
                                         </div>
                                     </td>
                                 </tr>
