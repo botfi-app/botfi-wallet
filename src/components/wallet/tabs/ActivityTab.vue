@@ -4,7 +4,7 @@ import Utils from '../../../classes/Utils';
 
 const props = defineProps({
     limit: { type: null, default: null },
-    enableViewAllBtn: { type: Boolean, default: false }
+    //enableViewAllBtn: { type: Boolean, default: false }
 })
 
 </script>
@@ -12,7 +12,7 @@ const props = defineProps({
     <div class="mt-3">    
         <ActivityList 
             :limit="props.limit"
-            :enableViewAllBtn="props.enableViewAllBtn"
+            :enableViewAllBtn="false"
         />
     </div>
 </template>

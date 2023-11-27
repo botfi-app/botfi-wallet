@@ -599,7 +599,7 @@ export const useSwap =  () => {
             let callDataArr = []
             
             for(let funcItem of funcDataArr){
-               // console.log("funcItem.args===>", funcItem.args)
+                console.log("funcItem===>", funcItem)
                 let callData = iface.encodeFunctionData(
                                     iface.getFunction(funcItem.name), 
                                     funcItem.args
@@ -677,7 +677,7 @@ export const useSwap =  () => {
                                 payload,
                                 { value: funcData.nativeValue }
                             )
-
+                    console.log("result=====>", result)
                     return Status.successData(result)
                 } catch(e){
                     

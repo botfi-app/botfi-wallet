@@ -464,7 +464,6 @@ const handleOnRetry = () => {
 </script>
 
 <template>
-    <div id="gasfee-picker-container"></div>
     <Modal
         :id="props.id"
         :title="title"
@@ -473,7 +472,7 @@ const handleOnRetry = () => {
         @show="onShow"
     >
         <template #body>
-            
+            <div id="gasfee-picker-container"></div>
             <div :class="`p-2 confirm-tx-modal mt-${mbodyTopMargin}`">
                 <LoadingView :isLoading="isLoading" :loadingText="loadingText">
                     <div v-if="errorMsg != ''">
@@ -569,6 +568,7 @@ const handleOnRetry = () => {
                                             :popoverOpts="{ placement: 'left'}"
                                             selected="market"
                                             placement="left"
+                                            container="#gasfee-picker-container"
                                             @change="onGasPriceChange"
                                             @show="() => mbodyTopMargin = 3"
                                             @hide="() => mbodyTopMargin = 0"

@@ -519,7 +519,7 @@ const getTotalQuoteText = () => {
                 :tokenA="tokenA"
                 :tokenB="tokenB"
                 :slippage="slippage"
-                :amountIn="tokenBInputValue"
+                :amountIn="Number(tokenAInputValue)"
                 :protocolFee="swapConfig.protocol_fee_percent"
             />
         </div>

@@ -43,7 +43,9 @@ export default {
         "swap_exact_native_for_tokens":                     "swapExactNATIVEForTokens",
         "swap_exact_tokens_for_tokens":                     "swapExactTokensForTokens",
         "swap_exact_native_for_tokens_with_transfer_tax":   "swapExactNATIVEForTokensSupportingFeeOnTransferTokens",
-        "swap_exact_tokens_for_native_with_transfer_tax":   "swapExactTokensForNATIVESupportingFeeOnTransferTokens"
+        "swap_exact_tokens_for_native_with_transfer_tax":   "swapExactTokensForNATIVESupportingFeeOnTransferTokens",
+        "swap_exact_tokens_for_tokens_with_transfer_tax":   "swapExactTokensForTokensSupportingFeeOnTransferTokens"
+
     },
 
     

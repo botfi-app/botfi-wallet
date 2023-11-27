@@ -7,10 +7,11 @@ import Utils from "../../classes/Utils"
 const props = defineProps({
     nativeTokenInfo: { type: Object, required: true },
     feeData: { type: Object, required: true },
-    popoverOpts: { type: Object, required: true },
+    popoverOpts: { type: Object, default: {} },
     gasLimit: { type: BigInt, required: true },
     onChainGasLimit: { type: BigInt, required: true },
-    placement:   { type: String, default: 'left' },
+    placement:   { type: String, default: '' },
+    container: { type: String, default: 'body' },
     selected: { type: String, default: 'market' }
 })
 
@@ -27,6 +28,7 @@ const   popContentRef = ref()
 const   opened = ref(false)
 const   selected = ref(props.selected)
 const   dataState = ref(Date.now())
+const   container = ref()
 //const   editGasLimit = ref(false)
 
 onBeforeMount(() => {
@@ -105,13 +107,24 @@ const emitChangeEvent = (key) => {
     })
 }
 
-
 watch(txGasLimit, () => {
     txGasLimitUint.value = BigInt(txGasLimit.value.toString())
     processFeeData()
 })
 
+/*
+const fixContainerHeight = () => {
+    let c= document.querySelector(props.container)
+    if(!c) return;
+
+    c.style.position = 'fixed'
+
+    container.value = c
+}*/
+
 const initPop = () => {
+
+   // fixContainerHeight()
 
     popover = new bsPopover(popBtnRef.value, {
         trigger:            'click',
@@ -119,9 +132,9 @@ const initPop = () => {
         sanitize:           false,
         content:            popContentRef.value,
         placement:          props.placement,
-        fallbackPlacement:  props.placement,
+        fallbackPlacement:  [props.placement],
         customClass:        "rounded-lg shadow-lg",
-        container:          "#gasfee-picker-container",
+        container:          props.container,
     })
 
     let pBtn =  popBtnRef.value

@@ -29,9 +29,18 @@ const initialize = async () => {
 
   tokenInfo.value = await getTokenByAddr(tokenAddress.value)
 
+  //console.log("tokenInfo.value===>", tokenInfo.value)
+
   if(tokenInfo.value == null){
-    return tokenInfo.value = "Unknown token, kindly import it first"
+    return pageError.value = "Unknown token, kindly import it first"
   }
+  
+
+  if((tokenInfo.value.name || '') == ''){
+    tokenInfo.value.name = tokenInfo.value.symbol;
+  }
+
+  //console.log("tokenInfo.value===>", tokenInfo.value)
 
   initialized.value = true
 }

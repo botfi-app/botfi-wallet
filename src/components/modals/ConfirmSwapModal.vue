@@ -24,19 +24,16 @@ const nativeTokenSymb = ref("")
 const txMaxFeePerGas      = ref(null)
 const txPriorityFeePerGas = ref(null)
 
-const txGasLimit         =  ref(null)
+const txGasLimit         =  ref(p.quoteInfo.gasLimit)
 const txTotalFeeUint     = ref(null)
 const txTotalFeeDecimals = ref(null)
 const gasFeeInFiat       = ref(null)
 
-const gasTokenSymb       = ref("")
-console.log("quoteInfo===>", p)
-
 onBeforeMount(async () => {
 
     nativeTokenInfo.value = await getNativeToken()
-    txGasLimit.value = p.quoteInfo.gasLimit
-    gasTokenSymb.value = nativeTokenInfo.value.symbol.toUpperCase()
+    //txGasLimit.value = p.quoteInfo.gasLimit
+    nativeTokenSymb.value = nativeTokenInfo.value.symbol.toUpperCase()
 
     initialized.value = true
 })
@@ -68,7 +65,6 @@ let {
 
 </script>
 <template>
-      <div id="gasfee-picker-container"></div>
     <Modal
         :id="id"
         title="Confirm Swap"
@@ -78,6 +74,7 @@ let {
         v-if="initialized"
     >
         <template #body>
+            <div id="gasfee-picker-container"></div>
             <div :class="`p-2 confirm-tx-modal mt-${mbodyTopMargin}`">
 
                 <div class="m-2 details rounded-lg py-3  px-4">
@@ -114,8 +111,8 @@ let {
                             {{ p.protocolFee }}%
                         </div>
                     </div>
-
-                    
+                </div>
+                <div class="m-2 details rounded-lg py-3  px-4">
                     <div v-if="nativeTokenInfo != null" 
                         class="d-flex  justify-content-between my-3 align-items-center my-3"
                     >
@@ -123,7 +120,7 @@ let {
                             Network Fee
                         </div>
                         <div class="d-flex ps-3 fw-middle">
-                            <div class="fs-14 flex-wrap text-end center-vh text-break">
+                            <div class="fs-14 text-end center-vh text-break">
                                 <div style="max-width: 180px;">
                                     {{  Utils.formatCrypto(txTotalFeeDecimals) }} {{ nativeTokenSymb }}
                                 </div>
@@ -135,9 +132,9 @@ let {
                                     :feeData="p.quoteInfo.feeData"
                                     :gasLimit="txGasLimit"
                                     :onChainGasLimit="p.quoteInfo.gasLimit"
-                                    :popoverOpts="{ placement: 'top'}"
                                     selected="market"
                                     placement="top"
+                                    container="#gasfee-picker-container"
                                     @change="onGasPriceChange"
                                     @show="() => mbodyTopMargin = 0"
                                     @hide="() => mbodyTopMargin = 0"
