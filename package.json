@@ -37,6 +37,7 @@
     "lokijs": "^1.5.12",
     "nice-color-palettes": "^3.0.0",
     "pinia": "^2.1.6",
+    "quicklink": "^2.3.0",
     "randomcolor": "^0.6.2",
     "sanitize-html": "^2.11.0",
     "simplebar": "^6.2.5",
@@ -52,6 +53,7 @@
     "vue-boring-avatars": "^1.3.0",
     "vue-lazyload": "^3.0.0",
     "vue-router": "^4.2.4",
+    "vue-router-prefetch": "^1.6.3",
     "vue3-lazyload": "^0.3.8",
     "vue3-popper": "^1.5.0",
     "whatwg-fetch": "^3.6.17"

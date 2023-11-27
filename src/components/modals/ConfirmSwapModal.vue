@@ -68,6 +68,7 @@ let {
 
 </script>
 <template>
+      <div id="gasfee-picker-container"></div>
     <Modal
         :id="id"
         title="Confirm Swap"
@@ -78,8 +79,6 @@ let {
     >
         <template #body>
             <div :class="`p-2 confirm-tx-modal mt-${mbodyTopMargin}`">
-                
-                <div id="gasfee-picker-container"></div>
 
                 <div class="m-2 details rounded-lg py-3  px-4">
                     <div class="d-flex  justify-content-between my-3 align-items-center">
@@ -136,11 +135,11 @@ let {
                                     :feeData="p.quoteInfo.feeData"
                                     :gasLimit="txGasLimit"
                                     :onChainGasLimit="p.quoteInfo.gasLimit"
-                                    :popoverOpts="{ placement: 'left'}"
+                                    :popoverOpts="{ placement: 'top'}"
                                     selected="market"
-                                    placement="left"
+                                    placement="top"
                                     @change="onGasPriceChange"
-                                    @show="() => mbodyTopMargin = 3"
+                                    @show="() => mbodyTopMargin = 0"
                                     @hide="() => mbodyTopMargin = 0"
                                 />
                                 

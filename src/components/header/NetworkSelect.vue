@@ -3,6 +3,7 @@ import { useNetworks } from '../../composables/useNetworks';
 import Image from '../common/Image.vue';
 import Utils from '../../classes/Utils'
 import { useRouter } from 'vue-router'
+import { onBeforeMount, ref } from 'vue';
 
 const props = defineProps({
     disabled: { type: Boolean, default: false },
@@ -12,22 +13,21 @@ const props = defineProps({
 
 const { isNetReady, activeNetwork } = useNetworks()
 const router  = useRouter()
+const backUrl = ref("") 
 
-const  handleOnclick = () => {
-    if(props.disabled) return;
-    let ref = (props.backUrl.trim() == "")
+onBeforeMount(() => {    
+    backUrl.value = (props.backUrl.trim() == "")
         ? Utils.getUriPath()
         : props.backUrl
 
-    router.push(`/networks?r=${ref}`)
-}
+})
 </script>
 <template>
-    <button v-if="isNetReady" 
+    <router-link v-if="isNetReady" 
         class="btn net-select-btn px-2 rounded-pill my-2 text-truncate"
         :style="`max-width: ${props.maxWidth};`"
         :disabled="props.disabled"
-        @click.prevent="handleOnclick"
+        :to="`/networks?r=${backUrl}`"
     >
         <div class="d-flex align-items-center justify-content-center flex-nowrap">
             <Image 
@@ -44,5 +44,5 @@ const  handleOnclick = () => {
                 <Icon name="charm:chevron-down" :size="20" />
             </div>
         </div>
-    </button>
+    </router-link>
 </template>

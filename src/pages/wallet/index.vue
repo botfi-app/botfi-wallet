@@ -2,9 +2,7 @@
 import { inject, onBeforeMount, ref } from 'vue';
 import WalletLayout from '../../layouts/WalletLayout.vue';
 import ProfilePhoto from '../../components/common/ProfilePhoto.vue';
-import BottomNav from '../../components/wallet/BottomNav.vue';
 import Utils from '../../classes/Utils';
-import Icon from '../../components/common/Icon.vue';
 import { useSettings } from '../../composables/useSettings';
 import TokensAndActivityTabs from '../../components/wallet/TokensAndActivityTabs.vue';
 
@@ -33,6 +31,7 @@ const initialize = async() => {
 <template>
     <WalletLayout
         title="Wallet"
+        :has-footer="true"
     >
         <div class="px-10">
             <div class="card-body">
@@ -72,7 +71,6 @@ const initialize = async() => {
                </div>
             </div>
 
-            <BottomNav />
         </div>
         
     </WalletLayout>

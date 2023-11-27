@@ -16,10 +16,13 @@ const searchForm = ref()
 
 onMounted(() => {
     handleOnChange()
-    window.setTimeout(() => handleClearBtnVisibility(), 200)
+    window.setTimeout(() => handleClearBtnVisibility(), 50)
 })
 
 const handleInputState = (type) => {
+    
+    if(!searchForm.value) return;
+
     let clzz =  searchForm.value.classList;
     (type == 'focus')
         ? clzz.add('focus')
@@ -28,6 +31,8 @@ const handleInputState = (type) => {
 
 const handleClearBtnVisibility = async () => {
     
+    if(!searchForm.value) return;
+
     let clzz = searchForm.value.classList;
 
     if(keyword.value.trim() == ''){

@@ -13,6 +13,7 @@ import integerInput from './directives/integerInput'
 import "./assets/scss/app.scss"
 import App from './App.vue'
 import router from "./router"
+//import RouterPrefetch from 'vue-router-prefetch'
 
 
 window.Buffer = Buffer
@@ -61,6 +62,7 @@ router.afterEach(() => {
 app 
  .use(bugsnagVue)
  .use(router)
+ //.use(RouterPrefetch)
  .use(pinia)
  .use(telegram, { router })
  .use(VueLazyLoad)

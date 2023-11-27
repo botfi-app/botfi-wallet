@@ -473,4 +473,10 @@ export default class Utils {
         return (BigInt(value.toString()) * BigInt(bps.toString())) / BigInt(DIVISOR)
     }
 
+    static prefetchPages(urlsArr=[]) {
+        urlsArr.forEach(async (url) => {
+            let c = await import(url)
+            console.log("c==>", c)
+        })
+    }
 }

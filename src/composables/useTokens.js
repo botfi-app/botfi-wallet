@@ -106,17 +106,24 @@ export const useTokens = () => {
 
                 let walletAddr = (_activeWallet.address || "").toLowerCase()
 
-                //console.log("walletAddr====>", walletAddr)
+                //console.log("balancesObj====>", balancesObj)
 
                 tokensArr.forEach(item => {
-                    let token = item.contract;
-                    let balanceInfo = balancesObj[token.toLowerCase()][walletAddr]
 
-                    if(!balanceInfo || Object.keys(balanceInfo).length == 0){
-                        balanceInfo =  { balance: 0n, balanceDecimal: "0.0", balanceFiat: {} }
+                    let token = item.contract;
+
+                    ///console.log("balancesObj====>", balancesObj)
+                    
+                    let tokenBalances = (balancesObj[token.toLowerCase()] || {})
+
+                    let walletBalanceInfo = tokenBalances[walletAddr] || {}
+
+                    if(!walletBalanceInfo || Object.keys(walletBalanceInfo).length == 0){
+                        walletBalanceInfo =  { balance: 0n, balanceDecimal: "0.0", balanceFiat: {} }
                     }
 
-                    item.balanceInfo = balanceInfo
+                    item.balanceInfo = walletBalanceInfo
+
                     //console.log("item.balanceInfo===>", item.balanceInfo)
                     tokensObj[token] = item 
                 })
@@ -555,6 +562,8 @@ export const useTokens = () => {
     ) => {
         
         contract = toValue(contract)
+
+        //console.log("contract===>", contract)
         
         if(contract == null || !Utils.isAddress(contract)){
             return Status.error("Invalid contract address")

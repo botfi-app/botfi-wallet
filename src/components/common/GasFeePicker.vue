@@ -30,7 +30,6 @@ const   dataState = ref(Date.now())
 //const   editGasLimit = ref(false)
 
 onBeforeMount(() => {
-    console.log("Helloo ===>")
     processFeeData()
 })
 
@@ -115,14 +114,14 @@ watch(txGasLimit, () => {
 const initPop = () => {
 
     popover = new bsPopover(popBtnRef.value, {
-        trigger: 'click',
-        html: true, 
-        sanitize: false,
-        content: popContentRef.value,
-        placement: 'top',
-        fallbackPlacement:  'top',
-        customClass: "rounded-lg shadow-lg",
-        container: "#gasfee-picker-container",
+        trigger:            'click',
+        html:               true, 
+        sanitize:           false,
+        content:            popContentRef.value,
+        placement:          props.placement,
+        fallbackPlacement:  props.placement,
+        customClass:        "rounded-lg shadow-lg",
+        container:          "#gasfee-picker-container",
     })
 
     let pBtn =  popBtnRef.value

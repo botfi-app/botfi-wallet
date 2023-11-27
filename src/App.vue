@@ -1,9 +1,10 @@
 <script setup>
 import { useWalletStore } from './store/walletStore';
 import { useTokens } from './composables/useTokens';
-import { onBeforeMount, toValue, watch, ref } from 'vue';
+import { onBeforeMount, ref, onMounted } from 'vue';
 import EventBus from './classes/EventBus';
 import { useRouter } from 'vue-router';
+//import { listen as qlisten } from 'quicklink';
 
 const walletStore = useWalletStore()
 const tokensCore = useTokens()
@@ -12,7 +13,7 @@ const isUpdatingBalance = ref(false);
 const router = useRouter()
 
 onBeforeMount(() => {
-  
+
   updateBalances()
   setInterval(updateBalances, 30_000);
 
@@ -21,7 +22,15 @@ onBeforeMount(() => {
 
 })
 
-
+/*
+onMounted(()=> {
+  setTimeout(()=>{  
+    qlisten({
+      priority: true,
+    })
+  }, 100)
+})
+*/
 const updateBalances = async() => {
   
   if(!walletStore.isLoggedIn() || isUpdatingBalance.value == true) return;
