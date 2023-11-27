@@ -205,7 +205,7 @@ const getBalance = (tokenItem) => {
 
     if(balance == 0) return ""
 
-    return `${balance} ${tokenItem.symbol.toUpperCase()}`
+    return `${Utils.formatCrypto(balance, 4)} ${tokenItem.symbol.toUpperCase()}`
 }
 
 const onSearch = async (_keyword) => {

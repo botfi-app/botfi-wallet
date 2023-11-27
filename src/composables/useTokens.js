@@ -768,8 +768,10 @@ export const useTokens = () => {
             //console.log("tInfo==>", tInfo)
             
             Object.keys(tInfo.balances).forEach(walletAddr => {
-                let balance = tInfo.balances[walletAddr]
-                let formatedBalance = formatUnits(balance, tInfo.decimals)
+                let balance = tInfo.balances[walletAddr] || null 
+                let formatedBalance = (balance == null) 
+                                    ? null 
+                                    : formatUnits(balance, tInfo.decimals)
                 tInfo.balances[walletAddr] = { value: balance, formatted: formatedBalance}
             })
 

@@ -21,7 +21,7 @@ const router = useRouter()
                 src="/images/svg/page_error.svg"
                 alt=""
             />
-            <h1 class="fw-bold fs-1 mt-5 text-primary my-2 text-center">
+            <h1 class="fw-bold fs-1 mt-3 text-danger my-2 text-center">
                 Oops!
             </h1>
             <h5  style="--bs-text-opacity: .5;"
@@ -29,9 +29,9 @@ const router = useRouter()
             >
                 {{ props.text }}
             </h5>
-            <div class="mt-5 d-flex w-full justify-content-center">
+            <div class="mt-3 d-flex w-full justify-content-center">
                 <button @click="router.go(-1)"
-                    class="btn btn-primary rounded-pill px-5 center-vh"
+                    class="btn btn-primary rounded-pill px-3 center-vh"
                 >
                     <Icon name="ion:arrow-back-sharp" :size="18" />
                     <div class="ms-2">Back</div>
@@ -43,9 +43,9 @@ const router = useRouter()
 <style lang="scss">
 .page_error{
     height: 100vh !important;
-    padding-top: 60px;
+    padding-top: 40px;
     img {
-        height: 180px;
+        height: 120px;
         max-width: 95%;
     }
 }

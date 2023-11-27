@@ -35,7 +35,6 @@ onBeforeMount(() => {
 <template>
     <MainLayout 
         :title="props.title"
-        :page-error="props.pageError"
         v-if="initialized"
     >    
         <template v-if="props.showNav">
@@ -46,19 +45,26 @@ onBeforeMount(() => {
                 :icon="props.icon"
             />
         </template>
-        
-        <template v-if="isLoading">
-            <div class="center-vh loader-h">
-                <BotFiLoader
-                    text="Loading.."
-                    size="loader-sm"
-                />
-            </div>
+
+        <template v-if="props.pageError != ''">
+            <PageError :text="props.pageError" />  
         </template>
+
         <template v-else>
-            <slot />
+            <template v-if="isLoading">
+                <div class="center-vh loader-h">
+                    <BotFiLoader
+                        text="Loading.."
+                        size="loader-sm"
+                    />
+                </div>
+            </template>
+
+            <template v-else>
+                <slot />
+            </template>
         </template>
-        
+
         <template v-if="hasFooter">
             <BottomNav />
         </template>
