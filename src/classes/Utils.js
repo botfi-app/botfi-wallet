@@ -411,7 +411,39 @@ export default class Utils {
     }
 
     static formatCrypto(val, decimals=8) {
-        return this.formatFiat(val, decimals)
+        
+        if(!val) return ""
+
+        console.log("val===>", val)
+        
+        // lets get decimals 
+        let valStr = val.toString()
+
+        let requiredDecimals = decimals;
+
+        if(valStr.startsWith("0.")){
+            let [ _, decmalPart ] = valStr.split(".")
+
+            let decimalsPartLeading0 = 0;
+            let decPartArr = decmalPart.split("")
+
+            for(let char of decPartArr){
+                if(char.toString() == '0'){
+                    decimalsPartLeading0 += 1
+                } else {
+                    break;
+                }
+            }
+            
+            console.log("decimalsPartLeading0===>", decimalsPartLeading0)
+            requiredDecimals = decimalsPartLeading0 + decimals;
+        }
+
+        console.log("requiredDecimals====>", requiredDecimals)
+
+        val = val.toString()
+
+        return Number(parseFloat(val).toFixed(18))
     }
 
 

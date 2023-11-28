@@ -329,7 +329,7 @@ export default class Wallet {
                                     
         let processedResult = []
 
-        console.log("resultsArr===>", resultsArr)
+        //console.log("resultsArr===>", resultsArr)
 
         for(let i in resultsArr) {
                 
@@ -344,7 +344,7 @@ export default class Wallet {
             //console.log("label ===>", label)
             //console.log("success ===>", success)
 
-            if(result == '0x') {
+            if(!result || result  == '0x') {
                 processedResult[i] = {
                     label,
                     data: decodedResult

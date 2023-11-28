@@ -270,7 +270,7 @@ export const useSwap =  () => {
     
             let resultData = resultStatus.getData() || []
 
-            console.log("resultData===>", resultData)
+            //console.log("resultData===>", resultData)
         
             let processedQuotes = []
     
@@ -315,14 +315,14 @@ export const useSwap =  () => {
 
                     let dataArr = data.toArray()
 
-                    console.log("dataArr===>", dataArr)
+                    //console.log("dataArr===>", dataArr)
 
                     if(dataArr.length > 0){
                         amountOut    = dataArr[dataArr.length - 1]
                     }
                 } 
                 
-                console.log("amountOut===>", amountOut)
+                //console.log("amountOut===>", amountOut)
 
                 // if no value, skip
                 if(!amountOut) continue;
@@ -396,7 +396,7 @@ export const useSwap =  () => {
                 else return 0;
             })
 
-            console.log("sortedData===>", sortedData)
+            //console.log("sortedData===>", sortedData)
 
             return Status.successData(sortedData)
         } catch(e){

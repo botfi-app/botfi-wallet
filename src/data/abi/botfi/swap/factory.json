@@ -298,6 +298,50 @@
   {
     "inputs": [
       {
+        "internalType": "bytes32",
+        "name": "routeId",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "tokenA",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes",
+        "name": "payload",
+        "type": "bytes"
+      }
+    ],
+    "name": "getSwapGasInfo",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "bytes[]",
         "name": "data",
         "type": "bytes[]"

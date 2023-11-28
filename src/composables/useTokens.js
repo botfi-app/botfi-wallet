@@ -370,7 +370,7 @@ export const useTokens = () => {
             EventBus.emit("balance-updated", tokens)
 
             if(balanceHasChanged){
-                await fetchPastTxByBlocks(web3Conn, { tokensAddrs: contractsAddrs, walletAddrs })
+                fetchPastTxByBlocks(web3Conn, { tokensAddrs: contractsAddrs, walletAddrs })
             }
 
             return Status.success()
@@ -769,9 +769,7 @@ export const useTokens = () => {
             
             Object.keys(tInfo.balances).forEach(walletAddr => {
                 let balance = tInfo.balances[walletAddr] || null 
-                let formatedBalance = (balance == null) 
-                                    ? null 
-                                    : formatUnits(balance, tInfo.decimals)
+                let formatedBalance = formatUnits(balance || 0, tInfo.decimals)
                 tInfo.balances[walletAddr] = { value: balance, formatted: formatedBalance}
             })
 
