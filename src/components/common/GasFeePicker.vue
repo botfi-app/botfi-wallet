@@ -207,7 +207,8 @@ const closePopover = () => {
                                     {{ item.duration }}s+
                                 </td>
                                 <td class='text-upper break-text' style="max-width: 100px;">
-                                    {{  item.totalFeeDecimals }} {{ props.nativeTokenInfo.symbol }}
+                                    {{  Utils.formatCrypto(item.totalFeeDecimals, 8) }} 
+                                    {{ props.nativeTokenInfo.symbol }}
                                 </td>
                             </tr>
                         </template>
@@ -238,7 +239,7 @@ const closePopover = () => {
             <div class="mt-3 mb-2">
                 <button 
                     id="close-gasfee-picker" 
-                    class="btn btn-primary btn-sm fw-semibold w-full rounded-pill"
+                    class="btn btn-soft-primary w-full rounded-lg"
                     @click.prevent="closePopover"
                 >
                     Close    

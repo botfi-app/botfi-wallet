@@ -284,7 +284,7 @@ export default class Wallet {
      */
     async multicallToObj(inputsArr, revertOnError=false) {
         
-        let resultStatus = await this. multicall3(inputsArr, revertOnError);
+        let resultStatus = await this.multicall3(inputsArr, revertOnError);
 
         if(resultStatus.isError()) return resultStatus
 
@@ -329,26 +329,31 @@ export default class Wallet {
                                     
         let processedResult = []
 
-        ///console.log("resultsArr===>", resultsArr)
+        console.log("resultsArr===>", resultsArr)
 
         for(let i in resultsArr) {
                 
             //console.log("resultsArr[i]===>", inputsArr[i])
+
             let [success, result] = resultsArr[i].toArray()
             let { abi, method, label } = inputsArr[i]
-
+            
             let iface = new Interface(abi);
             let decodedResult = null
 
+            //console.log("label ===>", label)
+            //console.log("success ===>", success)
+
             if(result == '0x') {
-                processedResult.push({
+                processedResult[i] = {
                     label,
                     data: decodedResult
-                })
+                }
                 
                 continue;
             }
-            
+
+
             try {
 
                 if(success){
@@ -357,6 +362,7 @@ export default class Wallet {
                                         result
                                     )
                     
+                    //console.log("decodedResult===>", decodedResult)
                     // if multiple results were not returned 
                     // then send the 1 result, else just maintain the 
                     // multiple result
@@ -366,24 +372,26 @@ export default class Wallet {
 
                 } else {
                     let decodedError = iface.parseError(result)
-                    Utils.logError("Wallets#multicall", decodedError)
+                    Utils.logError(`Wallets#multicall3: ${label} : ${decodedError}`)
                 }
 
                 //console.log("label===>", label)
 
-                processedResult.push({
+                processedResult[i] = {
                     label,
                     data: decodedResult
-                })
+                }
 
             } catch(e){
-                Utils.logError("Wallet#mcall:", e)
-                processedResult.push({
+                Utils.logError("Wallet#mcall3:", e)
+                processedResult[i] = {
                     label,
                     data: null
-                })
+                }
             }
         } //end loop
+
+        //console.log("processedResult===>", processedResult)
 
         return Status.successData(processedResult)
     }
@@ -583,13 +591,7 @@ export default class Wallet {
             
             let feeData = await this.provider.getFeeData()
 
-            let { gasPrice, maxFeePerGas=null } = feeData
-
-            if(maxFeePerGas == null){
-                feeData["maxFeePerGas"] = gasPrice
-            }
-
-            return Status.successPromise(null, feeData)
+            return Status.successData(feeData)
 
         } catch(e){
             Utils.logError("Wallet#getFeeData:", e)

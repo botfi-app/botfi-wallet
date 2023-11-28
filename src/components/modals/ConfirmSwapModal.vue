@@ -4,6 +4,7 @@ import Utils from "../../classes/Utils"
 import { useTokens } from '../../composables/useTokens'
 import Status from "../../classes/Status"
 import GasFeePicker from "../common/GasFeePicker.vue"
+import NonceEditor from "../common/NonceEditor.vue";
 
 const p = defineProps({
     quoteInfo:      { type: Object, required: true },
@@ -13,6 +14,8 @@ const p = defineProps({
     tokenA:         { type: Object, required: true },
     tokenB:         { type: Object, required: true }
 })
+
+const emit = defineEmits(["submit"])
 
 const initialized = ref(false)
 const id = ref("confirm-swap-modal")
@@ -62,7 +65,15 @@ let {
 
 }
 
-
+const  handleOnSubmit= async () => {
+    emit("submit", { 
+        gasLimit:             txGasLimit.value,
+        maxFeePerGas:         txMaxFeePerGas.value,
+        totalFeeUint:         txTotalFeeUint.value,
+        totalFeeDecimals:     txTotalFeeDecimals.value,
+        maxPriorityFeePerGas: txPriorityFeePerGas.value
+    })
+}
 </script>
 <template>
     <Modal
@@ -143,9 +154,17 @@ let {
                             </div>
                         </div>
                     </div>
-                    
+                    <div>
+                        <NonceEditor
+                            :nonce="1"
+                        />
+                    </div>
                 </div>
-               
+                <div class="px-2 py-2">
+                    <button @click="handleOnSubmit" class="btn btn-primary w-full rounded-lg">
+                        Confirm Swap
+                    </button>
+                </div>
             </div>
         </template>
 

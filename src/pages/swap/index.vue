@@ -155,21 +155,11 @@ const initialize = async () => {
         return pageError.value = `Failed to initialize network RPC: ${web3Status.getMessage()}`
     }
 
-    //sconsole.log("swapConfig===>", swapConfig)
-    //console.log(tokenA.value)
-
     web3 = toRaw(web3Status.getData())
 
     contracts = await web3.getSystemContracts()
 
     swapFactory.value = contracts.swap.factory;
-
-
-    //console.log("swapFactory.value===>", swapFactory.value)
-
-    let fetchRoutes = await fetchSwapRoutes()
-
-    if(!fetchRoutes) return false;
 
     // lets mimic the balances from TokenSelect modal
     let tA = tokenA.value
@@ -184,8 +174,6 @@ const initialize = async () => {
     }
 
     initialized.value = true  
-    
-   // console.log("tokenA.value====>", tokenA.value)
 }
 
 const openTokenSelectModal = (tokenVarName) => {
@@ -220,19 +208,7 @@ const flipTokensData = () => {
     tokenB.value = tA 
 }
 
-const fetchSwapRoutes = async () => {
-    
-    let routesStatus = await swapCore.getRoutes(web3)
 
-    if(routesStatus.isError()){
-        pageError.value = `Failed to fetch swap routes: ${routesStatus.getMessage()}`
-        return false
-    }
-
-    swapRoutes.value = routesStatus.getData() || []
-
-    return true
-}
 
 const fetchQuotes = async () => {
 
@@ -270,7 +246,6 @@ const fetchQuotes = async () => {
 
     let resultStatus =  await swapCore.fetchQuotes({
                             web3,
-                            swapRoutes: swapRoutes.value,
                             amountInBigInt: tokenAInputVal2,
                             tokenAInfo,
                             tokenBInfo,
@@ -353,6 +328,10 @@ const handleOnSubmit = async () => {
 
  
     bsModal.getInstance("#confirm-swap-modal").show()
+}
+
+const executeSwapTx = () => {
+
 }
 
 const getTotalQuoteText = () => {
@@ -521,6 +500,7 @@ const getTotalQuoteText = () => {
                 :slippage="slippage"
                 :amountIn="Number(tokenAInputValue)"
                 :protocolFee="swapConfig.protocol_fee_percent"
+                @submit="executeSwapTx"
             />
         </div>
 

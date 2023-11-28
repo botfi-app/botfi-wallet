@@ -175,7 +175,6 @@ export const useSwap =  () => {
 
     const fetchQuotes = async({
         web3,
-        swapRoutes,
         amountInBigInt,
         tokenAInfo,
         tokenBInfo,
@@ -184,13 +183,24 @@ export const useSwap =  () => {
     }) => {
         try {
 
+            console.log("tokenBInfo===>", tokenBInfo)
+            let routesStatus = await getRoutes(web3)
+            
+            if(routesStatus.isError()){
+               return Status.error(`Failed to fetch swap routes: ${routesStatus.getMessage()}`)
+            }
+
+            let swapRoutes = routesStatus.getData() || []
+
             let protocolFee = Utils.percentToBPS(swapConfig.protocol_fee_percent);
 
             let protocolFeeAmt = Utils.calPercentBPS(amountInBigInt, protocolFee)
+
+            //console.log("protocolFeeAmt===>", protocolFeeAmt)
     
             let amountInWithFee = amountInBigInt - protocolFeeAmt;
 
-            //console.log("amountInWithFee===>", amountInWithFee)
+            //console.log("swapRoutes===>", swapRoutes)
 
             let slippageBPS = Utils.percentToBPS(slippage)
 
@@ -210,6 +220,8 @@ export const useSwap =  () => {
                 let routeId = route.parsedId;
                 let abi;
                 let target;
+
+                //if(routeGroup !== 'uni_v3') continue
     
                 let isUniV2 = routeGroup == "uni_v2"
     
@@ -245,6 +257,7 @@ export const useSwap =  () => {
                 mcallInputs.push({ label, target, method, args, abi })
             } //end for loop 
             
+            ///console.log("mcallInputs===>", mcallInputs)
      
             let resultStatus =  await web3.multicall3(
                                     mcallInputs, 
@@ -257,8 +270,7 @@ export const useSwap =  () => {
     
             let resultData = resultStatus.getData() || []
 
-           // console.log("routeGroup====>", route.routeGroup)
-            //console.log("resultData===>", resultData)
+            console.log("resultData===>", resultData)
         
             let processedQuotes = []
     
@@ -268,11 +280,12 @@ export const useSwap =  () => {
 
                 //console.log("label===>", label)
                 //console.log("data===>", data)
+                
     
                 if(data == null) continue;
     
                 let [ routeIndex, routeId ] = label.split("|")
-
+ 
                 let routeInfo = swapRoutes[routeIndex]
 
                 let routeGroup = routeInfo.parsedGroup
@@ -290,15 +303,29 @@ export const useSwap =  () => {
     
                     if(amountOut == null) continue; 
                 } 
+                else if(routeGroup == 'uni_v2') {
+                    
+                    let dataArr = data.toArray()
+
+                    if(dataArr.length > 0){
+                        amountOut    = dataArr[dataArr.length - 1]
+                    }
+                }
                 else if(routeGroup == 'uni_v3') {
 
                     let dataArr = data.toArray()
-                    amountOut    = dataArr[0]
-                } 
-                else {
-                    continue;
-                }
 
+                    console.log("dataArr===>", dataArr)
+
+                    if(dataArr.length > 0){
+                        amountOut    = dataArr[dataArr.length - 1]
+                    }
+                } 
+                
+                console.log("amountOut===>", amountOut)
+
+                // if no value, skip
+                if(!amountOut) continue;
             
                 dataObj['routeId'] = routeId
                 dataObj['routeGroup'] = routeGroup
@@ -348,7 +375,7 @@ export const useSwap =  () => {
                     let totalGasFee;
 
                     if(gasLimit != null){
-                        totalGasFee = gasLimit * feeData["maxFeePerGas"]
+                        totalGasFee = gasLimit * feeData["gasPrice"]
                     }
 
                     processedQuotes[index].gasFee = totalGasFee
@@ -369,7 +396,7 @@ export const useSwap =  () => {
                 else return 0;
             })
 
-            //console.log("sortedData===>", sortedData)
+            console.log("sortedData===>", sortedData)
 
             return Status.successData(sortedData)
         } catch(e){
@@ -403,6 +430,8 @@ export const useSwap =  () => {
             let deadline = parseInt(Math.ceil((Date.now() / 1000) + (60 * 30))); // 30mins
 
             let path = getPath(routeInfo, tokenAInfo, tokenBInfo)
+
+            //console.log("routeGroup====>",routeGroup)
         
             if(["tjoe_v20", "tjoe_v21", "uni_v2"].includes(routeGroup)){
 
@@ -554,6 +583,7 @@ export const useSwap =  () => {
 
                 } //end token to token swap 
             } //end if uni v2 or trader joe v2 or 2.1
+            
 
             else if(routeGroup == 'uni_v3') {
 
@@ -579,6 +609,9 @@ export const useSwap =  () => {
                     nativeValue = amountInWithoutFee
                 }
 
+                //console.log("params===>", params)
+                //console.log("nativeValue===>", nativeValue)
+
                 funcDataArr = [
                     { name: funcName, 
                       args: [params], 
@@ -599,7 +632,7 @@ export const useSwap =  () => {
             let callDataArr = []
             
             for(let funcItem of funcDataArr){
-                console.log("funcItem===>", funcItem)
+                //console.log("funcItem===>", funcItem)
                 let callData = iface.encodeFunctionData(
                                     iface.getFunction(funcItem.name), 
                                     funcItem.args
@@ -677,7 +710,7 @@ export const useSwap =  () => {
                                 payload,
                                 { value: funcData.nativeValue }
                             )
-                    console.log("result=====>", result)
+                    
                     return Status.successData(result)
                 } catch(e){
                     

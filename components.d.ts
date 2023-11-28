@@ -48,6 +48,7 @@ declare module '@vue/runtime-core' {
     NFTCollectionCard: typeof import('./src/components/tokens/NFTCollectionCard.vue')['default']
     NFTItemCard: typeof import('./src/components/tokens/NFTItemCard.vue')['default']
     NFTsTab: typeof import('./src/components/wallet/tabs/NFTsTab.vue')['default']
+    NonceEditor: typeof import('./src/components/common/NonceEditor.vue')['default']
     NoResults: typeof import('./src/components/common/NoResults.vue')['default']
     PageError: typeof import('./src/components/common/PageError.vue')['default']
     PinCode: typeof import('./src/components/common/PinCode.vue')['default']

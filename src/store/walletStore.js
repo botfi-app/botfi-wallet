@@ -11,7 +11,6 @@ export const useWalletStore = defineStore('walletStore', () => {
 
     const ACTIVE_WALLET_ADDR = '_active_wallet_addr'
 
-
     const botUtils = inject("botUtils")
     const keyStore = useKeystore()
     const DB = useSimpleDB()
