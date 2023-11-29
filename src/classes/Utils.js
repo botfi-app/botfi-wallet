@@ -414,8 +414,8 @@ export default class Utils {
         
         if(!val) return ""
 
-        console.log("val===>", val)
-        
+        //console.log("val===>", val)
+
         // lets get decimals 
         let valStr = val.toString()
 
@@ -435,15 +435,17 @@ export default class Utils {
                 }
             }
             
-            console.log("decimalsPartLeading0===>", decimalsPartLeading0)
+            //console.log("decimalsPartLeading0===>", decimalsPartLeading0)
             requiredDecimals = decimalsPartLeading0 + decimals;
         }
 
-        console.log("requiredDecimals====>", requiredDecimals)
+        //console.log("requiredDecimals====>", requiredDecimals)
 
         val = val.toString()
 
-        return Number(parseFloat(val).toFixed(18))
+        return parseFloat(val)
+                .toFixed(requiredDecimals)
+                .toLocaleString('fullwide', {useGrouping:false})
     }
 
 

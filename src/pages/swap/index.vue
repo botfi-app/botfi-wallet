@@ -4,7 +4,7 @@
  * @author BotFi <hello@botfi.app>
  */
 
-import { onBeforeMount, ref, toRaw, watch } from 'vue';
+import { nextTick, onBeforeMount, ref, toRaw, watch } from 'vue';
 import { useTokens } from '../../composables/useTokens';
 import { useNetworks } from '../../composables/useNetworks';
 import { useWalletStore } from '../../store/walletStore';
@@ -67,7 +67,7 @@ const   swapFactory = ref()
 const   hasInsufficientFunds = ref(true)
 const   tokenApproved = ref(false)
 const   isApprovingToken = ref(false)
-
+const    uiState = ref(Date.now())
 const   txNonce = ref()
 
 onBeforeMount(() => {
@@ -262,7 +262,7 @@ const fetchQuotes = async () => {
 
     let resultsData = resultStatus.getData() || []
 
-     console.log("quotesDataArr ===>", resultsData )
+     //console.log("quotesDataArr ===>", resultsData )
 
     if(resultsData.length == 0){
         quotesError.value = "No Quote Available"
@@ -283,6 +283,7 @@ const setMaxBalance = (val) => {
 }
 
 const selectQuote = (index) => {
+    fetchQuoteGasInfo(index)
     let quoteAmtOut = Utils.formatFiat(quotesDataArr.value[index].formattedAmountOutWithSlippage)
     tokenBInputValue.value = quoteAmtOut
     selectedQuoteIndex.value = index
@@ -313,21 +314,47 @@ const approveTokenSpend = async () => {
 
 const handleOnSubmit = async () => {
 
-    let tAVal = tokenAInputValue.value 
+    let loader; 
 
-    if(tAVal <= 0 || 
-       quotesError.value != '' || 
-       selectedQuoteIndex.value == null
-    ) return;
+    try {
+        let tAVal = tokenAInputValue.value 
 
-    if(!tokenApproved.value){
-        if(!(await approveTokenSpend())) return;
+        let curQuoteIdx = selectedQuoteIndex.value
+        let quotesArr = quotesDataArr.value
+
+        if(tAVal <= 0 || 
+            quotesError.value != '' || 
+            quotesArr.length == 0 ||
+            curQuoteIdx == null ||
+            !(curQuoteIdx in quotesArr)
+        ) return;
+
+
+        //lets check if the selected quote has gas estimate
+        //let curQuoteInfo = quotesArr[curQuoteIdx]
+    
+        if(!tokenApproved.value){
+            if(!(await approveTokenSpend())) return;
+        }
+
+        loader = Utils.loader("Initialising gas data..")
+
+        if(!(await fetchQuoteGasInfo(curQuoteIdx))) return false 
+
+        let activeWalletAddr = activeWallet.value.address
+
+        nextTick(() => {
+            let intval = setInterval(() =>{
+                let m = document.getElementById("confirm-swap-modal")
+                if(!m) return;
+                clearInterval(intval)
+                bsModal.getInstance("#confirm-swap-modal").show()
+            }, 100)
+        })
+        
+    } finally{
+        if(loader) loader.close()
     }
-
-    let activeWalletAddr = activeWallet.value.address
-
- 
-    bsModal.getInstance("#confirm-swap-modal").show()
 }
 
 const executeSwapTx = () => {
@@ -339,6 +366,33 @@ const getTotalQuoteText = () => {
     return `${len} Quote${(len) > 1 ? 's': ''} Found`
 }
 
+const fetchQuoteGasInfo = async (idx) => {
+    
+    let item = quotesDataArr.value[idx]
+
+    let gas = item.gasLimit || null 
+
+    if(gas != null) return true
+
+    let gasInfoStatus = await item.estimateGas()
+    let data = gasInfoStatus.getData() || null
+
+    if(gasInfoStatus.isError() ||  data == null){
+        Utils.mAlert("Failed to fetch gas info for quote, try again later")
+        return false;
+    }
+
+    let { gasLimit, gasFee, functionName } = data
+
+
+    quotesDataArr.value[idx].gasLimit = gasLimit
+    quotesDataArr.value[idx].gasFee = gasFee
+    quotesDataArr.value[idx].swapFunctionName = functionName
+
+    uiState.value = Date.now()
+
+    return true
+}
 </script>
 <template>
     <WalletLayout
@@ -493,7 +547,11 @@ const getTotalQuoteText = () => {
             />
 
             <ConfirmSwapModal 
-                v-if="selectedQuoteIndex != null && quotesDataArr.length > 0"
+                v-if="
+                    selectedQuoteIndex != null && 
+                    quotesDataArr.length > 0 && 
+                    quotesDataArr[selectedQuoteIndex].gasLimit
+                "
                 :quoteInfo="quotesDataArr[selectedQuoteIndex]"
                 :tokenA="tokenA"
                 :tokenB="tokenB"

@@ -15,15 +15,15 @@ const emits = defineEmits(['select'])
 
 const id = ref("quotesModal")
 const selected = ref(p.selected)
-const { getNativeToken } = useTokens()
-const nativeToken = ref({})
+const { getTokenByAddr } = useTokens()
+const nativeToken = ref()
 
 onBeforeMount(async ()=> {
-    nativeToken.value = await getNativeToken()
+    nativeToken.value = await getTokenByAddr(Utils.nativeTokenAddr)
 })
 
-const getQuoteSrcInfo = (routeGroup) => {
-    return Utils.getQuoteSrcInfo(routeGroup)
+const getQuoteSrcInfo = (item) => {
+    return Utils.getQuoteSrcInfo(item.routeInfo.parsedGroup)
 }
 
 const onItemClick = (index) => {
@@ -60,17 +60,19 @@ const onItemClick = (index) => {
                                     :class="(selected == index) ? 'selected': ''"
                                 >
                                     <td class="break-text text-left">
-                                        {{ Utils.formatFiat(item.formattedAmountOutWithSlippage, 8) }}
+                                        <div class="px-2">
+                                            {{ Utils.formatCrypto(item.formattedAmountOutWithSlippage, 4) }}
+                                        </div>
                                     </td>
                                     <td>
-                                        <div v-if="!item.gasFee">N/A</div>
+                                        <div v-if="!item.gasFee"></div>
                                         <div v-else>
                                             {{ Utils.formatCrypto(formatUnits(item.gasFee, nativeToken.decimals), 4) }} 
                                         </div>
                                     </td>
                                     <td>
-                                        <div :class="`btn btn-sm rounded-lg ${getQuoteSrcInfo(item.routeGroup).cssClass}`">
-                                            {{ getQuoteSrcInfo(item.routeGroup).name }}
+                                        <div :class="`btn btn-sm rounded-lg text-capitalize ${getQuoteSrcInfo(item).cssClass}`">
+                                            {{ getQuoteSrcInfo(item).name }}
                                         </div>
                                     </td>
                                 </tr>

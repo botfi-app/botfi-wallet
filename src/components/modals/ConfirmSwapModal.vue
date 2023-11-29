@@ -44,6 +44,7 @@ onBeforeMount(async () => {
 const onShow = async () => {
    // txGasLimit.value = p.quoteInfo.gasLimit
    // gasTokenSymb.value = nativeTokenInfo.value.symbol.toUpperCase()
+   console.log("p.quoteInfo ===>", p.quoteInfo)
 }
 
 const  onGasPriceChange = (data={}) => {
@@ -139,6 +140,7 @@ const  handleOnSubmit= async () => {
                                     ({{ Utils.formatFiat(gasFeeInFiat.value) }} {{ gasFeeInFiat.symbol.toUpperCase() }})
                                 </div>
                                 <GasFeePicker
+                                    v-if="p.quoteInfo.gasLimit"
                                     :nativeTokenInfo="nativeTokenInfo"
                                     :feeData="p.quoteInfo.feeData"
                                     :gasLimit="txGasLimit"
