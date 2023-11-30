@@ -6,9 +6,10 @@ const p = defineProps({
     nonce: { type: Number, required: true }
 })
 
+//console.log("p.nonce==>", p.nonce)
 //const txNonce = ref(p.nonce || "")
 const editNonceInput = ref()
-const txNonce = ref(p.nonce || "")
+const txNonce = ref(p.nonce)
 const editNonce = ref(false)
 
 const toggleEditNonce = () => {

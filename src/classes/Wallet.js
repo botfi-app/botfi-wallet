@@ -589,9 +589,17 @@ export default class Wallet {
                 return this.notConnectedError()
             }
             
-            let feeData = await this.provider.getFeeData()
+            let fd = await this.provider.getFeeData()
 
-            return Status.successData(feeData)
+            fd = { ...fd }
+
+            fd.supportsEip1559Tx = (!(fd.maxFeePerGas == null && fd.maxPriorityFeePerGas == null))
+ 
+            if(fd.maxFeePerGas == null){
+                fd.maxFeePerGas = fd.gasPrice
+            }
+
+            return Status.successData(fd)
 
         } catch(e){
             Utils.logError("Wallet#getFeeData:", e)

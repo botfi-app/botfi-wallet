@@ -38,8 +38,6 @@ const activeWalletInfo = ref(null)
 
 const activity = useActivity()
 
-const editNonceInput = ref("")
-
 const feeData = ref()
 const onChainGasLimit = ref(null)
 const supportsEip1559Tx = ref(false)
@@ -251,18 +249,7 @@ const fetchFeeData = async () => {
 
     let fd = {...resultStatus.getData()}
 
-    //console.log("fd===>", fd) 
-
-    supportsEip1559Tx.value = (fd.maxFeePerGas != null && fd.maxPriorityFeePerGas != null)
-
-    /// gasFeeInEth.value = 
-    if(fd.maxFeePerGas == null){
-        fd.maxFeePerGas = fd.gasPrice
-    }
-
-    if(fd.maxPriorityFeePerGas == null){
-        fd.maxPriorityFeePerGas = fd.maxFeePerGas
-    }
+    supportsEip1559Tx.value = fd.supportsEip1559Tx
 
     feeData.value = fd
 
@@ -582,23 +569,11 @@ const handleOnRetry = () => {
                                     Nonce
                                 </div>
                                 <div class="ps-3 center-vh fw-middle" :key="editNonce">
-                                    <input 
-                                        type='text' 
-                                        v-model="customTxNonce"
-                                        v-integer 
-                                        class="form-control form-control-sm nonce rounded-pill"
-                                        :disabled="!editNonce"
-                                        ref="editNonceInput"
+                                    <NonceEditor
+                                        v-if="customTxNonce != null"
+                                        :nonce="customTxNonce"
+                                        @change="v => customTxNonce = v"
                                     />
-                                    <button
-                                        class="btn btn-danger p-0 rounded-circle ms-1 w-25px h-25px center-vh"
-                                        @click.prevent="toggleEditNonce"
-                                        type="button" 
-                                    >
-                                        <Icon v-if="!editNonce" name="mdi:gear" :size="16" />
-                                        <Icon v-else name="ic:baseline-close" :size="16" />
-                                    </button>
-                                    
                                 </div>
                             </div>
                         </div>

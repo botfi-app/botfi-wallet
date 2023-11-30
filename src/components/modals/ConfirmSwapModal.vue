@@ -1,8 +1,7 @@
 <script setup>
-import {  ref, onBeforeMount } from "vue";
+import {  ref, onBeforeMount, watch } from "vue";
 import Utils from "../../classes/Utils"
 import { useTokens } from '../../composables/useTokens'
-import Status from "../../classes/Status"
 import GasFeePicker from "../common/GasFeePicker.vue"
 import NonceEditor from "../common/NonceEditor.vue";
 
@@ -10,12 +9,13 @@ const p = defineProps({
     quoteInfo:      { type: Object, required: true },
     amountIn:       { type: Number, required: true },
     protocolFee:    { type: Number, required: true },
+    txNonce:         { type: Number, required: true },
     slippage:       { type: Number, required: true },
     tokenA:         { type: Object, required: true },
     tokenB:         { type: Object, required: true }
 })
 
-const emit = defineEmits(["submit"])
+const emit = defineEmits(["submit", "nonceChange"])
 
 const initialized = ref(false)
 const id = ref("confirm-swap-modal")
@@ -32,6 +32,14 @@ const txTotalFeeUint     = ref(null)
 const txTotalFeeDecimals = ref(null)
 const gasFeeInFiat       = ref(null)
 
+const txNonce = ref(p.txNonce)
+
+//console.log("p====>", p)
+
+watch(txNonce, () => {
+    emit("nonceChange", txNonce.value)
+})
+
 onBeforeMount(async () => {
 
     nativeTokenInfo.value = await getNativeToken()
@@ -44,7 +52,8 @@ onBeforeMount(async () => {
 const onShow = async () => {
    // txGasLimit.value = p.quoteInfo.gasLimit
    // gasTokenSymb.value = nativeTokenInfo.value.symbol.toUpperCase()
-   console.log("p.quoteInfo ===>", p.quoteInfo)
+   //console.log("p.quoteInfo ===>", p.quoteInfo)
+  // console.log("txGasLimit===>", txGasLimit)
 }
 
 const  onGasPriceChange = (data={}) => {
@@ -72,7 +81,8 @@ const  handleOnSubmit= async () => {
         maxFeePerGas:         txMaxFeePerGas.value,
         totalFeeUint:         txTotalFeeUint.value,
         totalFeeDecimals:     txTotalFeeDecimals.value,
-        maxPriorityFeePerGas: txPriorityFeePerGas.value
+        maxPriorityFeePerGas: txPriorityFeePerGas.value,
+        nonce:                txNonce.value
     })
 }
 </script>
@@ -158,7 +168,9 @@ const  handleOnSubmit= async () => {
                     </div>
                     <div>
                         <NonceEditor
-                            :nonce="1"
+                            v-if="txNonce != null"
+                            :nonce="txNonce"
+                            @change="v => txNonce = v"
                         />
                     </div>
                 </div>

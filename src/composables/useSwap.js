@@ -70,6 +70,7 @@ export const useSwap =  () => {
         return $state.value.isSupported
     }
 
+
     const getWeb3 = async () => {
           
         let web3Status = await networks.getWeb3Conn()
@@ -357,16 +358,31 @@ export const useSwap =  () => {
                                     recipient
                                 })
 
+                dataObj.amountInWithoutFee = amountInBigInt
+                dataObj.amountInWithFee    = amountInWithFee
+
+                dataObj.amountOutMin    = amountOutWithSlippage
+                
+                dataObj.tokenAInfo    = tokenAInfo
+                dataObj.tokenBInfo    = tokenBInfo
+
                 // get gas estimate 
                 dataObj.estimateGas = async () => {
                     
-                    return estimateGas({ 
+                    let resultStatus = await estimateGas({ 
                         web3, 
-                        quoteInfo: dataObj,
-                        tokenAInfo,
-                        amountInWithoutFee: amountInBigInt
+                        quoteInfo: dataObj
                     })
 
+                    let data = resultStatus.getData() || null
+
+                    if(resultStatus.isError() || data == null) return null;
+
+                    return { 
+                        gasLimit: data.gasLimit,
+                        gasFee: data.gasLimit * feeData["gasPrice"],
+                        swapFunction: data.function 
+                    }
                 } //end gas estimate
 
                 gasEstimateCallsArr.push(dataObj.estimateGas())
@@ -380,20 +396,13 @@ export const useSwap =  () => {
 
                 let pResult = estimateGasResults[i]
 
-                console.log("result===>", pResult)
                 if(pResult.status != 'fulfilled'){
                     Utils.logError(`useSwap#fetchQuote#estimateGasResults: ${pResult.reason}`)
                     continue
                 }
-
-                let statusData = pResult.value.getData()
-
-                console.log("statusData==>", statusData)
-
-                if(statusData != null){
-                   // processedQuotes[i].gasLimit = statusData.gasLimit
-                    //processedQuotes[i].gasFee = statusData.gasLimit * feeData["gasPrice"]
-                    //processedQuotes[i].swapFunctionName = statusData.function
+              
+                if(pResult.value  != null){
+                    processedQuotes[i] = {...processedQuotes[i], ...pResult.value}
                 }
             }
 
@@ -401,6 +410,19 @@ export const useSwap =  () => {
             let sortedData = processedQuotes.sort(( item1, item2 ) => {
                 if(item1.amountOut > item2.amountOut) return -1;
                 else return 0
+            }).sort(( item1, item2 ) => {
+
+                let item1GasFee = item1.gasFee || null
+                let item2GasFee = item2.gasFee || null
+
+                if(item1GasFee  != null && 
+                    item2GasFee != null && 
+                    (item1.amountOut > item2.amountOut || item1.amountOut == item2.amountOut) &&
+                    item1GasFee <= item2GasFee
+                ) 
+                return -1;
+                else return 0;
+
             })
 
             return Status.successData(sortedData)
@@ -413,28 +435,23 @@ export const useSwap =  () => {
     /**
      * prepareSwap
      */
-    const getSwapPayload = async ({
-        routeInfo,
-        amountOutMin, 
-        tokenAInfo,
-        tokenBInfo, 
-        amountInWithFee,
-        amountInWithoutFee,
-        quoteInfo,
-        recipient
-    }) => {
+    const getSwapPayload = async ({ quoteInfo }) => {
         try {   
 
-            let routeId = routeInfo.parsedId
+            let routeInfo = quoteInfo.routeInfo
+            let amountOutMin = quoteInfo.amountOutMin
+            let amountInWithFee = quoteInfo.amountInWithFee
+            let amountInWithoutFee = quoteInfo.amountInWithFee
+
             let routeGroup = routeInfo.parsedGroup;
-            let tokenAAddr = tokenAInfo.contract;
-            let tokenBAddr = tokenBInfo.contract;
+            let tokenAAddr = quoteInfo.tokenAInfo.contract;
+            let tokenBAddr = quoteInfo.tokenBInfo.contract;
 
             let funcDataArr = [];
 
             let deadline = parseInt(Math.ceil((Date.now() / 1000) + (60 * 30))); // 30mins
 
-            let path = getPath(routeInfo, tokenAInfo, tokenBInfo)
+            let path = getPath(routeInfo, quoteInfo.tokenAInfo, quoteInfo.tokenBInfo)
 
             //console.log("routeGroup====>",routeGroup)
         
@@ -654,17 +671,94 @@ export const useSwap =  () => {
         } 
     }
 
-
-    // lets get gas etimate for a swap 
-    const estimateGas = async ({
-        web3,
+    // excute a swap 
+    const executeSwap = async ({ 
+        web3, 
         quoteInfo,
-        tokenAInfo,
-        amountInWithoutFee
+        gasInfo,
+        nonce
     }) => {
         try {
 
             let routeInfo = quoteInfo.routeInfo;
+
+            let tokenAInfo = quoteInfo.tokenAInfo
+            let amountInWithoutFee = quoteInfo.amountInWithoutFee
+
+            let routeIdBytes32 = routeInfo.id;
+
+            // lets get swap contract
+            let contracts = await web3.getSystemContracts()
+
+            let swapFactory = contracts.swap.factory;
+            
+            let swapFunction = quoteInfo.swapFunction
+
+              
+            let { callDataArr, funcDataArr, iface } = quoteInfo.payloadInfo;
+
+            let errMsg;
+
+            let payload; 
+            let funcData;
+
+            console.log("quoteInfo===>", quoteInfo)
+
+            // lets get the function args
+            for(let i in callDataArr){
+                console.log("funcDataArr[i].name==>", funcDataArr[i].name)
+                if(funcDataArr[i].name == swapFunction){
+                    payload = callDataArr[i]
+                    funcData = funcDataArr[i]
+                    break;
+                }
+            }
+
+            console.log("funcData======>", funcData)
+            console.log("payload======>", payload)
+
+            if(!(payload && funcData)){
+                return Status.errorPromise("Swap parameters missing, try again")
+            }
+
+            let tx = await swapFactory.swap(
+                                routeIdBytes32,
+                                amountInWithoutFee,
+                                tokenAInfo.contract,
+                                payload,
+                                { value: funcData.nativeValue }
+                            )
+            
+            await tx.wait(1);
+
+            return Status.successData(tx)
+
+        }catch(e){
+                    
+            Utils.logError("useSwap#excuteSwap", e)
+
+            errMsg = e.toString()
+
+            if(index == callDataArr.length - 1){
+                
+                let errData = e.data || null
+
+                if(errData != null && !['0x','0x0'].includes(errData.toLowerCase())){
+                    errMsg = iface.parseError(errData)
+                }
+
+            }
+        }
+    }
+
+    // lets get gas etimate for a swap 
+    const estimateGas = async ({ web3, quoteInfo }) => {
+        try {
+
+            let routeInfo = quoteInfo.routeInfo;
+
+            let tokenAInfo = quoteInfo.tokenAInfo
+            let amountInWithoutFee = quoteInfo.amountInWithoutFee
 
             let routeIdBytes32 = routeInfo.id;
 
@@ -728,7 +822,8 @@ export const useSwap =  () => {
         getRoutes,
         getSwapFunctionName,
         fetchQuotes,
-        getPath
+        getPath,
+        executeSwap
     }
 }
     

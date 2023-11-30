@@ -410,7 +410,7 @@ export default class Utils {
         return Number(parseFloat(val).toFixed(decimals))
     }
 
-    static formatCrypto(val, decimals=8) {
+    static formatCrypto(val, decimals=4) {
         
         if(!val) return ""
 
@@ -441,9 +441,7 @@ export default class Utils {
 
         //console.log("requiredDecimals====>", requiredDecimals)
 
-        val = val.toString()
-
-        return parseFloat(val)
+        return parseFloat(valStr)
                 .toFixed(requiredDecimals)
                 .toLocaleString('fullwide', {useGrouping:false})
     }

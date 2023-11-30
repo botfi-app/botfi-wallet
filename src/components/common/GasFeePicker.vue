@@ -20,6 +20,8 @@ const uiFeeItems = ref({})
 
 const emits = defineEmits(["show", "hide", "change"])
 
+console.log("props==>", props.gasLimit)
+
 let popover = null;
 const   txGasLimit = ref(props.gasLimit)
 const   txGasLimitUint = ref(BigInt(props.gasLimit.toString()))
@@ -43,10 +45,17 @@ onMounted(() => {
 
 const processFeeData = () => {
 
-    let feeData = props.feeData
+    let fd = props.feeData
     let gasLimit = BigInt(txGasLimit.value.toString())
 
-    let aggresiveFeeUint = (feeData.maxFeePerGas + feeData.maxFeePerGas)
+    //console.log("feeData===>", feeData)
+    
+    let priorityFeeUint = null;
+
+    if(fd.supportsEip1559Tx && fd.maxPriorityFeePerGas != null){
+        priorityFeeUint = fd.maxFeePerGas + fd.maxPriorityFeePerGas
+    }
+
     let totalFeeDecimals = (value) =>  formatUnits(value * gasLimit, 18)
 
     uiFeeItems.value = {
@@ -55,9 +64,9 @@ const processFeeData = () => {
             icon: "emojione:turtle", 
             duration: 60, 
             clazz: 'text-danger',
-            maxFeePerGas:           feeData.gasPrice,
-            totalFee:               (feeData.gasPrice * gasLimit),
-            totalFeeDecimals:  totalFeeDecimals(feeData.gasPrice),
+            maxFeePerGas:           fd.gasPrice,
+            totalFee:               (fd.gasPrice * gasLimit),
+            totalFeeDecimals:       totalFeeDecimals(fd.gasPrice),
             maxPriorityFeePerGas:    0
         },
         market: { 
@@ -65,20 +74,23 @@ const processFeeData = () => {
             icon: "emojione:horse", 
             duration: 30, 
             clazz:   'text-warning',
-            maxFeePerGas:           feeData.maxFeePerGas,
-            totalFee:               (feeData.maxFeePerGas * gasLimit),
-            totalFeeDecimals:       totalFeeDecimals(feeData.maxFeePerGas),
-            maxPriorityFeePerGas:   feeData.maxPriorityFeePerGas
-        },
-        priority: { 
+            maxFeePerGas:           fd.maxFeePerGas,
+            totalFee:               (fd.maxFeePerGas * gasLimit),
+            totalFeeDecimals:       totalFeeDecimals(fd.maxFeePerGas),
+            maxPriorityFeePerGas:   null//fd.maxPriorityFeePerGas
+        }
+    }
+
+    if(priorityFeeUint != null){
+        uiFeeItems["priority"] =  { 
             name: "Priority", 
             icon: "fluent-emoji:rocket", 
             duration: 15, 
             clazz: 'text-success',
-            maxFeePerGas:        aggresiveFeeUint,
-            totalFee:            (aggresiveFeeUint * gasLimit),
-            totalFeeDecimals:    totalFeeDecimals(aggresiveFeeUint),
-            maxPriorityFeePerGas:   feeData.maxPriorityFeePerGas,
+            maxFeePerGas:           priorityFeeUint,
+            totalFee:               (priorityFeeUint * gasLimit),
+            totalFeeDecimals:       totalFeeDecimals(priorityFeeUint),
+            maxPriorityFeePerGas:   fd.maxPriorityFeePerGas,
         }
     }
 
@@ -179,7 +191,7 @@ const closePopover = () => {
     </button>
     <div ref="popContentRef" class="gasfee-picker">
         <div class="contentMain">
-            <div class="d-flex justify-content-between">
+            <div class="d-flex justify-content-center my-1">
                 <div class="fs-12 fw-semibold hint mb-2">Network Fee</div>
             </div>
             <div>
@@ -207,7 +219,7 @@ const closePopover = () => {
                                     {{ item.duration }}s+
                                 </td>
                                 <td class='text-upper break-text' style="max-width: 100px;">
-                                    {{  Utils.formatCrypto(item.totalFeeDecimals, 8) }} 
+                                    {{  Utils.formatCrypto(item.totalFeeDecimals, 4) }} 
                                     {{ props.nativeTokenInfo.symbol }}
                                 </td>
                             </tr>

@@ -12,7 +12,7 @@ const p = defineProps({
 })
 
 const emits = defineEmits(['select'])
-
+const initialized = ref(false)
 const id = ref("quotesModal")
 const selected = ref(p.selected)
 const { getTokenByAddr } = useTokens()
@@ -20,6 +20,7 @@ const nativeToken = ref()
 
 onBeforeMount(async ()=> {
     nativeToken.value = await getTokenByAddr(Utils.nativeTokenAddr)
+    initialized.value = true
 })
 
 const getQuoteSrcInfo = (item) => {
@@ -41,7 +42,7 @@ const onItemClick = (index) => {
         size="modal-sm"
     >
         <template #body>
-            <div class="p-2">
+            <div class="p-2" v-if="initialized">
                 <div v-if="p.data.length == 0" class="py-4 text-center">
                     No Quotes
                 </div>

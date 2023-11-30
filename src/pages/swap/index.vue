@@ -63,12 +63,13 @@ const selectedQuoteIndex = ref(null)
 const   isChainSupported = ref(false)
 const   swapRoutes = ref([])
 const   swapFactory = ref()
+const   swapFactoryAddr = ref()
 
 const   hasInsufficientFunds = ref(true)
 const   tokenApproved = ref(false)
 const   isApprovingToken = ref(false)
 const    uiState = ref(Date.now())
-const   txNonce = ref()
+const   txNonce = ref(null)
 
 onBeforeMount(() => {
     initialize()
@@ -95,7 +96,7 @@ const updateTokenAVars = (updateBalance=false) => {
     let w = activeWallet.value.address.toLowerCase()
     hasInsufficientFunds.value = false
 
-    if(!tA) return false;
+    if(!tA || !tA.balances) return false;
     
     if(updateBalance){
         balanceInfo.value = tA.balances[w]
@@ -343,12 +344,28 @@ const handleOnSubmit = async () => {
 
         let activeWalletAddr = activeWallet.value.address
 
+        if(txNonce.value == null){
+            
+            let txNonceStatus = await web3.getTxNonce(activeWalletAddr)
+            
+            let nonce = txNonceStatus.getData()
+
+            //console.log("nonce===>", nonce)
+
+            if(txNonceStatus.isError() ||  nonce == null){
+                Utils.mAlert("Failed to fetch tx nonce, try again")
+                return false;
+            }
+
+            txNonce.value = nonce
+        }
+
         nextTick(() => {
             let intval = setInterval(() =>{
-                let m = document.getElementById("confirm-swap-modal")
-                if(!m) return;
+                let m = bsModal.getInstance("#confirm-swap-modal")
+                if(!m || m == null) return;
                 clearInterval(intval)
-                bsModal.getInstance("#confirm-swap-modal").show()
+                nextTick(() =>  m.show() )
             }, 100)
         })
         
@@ -357,8 +374,35 @@ const handleOnSubmit = async () => {
     }
 }
 
-const executeSwapTx = () => {
+const executeSwapTx =  async (dataObj) => {
 
+    let loader; 
+
+    try {
+
+        loader = Utils.loader("Excuting Swap")
+        console.log("dataObj===>", dataObj)
+        //lets perform the swap
+
+        let { maxFeePerGas, gasLimit, nonce, maxPriorityFeePerGas } = dataObj
+
+        let gasInfo = { 
+            maxFeePerGas, 
+            gasLimit,
+            maxPriorityFeePerGas
+        }
+        
+        let quoteInfo = quotesDataArr.value[selectedQuoteIndex.value]
+
+        let resultStatus = await swapCore.executeSwap(web3, quoteInfo, gasInfo, nonce)
+
+        console.log("resultStatus===>", resultStatus)
+    } catch(e){
+        Utils.mAlert(Utils.generalErrorMsg)
+        Utils.logError("swap#executeSwap:", e)
+    } finally{
+        if(loader) loader.close()
+    }
 }
 
 const getTotalQuoteText = () => {
@@ -374,22 +418,14 @@ const fetchQuoteGasInfo = async (idx) => {
 
     if(gas != null) return true
 
-    let gasInfoStatus = await item.estimateGas()
-    let data = gasInfoStatus.getData() || null
+    let data = await item.estimateGas()
 
-    if(gasInfoStatus.isError() ||  data == null){
+    if(data == null){
         Utils.mAlert("Failed to fetch gas info for quote, try again later")
         return false;
-    }
+    } 
 
-    let { gasLimit, gasFee, functionName } = data
-
-
-    quotesDataArr.value[idx].gasLimit = gasLimit
-    quotesDataArr.value[idx].gasFee = gasFee
-    quotesDataArr.value[idx].swapFunctionName = functionName
-
-    uiState.value = Date.now()
+    quotesDataArr.value[idx] = {...  quotesDataArr.value[idx], ...data}
 
     return true
 }
@@ -550,7 +586,8 @@ const fetchQuoteGasInfo = async (idx) => {
                 v-if="
                     selectedQuoteIndex != null && 
                     quotesDataArr.length > 0 && 
-                    quotesDataArr[selectedQuoteIndex].gasLimit
+                    quotesDataArr[selectedQuoteIndex].gasLimit &&
+                    (txNonce != null)
                 "
                 :quoteInfo="quotesDataArr[selectedQuoteIndex]"
                 :tokenA="tokenA"
@@ -558,6 +595,8 @@ const fetchQuoteGasInfo = async (idx) => {
                 :slippage="slippage"
                 :amountIn="Number(tokenAInputValue)"
                 :protocolFee="swapConfig.protocol_fee_percent"
+                :txNonce="txNonce"
+                @nonceChange="v => txNonce = v"
                 @submit="executeSwapTx"
             />
         </div>
