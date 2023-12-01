@@ -27,7 +27,7 @@ const selected = ref(props.selected)
 const initialized = ref(false)
 const networks   = useNetworks()
 const tokensCore = useTokens()
-const searchResults = ref({})
+const searchResults = ref([])
 const netInfo = ref({})
 const keyword = ref("")
 const errorMsg = ref("")
@@ -37,7 +37,7 @@ const initialData = ref({})
 const walletStore = useWalletStore()
 const walletAddrs = ref([])
 const activeWallet = ref()
-
+const showImportBtn = ref(false)
 
 onBeforeMount(async () => {
 
@@ -210,8 +210,31 @@ const getBalance = (tokenItem) => {
 
 const onSearch = async (_keyword) => {
 
+    showImportBtn.value = false
+    
     _keyword = _keyword.trim()
     keyword.value = _keyword
+
+    if(Utils.isAddress(_keyword)){
+
+        let contractData = null;
+
+        initialData.value.forEach(item => {
+            if(item.contract.toLowerCase() == _keyword.toLowerCase()){
+                contractData = item
+            }
+        })
+
+        console.log("contractData===>", contractData)
+
+        if(contractData != null){
+            searchResults.value = [contractData]
+        } else {
+            showImportBtn.value = true
+        }
+        
+        return false;
+    }
 
     if(_keyword.trim() == ""){
         searchResults.value = initialData.value
@@ -248,9 +271,13 @@ const onItemSelect = async (item) => {
                         :filterKeys="[]"
                         @change="onSearch"
                         placeholder="Search name or paste address"
+                        :disabled="isLoading"
                     />
                 </div>
-                <div class="pb-2">
+                <div v-if="showImportBtn" class="pb-2">
+                
+                </div>
+                <div v-else class="pb-2">
                     <loading-view :isLoading="isLoading">
                         <ul class="list-group list-group-flush w-full">
                             <template v-for="(item, contract) in searchResults" :key="contract">

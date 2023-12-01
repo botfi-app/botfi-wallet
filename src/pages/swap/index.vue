@@ -17,7 +17,7 @@ import swapConfig from "../../config/swap"
 import  { useSwap } from '../../composables/useSwap';
 import InlineError from '../../components/common/InlineError.vue';
 import SwapSettings from '../../components/modals/SwapSettings.vue';
-import { parseUnits } from 'ethers';
+import { MaxUint256, parseUnits } from 'ethers';
 import SwapQuotesModal from '../../components/modals/SwapQuotesModal.vue';
 import ConfirmSwapModal from '../../components/modals/ConfirmSwapModal.vue';
 
@@ -308,7 +308,7 @@ const approveTokenSpend = async () => {
         return false;
     }
 
-    tA.allowances[activeWallet.address.toLowerCase()] = MaxUint256
+    tA.allowances[activeWallet.value.address.toLowerCase()] = MaxUint256
 
     return true 
 }
@@ -342,27 +342,10 @@ const handleOnSubmit = async () => {
 
         if(!(await fetchQuoteGasInfo(curQuoteIdx))) return false 
 
-        let activeWalletAddr = activeWallet.value.address
-
-        if(txNonce.value == null){
-            
-            let txNonceStatus = await web3.getTxNonce(activeWalletAddr)
-            
-            let nonce = txNonceStatus.getData()
-
-            //console.log("nonce===>", nonce)
-
-            if(txNonceStatus.isError() ||  nonce == null){
-                Utils.mAlert("Failed to fetch tx nonce, try again")
-                return false;
-            }
-
-            txNonce.value = nonce
-        }
-
         nextTick(() => {
             let intval = setInterval(() =>{
                 let m = bsModal.getInstance("#confirm-swap-modal")
+                console.log("m===>", m)
                 if(!m || m == null) return;
                 clearInterval(intval)
                 m.show()
@@ -384,7 +367,7 @@ const executeSwapTx =  async (dataObj) => {
     try {
 
         loader = Utils.loader("Excuting Swap")
-        console.log("dataObj===>", dataObj)
+        //console.log("dataObj===>", dataObj)
         //lets perform the swap
 
         let { maxFeePerGas, gasLimit, nonce, maxPriorityFeePerGas } = dataObj
@@ -406,7 +389,20 @@ const executeSwapTx =  async (dataObj) => {
                             tokenBInfo: tokenB.value
                         })
 
-        console.log("resultStatus===>", resultStatus)
+        //console.log("resultStatus===>", resultStatus)
+
+        if(resultStatus.isError()){
+            return Utils.mAlert(resultStatus.getMessage())
+        }
+
+        let tokenBAddr = tokenB.value.contract
+        let activeWalletAddr = activeWallet.value.address
+
+
+        // lets update user's balance
+        let importToken = await tokensCore.importToken(tokenB.value);
+
+        console.log("importToken===>", importToken)
     } catch(e){
         Utils.mAlert(Utils.generalErrorMsg)
         Utils.logError("swap#executeSwap:", e)
@@ -596,8 +592,7 @@ const fetchQuoteGasInfo = async (idx) => {
                 v-if="
                     selectedQuoteIndex != null && 
                     quotesDataArr.length > 0 && 
-                    quotesDataArr[selectedQuoteIndex].gasLimit &&
-                    (txNonce != null)
+                    quotesDataArr[selectedQuoteIndex].gasLimit
                 "
                 :quoteInfo="quotesDataArr[selectedQuoteIndex]"
                 :tokenA="tokenA"
