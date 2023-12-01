@@ -365,12 +365,15 @@ const handleOnSubmit = async () => {
                 let m = bsModal.getInstance("#confirm-swap-modal")
                 if(!m || m == null) return;
                 clearInterval(intval)
-                nextTick(() =>  m.show() )
+                m.show()
+                loader.close()
             }, 100)
         })
         
-    } finally{
+    } catch(e) {
         if(loader) loader.close()
+        Utils.mAlert(Utils.generalErrorMsg)
+        Utils.logError("swap#handleOnSubmit:", e)
     }
 }
 
@@ -394,7 +397,14 @@ const executeSwapTx =  async (dataObj) => {
         
         let quoteInfo = quotesDataArr.value[selectedQuoteIndex.value]
 
-        let resultStatus = await swapCore.executeSwap(web3, quoteInfo, gasInfo, nonce)
+        let resultStatus = await swapCore.executeSwap({
+                            web3, 
+                            quoteInfo, 
+                            gasInfo, 
+                            nonce,
+                            tokenAInfo: tokenA.value, 
+                            tokenBInfo: tokenB.value
+                        })
 
         console.log("resultStatus===>", resultStatus)
     } catch(e){

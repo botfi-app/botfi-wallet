@@ -593,6 +593,8 @@ export default class Wallet {
 
             fd = { ...fd }
 
+            console.log("fd===>", fd)
+
             fd.supportsEip1559Tx = (!(fd.maxFeePerGas == null && fd.maxPriorityFeePerGas == null))
  
             if(fd.maxFeePerGas == null){

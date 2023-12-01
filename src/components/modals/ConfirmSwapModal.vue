@@ -167,11 +167,13 @@ const  handleOnSubmit= async () => {
                         </div>
                     </div>
                     <div>
+                        <!--
                         <NonceEditor
                             v-if="txNonce != null"
                             :nonce="txNonce"
                             @change="v => txNonce = v"
                         />
+                        -->
                     </div>
                 </div>
                 <div class="px-2 py-2">

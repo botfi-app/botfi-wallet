@@ -50,7 +50,7 @@ const cleanupModal = () => {
      //    backdrop.classList
    // }
     
-    //document.body.style = ''
+    document.body.style = ''
     ///_modal._backdrop.hide()
 }
 </script>
