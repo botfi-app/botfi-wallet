@@ -248,6 +248,61 @@ const onItemSelect = async (item) => {
     emit('select', item)
     bsModal.getInstance("#token-selector-modal").hide()
 }
+
+const importToken = async () => {
+
+    let loader;
+
+    try {
+
+        loader = Utils.loader("Fetching token info")
+
+        let contract = keyword.value
+
+        let tokenInfoStatus = await tokensCore.getBulkERC20TokenInfo(
+                            [contract],
+                            walletAddrs.value,
+                            props.tokenSpender
+                        )
+
+        loader.close()
+
+        //console.log("tokenInfoStatus===>", tokenInfoStatus)
+
+        if(tokenInfoStatus.isError()){
+            return Utils.mAlert(tokenInfoStatus.getMessage())
+        }
+
+        let tokenInfoObj = tokenInfoStatus.getData() || {}
+
+        let tokenInfo = tokenInfoObj[contract.toLowerCase()]
+        tokenInfo.contract = contract
+
+        let netInfo = await networks.getActiveNetworkInfo()
+
+        let tokenInfoToImport = {
+            name:       tokenInfo.name, 
+            symbol:     tokenInfo.symbol,
+            decimals:   tokenInfo.decimals,
+            chainId:    netInfo.chainId,
+            contract
+        }
+
+        //console.log("tokenInfoToImport==>", tokenInfoToImport)
+
+        let importTokenStatus = await tokensCore.importToken(tokenInfoToImport)
+
+        if(importTokenStatus.isError()){
+            return Utils.mAlert(importTokenStatus.getMessage())
+        }
+
+        initialData.value.push(tokenInfo)
+        searchResults.value = [tokenInfo]
+    } catch(e) {
+        Utils.logError("TokenSelectorModal#importToken", e)
+        Utils.mAlert("Token import failed")
+    }
+}
 </script>
 <template>
 
@@ -274,8 +329,17 @@ const onItemSelect = async (item) => {
                         :disabled="isLoading"
                     />
                 </div>
-                <div v-if="showImportBtn" class="pb-2">
-                
+                <div v-if="showImportBtn" class="pb-2 center-vh">
+                    <div class="py-5">
+                        <div class="center-vh">
+                            <h5 class="hint">Token not found</h5>
+                        </div>
+                        <div class="center-vh">
+                            <button @click="importToken" class='btn btn-primary rounded'>
+                                Import
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 <div v-else class="pb-2">
                     <loading-view :isLoading="isLoading">

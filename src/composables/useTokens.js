@@ -595,11 +595,10 @@ export const useTokens = () => {
 
             if(spender != null && Utils.isAddress(spender)){
                 inputs.push({
-                    target, 
-                    abi, 
-                    label: `allowance_${i}`, 
-                    method: 
-                    "allowance", 
+                    target: contract, 
+                    abi:    erc20Abi, 
+                    label: `allowance`, 
+                    method: "allowance", 
                     args: [wallet,spender] 
                 })
             }
@@ -613,7 +612,6 @@ export const useTokens = () => {
         }
 
         let resultObj = resultStatus.getData() || {}
-
 
         if("balanceOf" in resultObj){
             resultObj.balanceOfDecimal = formatUnits(
