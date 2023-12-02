@@ -87,7 +87,9 @@ export default class Wallet {
 
         let processedData = {}
 
-        let contractsObj = (await import(`../config/contracts/botfi/${this.chainId}.json`)).default;
+        let contractsObj = (await import(
+                    `/src/config/contracts/botfi/${this.chainId}.json?r=${Date.now()}`
+                )).default;
 
         for(let contractGroupName of Object.keys(contractsObj)){
 

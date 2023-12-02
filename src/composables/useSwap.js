@@ -20,7 +20,8 @@ const $state = ref({
     isSupported: false,
     routes: {},
     contractsInfo: {},
-    swapSetting:  defaultSettings
+    swapSetting:  defaultSettings,
+    swapContracAddrs: null
 })
 
 export const useSwap =  () => {
@@ -71,7 +72,15 @@ export const useSwap =  () => {
     }
 
     const getContractsAddrs = async (chainId) => {
-        return (await import(`../config/contracts/botfi/${chainId}.json?r=${Date.now()}`)).default;
+
+        if($state.value.swapContracAddrs == null){
+            let c = (await import(
+                        `/src/config/contracts/botfi/${chainId}.json?r=${Date.now()}`
+                    )).default;
+            $state.value.swapContracAddrs = c.swap
+        }
+
+        return $state.value.swapContracAddrs
     }
 
     const getWeb3 = async () => {

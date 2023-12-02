@@ -4,7 +4,7 @@
  * @author BotFi <hello@botfi.app>
  */
 
-import { nextTick, onBeforeMount, onMounted, ref, toRaw, watch } from 'vue';
+import { nextTick, onBeforeMount, onBeforeUnmount, onMounted, ref, toRaw, watch } from 'vue';
 import { useTokens } from '../../composables/useTokens';
 import { useNetworks } from '../../composables/useNetworks';
 import { useWalletStore } from '../../store/walletStore';
@@ -61,6 +61,7 @@ const selectedQuoteIndex = ref(null)
 
 const   isChainSupported = ref(false)
 const   swapFactory = ref()
+const   swapContracts = ref({})
 
 const   hasInsufficientFunds = ref(true)
 const   tokenApproved = ref(false)
@@ -78,6 +79,9 @@ onBeforeMount(() => {
     initialize()
 })
 
+onBeforeUnmount(() => {
+    stopQuoteUpdateTimer()
+})
 
 watch(swapSetting, () => {
     slippage.value = swapSetting.value.slippage
@@ -92,25 +96,37 @@ watch(tokenAInputValue, () => {
     updateTokenAVars(false)
 });
 
+
+const stopQuoteUpdateTimer = () => {
+    if(quoteUpdaterTimer.value){
+        clearInterval(quoteUpdaterTimer.value)
+        quoteUpdaterTimer.value = null
+    }
+}
+
 const startQuoteUpdaterTimer = () => {
 
-    if(quoteUpdaterTimer.value != null) return;
+    if(quoteUpdaterTimer.value != null ||
+       isFetchingQuotes.value
+    ) return;
+
+    let counter = 1_000
 
     quoteUpdaterTimer.value = window.setInterval(() => {
 
         if(!canFetchQuotes()){
-            clearInterval(quoteUpdaterTimer.value)
-            quoteUpdaterTimer.value = null
+            stopQuoteUpdateTimer()
+            return false;
         }
         
-        refreshQuotesAfter.value -= 1;
+        refreshQuotesAfter.value -= counter;
 
         if(refreshQuotesAfter.value == 0){
             fetchQuotes()
-            refreshQuotesAfter.value = 30
+            refreshQuotesAfter.value = 30_000
         }
 
-    },1_000)
+    }, counter)
 }
 
 const updateTokenAVars = (updateBalance=false) => {
@@ -155,6 +171,24 @@ const updateTokenAVars = (updateBalance=false) => {
    fetchQuotes()
 }
 
+const initWeb3 = async () => {
+
+    let web3Status = await wallets.getWeb3Conn()
+
+    if(web3Status.isError()){
+       Utils.mAlert(`Failed to initialize network RPC: ${web3Status.getMessage()}`)
+       return false
+    }
+
+    web3 = toRaw(web3Status.getData())
+
+    //contracts = await web3.getSystemContracts()
+
+   /// swapFactory.value = contracts.swap.factory;
+
+    return web3
+}
+
 const initialize = async () => {
 
 
@@ -173,17 +207,11 @@ const initialize = async () => {
         return pageError.value = `Swap not supported on ${netInfo.value.name}`
     }
 
-    let web3Status = await wallets.getWeb3Conn()
+        
+    swapContracts.value = await swapCore.getContractsAddrs(netInfo.value.chainId)
 
-    if(web3Status.isError()){
-        return pageError.value = `Failed to initialize network RPC: ${web3Status.getMessage()}`
-    }
+    ///console.log("swapContracts===>", swapContracts)
 
-    web3 = toRaw(web3Status.getData())
-
-    contracts = await web3.getSystemContracts()
-
-    swapFactory.value = contracts.swap.factory;
 
     // lets mimic the balances from TokenSelect modal
     let tA = tokenA.value
@@ -196,6 +224,8 @@ const initialize = async () => {
             }
         }
     }
+
+    initWeb3()
 
     initialized.value = true  
 }
@@ -237,7 +267,7 @@ const flipTokensData = () => {
     quotesDataArr.value = []
 }
 
-const canFetchQuote = () => {
+const canFetchQuotes = () => {
     if(hasInsufficientFunds.value || ignoreQuoteRefresh.value) return false;
 
     if(!tokenA.value || !(tokenA.value && tokenB.value)) return false;
@@ -248,7 +278,7 @@ const canFetchQuote = () => {
 
 const fetchQuotes = async () => {
 
-    if(!canFetchQuote()) return false
+    if(!canFetchQuotes()) return false
 
     quotesError.value = ""
 
@@ -258,6 +288,13 @@ const fetchQuotes = async () => {
             if(!isFetchingQuotes.value) break;
         }
     }
+
+    stopQuoteUpdateTimer()
+
+    if(web3 == null){
+        if(!(await initWeb3())) return false 
+    }
+    
     
     isFetchingQuotes.value = true 
 
@@ -331,7 +368,11 @@ const approveTokenSpend = async () => {
         loader = Utils.loader(`Approving ${tA.symbol.toUpperCase()}`)
         isApprovingToken.value = true 
 
-        let spender = swapFactory.value.target
+        let spender = swapContracts.value.factory
+
+        if(web3 == null){
+            if(!(await initWeb3())) return false 
+        }
         
         let resultStatus = await tokensCore.approveTokenSpend(web3, tA.contract, spender)
 
@@ -605,7 +646,7 @@ const fetchQuoteGasInfo = async (idx) => {
                                         @click.prevent
                                     >View All</a>
                                 </div>
-                                <div>Updating Quotes in {{ refreshQuotesAfter }}</div>
+                                <div>Quotes updates in {{ refreshQuotesAfter / 1000 }}</div>
                             </div>
                         </div>
                    </div>
@@ -636,7 +677,7 @@ const fetchQuoteGasInfo = async (idx) => {
             <TokenSelectorModal 
                 :includeVerified="true"
                 :includeUserTokens="true"
-                :tokenSpender="swapFactory.target"
+                :tokenSpender="swapContracts.factory"
                 @select="onTokenSelect"
                 @init="item => tokenSelector = item"
             />
