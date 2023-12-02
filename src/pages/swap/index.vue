@@ -71,25 +71,13 @@ const   tokenSelector = ref(null)
 const   isExecutingSwap = ref(false)
 const   ignoreQuoteRefresh = ref(false)
 
-const  refreshQuoteAfter = ref(30_000)
+const  refreshQuotesAfter = ref(30_000)
+const  quoteUpdaterTimer  = ref(null)
 
 onBeforeMount(() => {
     initialize()
 })
 
-
-onMounted(() => {
-    window.setInterval(() => {
-        
-        refreshQuoteAfter.value -= 1;
-
-        if(refreshQuoteAfter.value == 0){
-            fetchQuotes()
-            refreshQuoteAfter.value = 30
-        }
-
-    },1_000)
-})
 
 watch(swapSetting, () => {
     slippage.value = swapSetting.value.slippage
@@ -103,6 +91,27 @@ watch(tokenA, () => {
 watch(tokenAInputValue, () => {
     updateTokenAVars(false)
 });
+
+const startQuoteUpdaterTimer = () => {
+
+    if(quoteUpdaterTimer.value != null) return;
+
+    quoteUpdaterTimer.value = window.setInterval(() => {
+
+        if(!canFetchQuotes()){
+            clearInterval(quoteUpdaterTimer.value)
+            quoteUpdaterTimer.value = null
+        }
+        
+        refreshQuotesAfter.value -= 1;
+
+        if(refreshQuotesAfter.value == 0){
+            fetchQuotes()
+            refreshQuotesAfter.value = 30
+        }
+
+    },1_000)
+}
 
 const updateTokenAVars = (updateBalance=false) => {
     
@@ -228,18 +237,20 @@ const flipTokensData = () => {
     quotesDataArr.value = []
 }
 
+const canFetchQuote = () => {
+    if(hasInsufficientFunds.value || ignoreQuoteRefresh.value) return false;
 
+    if(!tokenA.value || !(tokenA.value && tokenB.value)) return false;
+    if(!Utils.isValidFloat(tokenAInputValue.value)) return false; 
+
+    return true 
+}
 
 const fetchQuotes = async () => {
 
-    if(hasInsufficientFunds.value || ignoreQuoteRefresh.value) return false;
+    if(!canFetchQuote()) return false
 
     quotesError.value = ""
-
-    if(!tokenA.value) return false;
-    if(!(tokenA.value && tokenB.value)) return false;
-
-    if(!Utils.isValidFloat(tokenAInputValue.value)) return false; 
 
     if(isFetchingQuotes.value){
         while(true){
@@ -288,6 +299,9 @@ const fetchQuotes = async () => {
         quotesDataArr.value = resultsData
         selectQuote(0)
     }
+
+    // start quote updater
+    startQuoteUpdaterTimer()
 }
 
 const onTokenAInputReady = (input) => {
@@ -296,7 +310,7 @@ const onTokenAInputReady = (input) => {
 
 const setMaxBalance = (val) => {
     let input = tokenAInputEl.value 
-    input["value"] = Utils.formatCrypto(val)
+    input["value"] = val
     input.dispatchEvent(new Event('change'))
 }
 
@@ -579,16 +593,19 @@ const fetchQuoteGasInfo = async (idx) => {
                             </div>
                         </div>
                         <div class="center-vh my-1" v-if="quotesDataArr.length > 0">
-                            <div class="py-2 d-flex center-vh">
-                                <div>
-                                    {{ getTotalQuoteText() }}
+                            <div>
+                                <div class="py-2 d-flex center-vh">
+                                    <div>
+                                        {{ getTotalQuoteText() }}
+                                    </div>
+                                    <a href="#" 
+                                        class="btn btn-sm rounded-lg btn-warning ms-2"
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#quotesModal"
+                                        @click.prevent
+                                    >View All</a>
                                 </div>
-                                <a href="#" 
-                                    class="btn btn-sm rounded-lg btn-warning ms-2"
-                                    data-bs-toggle="modal" 
-                                    data-bs-target="#quotesModal"
-                                    @click.prevent
-                                >View All</a>
+                                <div>Updating Quotes in {{ refreshQuotesAfter }}</div>
                             </div>
                         </div>
                    </div>

@@ -46,6 +46,7 @@ export default class Utils {
             customClass: {
                 confirmButton: 'btn mx-1 shadow-lg px-5 btn-primary rounded-pill',
                 cancelButton: 'btn  mx-1 px-5 btn-warning rounded-pill',
+                denyButton: 'btn  mx-1 px-5 btn-info rounded-pill',
                 popup: 'shadow-lg',
                 htmlContainer: "body-bg",
             },
@@ -88,7 +89,9 @@ export default class Utils {
             showConfirmButton: true, 
             confirmButtonText: "View Tx.",
             preConfirm: () => window.open(explorerUrl),
-            showCloseButton: true,
+            showCloseButton: false,
+            showDenyButton: true,
+            denyButtonText: "Close",
             imageUrl,
             imageWidth: '128px',
             imageAlt: ''
@@ -447,7 +450,7 @@ export default class Utils {
         //console.log("val===>", val)
 
         // lets get decimals 
-        let valStr = val.toString()
+        let valStr = val.toLocaleString('fullwide', {useGrouping:false})
 
         let requiredDecimals;
 
@@ -471,13 +474,13 @@ export default class Utils {
         //console.log("decimalsPartLeading0===>", decimalsPartLeading0)
         requiredDecimals = decimalsPartLeading0 + decimals;
     
-        let newDecimalPart = parseInt(decimalPart.substring(0, requiredDecimals)) - 1 
+        let newDecimalPart = parseInt(decimalPart.substring(0, requiredDecimals))
 
         let finalVal = `${integerPart}.${newDecimalPart}`
 
-        console.log(val +"---", finalVal)
+        ////console.log(val +"---", finalVal)
         
-        return finalVal.toLocaleString('fullwide', {useGrouping:false})
+        return finalVal
     }
 
 

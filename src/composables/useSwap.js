@@ -70,6 +70,9 @@ export const useSwap =  () => {
         return $state.value.isSupported
     }
 
+    const getContractsAddrs = async (chainId) => {
+        return (await import(`../config/contracts/botfi/${chainId}.json?r=${Date.now()}`)).default;
+    }
 
     const getWeb3 = async () => {
           
@@ -180,8 +183,7 @@ export const useSwap =  () => {
         tokenAInfo,
         tokenBInfo,
         slippage,
-        recipient,
-        wallet
+        recipient
     }) => {
         try {
 
@@ -370,7 +372,7 @@ export const useSwap =  () => {
 
                     if(resultStatus.isError() || data == null) return null;
 
-                    console.log("data===>", data)
+                    ///console.log("data===>", data)
 
                     return { 
                         gasLimit:         data.gasLimit,
@@ -855,7 +857,8 @@ export const useSwap =  () => {
         getSwapFunctionName,
         fetchQuotes,
         getPath,
-        executeSwap
+        executeSwap,
+        getContractsAddrs
     }
 }
     
