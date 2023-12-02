@@ -4,7 +4,7 @@
  * @author BotFi <hello@botfi.app>
  */
 
-import { nextTick, onBeforeMount, ref, toRaw, watch } from 'vue';
+import { nextTick, onBeforeMount, onMounted, ref, toRaw, watch } from 'vue';
 import { useTokens } from '../../composables/useTokens';
 import { useNetworks } from '../../composables/useNetworks';
 import { useWalletStore } from '../../store/walletStore';
@@ -71,8 +71,24 @@ const   tokenSelector = ref(null)
 const   isExecutingSwap = ref(false)
 const   ignoreQuoteRefresh = ref(false)
 
+const  refreshQuoteAfter = ref(30_000)
+
 onBeforeMount(() => {
     initialize()
+})
+
+
+onMounted(() => {
+    window.setInterval(() => {
+        
+        refreshQuoteAfter.value -= 1;
+
+        if(refreshQuoteAfter.value == 0){
+            fetchQuotes()
+            refreshQuoteAfter.value = 30
+        }
+
+    },1_000)
 })
 
 watch(swapSetting, () => {
@@ -196,6 +212,8 @@ const onTokenSelect = (token) => {
      tokenB.value = token
    }
     
+   quotesDataArr.value = []
+
    fetchQuotes()
 }   
 
@@ -205,19 +223,20 @@ const flipTokensData = () => {
 
     tokenA.value = tB 
     tokenB.value = tA 
+
+    //remove quotes
+    quotesDataArr.value = []
 }
 
 
 
 const fetchQuotes = async () => {
 
-    if(hasInsufficientFunds.value) return false;
+    if(hasInsufficientFunds.value || ignoreQuoteRefresh.value) return false;
 
-   
-    quotesDataArr.value = []
     quotesError.value = ""
 
-    if(!tokenA.value ) return false;
+    if(!tokenA.value) return false;
     if(!(tokenA.value && tokenB.value)) return false;
 
     if(!Utils.isValidFloat(tokenAInputValue.value)) return false; 
@@ -322,6 +341,7 @@ const approveTokenSpend = async () => {
 const handleOnSubmit = async () => {
 
     let loader; 
+    ignoreQuoteRefresh.value = true
 
     try {
         let tAVal = tokenAInputValue.value 
@@ -366,12 +386,14 @@ const handleOnSubmit = async () => {
         Utils.logError("swap#handleOnSubmit:", e)
     } finally {
         if(loader) loader.close()
+        ignoreQuoteRefresh.value = false
     }
 }
 
 const executeSwapTx =  async (dataObj) => {
 
     let loader; 
+    ignoreQuoteRefresh.value = true
 
     try {
 
@@ -416,7 +438,7 @@ const executeSwapTx =  async (dataObj) => {
 
         if(tokenSelector.value != null){
            // console.log("tokenSelector===>", tokenSelector)
-           tokenSelector.value.reloadBalances()
+           await tokenSelector.value.reloadBalances()
         }
 
         let txData = resultStatus.getData() || {}
@@ -433,6 +455,7 @@ const executeSwapTx =  async (dataObj) => {
         Utils.logError("swap#executeSwap:", e)
     } finally{
         if(loader) loader.close()
+        ignoreQuoteRefresh.value = false
     }
 }
 
@@ -442,8 +465,7 @@ const getTotalQuoteText = () => {
 }
 
 const fetchQuoteGasInfo = async (idx) => {
-    
-    console.log("")
+
     let item = quotesDataArr.value[idx]
 
     let gas = item.gasLimit || null 
@@ -457,7 +479,7 @@ const fetchQuoteGasInfo = async (idx) => {
         return false;
     } 
 
-    quotesDataArr.value[idx] = {...  quotesDataArr.value[idx], ...data}
+    quotesDataArr.value[idx] = {...quotesDataArr.value[idx], ...data}
 
     return true
 }

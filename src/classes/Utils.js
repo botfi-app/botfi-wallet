@@ -69,7 +69,7 @@ export default class Utils {
     static async txAlert({ text, icon="", explorerUrl }) {
 
 
-        console.log("explorer===>", explorerUrl)
+       // console.log("explorer===>", explorerUrl)
 
         let html = `
             <div>
@@ -77,11 +77,10 @@ export default class Utils {
             <div>
         `
 
-        let imageUrl = ""
+        if(icon == "") icon = `tx_success.png`
+        
 
-        if(icon != ""){
-            imageUrl = `/images/${icon}`
-        }
+        let imageUrl = `/images/${icon}`
 
         return this.getSwal().fire({
             title: "",
@@ -89,7 +88,10 @@ export default class Utils {
             showConfirmButton: true, 
             confirmButtonText: "View Tx.",
             preConfirm: () => window.open(explorerUrl),
-            imageUrl
+            showCloseButton: true,
+            imageUrl,
+            imageWidth: '128px',
+            imageAlt: ''
         })
     }
 
