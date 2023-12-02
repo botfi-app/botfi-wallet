@@ -7,7 +7,7 @@ import Swal from 'sweetalert2'
 import "sweetalert2/src/sweetalert2.scss"
 import Status from './Status'
 import {prng_alea} from 'esm-seedrandom';
-import { ZeroAddress, isAddress as ethersIsAddress, getAddress } from 'ethers';
+import { ZeroAddress, isAddress as ethersIsAddress, formatUnits, getAddress, parseUnits } from 'ethers';
 import { v5 as uuidv5 } from 'uuid';
 import appConfig from "../config/app.js"
 import * as dayjs from 'dayjs'
@@ -440,40 +440,44 @@ export default class Utils {
         return Number(parseFloat(val).toFixed(decimals))
     }
 
-    static formatCrypto(val, decimals=4) {
+    static formatCrypto(val, decimals=8) {
         
-        if(!val) return ""
+        if(!val || val == null || val=="") return ""
 
         //console.log("val===>", val)
 
         // lets get decimals 
         let valStr = val.toString()
 
-        let requiredDecimals = decimals;
+        let requiredDecimals;
 
-        if(valStr.startsWith("0.")){
-            let [ _, decmalPart ] = valStr.split(".")
-
-            let decimalsPartLeading0 = 0;
-            let decPartArr = decmalPart.split("")
-
-            for(let char of decPartArr){
-                if(char.toString() == '0'){
-                    decimalsPartLeading0 += 1
-                } else {
-                    break;
-                }
-            }
-            
-            //console.log("decimalsPartLeading0===>", decimalsPartLeading0)
-            requiredDecimals = decimalsPartLeading0 + decimals;
+        if(!(/^([0-9]+\.[0-9]+)$/g).test(valStr)){
+            return val
         }
 
-        //console.log("requiredDecimals====>", requiredDecimals)
+        let [ integerPart, decimalPart ] = valStr.split(".")
 
-        return parseFloat(valStr)
-                .toFixed(requiredDecimals)
-                .toLocaleString('fullwide', {useGrouping:false})
+        let decimalsPartLeading0 = 0;
+        let decPartArr = decimalPart.split("")
+
+        for(let char of decPartArr){
+            if(char.toString() == '0'){
+                decimalsPartLeading0 += 1
+            } else {
+                break;
+            }
+        }
+        
+        //console.log("decimalsPartLeading0===>", decimalsPartLeading0)
+        requiredDecimals = decimalsPartLeading0 + decimals;
+    
+        let newDecimalPart = parseInt(decimalPart.substring(0, requiredDecimals)) - 1 
+
+        let finalVal = `${integerPart}.${newDecimalPart}`
+
+        console.log(val +"---", finalVal)
+        
+        return finalVal.toLocaleString('fullwide', {useGrouping:false})
     }
 
 

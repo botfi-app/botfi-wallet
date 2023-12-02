@@ -296,7 +296,7 @@ const onTokenAInputReady = (input) => {
 
 const setMaxBalance = (val) => {
     let input = tokenAInputEl.value 
-    input["value"] = val
+    input["value"] = Utils.formatCrypto(val)
     input.dispatchEvent(new Event('change'))
 }
 
