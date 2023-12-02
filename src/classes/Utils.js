@@ -11,6 +11,7 @@ import { ZeroAddress, isAddress as ethersIsAddress, getAddress } from 'ethers';
 import { v5 as uuidv5 } from 'uuid';
 import appConfig from "../config/app.js"
 import * as dayjs from 'dayjs'
+import { useNetworks } from '../composables/useNetworks.js';
 
 
 export default class Utils {
@@ -65,10 +66,37 @@ export default class Utils {
         return (this.toBool(root.dataset.isExpanded) || false)
     }
 
+    static async txAlert({ text, icon="", explorerUrl }) {
+
+
+        console.log("explorer===>", explorerUrl)
+
+        let html = `
+            <div>
+                <div class='center-vh'><h5>${text}</h5></div>
+            <div>
+        `
+
+        let imageUrl = ""
+
+        if(icon != ""){
+            imageUrl = `/images/${icon}`
+        }
+
+        return this.getSwal().fire({
+            title: "",
+            html,
+            showConfirmButton: true, 
+            confirmButtonText: "View Tx.",
+            preConfirm: () => window.open(explorerUrl),
+            imageUrl
+        })
+    }
+
     static mAlert(text, opts = {}) {
 
         let {
-            ttl = null
+            ttl = null,
         } = opts
 
         let position = (this.isExpanded()) ? "center" : "top"
@@ -107,7 +135,7 @@ export default class Utils {
 
     static loaderWithTitle (title, text, canclose=true) {
 
-        console.log("this.isExpanded()===>", this.isExpanded())
+        //console.log("this.isExpanded()===>", this.isExpanded())
         
         let position = (this.isExpanded()) ? "center" : "top"
 

@@ -50,7 +50,6 @@ const tokenAInputEl    = ref()
 const tokenAInputValue = ref("")
 const tokenAInputValueUint = ref()
 
-const tokenBInputEl = ref()
 const tokenBInputValue = ref("")
 
 const activeTokenVarName = ref("tokenA")
@@ -61,15 +60,16 @@ const quotesDataArr = ref([])
 const selectedQuoteIndex = ref(null)
 
 const   isChainSupported = ref(false)
-const   swapRoutes = ref([])
 const   swapFactory = ref()
-const   swapFactoryAddr = ref()
 
 const   hasInsufficientFunds = ref(true)
 const   tokenApproved = ref(false)
 const   isApprovingToken = ref(false)
-const    uiState = ref(Date.now())
 const   txNonce = ref(null)
+const   tokenSelector = ref(null)
+
+const   isExecutingSwap = ref(false)
+const   ignoreQuoteRefresh = ref(false)
 
 onBeforeMount(() => {
     initialize()
@@ -127,9 +127,7 @@ const updateTokenAVars = (updateBalance=false) => {
 
     }
     
-    //console.log("hasInsufficientFunds.value===>", hasInsufficientFunds.value)
-
-    fetchQuotes()
+   fetchQuotes()
 }
 
 const initialize = async () => {
@@ -292,25 +290,33 @@ const selectQuote = (index) => {
 
 const approveTokenSpend = async () => {
     
-    let tA = tokenA.value
-    let loader = Utils.loader(`Approving ${tA.symbol.toUpperCase()}`)
-    isApprovingToken.value = true 
+    let loader;
 
-    let spender = swapFactory.value.target
-    
-    let resultStatus = await tokensCore.approveTokenSpend(web3, tA.contract, spender)
+    try {
 
-    loader.close()
-    isApprovingToken.value = false 
-    
-    if(resultStatus.isError()){
-        Utils.mAlert(resultStatus.getMessage())
-        return false;
+        let tA = tokenA.value
+        loader = Utils.loader(`Approving ${tA.symbol.toUpperCase()}`)
+        isApprovingToken.value = true 
+
+        let spender = swapFactory.value.target
+        
+        let resultStatus = await tokensCore.approveTokenSpend(web3, tA.contract, spender)
+
+        loader.close()
+        isApprovingToken.value = false 
+        
+        if(resultStatus.isError()){
+            Utils.mAlert(resultStatus.getMessage())
+            return false;
+        }
+
+        tokenA.value.allowances[activeWallet.value.address.toLowerCase()] = MaxUint256
+
+        return true 
+    } catch(e){
+        Utils.logError("swap#approveTokenSpend:",e)
+        Utils.mAlert("Failed to approve tokens")
     }
-
-    tA.allowances[activeWallet.value.address.toLowerCase()] = MaxUint256
-
-    return true 
 }
 
 const handleOnSubmit = async () => {
@@ -320,14 +326,14 @@ const handleOnSubmit = async () => {
     try {
         let tAVal = tokenAInputValue.value 
 
-        let curQuoteIdx = selectedQuoteIndex.value
+        let quoteItemIndex = selectedQuoteIndex.value
         let quotesArr = quotesDataArr.value
 
         if(tAVal <= 0 || 
             quotesError.value != '' || 
             quotesArr.length == 0 ||
-            curQuoteIdx == null ||
-            !(curQuoteIdx in quotesArr)
+            quoteItemIndex == null ||
+            !(quoteItemIndex in quotesArr)
         ) return;
 
 
@@ -338,25 +344,28 @@ const handleOnSubmit = async () => {
             if(!(await approveTokenSpend())) return;
         }
 
+
         loader = Utils.loader("Initialising gas data..")
 
-        if(!(await fetchQuoteGasInfo(curQuoteIdx))) return false 
+        if(!(await fetchQuoteGasInfo(quoteItemIndex))) return false 
 
         nextTick(() => {
             let intval = setInterval(() =>{
                 let m = bsModal.getInstance("#confirm-swap-modal")
-                console.log("m===>", m)
+                
                 if(!m || m == null) return;
                 clearInterval(intval)
                 m.show()
                 loader.close()
             }, 100)
         })
-        
+            
     } catch(e) {
         if(loader) loader.close()
         Utils.mAlert(Utils.generalErrorMsg)
         Utils.logError("swap#handleOnSubmit:", e)
+    } finally {
+        if(loader) loader.close()
     }
 }
 
@@ -395,14 +404,30 @@ const executeSwapTx =  async (dataObj) => {
             return Utils.mAlert(resultStatus.getMessage())
         }
 
-        let tokenBAddr = tokenB.value.contract
-        let activeWalletAddr = activeWallet.value.address
+        //let tokenBAddr = tokenB.value.contract
+        //let activeWalletAddr = activeWallet.value.address
 
+        let { name, symbol, chainId, contract} = tokenB.value
 
         // lets update user's balance
-        let importToken = await tokensCore.importToken(tokenB.value);
+        await tokensCore.importToken({
+            name, symbol, chainId, contract
+        });
 
-        console.log("importToken===>", importToken)
+        if(tokenSelector.value != null){
+           // console.log("tokenSelector===>", tokenSelector)
+           tokenSelector.value.reloadBalances()
+        }
+
+        let txData = resultStatus.getData() || {}
+
+        let explorerUrl = await networks.getExplorer(chainId, `tx/${txData.hash}`)
+
+        Utils.txAlert({
+            text: "Swap Successful",
+            icon: "swap_success.png",
+            explorerUrl
+        })
     } catch(e){
         Utils.mAlert(Utils.generalErrorMsg)
         Utils.logError("swap#executeSwap:", e)
@@ -418,6 +443,7 @@ const getTotalQuoteText = () => {
 
 const fetchQuoteGasInfo = async (idx) => {
     
+    console.log("")
     let item = quotesDataArr.value[idx]
 
     let gas = item.gasLimit || null 
@@ -462,13 +488,6 @@ const fetchQuoteGasInfo = async (idx) => {
                             <Icon name="ant-design:setting-filled" :size="16" />
                         </button>
                     </div>
-                    <div v-if="tokenA != null && balanceInfo != null" class="fs-14 ls-1">
-                        <a href="#" 
-                            @click.prevent="setMaxBalance(balanceInfo.formatted)"
-                        >
-                            Balance: {{ Utils.formatFiat( balanceInfo.formatted, 4 ) }}
-                        </a>
-                    </div>
                 </div>
                 <SwapInputAndTokenSelect
                     :tokenInfo="tokenA"
@@ -478,6 +497,7 @@ const fetchQuoteGasInfo = async (idx) => {
                     :inputAttrs="{
                         focused: ''
                     }"
+                    @balance-click="b => setMaxBalance(b.formatted)"
                 />
             </div>
             <div class="center-vh w-full flip-btn-parent">
@@ -579,6 +599,7 @@ const fetchQuoteGasInfo = async (idx) => {
                 :includeUserTokens="true"
                 :tokenSpender="swapFactory.target"
                 @select="onTokenSelect"
+                @init="item => tokenSelector = item"
             />
             <SwapSettings />
             <SwapQuotesModal

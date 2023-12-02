@@ -370,6 +370,8 @@ export const useSwap =  () => {
 
                     if(resultStatus.isError() || data == null) return null;
 
+                    console.log("data===>", data)
+
                     return { 
                         gasLimit:         data.gasLimit,
                         gasFee:           data.gasLimit * feeData["gasPrice"],
@@ -436,7 +438,7 @@ export const useSwap =  () => {
     }) => {
         try { 
             
-            console.log("quoteInfo===>", quoteInfo)
+            //console.log("quoteInfo===>", quoteInfo)
 
             let routeInfo       = quoteInfo.routeInfo
             let amountOutMin    = quoteInfo.amountOutMin

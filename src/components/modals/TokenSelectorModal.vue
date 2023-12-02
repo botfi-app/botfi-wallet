@@ -4,7 +4,7 @@
  * @author BotFi <hello@botfi.app>
  */
 
-import { onBeforeMount, onMounted, ref } from 'vue';
+import { onBeforeMount, onBeforeUnmount, onMounted, ref } from 'vue';
 import { useTokens } from '../../composables/useTokens';
 import { useNetworks } from '../../composables/useNetworks';
 import Utils from '../../classes/Utils';
@@ -20,7 +20,7 @@ const props = defineProps({
                 selected: { type: String, }      
             })
 
-const emit = defineEmits(['select'])
+const emit = defineEmits(['select', "init"])
 
 
 const selected = ref(props.selected)
@@ -28,7 +28,6 @@ const initialized = ref(false)
 const networks   = useNetworks()
 const tokensCore = useTokens()
 const searchResults = ref([])
-const netInfo = ref({})
 const keyword = ref("")
 const errorMsg = ref("")
 const id = ref("token-selector-modal")
@@ -39,6 +38,8 @@ const walletAddrs = ref([])
 const activeWallet = ref()
 const showImportBtn = ref(false)
 
+let intval;
+
 onBeforeMount(async () => {
 
     activeWallet.value = await walletStore.getActiveWalletInfo()
@@ -47,8 +48,23 @@ onBeforeMount(async () => {
     await fetchData()
     initialData.value = searchResults.value
     initialized.value = true 
+
+    /*/load balances every 30 secs 
+    intval = setInterval( async() => {
+        reloadBalances()
+    }, 60_000)
+    */
+
+    emit("init", { reloadBalances })
 })
 
+onBeforeUnmount(() => {
+    if(intval) clearInterval(intval)
+})
+
+const reloadBalances = async () => {
+    initialData.value = await fetchTokensOnChainDataAndBalances(initialData.value)
+}
 
 const fetchData = async () => {
     try {
@@ -107,12 +123,9 @@ const fetchData = async () => {
         //console.log("tokensDataArr====>", tokensDataArr)
 
         // remove the native token as we are only fethcing erc20 info
-        delete tokensContracts[Utils.nativeTokenAddr.toLowerCase()]
+        ///delete tokensContracts[Utils.nativeTokenAddr.toLowerCase()]
         
-        let tokensOnChainData = await fetchTokensOnChainDataAndBalances(
-                                    tokensContracts,
-                                    tokensDataArr
-                                )
+        let tokensOnChainData = await fetchTokensOnChainDataAndBalances(tokensDataArr)
         
         //console.log("tokensOnChainData===>", tokensOnChainData)
         if(!Array.isArray(tokensOnChainData)) return false;
@@ -127,22 +140,31 @@ const fetchData = async () => {
     }
 }
 
-const fetchTokensOnChainDataAndBalances = async (tokensContracts, tokensDataArr) => {
+const fetchTokensOnChainDataAndBalances = async (tokensDataArr) => {
 
-    let tokensContractsArr = Object.keys(tokensContracts)
+
+    let tokensContractsArr = []
+    
+    tokensDataArr.forEach(item => {
+        if(!Utils.isNativeToken(item.contract)) tokensContractsArr.push(item.contract)
+    })
+
+    let onchainTokenData = {}
         
-    let onChainTokenDataStatus = await tokensCore.getBulkERC20TokenInfo(
-                                    tokensContractsArr,
-                                    walletAddrs.value,
-                                    props.tokenSpender
-                                )
+    if(tokensContractsArr.length > 0){
+        let onChainTokenDataStatus = await tokensCore.getBulkERC20TokenInfo(
+                                        tokensContractsArr,
+                                        walletAddrs.value,
+                                        props.tokenSpender
+                                    )
 
-    if(onChainTokenDataStatus.isError()){
-        errorMsg.value =  "Failed to onchain fetch token data"
-        return false
-    }
+        if(onChainTokenDataStatus.isError()){
+            errorMsg.value =  "Failed to onchain fetch token data"
+            return false
+        }
 
-    let onchainTokenData = onChainTokenDataStatus.getData() || {}
+        onchainTokenData = onChainTokenDataStatus.getData() || {}
+    } //end if 
 
     //console.log("tokensContractsArr===>", tokensContractsArr)
     //console.log("onchainTokenData====> ", onchainTokenData)
@@ -205,7 +227,7 @@ const getBalance = (tokenItem) => {
 
     if(balance == 0) return ""
 
-    return `${Utils.formatCrypto(balance, 4)} ${tokenItem.symbol.toUpperCase()}`
+    return `${Utils.formatCrypto(balance, 4)}`
 }
 
 const onSearch = async (_keyword) => {
@@ -225,7 +247,7 @@ const onSearch = async (_keyword) => {
             }
         })
 
-        console.log("contractData===>", contractData)
+        //console.log("contractData===>", contractData)
 
         if(contractData != null){
             searchResults.value = [contractData]
@@ -298,6 +320,7 @@ const importToken = async () => {
 
         initialData.value.push(tokenInfo)
         searchResults.value = [tokenInfo]
+
     } catch(e) {
         Utils.logError("TokenSelectorModal#importToken", e)
         Utils.mAlert("Token import failed")
@@ -357,14 +380,16 @@ const importToken = async () => {
                                                 :height="24"
                                                 class="rounded-circle shadow-lg me-2"
                                             />
-                                            <div>{{ item.name }}</div>
-                                            <div class="ms-2 muted hint">
-                                                {{ item.symbol.toUpperCase() }}
+                                            <div>
+                                                <span>{{ item.name }}</span>
+                                                <span class="ms-2 muted hint">
+                                                    {{ item.symbol.toUpperCase() }}
+                                                </span>
                                             </div>
                                         </div>
                                         
-                                        <div class="d-flex">
-                                            <div class="fs-12 fw-semibold">
+                                        <div class="d-flex justify-content-end">
+                                            <div class="fs-14">
                                                 {{ getBalance(item) }}
                                             </div>
                                             <Icon 

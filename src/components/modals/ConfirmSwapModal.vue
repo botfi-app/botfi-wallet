@@ -9,7 +9,7 @@ const p = defineProps({
     quoteInfo:      { type: Object, required: true },
     amountIn:       { type: Number, required: true },
     protocolFee:    { type: Number, required: true },
-    txNonce:         { type: Number, required: true },
+    txNonce:         { type: null, required: true },
     slippage:       { type: Number, required: true },
     tokenA:         { type: Object, required: true },
     tokenB:         { type: Object, required: true }
