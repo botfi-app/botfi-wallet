@@ -508,7 +508,7 @@ const executeSwapTx =  async (dataObj) => {
            // console.log("tokenSelector===>", tokenSelector)
           tokenSelector.value.reloadBalances().then(() => {
 
-            /*let curDate = Date.now()
+            let curDate = Date.now()
              nextTick(() => {
                 let newTokenA = tokenSelector.value.getTokenInfo(tokenA.value.contract)
                 
@@ -527,7 +527,7 @@ const executeSwapTx =  async (dataObj) => {
                 }
 
                 console.log("newTokenB===>", newTokenB)
-             })*/
+             })
           })
 
         }

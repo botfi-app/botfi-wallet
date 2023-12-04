@@ -73,7 +73,7 @@ export const useSwap =  () => {
     }
     
     const getContractsAddrs = async (chainId) => {
-        return botfiContracts[chainId]
+        return botfiContracts[chainId].swap;
     }
 
     const getWeb3 = async () => {
@@ -220,6 +220,7 @@ export const useSwap =  () => {
     
             let mcallInputs = []
             
+           // console.log("swapRoutes===>", swapRoutes)
 
             for(let routeIndex in swapRoutes){
                 
@@ -230,10 +231,11 @@ export const useSwap =  () => {
                 let abi;
                 let target;
 
+                //console.log("routeId===>", routeId)
                 //if(routeGroup !== 'uni_v3') continue
     
                 //let isUniV2 = routeGroup == "uni_v2"
-                let isUniV2BasedQuotes = ["png_v2", "uni_v2"].includes(routeGroup)
+                let isUniV2BasedQuotes = ["png_v20", "uni_v2"].includes(routeGroup)
     
                 if(isUniV2BasedQuotes) {
                     abi = routesABIs[`${routeGroup}_router`]
@@ -265,6 +267,8 @@ export const useSwap =  () => {
                 let label = `${routeIndex}|${routeId}`
     
                 mcallInputs.push({ label, target, method, args, abi })
+
+               // console.log("label===>", label)
             } //end for loop 
             
             ///console.log("mcallInputs===>", mcallInputs)
@@ -289,10 +293,6 @@ export const useSwap =  () => {
     
                 let { label, data } = item; 
 
-                //console.log("label===>", label)
-                //console.log("data===>", data)
-                
-    
                 if(data == null) continue;
     
                 let [ routeIndex, routeId ] = label.split("|")
@@ -305,7 +305,7 @@ export const useSwap =  () => {
                 let amountOut;
                 //let estimatedGas;
 
-                let isUniV2BasedQuotes = ["png_v2", "uni_v2"].includes(routeGroup)
+                let isUniV2BasedQuotes = ["png_v20", "uni_v2"].includes(routeGroup)
     
                 if(["tjoe_v20", "tjoe_v21"].includes(routeGroup)){
                     
@@ -469,7 +469,7 @@ export const useSwap =  () => {
 
             //console.log("routeGroup====>",routeGroup)
         
-            if(["tjoe_v20", "tjoe_v21", "uni_v2"].includes(routeGroup)){
+            if(["tjoe_v20", "tjoe_v21", "uni_v2", "png_v20"].includes(routeGroup)){
 
                 /*v2.1 
                 struct Path {
@@ -787,6 +787,9 @@ export const useSwap =  () => {
             let routeInfo = quoteInfo.routeInfo;
             let amountInWithoutFee = quoteInfo.amountInWithoutFee
 
+
+            //console.log("routeInfo===>", routeInfo)
+
             let routeIdBytes32 = routeInfo.id;
 
             // lets get swap contract
@@ -799,6 +802,8 @@ export const useSwap =  () => {
                                     tokenBInfo,  
                                     quoteInfo
                                 })
+
+            //console.log("dataObj====>", dataObj)
             
             let { callDataArr, iface } = dataObj;
 
