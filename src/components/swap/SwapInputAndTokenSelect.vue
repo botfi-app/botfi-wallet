@@ -36,13 +36,12 @@ onMounted(() => {
     nextTick(() => {
         emit("ready", inputRef.value)
     })
-    //console.log("tokenInfo==>",p)
 })
 
 const getBalance = () => {
     let balance = (p.tokenInfo || {}).balanceInfo || null
-    if(balance == null || !balance.balanceDecimal) return "0"
-    return Utils.formatCrypto(balance.balanceDecimal || 0, 4)
+    if(balance == null || !balance.formatted) return "0"
+    return Utils.formatCrypto(balance.formatted || 0, 4)
 }
 </script>
 <template>
@@ -84,11 +83,11 @@ const getBalance = () => {
                     <div class='ms-1'>{{ getBalance() }}</div>
                 </div>
             </div>  
-            <div class="flex-grow-1">
+            <div class="flex-grow-1 mt-2">
                 <input 
                     type="text" 
                     v-number
-                    class="w-full amount-input fw-bold fs-4 text-end"
+                    class="w-full amount-input fw-bold fs-4"
                     placeholder="0"
                     :autofocus="isFocused"
                     v-bind="p.inputAttrs"

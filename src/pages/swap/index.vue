@@ -60,7 +60,7 @@ const quotesDataArr = ref([])
 const selectedQuoteIndex = ref(null)
 
 const   isChainSupported = ref(false)
-const   swapFactory = ref()
+const   swapFactory = ref({})
 const   swapContracts = ref({})
 
 const   hasInsufficientFunds = ref(true)
@@ -74,6 +74,9 @@ const   ignoreQuoteRefresh = ref(false)
 
 const  refreshQuotesAfter = ref(30_000)
 const  quoteUpdaterTimer  = ref(null)
+
+const tokenASelectState = ref(Date.now())
+const tokenBSelectState = ref(Date.now())
 
 onBeforeMount(() => {
     initialize()
@@ -90,7 +93,12 @@ watch(swapSetting, () => {
 
 watch(tokenA, () => {
     updateTokenAVars(true)
+    tokenASelectState.value = Date.now()
 }, { deep: true })
+
+watch(tokenA, () => {
+    tokenBSelectState.value = Date.now()
+},{ deep: true })
 
 watch(tokenAInputValue, () => {
     updateTokenAVars(false)
@@ -104,11 +112,14 @@ const stopQuoteUpdateTimer = () => {
     }
 }
 
-const startQuoteUpdaterTimer = () => {
+const startQuotesUpdateTimer = () => {
 
-    if(quoteUpdaterTimer.value != null ||
-       isFetchingQuotes.value
-    ) return;
+    if(quoteUpdaterTimer.value != null) return;
+
+    if(isFetchingQuotes.value){
+        refreshQuotesAfter.value = 30_000
+        return;
+    }
 
     let counter = 1_000
 
@@ -176,15 +187,15 @@ const initWeb3 = async () => {
     let web3Status = await wallets.getWeb3Conn()
 
     if(web3Status.isError()){
-       Utils.mAlert(`Failed to initialize network RPC: ${web3Status.getMessage()}`)
+       pageError.value = (`Failed to initialize network RPC: ${web3Status.getMessage()}`)
        return false
     }
 
     web3 = toRaw(web3Status.getData())
 
-    //contracts = await web3.getSystemContracts()
+    contracts = await web3.getSystemContracts()
 
-   /// swapFactory.value = contracts.swap.factory;
+    swapFactory.value = contracts.swap.factory;
 
     return web3
 }
@@ -208,10 +219,10 @@ const initialize = async () => {
     }
 
         
-    swapContracts.value = await swapCore.getContractsAddrs(netInfo.value.chainId)
+    //swapContracts.value = await swapCore.getContractsAddrs(netInfo.value.chainId)
 
     ///console.log("swapContracts===>", swapContracts)
-
+    if(!(await initWeb3())) return false;
 
     // lets mimic the balances from TokenSelect modal
     let tA = tokenA.value
@@ -236,6 +247,8 @@ const openTokenSelectModal = (tokenVarName) => {
 }
 
 const onTokenSelect = (token) => {
+
+   // console.log("token===>", token)
 
     let tc = token.contract.toLowerCase()
     let tAc = (tokenA.value || {contract: ''}).contract.toLowerCase()
@@ -338,7 +351,7 @@ const fetchQuotes = async () => {
     }
 
     // start quote updater
-    startQuoteUpdaterTimer()
+    startQuotesUpdateTimer()
 }
 
 const onTokenAInputReady = (input) => {
@@ -368,7 +381,7 @@ const approveTokenSpend = async () => {
         loader = Utils.loader(`Approving ${tA.symbol.toUpperCase()}`)
         isApprovingToken.value = true 
 
-        let spender = swapContracts.value.factory
+        let spender = swapFactory.value.target
 
         if(web3 == null){
             if(!(await initWeb3())) return false 
@@ -493,7 +506,30 @@ const executeSwapTx =  async (dataObj) => {
 
         if(tokenSelector.value != null){
            // console.log("tokenSelector===>", tokenSelector)
-           await tokenSelector.value.reloadBalances()
+          tokenSelector.value.reloadBalances().then(() => {
+
+            /*let curDate = Date.now()
+             nextTick(() => {
+                let newTokenA = tokenSelector.value.getTokenInfo(tokenA.value.contract)
+                
+                console.log("newTokenA===>", newTokenA)
+                
+                if(newTokenA) {
+                    tokenA.value = newTokenA
+                    tokenASelectState.value = curDate
+                }
+                
+                let newTokenB = tokenSelector.value.getTokenInfo(tokenB.value.contract)
+
+                if(newTokenB) {
+                    tokenB.value = newTokenB
+                    tokenBSelectState.value = curDate
+                }
+
+                console.log("newTokenB===>", newTokenB)
+             })*/
+          })
+
         }
 
         let txData = resultStatus.getData() || {}
@@ -502,9 +538,12 @@ const executeSwapTx =  async (dataObj) => {
 
         Utils.txAlert({
             text: "Swap Successful",
-            icon: "swap_success.png",
+            icon: "swap_success_2.png",
             explorerUrl
         })
+        
+        bsModal.getInstance("#confirm-swap-modal").hide()
+
     } catch(e){
         Utils.mAlert(Utils.generalErrorMsg)
         Utils.logError("swap#executeSwap:", e)
@@ -554,6 +593,7 @@ const fetchQuoteGasInfo = async (idx) => {
         <div  class="swap-engine w-400 mb-5 pt-1 px-2">
             <div  class="mt-4 token-a">
                 <div class="d-flex my-1 mx-1 justify-content-between align-items-center">
+                    <div></div>
                     <div>
                         <button
                             class="mb-1 btn btn-info rounded-circle p-0 center-vh"
@@ -566,16 +606,18 @@ const fetchQuoteGasInfo = async (idx) => {
                         </button>
                     </div>
                 </div>
-                <SwapInputAndTokenSelect
-                    :tokenInfo="tokenA"
-                    @open-token-select-modal="openTokenSelectModal('tokenA')"
-                    @ready="onTokenAInputReady"
-                    @input-change="v => tokenAInputValue = v"
-                    :inputAttrs="{
-                        focused: ''
-                    }"
-                    @balance-click="b => setMaxBalance(b.formatted)"
-                />
+                <div  :key="tokenASelectState">
+                    <SwapInputAndTokenSelect
+                        :tokenInfo="tokenA"
+                        @open-token-select-modal="openTokenSelectModal('tokenA')"
+                        @ready="onTokenAInputReady"
+                        @input-change="v => tokenAInputValue = v"
+                        :inputAttrs="{
+                            focused: ''
+                        }"
+                        @balance-click="b => setMaxBalance(b.formatted)"
+                    />
+                </div>
             </div>
             <div class="center-vh w-full flip-btn-parent">
                 <a href="#" 
@@ -585,7 +627,7 @@ const fetchQuoteGasInfo = async (idx) => {
                     <Icon name="gg:arrows-exchange-alt-v" :size="24" />
                 </a>
             </div>
-            <div  class="token-b">
+            <div  class="token-b" :key="tokenBSelectState">
                 <SwapInputAndTokenSelect
                     :tokenInfo="tokenB"
                     @open-token-select-modal="openTokenSelectModal('tokenB')"
@@ -635,7 +677,7 @@ const fetchQuoteGasInfo = async (idx) => {
                         </div>
                         <div class="center-vh my-1" v-if="quotesDataArr.length > 0">
                             <div>
-                                <div class="py-2 d-flex center-vh">
+                                <div class="pt-2 pb-1 d-flex center-vh">
                                     <div>
                                         {{ getTotalQuoteText() }}
                                     </div>
@@ -646,7 +688,11 @@ const fetchQuoteGasInfo = async (idx) => {
                                         @click.prevent
                                     >View All</a>
                                 </div>
-                                <div>Quotes updates in {{ refreshQuotesAfter / 1000 }}</div>
+                                <div class="fs-12 text-center text-upper fw-semibold hint ls-1" 
+                                    v-if="canFetchQuotes()"
+                                >
+                                    Updates in <span class="text-success fw-bold">{{ refreshQuotesAfter / 1000 }}</span>
+                                </div>
                             </div>
                         </div>
                    </div>
@@ -677,7 +723,7 @@ const fetchQuoteGasInfo = async (idx) => {
             <TokenSelectorModal 
                 :includeVerified="true"
                 :includeUserTokens="true"
-                :tokenSpender="swapContracts.factory"
+                :tokenSpender="swapFactory.target"
                 @select="onTokenSelect"
                 @init="item => tokenSelector = item"
             />
@@ -704,6 +750,7 @@ const fetchQuoteGasInfo = async (idx) => {
                 :txNonce="txNonce"
                 @nonceChange="v => txNonce = v"
                 @submit="executeSwapTx"
+                @close="ignoreQuoteRefresh=false"
             />
         </div>
 

@@ -117,6 +117,8 @@ export default class Http {
     static async getJson(url, data = {}, headers = {}, fetchOpts={}){
         try {
 
+            headers["Content-Type"] = "application/json"
+            
             let reqStatus = await this.get(url,data,headers, fetchOpts)
 
             if(reqStatus.isError()) return reqStatus

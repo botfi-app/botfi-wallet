@@ -3,16 +3,19 @@ import { inject, onBeforeMount, ref } from 'vue';
 import WalletLayout from '../../layouts/WalletLayout.vue';
 import ProfilePhoto from '../../components/common/ProfilePhoto.vue';
 import Utils from '../../classes/Utils';
-import { useSettings } from '../../composables/useSettings';
+//import { useSettings } from '../../composables/useSettings';
 import TokensAndActivityTabs from '../../components/wallet/TokensAndActivityTabs.vue';
+//import { useNetworks } from '../../composables/useNetworks';
 
 const botUtils = inject("botUtils")
 const userInfo = ref({})
 const name = ref("")
-const { fetchSettings } = useSettings()
+//const { fetchSettings } = useSettings()
 
 onBeforeMount(() => {
     initialize()
+
+    //nets.getExplorer(58)
 })
 
 const initialize = async() => {

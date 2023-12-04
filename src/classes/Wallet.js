@@ -87,7 +87,7 @@ export default class Wallet {
 
         let processedData = {}
 
-        let contractsObj = (await import(
+        let contractsObj = (await import(/* @vite-ignore */
                     `/src/config/contracts/botfi/${this.chainId}.json?r=${Date.now()}`
                 )).default;
 

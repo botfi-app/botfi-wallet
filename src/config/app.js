@@ -16,5 +16,7 @@ export default {
 
     ipfs_gateway: "https://dweb.link/",
 
-    arweave_gateway: "https://arweave.net/"
+    arweave_gateway: "https://arweave.net/",
+
+    default_explorer: "https://routescan.io/"
 }

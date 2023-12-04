@@ -26,6 +26,7 @@ const $state = ref({
 export const useTokens = () => {
 
     const net = useNetworks()
+    const { activeNetwork } = useNetworks()
     const dbCore = useDB()
     const botUtils = inject("botUtils")
     const { fetchSettings } = useSettings()
@@ -49,6 +50,13 @@ export const useTokens = () => {
     })
 
     watch(_activeWallet, async () => {
+        await getTokens(true)
+        updateDataState()
+    })
+
+    watch(activeNetwork, async () => {
+        //console.log("Network Changed====>")
+        $state.value.tokens = {}
         await getTokens(true)
         updateDataState()
     })

@@ -15,7 +15,7 @@ const p = defineProps({
     tokenB:         { type: Object, required: true }
 })
 
-const emit = defineEmits(["submit", "nonceChange"])
+const emit = defineEmits(["submit", "nonceChange", "show", "hide"])
 
 const initialized = ref(false)
 const id = ref("confirm-swap-modal")
@@ -54,6 +54,12 @@ const onShow = async () => {
    // gasTokenSymb.value = nativeTokenInfo.value.symbol.toUpperCase()
    //console.log("p.quoteInfo ===>", p.quoteInfo)
   // console.log("txGasLimit===>", txGasLimit)
+
+  emit("show")
+}
+
+const onHide = async () => {
+    emit("hide")
 }
 
 const  onGasPriceChange = (data={}) => {
@@ -92,7 +98,8 @@ const  handleOnSubmit= async () => {
         title="Confirm Swap"
         :has-header="true"
         :has-footer="false"
-        :onShow="onShow"
+        @show="onShow"
+        @hide="onHide"
         v-if="initialized"
     >
         <template #body>

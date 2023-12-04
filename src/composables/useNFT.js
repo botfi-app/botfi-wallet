@@ -3,7 +3,7 @@
  * @author BotFi <hello@botfi.app>
  */
 
-import { computed, inject, onBeforeMount, ref, toRaw } from "vue"
+import { computed, inject, onBeforeMount, ref, toRaw, watch } from "vue"
 import { useDB } from "./useDB"
 import { useNetworks } from "./useNetworks"
 import Utils from "../classes/Utils"
@@ -23,50 +23,58 @@ const $state = ref({
 export const useNFT = () => {
 
     const net = useNetworks()
+    const { activeNetwork }  = useNetworks()
     const dbCore = useDB()
     const botUtils = inject("botUtils")
 
 
     onBeforeMount(() =>{
-        getNFTs()
+        getNFTs(true)
+    })
+
+    watch(activeNetwork, () => {
+        $state.value.nfts = {}
+        getNFTs(true)
     })
 
     const nfts  = computed(() =>  $state.value.nfts );
 
 
-    const getNFTs = async (limit) => {
+    const getNFTs = async (force = false) => {
         try {
 
-           //console.log("limit===>", limit)
-
-           let netInfo = await net.getActiveNetworkInfo()
+            let nftsObj = $state.value.nfts
            
-           let chainId = netInfo.chainId
-           let userId = botUtils.getUid()
+            if(Object.keys(nftsObj).length == 0 || force) {
+                let netInfo = await net.getActiveNetworkInfo()
+                
+                let chainId = netInfo.chainId
+                let userId = botUtils.getUid()
 
-           let db = await dbCore.getDB()
+                let db = await dbCore.getDB()
 
-           let nftsArr  =  await db.nfts.where({ chainId, userId })
-                               .reverse()
-                               .sortBy("createdAt")
-                               
+                let nftsArr  =  await db.nfts.where({ chainId, userId })
+                                    .reverse()
+                                    .sortBy("createdAt")
+                                    
 
-           let nftsObj = {}
+                let nftsObj = {}
 
-           //nftsArr.reverse()
-           
-           nftsArr.forEach(item => nftsObj[item.id] = item )
-           
-           $state.value.nfts = nftsObj;
+                //nftsArr.reverse()
+                
+                nftsArr.forEach(item => nftsObj[item.id] = item )
+                
+                $state.value.nfts = nftsObj;
+            }
 
            //console.log("nftsObj=======>",nftsObj)
 
-           if(limit != null && Number.isInteger(limit) && nftsArr.length > (limit+1)) {
+          /* if(limit != null && Number.isInteger(limit) && nftsArr.length > (limit+1)) {
                let slicedItems = Object.fromEntries(
                    Object.entries(nftsObj).slice(0,limit+1)
                )
                return slicedItems
-           }
+           }*/
 
            return nftsObj;
 
@@ -738,7 +746,7 @@ export const useNFT = () => {
 
             let db = await dbCore.getDB()
  
-            await db.nfts.where({userId }).delete()
+            await db.nfts.where({ userId }).delete()
 
         } catch(e) {
             Utils.logError("useNFT#removeUserNFTs:", e)

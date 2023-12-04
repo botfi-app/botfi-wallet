@@ -15,6 +15,7 @@ import VitePreload from "vite-plugin-preload";
 //import { VitePWA } from 'vite-plugin-pwa'
 //import siteManisfest from "./public/site.webmanifest.json"
 import { visualizer } from "rollup-plugin-visualizer";
+//import dynamicImport from 'vite-plugin-dynamic-import'
 
 
 const plugins = [
@@ -24,7 +25,8 @@ const plugins = [
   visualizer(),
   
   AutoImport(),
-
+  
+  
   Pages({
    importMode: 'async'
   }),

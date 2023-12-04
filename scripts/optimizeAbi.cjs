@@ -1,12 +1,22 @@
 const path = require("path")
 const fg = require("fast-glob")
 const fsp = require('fs/promises');
-const { Interface: eInterface } = require("ethers")
+//const { Interface: eInterface } = require("ethers")
 
 const ABIsPath =  path.resolve(path.dirname(__dirname), "src/data/abi")
 const optimizedABIPath =  path.resolve(path.dirname(__dirname), "src/data/abi_min")
 
+const getEthers = async () => {
+    let url = "./_ethers.6.9.0.js";//use this for now, the one used in the main app has a bug
+    let ethers = await import(url)
+    return ethers;
+}
+
 const run = async () => {
+
+    let ethers = await getEthers()
+
+    const { Interface: eInterface } = ethers
 
     let dataArr = await fg(`${ABIsPath}/**/*.json`)
 
@@ -25,6 +35,9 @@ const run = async () => {
         let fileSubDir = abiPath.replace(ABIsPath, "")
 
         let outPath = path.join(optimizedABIPath, fileSubDir)
+                        .replace(/(\.json)$/i,"")
+
+        outPath = `${outPath}.json`
 
         let outDir = path.dirname(outPath)
 
@@ -37,7 +50,9 @@ const run = async () => {
 
         console.log(`Saving Optimized ABI at ${outPath}`)
 
-        await fsp.writeFile(outPath, JSON.stringify(minAbi))
+        let outData = `export default ${JSON.stringify(minAbi)}`
+        
+        await fsp.writeFile(outPath, outData)
         console.log()
     }
 }

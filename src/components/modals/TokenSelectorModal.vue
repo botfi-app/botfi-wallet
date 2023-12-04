@@ -55,12 +55,25 @@ onBeforeMount(async () => {
     }, 60_000)
     */
 
-    emit("init", { reloadBalances })
+    emit("init", { reloadBalances, getTokenInfo })
 })
 
 onBeforeUnmount(() => {
     if(intval) clearInterval(intval)
 })
+
+const getTokenInfo = (tokenAddr) => {
+    let tokenInfo;
+
+    let allTokensArr = [...searchResults.value,  ...initialData.value]
+    allTokensArr.forEach(t => {
+        if(t.contract.toLowerCase() == tokenAddr.toLowerCase()){
+            tokenInfo = t
+            return true;
+        }
+    }) 
+    return tokenInfo
+}
 
 const reloadBalances = async () => {
     initialData.value = await fetchTokensOnChainDataAndBalances(initialData.value)
@@ -170,6 +183,8 @@ const fetchTokensOnChainDataAndBalances = async (tokensDataArr) => {
     //console.log("onchainTokenData====> ", onchainTokenData)
     //console.log("tokensDataArr===>", tokensDataArr)
 
+    let activeWalletAddr = activeWallet.value.address.toLowerCase()
+
     let processedTokenData = []
 
     for(let item of tokensDataArr){
@@ -194,15 +209,17 @@ const fetchTokensOnChainDataAndBalances = async (tokensDataArr) => {
             if(onChainItem == null) continue;
 
             item.balances = onChainItem.balances; 
+           
             item.allowances = onChainItem.allowances; 
             item.decimals = Number(onChainItem.decimals)
         }
+
+        item.balanceInfo = item.balances[activeWalletAddr]
 
         processedTokenData.push(item)
         
     }
     
-    let activeWalletAddr = activeWallet.value.address.toLowerCase()
     
     let processedTokenDataSorted = processedTokenData.sort(( item1, item2 ) => {
         let balance1 = item1.balances[activeWalletAddr].value || 0n

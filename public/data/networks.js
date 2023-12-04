@@ -112,7 +112,7 @@ export default {
                 chainId:    1,
                 icon: "/images/crypto/eth.svg"
             },
-            rpc: ["https://mainnet.base.org"],
+            rpc: [],//["https://mainnet.base.org"],
             explorers: [ "https://basescan.org"],
             icon: "/images/crypto/base.svg"
         },
@@ -129,7 +129,7 @@ export default {
                 chainId:    1,
                 icon: "/images/crypto/eth.svg"
             },
-            rpc: ["https://rpc.linea.build"],
+            rpc: [],//["https://rpc.linea.build"],
             explorers: [ "https://lineascan.build/"],
             icon: "/images/crypto/linea.svg"
         },
@@ -144,7 +144,7 @@ export default {
                 symbol:     "AVAX",
                 decimals:   18
             },
-            rpc: ["https://avalanche-c-chain.publicnode.com"],
+            rpc: [],//["https://avalanche-c-chain.publicnode.com"],
             explorers: [ "https://snowtrace.io/"],
             icon: "/images/crypto/avax.svg"
         },

@@ -7,6 +7,7 @@ import { onBeforeMount, ref, computed, toValue } from "vue"
 import { useSimpleDB } from "./useSimpleDB"
 import Wallet from "../classes/Wallet"
 import Status from "../classes/Status"
+import app from "../config/app"
 
 const $state = ref({
     isReady: false, 
@@ -231,18 +232,25 @@ export const useNetworks = () => {
     const getExplorer = async (chainId, uri="") => {
        
         let nets = (await getUserNetworks()).networks || {}
-        let netInfo = nets[chainId]
+        let netInfo = nets[chainId] || {}
+
+        //console.log("netInfo====>", netInfo)
 
         let explorers = netInfo.explorers || []
 
+        let exp;
+        let isDefault;
+
         if(explorers.length == 0) {
-            return ""
+            exp = app.default_explorer;
+            isDefault = true
+        } else {
+            exp = explorers[0]
+            isDefault = false
         }
 
-        let exp = explorers[0]
-
         if(uri != ""){
-            exp = `${exp}/${uri}`
+            exp = `${exp}/${uri}?chainId=${chainId}`
         }
 
         return exp

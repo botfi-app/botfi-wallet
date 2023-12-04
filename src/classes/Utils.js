@@ -12,6 +12,7 @@ import { v5 as uuidv5 } from 'uuid';
 import appConfig from "../config/app.js"
 import * as dayjs from 'dayjs'
 import { useNetworks } from '../composables/useNetworks.js';
+import Http from './Http.js';
 
 
 export default class Utils {
@@ -237,7 +238,8 @@ export default class Utils {
     static getTokenIconUrl(symbol) {
         symbol = this.getTokenIconName(symbol)
         //console.log("symbol===>", symbol)
-        return `/images/crypto/${symbol.toLowerCase()}.svg`
+        let uri = `/images/crypto/${symbol.toLowerCase()}.svg`
+        return uri
     }
 
     static getUriPath() {
@@ -472,9 +474,9 @@ export default class Utils {
         }
         
         //console.log("decimalsPartLeading0===>", decimalsPartLeading0)
-        requiredDecimals = decimalsPartLeading0 + decimals;
-    
-        let newDecimalPart = parseInt(decimalPart.substring(0, requiredDecimals))
+        requiredDecimals = parseInt(decimalsPartLeading0) + decimals;
+        
+        let newDecimalPart = decimalPart.substring(0, requiredDecimals)
 
         let finalVal = `${integerPart}.${newDecimalPart}`
 
@@ -545,7 +547,34 @@ export default class Utils {
     static prefetchPages(urlsArr=[]) {
         urlsArr.forEach(async (url) => {
             let c = await import(url)
-            console.log("c==>", c)
+           // console.log("c==>", c)
         })
+    }
+
+
+    static getBalanceFromTokenItem (tokenItem){
+    
+        let balances = tokenItem.balances || null 
+    
+        if(balances == null) return ""
+        
+        let wallet = activeWallet.value.address.toLowerCase()
+        let balance = balances[wallet].formatted;
+    
+        if(balance == 0) return ""
+    
+        return `${Utils.formatCrypto(balance, 4)}`
+    }
+
+    static async importJson(url) {
+        let resultStatus = await Http.getJson(url)
+
+        if(resultStatus.isError()){
+            throw new Error(resultStatus.getMessage())
+        }
+        
+        let data = resultStatus.getData() || {}
+
+        return data
     }
 }

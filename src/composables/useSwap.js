@@ -71,17 +71,18 @@ export const useSwap =  () => {
         return $state.value.isSupported
     }
 
+    /*
     const getContractsAddrs = async (chainId) => {
 
         if($state.value.swapContracAddrs == null){
-            let c = (await import(
-                        `/src/config/contracts/botfi/${chainId}.json?r=${Date.now()}`
-                    )).default;
+            let p = `../config/contracts/botfi/${chainId}.json`
+            let url =  new URL(p, import.meta.url)
+            let c = await Utils.importJson(`${url}?r=${Date.now()}`);
             $state.value.swapContracAddrs = c.swap
         }
 
         return $state.value.swapContracAddrs
-    }
+    }*/
 
     const getWeb3 = async () => {
           
@@ -867,7 +868,7 @@ export const useSwap =  () => {
         fetchQuotes,
         getPath,
         executeSwap,
-        getContractsAddrs
+       // getContractsAddrs
     }
 }
     
