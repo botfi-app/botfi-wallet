@@ -232,9 +232,10 @@ export const useSwap =  () => {
 
                 //if(routeGroup !== 'uni_v3') continue
     
-                let isUniV2 = routeGroup == "uni_v2"
+                //let isUniV2 = routeGroup == "uni_v2"
+                let isUniV2BasedQuotes = ["png_v2", "uni_v2"].includes(routeGroup)
     
-                if(isUniV2) {
+                if(isUniV2BasedQuotes) {
                     abi = routesABIs[`${routeGroup}_router`]
                     target = route.router;
                 } else {
@@ -246,7 +247,7 @@ export const useSwap =  () => {
     
                 let args = [];
     
-                if(["uni_v2"].includes(routeGroup)){
+                if(isUniV2BasedQuotes){
                     args = [amountInWithFee, path]
                 }
                 else if(["tjoe_v20", "tjoe_v21"].includes(routeGroup)){
@@ -303,6 +304,8 @@ export const useSwap =  () => {
                 let dataObj = {}
                 let amountOut;
                 //let estimatedGas;
+
+                let isUniV2BasedQuotes = ["png_v2", "uni_v2"].includes(routeGroup)
     
                 if(["tjoe_v20", "tjoe_v21"].includes(routeGroup)){
                     
@@ -313,7 +316,7 @@ export const useSwap =  () => {
     
                     if(amountOut == null) continue; 
                 } 
-                else if(routeGroup == 'uni_v2') {
+                else if(isUniV2BasedQuotes) {
                     
                     let dataArr = data.toArray()
 

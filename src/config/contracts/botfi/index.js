@@ -13,8 +13,8 @@ export default {
   },
   "12602": {
     "swap": {
-      "factory": "0x2cb1a4C52d6fe3c141f7d719D60a15D0e00E7A7f",
-      "multicall3": "0x03D4f48a8E9B242C61151A8e2D3133481828a928"
+      "factory": "0xec38215f299C67a7824FDeBEA908F5488C306246",
+      "multicall3": "0xB135841406F314eA7D23ADeADeC0C80B16eF9e5C"
     }
   },
   "43114": {
