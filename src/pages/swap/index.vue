@@ -178,8 +178,10 @@ const updateTokenAVars = (updateBalance=false) => {
         hasInsufficientFunds.value =  (tAValUint > bal)
 
     }
-    
-   fetchQuotes()
+   
+   if(tAValUint > 0 && tokenB.value){ 
+        fetchQuotes()
+   }
 }
 
 const initWeb3 = async () => {
@@ -281,10 +283,16 @@ const flipTokensData = () => {
 }
 
 const canFetchQuotes = () => {
-    if(hasInsufficientFunds.value || ignoreQuoteRefresh.value) return false;
+    if(hasInsufficientFunds.value || 
+       ignoreQuoteRefresh.value || 
+       !Utils.isValidFloat(tokenAInputValue.value) ||
+       parseFloat(tokenAInputValue.value) == 0
+    ) return false;
 
-    if(!tokenA.value || !(tokenA.value && tokenB.value)) return false;
-    if(!Utils.isValidFloat(tokenAInputValue.value)) return false; 
+    if(!tokenA.value || 
+      !tokenB.value || 
+      !(tokenA.value && tokenB.value)
+    ) return false;
 
     return true 
 }
@@ -510,9 +518,15 @@ const executeSwapTx =  async (dataObj) => {
 
             let curDate = Date.now()
              nextTick(() => {
+
+
+                tokenAInputValue.value = '0'
+
+                ignoreQuoteRefresh.value = true
+
                 let newTokenA = tokenSelector.value.getTokenInfo(tokenA.value.contract)
                 
-                console.log("newTokenA===>", newTokenA)
+                //console.log("newTokenA===>", newTokenA)
                 
                 if(newTokenA) {
                     tokenA.value = newTokenA
@@ -526,7 +540,7 @@ const executeSwapTx =  async (dataObj) => {
                     tokenBSelectState.value = curDate
                 }
 
-                console.log("newTokenB===>", newTokenB)
+                //console.log("newTokenB===>", newTokenB)
              })
           })
 
