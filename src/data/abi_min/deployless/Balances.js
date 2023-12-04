@@ -1,0 +1,1 @@
+export default ["constructor((address token, address account)[] calls)"]

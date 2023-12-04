@@ -60,7 +60,7 @@ const quotesDataArr = ref([])
 const selectedQuoteIndex = ref(null)
 
 const   isChainSupported = ref(false)
-const   swapFactory = ref({})
+const   swapFactory = ref()
 const   swapContracts = ref({})
 
 const   hasInsufficientFunds = ref(true)
@@ -187,15 +187,15 @@ const initWeb3 = async () => {
     let web3Status = await wallets.getWeb3Conn()
 
     if(web3Status.isError()){
-       pageError.value = (`Failed to initialize network RPC: ${web3Status.getMessage()}`)
+       Utils.mAlert(`Failed to initialize network RPC: ${web3Status.getMessage()}`)
        return false
     }
 
     web3 = toRaw(web3Status.getData())
 
-    contracts = await web3.getSystemContracts()
+    //contracts = await web3.getSystemContracts()
 
-    swapFactory.value = contracts.swap.factory;
+   /// swapFactory.value = contracts.swap.factory;
 
     return web3
 }
@@ -219,10 +219,10 @@ const initialize = async () => {
     }
 
         
-    //swapContracts.value = await swapCore.getContractsAddrs(netInfo.value.chainId)
+    swapContracts.value = await swapCore.getContractsAddrs(netInfo.value.chainId)
 
     ///console.log("swapContracts===>", swapContracts)
-    if(!(await initWeb3())) return false;
+
 
     // lets mimic the balances from TokenSelect modal
     let tA = tokenA.value
@@ -381,7 +381,7 @@ const approveTokenSpend = async () => {
         loader = Utils.loader(`Approving ${tA.symbol.toUpperCase()}`)
         isApprovingToken.value = true 
 
-        let spender = swapFactory.value.target
+        let spender = swapContracts.value.factory
 
         if(web3 == null){
             if(!(await initWeb3())) return false 
@@ -535,6 +535,8 @@ const executeSwapTx =  async (dataObj) => {
         let txData = resultStatus.getData() || {}
 
         let explorerUrl = await networks.getExplorer(chainId, `tx/${txData.hash}`)
+        
+        bsModal.getInstance("#confirm-swap-modal").hide()
 
         Utils.txAlert({
             text: "Swap Successful",
@@ -542,8 +544,6 @@ const executeSwapTx =  async (dataObj) => {
             explorerUrl
         })
         
-        bsModal.getInstance("#confirm-swap-modal").hide()
-
     } catch(e){
         Utils.mAlert(Utils.generalErrorMsg)
         Utils.logError("swap#executeSwap:", e)
@@ -723,7 +723,7 @@ const fetchQuoteGasInfo = async (idx) => {
             <TokenSelectorModal 
                 :includeVerified="true"
                 :includeUserTokens="true"
-                :tokenSpender="swapFactory.target"
+                :tokenSpender="swapContracts.factory"
                 @select="onTokenSelect"
                 @init="item => tokenSelector = item"
             />

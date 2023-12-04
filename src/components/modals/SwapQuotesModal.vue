@@ -30,6 +30,7 @@ const getQuoteSrcInfo = (item) => {
 const onItemClick = (index) => {
     selected.value = index
     emits("select", index)
+    console.log(p.data[index])
     bsModal.getInstance("#"+id.value).hide()
 }
 </script>

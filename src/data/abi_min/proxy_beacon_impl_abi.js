@@ -1,0 +1,1 @@
+export default ["function implementation() view returns (address)"]

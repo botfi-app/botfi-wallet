@@ -20,8 +20,9 @@ import {
 
 //import { Buffer } from "buffer/";
 import multicall3Config from "../config/multicall3";
-import multicall3Abi from "../data/abi/multicall3.json"
+import multicall3Abi from "../data/abi_min/multicall3.js"
 import deploylessContractsBytes from "../config/deployless/bytecodes.json"
+import botfiContractAddrs from "../config/contracts/botfi"
 
 const defaultAbiCoder = AbiCoder.defaultAbiCoder()
 
@@ -87,9 +88,7 @@ export default class Wallet {
 
         let processedData = {}
 
-        let contractsObj = (await import(/* @vite-ignore */
-                    `/src/config/contracts/botfi/${this.chainId}.json?r=${Date.now()}`
-                )).default;
+        let contractsObj = botfiContractAddrs[this.chainId]
 
         for(let contractGroupName of Object.keys(contractsObj)){
 
@@ -98,9 +97,10 @@ export default class Wallet {
             for(let contractName of Object.keys(groupedContracts)){
                 //console.log("contractName====>", contractName)
 
+                let abiUrl = `/src/data/abi_min/botfi/${contractGroupName}/${contractName}.js`
+
                 //lets now fetch the abi 
-                let abi = (await import(`../data/abi/botfi/${contractGroupName}/${contractName}.json`))
-                            .default;
+                let abi = (await import(abiUrl)).default;
 
                 //console.log("abiData===>", abiData)
 

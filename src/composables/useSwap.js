@@ -11,6 +11,7 @@ import swapConfig from "../config/swap"
 import { Interface, decodeBytes32String, formatUnits, solidityPacked } from 'ethers';
 import swapFunctionMap from "../config/swap/swap_function_map"
 import { useSimpleDB  } from './useSimpleDB';
+import botfiContracts from '../config/contracts/botfi'; 
 
 const supportedChains = swapConfig.supported_chains;
 
@@ -70,19 +71,10 @@ export const useSwap =  () => {
                                     )
         return $state.value.isSupported
     }
-
-    /*
+    
     const getContractsAddrs = async (chainId) => {
-
-        if($state.value.swapContracAddrs == null){
-            let p = `../config/contracts/botfi/${chainId}.json`
-            let url =  new URL(p, import.meta.url)
-            let c = await Utils.importJson(`${url}?r=${Date.now()}`);
-            $state.value.swapContracAddrs = c.swap
-        }
-
-        return $state.value.swapContracAddrs
-    }*/
+        return botfiContracts[chainId]
+    }
 
     const getWeb3 = async () => {
           
@@ -868,7 +860,7 @@ export const useSwap =  () => {
         fetchQuotes,
         getPath,
         executeSwap,
-       // getContractsAddrs
+        getContractsAddrs
     }
 }
     

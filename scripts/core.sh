@@ -10,4 +10,7 @@ npx hardhat compile
 node $BASEDIR/deployless.cjs
 
 ## the generated abi gives error, so paused for now
-#node $BASEDIR/optimizeAbi.cjs
+node $BASEDIR/optimizeAbi.cjs
+
+## process BotFi contract addresses
+node $BASEDIR/processBotFiContractsAddrs.cjs

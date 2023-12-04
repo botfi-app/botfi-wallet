@@ -37,7 +37,7 @@ const run = async () => {
         let outPath = path.join(optimizedABIPath, fileSubDir)
                         .replace(/(\.json)$/i,"")
 
-        outPath = `${outPath}.json`
+        outPath = `${outPath}.js`
 
         let outDir = path.dirname(outPath)
 
@@ -51,7 +51,7 @@ const run = async () => {
         console.log(`Saving Optimized ABI at ${outPath}`)
 
         let outData = `export default ${JSON.stringify(minAbi)}`
-        
+
         await fsp.writeFile(outPath, outData)
         console.log()
     }
