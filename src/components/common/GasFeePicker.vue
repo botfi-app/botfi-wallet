@@ -20,7 +20,7 @@ const uiFeeItems = ref({})
 
 const emits = defineEmits(["show", "hide", "change"])
 
-console.log("props==>", props.gasLimit)
+//console.log("props==>", props.gasLimit)
 
 let popover = null;
 const   txGasLimit = ref(props.gasLimit)

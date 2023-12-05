@@ -14,6 +14,7 @@ import erc721Abi from "../../data/abi/erc721.json"
 import erc1155Abi from "../../data/abi/erc1155.json"
 import InlineError from "../common/InlineError.vue";
 import { useActivity } from "../../composables/useActivity"
+import { useNetworks } from "../../composables/useNetworks";
 
 const props = defineProps({
     id: { type: String, required: true },
@@ -37,6 +38,7 @@ const { getWeb3Conn, getActiveWalletInfo } = useWalletStore()
 const activeWalletInfo = ref(null)
 
 const activity = useActivity()
+const network = useNetworks()
 
 const feeData = ref()
 const onChainGasLimit = ref(null)
@@ -109,7 +111,7 @@ const processFeeAndFinalAmount = async () => {
             finalAmountUint.value = p.amountUint
         }
 
-        if(finalAmountUint.value <= 0n) {
+        if(finalAmountUint.value <= BigInt(0)) {
             return hasInsufficientNativeToken.value = true
         }
 
@@ -220,7 +222,7 @@ const getGasLimit = async () => {
                 return gasEstimateStatus
             }
 
-            onChainGasLimit.value = gasEstimateStatus.getData() || 21_000n
+            onChainGasLimit.value = gasEstimateStatus.getData() || BigInt(21_000)
 
         } 
         else if(p.tokenType == 'erc20'){
@@ -324,7 +326,7 @@ const processTransfer = async () => {
             if(supportsEip1559Tx.value){
                 txParams = {...txParams, maxFeePerGas, maxPriorityFeePerGas}
             } else {
-                txParams["gasPrice"] = txGasPrice.value
+                txParams["gasPrice"] = maxFeePerGas
             }
 
             resultStatus = await web3Conn.sendETH(txParams, 1)
@@ -363,7 +365,7 @@ const processTransfer = async () => {
             if(supportsEip1559Tx.value){
                 ethersTxOpt = {...ethersTxOpt, maxFeePerGas, maxPriorityFeePerGas}
             } else {
-                ethersTxOpt["gasPrice"] = txGasPrice.value
+                ethersTxOpt["gasPrice"] = maxFeePerGas
             }
 
 
@@ -409,8 +411,14 @@ const processTransfer = async () => {
         })
 
         updateBalances(null, true)
+
+        let explorerUrl = await network.getExplorer(web3Conn.chainId, `tx/${rawTxInfo.hash}`)
         
-        await Utils.mAlert(`${p.tokenInfo.symbol.toUpperCase()} transfer successful`, { ttl: 10 })
+        await Utils.txAlert({
+            text: `${p.tokenInfo.symbol.toUpperCase()} transfer successful`,
+            icon: "tx_success.svg",
+            explorerUrl
+        })
 
         router.push(`/tokens/${contractAddr}`)
         

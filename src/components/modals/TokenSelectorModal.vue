@@ -63,15 +63,17 @@ onBeforeUnmount(() => {
 })
 
 const getTokenInfo = (tokenAddr) => {
-    let tokenInfo;
-
+   
+    let tokenInfo = null;
     let allTokensArr = [...searchResults.value,  ...initialData.value]
+    
     allTokensArr.forEach(t => {
         if(t.contract.toLowerCase() == tokenAddr.toLowerCase()){
             tokenInfo = t
-            return true;
+            return;
         }
     }) 
+
     return tokenInfo
 }
 
@@ -162,26 +164,34 @@ const fetchTokensOnChainDataAndBalances = async (tokensDataArr) => {
         if(!Utils.isNativeToken(item.contract)) tokensContractsArr.push(item.contract)
     })
 
-    let onchainTokenData = {}
+    let onchainERC20TokenData = {}
+    let onChainNativeTokenBalances = {}
         
     if(tokensContractsArr.length > 0){
-        let onChainTokenDataStatus = await tokensCore.getBulkERC20TokenInfo(
+        let onChainERC20Balance =  tokensCore.getBulkERC20TokenInfo(
                                         tokensContractsArr,
                                         walletAddrs.value,
                                         props.tokenSpender
                                     )
 
-        if(onChainTokenDataStatus.isError()){
-            errorMsg.value =  "Failed to onchain fetch token data"
-            return false
+        let nativeTokensPromise = tokensCore.getNativeTokensBalancesBulk(walletAddrs.value, true)
+
+        let promiseResultArr = await Promise.all([onChainERC20Balance, nativeTokensPromise])
+
+        for(let resultStatus of promiseResultArr){
+            if(resultStatus.isError()){
+                errorMsg.value =  "Failed to onchain fetch token data"
+                return false
+            }
         }
 
-        onchainTokenData = onChainTokenDataStatus.getData() || {}
+        onchainERC20TokenData = promiseResultArr[0].getData() || {}
+        onChainNativeTokenBalances = promiseResultArr[1].getData() || {}
     } //end if 
 
-    //console.log("tokensContractsArr===>", tokensContractsArr)
+    console.log("onchainERC20TokenData===>", onchainERC20TokenData)
     //console.log("onchainTokenData====> ", onchainTokenData)
-    //console.log("tokensDataArr===>", tokensDataArr)
+    //console.log("onChainNativeTokenBalances===>", onChainNativeTokenBalances)
 
     let activeWalletAddr = activeWallet.value.address.toLowerCase()
 
@@ -195,14 +205,14 @@ const fetchTokensOnChainDataAndBalances = async (tokensDataArr) => {
 
         if(Utils.isNativeToken(contractAddr)){
 
-            let userBalances = await tokensCore.getUserBalances()
-            item.balances  = userBalances[contractAddr]
+            //let userBalances = await tokensCore.getUserBalances()
+            item.balances =  onChainNativeTokenBalances 
 
         } else {
             
             //console.log("contractAddr==>", contractAddr)
 
-            let onChainItem = onchainTokenData[contractAddr] || null 
+            let onChainItem = onchainERC20TokenData[contractAddr] || null 
 
             //console.log("onChainItem===>", onChainItem)
             
@@ -216,14 +226,16 @@ const fetchTokensOnChainDataAndBalances = async (tokensDataArr) => {
 
         item.balanceInfo = item.balances[activeWalletAddr]
 
+        console.log("item.balanceInfo===>", item.balanceInfo)
+
         processedTokenData.push(item)
         
     }
     
     
     let processedTokenDataSorted = processedTokenData.sort(( item1, item2 ) => {
-        let balance1 = item1.balances[activeWalletAddr].value || 0n
-        let balance2 = item2.balances[activeWalletAddr].value || 0n
+        let balance1 = item1.balances[activeWalletAddr].value || BigInt(0)
+        let balance2 = item2.balances[activeWalletAddr].value ||  BigInt(0)
 
         if(balance1 > balance2) return -1;
         else if(balance1 < balance2) return 1
@@ -233,17 +245,9 @@ const fetchTokensOnChainDataAndBalances = async (tokensDataArr) => {
     return processedTokenDataSorted
 }
 
-const getBalance = (tokenItem) => {
-    
-    let balances = tokenItem.balances || null 
-
-    if(balances == null) return ""
-    
-    let wallet = activeWallet.value.address.toLowerCase()
-    let balance = balances[wallet].formatted;
-
+const getBalance = (tokenInfo) => {
+    let balance = tokenInfo.balanceInfo.formatted;
     if(balance == 0) return ""
-
     return `${Utils.formatCrypto(balance, 4)}`
 }
 

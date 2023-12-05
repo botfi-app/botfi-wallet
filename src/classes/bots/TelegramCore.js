@@ -14,8 +14,8 @@ export default class TelegramCore {
 
     isMinVersion(version) {
         return (this.webApp && 
-                this.webApp.platform != 'unknown' &&
-                parseFloat(this.webApp.version) >= version
+                this.platform() != 'unknown' &&
+                this.webApp.isVersionAtLeast(version)
             )
     }
 
@@ -51,7 +51,7 @@ export default class TelegramCore {
 
     mainButton({ text = "Continue", onClick = null }) {
         
-        let _isSupported = (this.webApp && this.webApp.platform != 'unknown')
+        let _isSupported = (this.webApp && this.platform() != 'unknown')
 
         //console.log("_isSupported===>", _isSupported)
 
@@ -97,7 +97,7 @@ export default class TelegramCore {
 
     backBtn (onClick = null) {
         
-        let _isSupported =  (this.isMinVersion(6.1))
+        let _isSupported =  (this.isMinVersion("6.10"))
 
         if(!_isSupported){
             return this.notSupported()
@@ -118,7 +118,7 @@ export default class TelegramCore {
 
     nativeAlert(text, onClose = (() => {})) {
 
-        let _isSupported =  ( this.isMinVersion(6.2))
+        let _isSupported =  ( this.isMinVersion("6.2"))
 
         if(!_isSupported){
             return this.notSupported()
@@ -139,7 +139,7 @@ export default class TelegramCore {
     // cloud store
     cloudStore() {
 
-        let isSupported =  (this.isMinVersion(6.9))
+        let isSupported =  (this.isMinVersion("6.9"))
 
         if(!isSupported){
             return this.notSupported()
@@ -179,8 +179,8 @@ export default class TelegramCore {
 
     qrCodeReader() {
 
-        let _p = this.webApp.platform.toLowerCase()
-        let isSupported =  (this.isMinVersion(6.4) && ['android', 'ios'].includes(_p))
+        let _p =  this.platform().toLowerCase()
+        let isSupported =  (this.isMinVersion("6.4") && ['android', 'ios'].includes(_p))
 
         if(!isSupported){
             return this.notSupported()
@@ -202,7 +202,7 @@ export default class TelegramCore {
 
         //console.log("this.webApp.version====>", this.webApp.version)
         //let _p = this.webApp.platform.toLowerCase()
-        let isSupported =  (this.isMinVersion(6.4))
+        let isSupported =  (this.isMinVersion("6.4"))
 
         if(!isSupported){
             return this.notSupported()

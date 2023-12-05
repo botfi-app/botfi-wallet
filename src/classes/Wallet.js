@@ -97,10 +97,12 @@ export default class Wallet {
             for(let contractName of Object.keys(groupedContracts)){
                 //console.log("contractName====>", contractName)
 
-                let abiUrl = `/src/data/abi_min/botfi/${contractGroupName}/${contractName}.js`
+                //let abiUrl =
 
                 //lets now fetch the abi 
-                let abi = (await import(abiUrl)).default;
+                let abi = (await import(
+                    `../data/abi_min/botfi/${contractGroupName}/${contractName}.js`
+                )).default;
 
                 //console.log("abiData===>", abiData)
 

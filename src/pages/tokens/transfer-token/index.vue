@@ -67,7 +67,7 @@ watch(amount, async () => {
 
     let balanceInfo = _token.balanceInfo || {}
 
-    let balanceBN = balanceInfo.balance || 0n
+    let balanceBN = balanceInfo.balance || BigInt(0)
 
     amountBigInt.value = parseUnits(amt.toString(), _token.decimals)
 

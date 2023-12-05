@@ -15,17 +15,20 @@ import VitePreload from "vite-plugin-preload";
 //import { VitePWA } from 'vite-plugin-pwa'
 //import siteManisfest from "./public/site.webmanifest.json"
 import { visualizer } from "rollup-plugin-visualizer";
-//import dynamicImport from 'vite-plugin-dynamic-import'
+import dynamicImport from 'vite-plugin-dynamic-import'
+import legacy from '@vitejs/plugin-legacy'
 
 
 const plugins = [
   vue(),
 
+  dynamicImport(),
   VitePreload(),
   visualizer(),
   
   AutoImport(),
   
+  //legacy({ targets: ['defaults', 'not IE 11'] }),
   
   Pages({
    importMode: 'async'
@@ -59,6 +62,8 @@ if (process.env.NODE_ENV === "production") {
 }
 
 export default defineConfig({
+  //base: '/',
+
   plugins,
   resolve: {
     alias: {
@@ -72,6 +77,16 @@ export default defineConfig({
       "whatwg-fetch",
       "animate.css"
     ],
+    /*esbuildOptions: {
+      target: "esnext", 
+      supported: { 
+        bigint: true 
+      },
+    }*/
+  },
+
+  build: {
+    polyfillDynamicImport: true
   },
 
   server: {

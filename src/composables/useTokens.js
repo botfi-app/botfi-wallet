@@ -127,7 +127,11 @@ export const useTokens = () => {
                     let walletBalanceInfo = tokenBalances[walletAddr] || {}
 
                     if(!walletBalanceInfo || Object.keys(walletBalanceInfo).length == 0){
-                        walletBalanceInfo =  { balance: 0n, balanceDecimal: "0.0", balanceFiat: {} }
+                        walletBalanceInfo =  { 
+                            balance: BigInt(0), 
+                            balanceDecimal: "0.0", 
+                            balanceFiat: {} 
+                        }
                     }
 
                     item.balanceInfo = walletBalanceInfo
@@ -454,7 +458,7 @@ export const useTokens = () => {
                        // console.log("dd===>>>", dd)
                     }
                 }  
-                else if (walletAddrs.includes(tx.to) && tx.value > 0n) {
+                else if (walletAddrs.includes(tx.to) && tx.value > BigInt(0)) {
                    
                     tx.isNative = true
                     tx.isERC20 = false
@@ -787,6 +791,56 @@ export const useTokens = () => {
        return Status.successData(processedData)
     }
 
+    const getNativeTokensBalancesBulk = async (wallets=[], returnObj = true) => {
+        try {
+
+            let inputs = []
+
+            for(let i in wallets){
+                let addr = wallets[i]
+                inputs[i] = ({
+                    token: ZeroAddress,
+                    account: addr
+                })
+            }
+
+            //lets get the web3 conn
+            let web3ConnStatus = await net.getWeb3Conn()
+
+            if(web3ConnStatus.isError()){
+                return web3ConnStatus
+            }
+
+            let web3Conn = web3ConnStatus.getData()
+
+            let resultStatus = await web3Conn.getBalances(inputs)
+
+            if(resultStatus.isError()){
+                Utils.logError("useToken#updateBalances:"+ resultStatus.getMessage())
+                return resultStatus;
+            }
+
+            let dataArr = resultStatus.getData() || []
+
+            
+            if(returnObj){
+                let results = {}
+                
+               for(let i in wallets){
+                    let addr = wallets[i].toLowerCase()
+                    results[addr] = dataArr[i]
+                }
+
+                return Status.successData(results)
+            }
+
+            return Status.successData(dataArr)
+        } catch(e){
+            Utils.logError("useTokens#getNativeTokenBalanceBulk:",e)
+            return Status.error("failed to fetch native balance")
+        }
+    }
+
     /**
      * approve token spend
      * @param {*} web3 
@@ -957,6 +1011,7 @@ export const useTokens = () => {
         removeUsersTokensAndBalances,
         getBulkERC20TokenInfo,
         approveTokenSpend,
-        getNativeToken
+        getNativeToken,
+        getNativeTokensBalancesBulk
     }
 }

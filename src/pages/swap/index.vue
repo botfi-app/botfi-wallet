@@ -530,14 +530,14 @@ const executeSwapTx =  async (dataObj) => {
                 
                 if(newTokenA) {
                     tokenA.value = newTokenA
-                    tokenASelectState.value = curDate
+                    tokenASelectState.value = Date.now()
                 }
                 
                 let newTokenB = tokenSelector.value.getTokenInfo(tokenB.value.contract)
 
                 if(newTokenB) {
                     tokenB.value = newTokenB
-                    tokenBSelectState.value = curDate
+                    tokenBSelectState.value = Date.now()
                 }
 
                 //console.log("newTokenB===>", newTokenB)
@@ -548,13 +548,13 @@ const executeSwapTx =  async (dataObj) => {
 
         let txData = resultStatus.getData() || {}
 
-        let explorerUrl = await networks.getExplorer(chainId, `tx/${txData.hash}`)
+        let explorerUrl = await networks.getExplorer(web3.chainId, `tx/${txData.hash}`)
         
         bsModal.getInstance("#confirm-swap-modal").hide()
 
         Utils.txAlert({
             text: "Swap Successful",
-            icon: "swap_success_2.png",
+            icon: "swap_success_2.svg",
             explorerUrl
         })
         
@@ -620,7 +620,7 @@ const fetchQuoteGasInfo = async (idx) => {
                         </button>
                     </div>
                 </div>
-                <div  :key="tokenASelectState">
+                <div>
                     <SwapInputAndTokenSelect
                         :tokenInfo="tokenA"
                         @open-token-select-modal="openTokenSelectModal('tokenA')"
@@ -630,6 +630,7 @@ const fetchQuoteGasInfo = async (idx) => {
                             focused: ''
                         }"
                         @balance-click="b => setMaxBalance(b.formatted)"
+                        :key="tokenASelectState"
                     />
                 </div>
             </div>
@@ -641,7 +642,7 @@ const fetchQuoteGasInfo = async (idx) => {
                     <Icon name="gg:arrows-exchange-alt-v" :size="24" />
                 </a>
             </div>
-            <div  class="token-b" :key="tokenBSelectState">
+            <div  class="token-b">
                 <SwapInputAndTokenSelect
                     :tokenInfo="tokenB"
                     @open-token-select-modal="openTokenSelectModal('tokenB')"
@@ -650,6 +651,7 @@ const fetchQuoteGasInfo = async (idx) => {
                         value: tokenBInputValue,
                         placeholder: ''
                     }"
+                    :key="tokenBSelectState"
                 />
             </div>
     
