@@ -8,7 +8,10 @@ const activeTab = ref(0)
 const router = useRouter()
 const route  = useRoute()
 
+const emit = defineEmits(["change"])
+
 const isTabActive = (index) => parseInt(index) == parseInt(activeTab.value)
+
 
 onBeforeMount(() => {
   initialize()
@@ -24,8 +27,10 @@ const initialize = () => {
    }
 }
 
-const onTabClick = (item) => {
-   router.push(item.url)
+const onTabClick = (index) => {
+   activeTab.value = index
+   ///emit("change", tabItems[index].name.toLowerCase())
+   router.push( tabItems[index].url )
 }
 </script>
 <template>
@@ -35,16 +40,17 @@ const onTabClick = (item) => {
          <div class="b-tabs mt-2 shadow-xl">
             <div class="b-tabs-items">
                <template v-for="(item, index) in tabItems" :key="index">
-                  <router-link
+                  <div
                      :to="item.url"
                      :class="`b-tab-item text-center ${isTabActive(index) ? 'active': ''}`" 
                      rel="prefetch"
+                     @click.prevent="onTabClick(index)"
                   >  
                      <Icon class='rounded-pill icon mb-1' :name="item.icon" :size="20" />
                      <div class="ms-1 fs-12">
                         {{ item.name }}
                      </div>
-                  </router-link>
+                  </div>
                </template>
             </div>
          </div>

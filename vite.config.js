@@ -31,7 +31,20 @@ const plugins = [
   //legacy({ targets: ['defaults', 'not IE 11'] }),
   
   Pages({
-   importMode: 'async'
+    importMode(filepath, options) {
+      console.log("filePath===>", filepath)
+      
+      let routesArr = [
+        "/src/pages/index.vue",
+        "/src/pages/wallet/index.vue",
+        "/src/pages/settings/index.vue"
+      ]
+
+      return (routesArr.includes(filepath))
+            ? "sync"
+            : "async"
+    }
+
   }),
 
   Icons({ compiler: 'vue3' }),
@@ -94,7 +107,7 @@ export default defineConfig({
     port: 5173,
     strictPort: true, 
     headers: {
-    
+      "localtonet-skip-warning": "true"
     }
   }
 

@@ -37,23 +37,29 @@ const walletStore = useWalletStore()
 const walletAddrs = ref([])
 const activeWallet = ref()
 const showImportBtn = ref(false)
+const netInfo = ref({})
 
 let intval;
 
 onBeforeMount(async () => {
 
+    netInfo.value = await networks.getActiveNetworkInfo()
+
     activeWallet.value = await walletStore.getActiveWalletInfo()
     walletAddrs.value = await walletStore.getWalletAddresses()
 
-    await fetchData()
-    initialData.value = searchResults.value
-    initialized.value = true 
+    let chainId = netInfo.value.chainId
 
-    /*/load balances every 30 secs 
-    intval = setInterval( async() => {
-        reloadBalances()
-    }, 60_000)
-    */
+
+    if(window.swapTokens && chainId in window.swapTokens){
+        searchResults.value = window.swapTokens[chainId] || {}
+    } else {
+        await fetchData()
+    }
+
+    initialData.value = searchResults.value
+
+    initialized.value = true
 
     emit("init", { reloadBalances, getTokenInfo })
 })
@@ -84,9 +90,9 @@ const reloadBalances = async () => {
 const fetchData = async () => {
     try {
 
-        let netInfo = await networks.getActiveNetworkInfo()
+        let chainId = netInfo.value.chainId
 
-        let params = { keyword: keyword.value, chainId: netInfo.chainId }
+        let params = { keyword: keyword.value, chainId }
 
         //activeNetInfo.value = netInfo
 
@@ -107,7 +113,7 @@ const fetchData = async () => {
 
         let tokensDataArr = resultDataArr.map(item => {
             let contractAddr =  (item.contracts.filter((c) => (
-                                    c.chainId == netInfo.chainId))[0]
+                                    c.chainId == chainId))[0]
                                 ).contract.toLowerCase();
             item.contract = contractAddr
 
@@ -189,7 +195,7 @@ const fetchTokensOnChainDataAndBalances = async (tokensDataArr) => {
         onChainNativeTokenBalances = promiseResultArr[1].getData() || {}
     } //end if 
 
-    console.log("onchainERC20TokenData===>", onchainERC20TokenData)
+    ///console.log("onchainERC20TokenData===>", onchainERC20TokenData)
     //console.log("onchainTokenData====> ", onchainTokenData)
     //console.log("onChainNativeTokenBalances===>", onChainNativeTokenBalances)
 
@@ -226,7 +232,7 @@ const fetchTokensOnChainDataAndBalances = async (tokensDataArr) => {
 
         item.balanceInfo = item.balances[activeWalletAddr]
 
-        console.log("item.balanceInfo===>", item.balanceInfo)
+        //console.log("item.balanceInfo===>", item.balanceInfo)
 
         processedTokenData.push(item)
         
@@ -241,6 +247,14 @@ const fetchTokensOnChainDataAndBalances = async (tokensDataArr) => {
         else if(balance1 < balance2) return 1
         else return 0
     })    
+
+    let chainId = netInfo.value.chainId
+
+    if(window.swapTokens){
+        window.swapTokens[chainId] = processedTokenDataSorted
+    } else {
+        window.swapTokens = { [chainId]: processedTokenDataSorted }
+    }
 
     return processedTokenDataSorted
 }
@@ -321,13 +335,14 @@ const importToken = async () => {
         let tokenInfo = tokenInfoObj[contract.toLowerCase()]
         tokenInfo.contract = contract
 
-        let netInfo = await networks.getActiveNetworkInfo()
+        let chainId = netInfo.value.chainId
+
 
         let tokenInfoToImport = {
             name:       tokenInfo.name, 
             symbol:     tokenInfo.symbol,
             decimals:   tokenInfo.decimals,
-            chainId:    netInfo.chainId,
+            chainId,
             contract
         }
 

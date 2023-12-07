@@ -10,7 +10,7 @@ import { useActivity } from "./useActivity"
 import Utils from "../classes/Utils"
 import erc20Abi from "../data/abi_min/erc20.js"
 import Status from "../classes/Status"
-import { MaxUint256, ZeroAddress, formatUnits, getAddress, parseUnits } from "ethers"
+import { MaxUint256, ZeroAddress, formatEther, formatUnits, getAddress, parseEther, parseUnits } from "ethers"
 import EventBus from "../classes/EventBus"
 import Http from "../classes/Http"
 import { useSettings } from "./useSettings"
@@ -791,7 +791,7 @@ export const useTokens = () => {
        return Status.successData(processedData)
     }
 
-    const getNativeTokensBalancesBulk = async (wallets=[], returnObj = true) => {
+    const getNativeTokensBalancesBulk = async (wallets=[]) => {
         try {
 
             let inputs = []
@@ -823,18 +823,19 @@ export const useTokens = () => {
             let dataArr = resultStatus.getData() || []
 
             
-            if(returnObj){
-                let results = {}
-                
-               for(let i in wallets){
-                    let addr = wallets[i].toLowerCase()
-                    results[addr] = dataArr[i]
-                }
+            let results = {}
+            
+            for(let i in wallets){
+                let addr = wallets[i].toLowerCase()
 
-                return Status.successData(results)
+                let balance = dataArr[i]
+                results[addr] = {
+                    value: balance,
+                    formatted: formatEther(balance)
+                }
             }
 
-            return Status.successData(dataArr)
+            return Status.successData(results)
         } catch(e){
             Utils.logError("useTokens#getNativeTokenBalanceBulk:",e)
             return Status.error("failed to fetch native balance")

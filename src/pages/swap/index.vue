@@ -774,9 +774,9 @@ const fetchQuoteGasInfo = async (idx) => {
     </WalletLayout>
 </template>
 <style scoped lang="scss">
-button[disabled] {
-    background: #546e7a !important;
-    color: #fff !important;
-    border:none;
-}
+    button[disabled] {
+        background: #546e7a !important;
+        color: #fff !important;
+        border:none;
+    }
 </style>

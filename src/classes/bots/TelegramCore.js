@@ -139,7 +139,7 @@ export default class TelegramCore {
     // cloud store
     cloudStore() {
 
-        let isSupported =  (this.isMinVersion("6.9"))
+        let isSupported = false //(this.isMinVersion("6.9"))
 
         if(!isSupported){
             return this.notSupported()
@@ -147,32 +147,48 @@ export default class TelegramCore {
 
         let cs = this.webApp.CloudStorage 
 
-        /*
-        cs.setItem("hello", "Booom", function() {
-            console.log("Saved=========>")
-          
-            cs.getItem("hello", function(result) {
-                console.log("Item===>", result)
+        let getItem = (key) => ((new Promise((resolve, reject) => {
+            //if(!isSupported) return null;
+            cs.getItem(key, function(err, result){
+                if(err){ reject(err) }
+                else { resolve(result) }
             })
-        });*/
+        })))
+
+        let setItem = (key, value) => ((new Promise((resolve, reject) => {
+            //if(!isSupported) return false;
+            cs.setItem(key, value, (err) => {
+                if(err){ reject(err) }  
+                else { resolve(true) }
+            })
+        })))
+
+        let removeItem = (key) => ((new Promise((resolve, reject) => {
+            //if(!isSupported) return false;
+            cs.removeItem(key, (err) => {
+                if(err){ reject(err) }  
+                else { resolve(true) }
+            })
+        })))
+
+        /*
+        cs.setItem("__bname", "Zak", function(err) {
+            ///if(err) console.log("setItem Err========>>>",err)
+            console.log("Name Set =========>>>>")
+            cs.getItem("__bname", function(err, result) {
+                console.log("err===>", err)
+                console.log("result===>", result)
+                if(err) console.log("setItem Error=====>>>>", err)
+                console.log("result======>", result)
+            })
+        })*/
+
 
         return {
             isSupported: () => isSupported,
-            setItem: async (key, value) => {
-                if(!isSupported) return;
-                cs.setItem(key, value)
-                return true
-            },
-            getItem: async (key) => {
-                if(!isSupported) return null;
-                //return cs.getItem(key)
-                return false
-            },
-            removeItem: async (key) => {
-                if(!isSupported) return false;
-                //return cs.removeItem(key)
-                return false
-            }
+            setItem, 
+            getItem,
+            removeItem
         }
     }
 
