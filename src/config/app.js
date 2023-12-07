@@ -3,7 +3,7 @@ export default {
     
     app_name: "BotFi Wallet",
 
-    server_url: "https://api.botfi.app",
+    server_url: "https://dev-server.botfi.app",
     chains_data_url: "https://github.com/ethereum-lists/chains/blob/master/_data/chains",
 
     ///is dev
