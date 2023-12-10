@@ -1,11 +1,12 @@
 <script setup>
 import { onBeforeMount, ref } from 'vue';
 import { useWalletStore } from "../store/walletStore"
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 
 const initialized = ref(false)
 const walletStore = useWalletStore()
 const router = useRouter()
+const route  = useRoute()
 
 onBeforeMount(() => {
     initialize()
@@ -14,7 +15,8 @@ onBeforeMount(() => {
 const initialize = async () => {
 
     if((await walletStore.hasDefaultWallet())){
-        await router.push('/login')
+        router.push(`/login?next=${route.query.next || ''}`)
+        return true;
     }
 
     initialized.value = true

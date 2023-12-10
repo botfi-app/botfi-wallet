@@ -241,7 +241,6 @@ export default class Utils {
         symbol = this.getTokenIconName(symbol)
         //console.log("symbol===>", symbol)
         let uri = `/images/crypto/${symbol.toLowerCase()}.svg`
-        try { (new Image()).src = uri } catch(e){}
         return uri
     }
 

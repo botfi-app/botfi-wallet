@@ -1,10 +1,16 @@
+<route>
+    { 
+      name: "login", 
+      path: "/login" 
+    }
+</route>
 <script setup>
 import { inject, onBeforeMount, ref, watch } from 'vue';
 import { useWalletStore } from "../store/walletStore"
 import { useTokens } from "../composables/useTokens"
 import { useActivity } from "../composables/useActivity"
 import { useNFT } from "../composables/useNFT"
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import Utils from '../classes/Utils'
 import PinCode from '../components/common/PinCode.vue';
 
@@ -15,6 +21,7 @@ const pin         = ref("")
 const { removeUsersTokensAndBalances } = useTokens()
 const { removeUserActivity } = useActivity()
 const { removeUserNFTs } = useNFT()
+const route = useRoute()
 
 onBeforeMount(() => {
     initialize()
@@ -25,8 +32,12 @@ const initialize = async () => {
     if(!(await walletStore.hasDefaultWallet())){
         router.push('/')
     }
+    
+    if(walletStore.isLoggedIn()){
+       return redirectLoggedIn()
+    }
 
-    walletStore.logout()
+    ///walletStore.logout()
 
     initialized.value = true 
 }
@@ -63,9 +74,25 @@ const handleLogin = async () => {
         return Utils.errorAlert(errMsg)
     }
 
-    router.push("/wallet")
+    redirectLoggedIn()
 }
 
+const redirectLoggedIn = () => {
+
+    let nextPage = route.query.next || "" 
+    
+    console.log(" route.query===>",  route.query)
+
+    let whitelistUrls = ["swap","settings", "bridge", "tokens", "nft"]
+
+    let url = (whitelistUrls.includes(nextPage))
+                ? `/${nextPage}`
+                : "/wallet"
+
+    console.log("url===>", url)
+
+    router.push(url)
+}
 
 const resetWallets = async () => {
     let action =   await Utils.getSwal().fire({
