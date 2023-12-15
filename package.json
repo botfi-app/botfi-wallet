@@ -90,7 +90,6 @@
     "vite-plugin-node-stdlib-browser": "^0.2.1",
     "vite-plugin-pages": "^0.31.0",
     "vite-plugin-preload": "^0.3.1",
-    "vite-plugin-pwa": "^0.17.0",
-    "vite-plugin-static-copy": "^1.0.0"
+    "vite-plugin-pwa": "^0.17.0"
   }
 }
