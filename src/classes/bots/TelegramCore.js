@@ -139,7 +139,7 @@ export default class TelegramCore {
     // cloud store
     cloudStore() {
 
-        let isSupported = false //(this.isMinVersion("6.9"))
+        let isSupported = (this.isMinVersion("6.9"))
 
         if(!isSupported){
             return this.notSupported()

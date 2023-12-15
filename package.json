@@ -37,7 +37,6 @@
     "lokijs": "^1.5.12",
     "nice-color-palettes": "^3.0.0",
     "pinia": "^2.1.6",
-    "quicklink": "^2.3.0",
     "randomcolor": "^0.6.2",
     "sanitize-html": "^2.11.0",
     "simplebar": "^6.2.5",
