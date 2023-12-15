@@ -67,7 +67,7 @@
     "@nomiclabs/hardhat-waffle": "^2.0.6",
     "@types/whatwg-fetch": "^0.0.33",
     "@uniswap/v3-periphery": "^1.4.4",
-    "@vitejs/plugin-legacy": "^5.2.0",
+    "@vitejs/plugin-legacy": "^4.1.0",
     "@vitejs/plugin-vue": "^4.2.3",
     "autoprefixer": "^10.4.15",
     "fast-glob": "^3.3.2",

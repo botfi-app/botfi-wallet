@@ -28,11 +28,11 @@ const plugins = [
   
   AutoImport(),
   
-  //legacy({ targets: ['defaults', 'not IE 11'] }),
+  legacy({ targets: ['defaults', 'not IE 11'] }),
   
   Pages({
     importMode(filepath, options) {
-      console.log("filePath===>", filepath)
+      //console.log("filePath===>", filepath)
       
       let routesArr = [
         "/src/pages/index.vue",
@@ -99,7 +99,8 @@ export default defineConfig({
   },
 
   build: {
-    polyfillDynamicImport: true
+    polyfillDynamicImport: true,
+    target: "es2015"
   },
 
   server: {
