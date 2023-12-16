@@ -1,13 +1,21 @@
+import appDevConfig from "./app_dev"
+
+let is_dev = import.meta.env.DEV
+let devConfig = {}
+
+if(is_dev){
+    devConfig = appDevConfig
+}
 
 export default {
     
     app_name: "BotFi Wallet",
 
-    server_url: "https://dev-server.botfi.app",
+    server_url: "https://api.botfi.app",
     chains_data_url: "https://github.com/ethereum-lists/chains/blob/master/_data/chains",
 
     ///is dev
-    is_dev: import.meta.env.DEV,
+    is_dev,
 
     // gecko api endpoint 
     gecko_api_endpoint: "https://api.coingecko.com/api/v3/",
@@ -18,5 +26,7 @@ export default {
 
     arweave_gateway: "https://arweave.net/",
 
-    default_explorer: "https://routescan.io/"
+    default_explorer: "https://routescan.io/",
+
+    ...devConfig
 }

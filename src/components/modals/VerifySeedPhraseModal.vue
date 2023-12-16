@@ -30,30 +30,26 @@ const  handleSubmit = async () => {
     let fd = formData.value
 
     if(fd.length != 4){
-        return Utils.mAlert(`Verify the `)
+        return Utils.mAlert(`Kindly complete the verification process`)
     }
 
     for(let idx in formData.value){
 
-        //idx = parseInt(idx)
-
         let requiredValKey = dataKeysArr.value[idx]
 
-        console.log("requiredValKey===>", requiredValKey)
-
         let requiredValue = p.data[requiredValKey]
-        let inputData = (formData[idx] || "").trim()
+        let inputData = (fd[idx] || "").trim()
 
         if(inputData == ""){
             return Utils.mAlert(`Word #${requiredValKey + 1} required`)
         }
 
         if(requiredValue != inputData){
-            return Utils.mAlert("Provided words doesn't match")
+            return Utils.mAlert("Provided words do not match")
         }
     }
 
-   // emit("submit")
+    emit("submit")
 }
 </script>
 <template>
@@ -70,15 +66,19 @@ const  handleSubmit = async () => {
                     please provide the words in their respective positions.
                 </p>
                 <div class="row justify-content-cneter align-items-center mx-1 mb-2">
-                    <template v-for="key in dataKeysArr">
+                    <template v-for="(key, index) in dataKeysArr" :key="index">
                         <div class="col-6 p-1">
                             <div class="form-floating">
                                 <input 
                                     type="text" 
-                                    v-model="formData[key]"
+                                    v-model="formData[index]"
                                     class="form-control w-full rounded-lg" 
                                     :id="`word_${key}`" 
-                                    :placeholder="`Enter word #${key}`"
+                                    :placeholder="`Enter word #${key + 1}`"
+                                    :autocapitalize="false"
+                                    :autocomplete="false"
+                                    :autocorrect="false"
+                                    :autosave="false"
                                 >
                                 <label :for="`word_${key}`">
                                     Word #{{ key + 1 }}
