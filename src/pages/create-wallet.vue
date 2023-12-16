@@ -6,6 +6,7 @@ import Wallet from "../classes/Wallet";
 import LoadingView from "../layouts/LoadingView.vue";
 import clipboard from "clipboard"
 import Utils from "../classes/Utils";
+import { Modal as bsModal } from "bootstrap";
 
 const botUtils = inject("botUtils")
 const walletStore = useWalletStore()
@@ -64,24 +65,28 @@ onBeforeMount(async () => {
 })
 
 
+const showVerifyPhraseModal = async () => {
+
+    /*if(!copyBtnClicked.value){
+        Utils.mAlert("Copy the seed phrase by clicking the copy button")
+        return false
+    }*/
+
+    if(!hasCopiedSeedPhrase.value){
+        Utils.mAlert("Kindly accept that you written down the seed phrase")
+        return false
+    }
+
+    if(!hasAgreedSeedPhraseTerms.value){
+        Utils.mAlert("Accept our terms to continue")
+        return false
+    }
+
+    bsModal.getInstance("#verify_seed_phrase_modal").show()
+}
+
 const onSave = async () => {
-
     try {
-
-        if(!copyBtnClicked.value){
-            Utils.mAlert("Copy the seed phrase by clicking the copy button")
-            return false
-        }
-
-        if(!hasCopiedSeedPhrase.value){
-            Utils.mAlert("Kindly accept that you copied the seed phrase")
-            return false
-        }
-
-        if(!hasAgreedSeedPhraseTerms.value){
-            Utils.mAlert("Accept our terms to continue")
-            return false
-        }
 
         let loader = Utils.loader("Saving on device")
 
@@ -98,13 +103,12 @@ const onSave = async () => {
 
         router.push("/wallet")
 
-    } catch(e){
+    }  catch(e){
         Utils.logError("create-wallet.vue#onSave:", e)
         Utils.unknownErrorAlert()
     } finally {
         isLoading.value = false 
     }
-
 }
 </script>
 
@@ -126,52 +130,18 @@ const onSave = async () => {
                     <top-logo />
                     
                     <div class="text-md text-center my-2 muted hint">
-                        This seed phrase is the key to your wallet, save it securely 
-                        for future recovery of your wallet & funds
-                    </div>
-                    <div class="py-2 row">
-                        <template v-for="(word,index) in seedPhraseArray" :key="index">
-                            <div class="col-6 col-md-4 p-1 px-2">
-                                <div
-                                    click.prevent
-                                    class="phrase-word bg-darken3-alpha px-4 py-3 w-full rounded text-dark" 
-                                    :disabled="true"
-                                >  
-                                    {{ isPhraseHidden ? "***" : word }}
-                                </div>
-                            </div>
-                        </template>
+                        
+                        This seed phrase is the key to your wallet. Write it down and store it securely, 
+                        ensuring not to disclose it to anyone. 
+                        This phrase is the sole means for the future recovery of your wallet and funds.
+
                     </div>
 
                     <div class="mt-4 h-divider" />
 
-                    <div class="mt-4 mb-4">
-                        <div class="form-check">
-                            <input 
-                                v-model="hasCopiedSeedPhrase"
-                                class="form-check-input" 
-                                type="checkbox" 
-                                id="hasCopiedSeedPhrase"
-                            />
-                            <label class="form-check-label hint" for="hasCopiedSeedPhrase">
-                                I have copied the seed phrase & saved it securely
-                            </label>
-                        </div>
-                        <div class="form-check my-4">
-                            <input 
-                                v-model="hasAgreedSeedPhraseTerms"
-                                class="form-check-input" 
-                                type="checkbox" 
-                                id="hasAgreedSeedPhraseTerms"
-                            />
-                            <label class="form-check-label hint" for="hasAgreedSeedPhraseTerms">
-                                I understand that the seed phrase won't be saved on BotFi's servers
-                            </label>
-                        </div>
-                    </div>
-                    <div class="d-flex flex-row pb-4 w-full">
+                    <div class="d-flex flex-row pb-2 w-full">
                         <button
-                            class="btn btn-secondary rounded-pill mx-1 w-full" 
+                            class="btn btn-success rounded-pill mx-1 w-full" 
                             @click="isPhraseHidden=!isPhraseHidden"
                         >
                             {{ isPhraseHidden ? "Reveal" : "Hide" }}
@@ -185,13 +155,65 @@ const onSave = async () => {
                         </button>
                     </div>
 
+                    <div class="mt-4 mb-2 h-divider" />
+
+                    <div class="py-2 row">
+                        <template v-for="(word,index) in seedPhraseArray" :key="index">
+                            <div class="col-6 col-md-4 p-1 px-2">
+                                <div class="fs-12 m-2 fw-medium ls-2">
+                                    Word #{{ index+1 }}
+                                </div>
+                                <div
+                                    click.prevent
+                                    class="phrase-word bg-darken3-alpha px-4 py-3 w-full rounded text-dark" 
+                                    :disabled="true"
+                                >  
+                                    {{ isPhraseHidden ? "***" : word }}
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+
+                
+
+                    <div class="mt-4 mb-4">
+                        <div class="form-check">
+                            <input 
+                                v-model="hasCopiedSeedPhrase"
+                                class="form-check-input" 
+                                type="checkbox" 
+                                id="hasCopiedSeedPhrase"
+                            />
+                            <label class="form-check-label hint" for="hasCopiedSeedPhrase">
+                               I have written and securely stored the seed phrase
+                            </label>
+                        </div>
+                        <div class="form-check my-4">
+                            <input 
+                                v-model="hasAgreedSeedPhraseTerms"
+                                class="form-check-input" 
+                                type="checkbox" 
+                                id="hasAgreedSeedPhraseTerms"
+                            />
+                            <label class="form-check-label hint" for="hasAgreedSeedPhraseTerms">
+                                I acknowledge that once lost, the seed phrase cannot be recovered from BotFi.                            </label>
+                        </div>
+                    </div>
+              
                     <div class=" w-full">
-                        <button @click.prevent="onSave" class="btn rounded-pill btn-primary w-full">
+                        <button @click.prevent="showVerifyPhraseModal" 
+                            class="btn rounded-pill btn-primary w-full"
+                        >
                             Continue
                         </button>
                     </div>
                 </div>
             </loading-view>
+
+            <VerifySeedPhraseModal 
+                :data="seedPhraseArray"
+                @submit="onSave"
+            />
         </div>
     </main-layout>
 </template>

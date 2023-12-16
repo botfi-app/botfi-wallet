@@ -31,10 +31,13 @@ export const useSimpleDB = () => {
         let _k = getKey(key)
         
         let _v = localStorage.getItem(_k) || null 
+   
 
-        if(_v == null && enableCloud && cloudStore.isSupported()){
+        if(_v == null && (enableCloud && cloudStore.isSupported())){
             _v = await cloudStore.getItem(_k)
-            
+
+            //console.log("_v===>", _v)
+
             //save item locally 
             if(_v != null) setItem(key, _v, false)
         }

@@ -111,7 +111,7 @@ export const useKeystore = () => {
 
         //password = toValue(password)
 
-        let walletsArr = await DB.getItem(WALLETS_KEY)
+        let walletsArr = await DB.getItem(WALLETS_KEY, true)
 
         if(walletsArr == null){
             return Status.successData([])
@@ -125,7 +125,7 @@ export const useKeystore = () => {
 
         let { name = "", address, privateKey, walletIndex, imported} = opts;
 
-        let wallets = await DB.getItem(WALLETS_KEY)
+        let wallets = await DB.getItem(WALLETS_KEY, true)
 
         if(wallets == null){
             wallets = []
@@ -147,7 +147,7 @@ export const useKeystore = () => {
 
         wallets.unshift(dataToSave)
 
-        await DB.setItem(WALLETS_KEY, wallets)
+        await DB.setItem(WALLETS_KEY, wallets, true)
  
         return Status.successPromise()
     }
@@ -216,7 +216,7 @@ export const useKeystore = () => {
 
         //console.log("newWallets===>", newWallets)
         
-        await DB.setItem(WALLETS_KEY, newWallets)
+        await DB.setItem(WALLETS_KEY, newWallets, true)
 
         return Status.success()
     }
@@ -240,7 +240,7 @@ export const useKeystore = () => {
             }
         }
 
-        await DB.setItem(WALLETS_KEY, wallets)
+        await DB.setItem(WALLETS_KEY, wallets, true)
 
         return Status.success()
     }

@@ -41,13 +41,8 @@ export default {
 
         window.botUtils = botUtils;
 
-        // reset the native bottom nav 
-        let natBtn = botUtils.mainButton({text: "none", onClick: null })
+        //telegram.WebApp.sendData("/botfi Hello===>")
         
-        if(natBtn.isSupported()){
-            natBtn.destroy()
-        }
-
         app.provide("botUtils", botUtils)
     }
 

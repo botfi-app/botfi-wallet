@@ -22,15 +22,7 @@ onBeforeMount(() => {
 
 })
 
-/*
-onMounted(()=> {
-  setTimeout(()=>{  
-    qlisten({
-      priority: true,
-    })
-  }, 100)
-})
-*/
+
 const updateBalances = async() => {
   
   if(!walletStore.isLoggedIn() || isUpdatingBalance.value == true) return;
