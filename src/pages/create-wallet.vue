@@ -139,7 +139,7 @@ const onSave = async () => {
 
                     <div class="mt-4 h-divider" />
 
-                    <div class="d-flex flex-row pb-2 w-full">
+                    <div class="d-flex flex-row py-2 w-full">
                         <button
                             class="btn btn-success rounded-pill mx-1 w-full" 
                             @click="isPhraseHidden=!isPhraseHidden"
