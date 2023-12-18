@@ -1,8 +1,8 @@
 export default {
   "56": {
     "swap": {
-      "factory": "0x6f6B82bb8b54dC7284EDF2bA247F58Ec6EF57b85",
-      "multicall3": "0x1d2324BC8b9290EE35aa5D6705D67ec147f07D13"
+      "factory": "0x26dBd330cc32fAb12513AeB5331531557612E720",
+      "multicall3": "0x060267D7955D93B3F8c961c4F63c0521a0a02B48"
     }
   },
   "1337": {
@@ -11,10 +11,22 @@ export default {
       "multicall3": "0x1b98b9e825E06862Cb0F24d871eC0411D4a60d56"
     }
   },
+  "8453": {
+    "swap": {
+      "factory": "0x26dBd330cc32fAb12513AeB5331531557612E720",
+      "multicall3": "0x060267D7955D93B3F8c961c4F63c0521a0a02B48"
+    }
+  },
   "12602": {
     "swap": {
       "factory": "0xec38215f299C67a7824FDeBEA908F5488C306246",
       "multicall3": "0xB135841406F314eA7D23ADeADeC0C80B16eF9e5C"
+    }
+  },
+  "42161": {
+    "swap": {
+      "factory": "0x652dFAdd3384Ad8e4327a7f72b16bdf4AF416Ce8",
+      "multicall3": "0xD8C6ce25BEA210e5EF7d1FD836CCCFd5deC4567e"
     }
   },
   "43114": {
