@@ -37,8 +37,8 @@ export default {
   },
   "43114": {
     "swap": {
-      "factory": "0x1f77EBa7cff910c34C7A86342498c2fE8F25dCF9",
-      "multicall3": "0xEB4076A714c6785D2C420EbC70203CFeCf87cd4e"
+      "factory": "0x26dBd330cc32fAb12513AeB5331531557612E720",
+      "multicall3": "0x060267D7955D93B3F8c961c4F63c0521a0a02B48"
     }
   },
   "59144": {

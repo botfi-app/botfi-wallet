@@ -3,11 +3,17 @@ export default (el, binding) => {
 
    // console.log("el====>>?", el)
 
-    el.addEventListener("keypress", (e) => {
+    el.addEventListener("keydown", (e) => {
 
         //console.log("e===>", e)
 
-        if(!/^([0-9]+)$/.test(e.key)){
+        let k = e.key.toString().toLowerCase()
+        
+        if (e.ctrlKey || e.metaKey || ["backspace", "enter", "delete"].includes(k)) {
+            return true
+        }
+
+        if(!/^([0-9]+)$/.test(k)){
             e.preventDefault()
             return false;
         }

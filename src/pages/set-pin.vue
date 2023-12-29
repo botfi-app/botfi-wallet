@@ -4,7 +4,6 @@ import { onBeforeMount, ref, watch } from "vue"
 import { useRouter, useRoute } from 'vue-router';
 import { useWalletStore } from "../store/walletStore";
 import Utils from "../classes/Utils";
-import { isStrongPassword } from "validator"
 import NativeBackBtn from "../components/common/NativeBackBtn.vue";
 
 const router = useRouter()
@@ -46,20 +45,6 @@ const getNextPage = () => {
     return nextPage;
 }
 
-/*
-const isPinSequential = (value) => {
-    
-    var pinArr = value.toString().split('');
-
-    for (let i = 0; i < pinArr.length - 1; i++) {
-        if (parseInt(pinArr[i]) >= parseInt(pinArr[i + 1]))
-        return false;
-    }
-
-    return true;
-}
-*/
-
 const onSave = async () => {
     
     try {
@@ -70,6 +55,9 @@ const onSave = async () => {
             return Utils.errorAlert("A valid numeric value is required")
         }
         
+        if(p1.split('').every(char => char === p1[0])){
+            return Utils.errorAlert("Weak pin code")
+        }
 
         p1 = parseInt(p1)
         let p2 = parseInt(pin2.value)
@@ -79,20 +67,6 @@ const onSave = async () => {
             return Utils.errorAlert("Pin codes do not match")
         }
 
-        //{ minLength: 8, minLowercase: 1, minUppercase: 1, minNumbers: 1, minSymbols: 1, returnScore: false, pointsPerUnique: 1, pointsPerRepeat: 0.5, pointsForContainingLower: 10, pointsForContainingUpper: 10, pointsForContainingNumber: 10, pointsForContainingSymbol: 10 }
-
-        let strongPinOpts = {
-            minLength: 6, 
-            minLowercase:0, 
-            minUppercase: 0,
-            minNumbers: 6,
-            minSymbols: 0
-        }
-
-        if(!isStrongPassword(p1.toString(), strongPinOpts)){
-            return passwordError.value = "Pin code not strong"
-        }
-    
         if(!(hasAgreedNoPinOnServer.value && hasAgreedNoPinReset.value)){
             return Utils.errorAlert("Accept our terms to proceed")
         }
@@ -122,21 +96,22 @@ const onSave = async () => {
             
             <top-logo />
             
-            <NativeBackBtn  />
+            <NativeBackBtn url="/"  />
 
-            <div>
-                <PinCode 
-                    label="Set Pin"
-                    @change="(v) => pin1 = v"
-                />
+            <div class="px-4 w-full">
+                <div class="mb-3">
+                    <PinCode 
+                        label="Set Pin"
+                        @change="(v) => pin1 = v"
+                    />
+                </div>
+                <div>
+                    <PinCode 
+                        label="Confirm Pin"
+                        @change="(v) => pin2 = v"
+                    />
+                </div>
             </div>
-            <div>
-                <PinCode 
-                    label="Confirm Pin"
-                    @change="(v) => pin2 = v"
-                />
-            </div>
-
             <div class="form-check mx-4 my-4">
                 <input 
                     v-model="hasAgreedNoPinOnServer"

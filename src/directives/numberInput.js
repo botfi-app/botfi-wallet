@@ -1,9 +1,9 @@
 
 export default (el, binding) => {
 
-    el.addEventListener("keypress", (e) => {
+    el.addEventListener("keydown", (e) => {
 
-        if (e.ctrlKey || e.metaKey) {
+        if (e.ctrlKey || e.metaKey || ["backspace", "enter", "delete"].includes(k)) {
             return true
         }
 

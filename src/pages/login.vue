@@ -81,15 +81,22 @@ const redirectLoggedIn = () => {
 
     let nextPage = route.query.next || "" 
     
-    console.log(" route.query===>",  route.query)
+    //console.log(" route.query===>",  route.query)
 
-    let whitelistUrls = ["swap","settings", "bridge", "tokens", "nft"]
+    let whitelistUrls = [
+        "swap",
+        "settings", 
+        "bridge", 
+        "tokens", 
+        "nft",
+        "scanner"
+    ]
 
     let url = (whitelistUrls.includes(nextPage))
                 ? `/${nextPage}`
                 : "/wallet"
 
-    console.log("url===>", url)
+    ///console.log("url===>", url)
 
     router.push(url)
 }
@@ -142,22 +149,22 @@ const resetWallets = async () => {
 
             <top-logo />
 
-            <div class="mt-3">
+            <div class="p-3 w-full">
                 <PinCode 
                     label="Enter Pin"
                     @change="(v) => pin = v"
                 />
             </div>
 
-            <div class="my-4 px-3 d-flex flex-column align-items-center w-full">
+            <div class="mb-2 px-3 d-flex flex-column align-items-center w-full">
                 <button
-                    class="btn w-full  rounded-pill shadow btn-primary mb-4"
+                    class="btn btn-lg w-full  rounded shadow btn-primary mb-4"
                     @click.prevent="handleLogin"
                 >
                     Login
                 </button>
                 <button 
-                    class="btn-none text-danger w-full btn btn-md mb-2"
+                    class="btn-none btn-lg text-danger w-full btn btn-md mb-2"
                     @click="resetWallets"
                 >
                     Reset Wallets

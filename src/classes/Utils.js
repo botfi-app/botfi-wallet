@@ -489,6 +489,7 @@ export default class Utils {
 
 
     static formatDateMillis(dateMillis, format="lll"){
+        if(!dateMillis || (dateMillis || "".toString().trim() == "")) return ""
         return dayjs(dateMillis).format(format)
     }
 

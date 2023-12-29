@@ -95,21 +95,26 @@ export default class TelegramCore {
         return this.webApp.platform
     }
 
-    backBtn (onClick = null) {
+    backBtn(onClick = null) {
         
         let _isSupported =  (this.isMinVersion("6.10"))
 
         if(!_isSupported){
             return this.notSupported()
         }
+        
 
         let bb = this.webApp.BackButton;
+
+        //console.log('this.isMinVersion("6.10")====>', this.isMinVersion("6.10"))
+        //console.log("bb====>", bb)
         
         return {
-            enable:  () => bb.onClick(onClick),
-            show:    () => bb.show(),
-            hide:    () => bb.hide(),
-            disable: (hide=true) => {
+            isSupported: () => true,
+            enable:      () => bb.onClick(onClick),
+            show:        () => bb.show(),
+            hide:        () => bb.hide(),
+            disable:     (hide=true) => {
                 bb.offClick(()=>{})
                 if(hide) bb.hide()
             }
@@ -141,7 +146,7 @@ export default class TelegramCore {
 
         let isSupported = false; //(this.isMinVersion("6.9"))
 
-        if(!isSupported){
+        if(!(isSupported || this.webApp)){
             return this.notSupported()
         }
 

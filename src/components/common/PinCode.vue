@@ -1,115 +1,56 @@
 <script setup>
 import { ref, watch } from 'vue';
-const pincodeRef = ref()
+
 
 const props = defineProps({
     label: { type: String, default: "Pin" }
 })
 
-const instanceId = Date.now()
-const pinValues  = ref([])
-
+const id = ref("pin-input-"+Date.now())
+const pinValue = ref("")
+const inputType = ref("password")
 const emits = defineEmits(["change"])
 
-const handleInput = (e) => {
 
-    let t = e.target
-    let index = parseInt(t.dataset.index);
-
-    //let value = ""
-
-    if(e.key == "*") return false;
-
-    let idStr = `pin-${instanceId}`
-    
-    if(/[0-9]+/i.test(e.key)) {
-        
-        if(index < 5){
-            t.blur()
-           document.querySelector(`#${idStr}-`+(index+1)).focus()
-        }
-
-        //value = e.key;
-
-        pinValues.value[index] = e.key
-
-        window.setTimeout(()=> e.target.value = "*", 50)
-
-    } else if(['Backspace', 'Delete'].includes(e.key)){
-
-        let oldValue = (pinValues.value[index] || '').toString().trim()
-
-        pinValues.value[index] = ""
-        
-        if(index > 0 && oldValue == ''){
-            t.blur()
-            document.querySelector(`#${idStr}-`+(index-1)).focus()
-        }
-
-    } else {
-        e.target.value = ''
-        return false
-    }
-}
-
-const handleFocus = (e) => {
-    let t = e.target;
-    let index = parseInt(t.dataset.index);
-    //console.log(pinValues.value)
-    let pv = pinValues.value[index] || ""
-    if(pv != '') t.value = pv
-}
-
-const handleBlur = (e) => {
-    let t = e.target;
-    let index = parseInt(t.dataset.index);
-    let pv = pinValues.value[index] || ""
-    if(pv != '') t.value = '*'
-}
-
-watch(pinValues, () => {
-    emits("change", pinValues.value.join(""))
-    //console.log(pinValues.value.join(""))
-}, { deep: true })
+watch(pinValue, () => {
+    emits("change", pinValue.value)
+})
 </script>
 <template>
     <div>
-        <div class="px-2 mt-2">
-            <label class="fw-medium text-muted">{{ props.label }}</label>
-        </div>
-        <div class="d-flex flex-row">
-            <template v-for="index in Array(6).keys()" :key="index">
-                <div>
-                    <input
-                        type="text"
-                        max="1"
-                        min="1"
-                        inputmode="numeric" 
-                        maxlength="1"
-                        minlength="1"
-                        step="1"
-                        placeholder=""
-                        :data-index="index"
-                        :id="`pin-${instanceId}-${index}`"
-                        class="pin-input text-center form-control rounded shadow"
-                        @keyup="handleInput"
-                        @focus="handleFocus"
-                        @blur="handleBlur"
-                        pattern="[0-9]*"
-                    />
-                </div>
-            </template>
-        </div>
+        <label :for="id" class="fw-bold hint mb-2">
+            {{ props.label }}
+        </label>
+        <input 
+            :type="inputType" 
+            class="form-control pin-input form-control-lg rounded" 
+            :id="id" 
+            :placeholder="'&#x2022;'.repeat(6)"
+            v-model="pinValue"
+            maxlength="6"
+            v-integer
+            inputmode="numeric"
+        />
+       
     </div>
 </template>
 <style lang="scss">
     .pin-input{
-        width: 45px;
-        height: 45px;
-        margin: 5px;
-        font-size: 16px;
-        font-weight: bold;
-        line-height: 16px;
+        width: 100% !important;
+        letter-spacing: 28px;
+        word-spacing: 16px;
+        font-weight: bolder;
         text-align: center;
+        overflow-x: hidden;
+        height: 56px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &::placeholder {
+            font-size: 28px !important;
+     
+        }
     }
+
 </style>

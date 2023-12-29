@@ -42,6 +42,7 @@ declare module '@vue/runtime-core' {
     NativeBackBtn: typeof import('./src/components/common/NativeBackBtn.vue')['default']
     Navbar: typeof import('./src/components/header/Navbar.vue')['default']
     NetworkSelect: typeof import('./src/components/header/NetworkSelect.vue')['default']
+    NewScanModal: typeof import('./src/components/modals/NewScanModal.vue')['default']
     NewWalletModal: typeof import('./src/components/modals/NewWalletModal.vue')['default']
     NFTCollectionCard: typeof import('./src/components/tokens/NFTCollectionCard.vue')['default']
     NFTItemCard: typeof import('./src/components/tokens/NFTItemCard.vue')['default']

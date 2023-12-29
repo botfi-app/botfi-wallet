@@ -142,11 +142,10 @@ const onFirstInputPaste = (e, index) => {
   <main-layout
       title="Create Wallet"
       :show-nav="false"
+      :backUrl="backUrl"
   >
     
     <div class="w-400">
-        
-      <NativeBackBtn :url="backUrl" />
       
       <div class="d-flex flex-column px-3 pb-5 align-items-center">
 

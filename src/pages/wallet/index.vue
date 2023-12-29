@@ -28,7 +28,7 @@ const initialize = async() => {
    // defaultCurrency.value = (settings.defaultCurrency || "usd").toLowerCase()
 
    // let tokens = await getTokens() 
-   // nativeTokenInfo.value = tokens[Utils.nativeTokenAddr]
+   // nativeTokenInfo.value = tokens[Utils.nativeTokenAddr] 
 }
 </script>
 <template>

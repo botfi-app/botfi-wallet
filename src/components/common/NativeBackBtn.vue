@@ -20,12 +20,15 @@ onBeforeMount(() => {
     let func = () => router.push(url) 
 
     backBtn = botUtils.backBtn(func)
-    backBtn.enable()
-    backBtn.show()
+
+    if(backBtn && backBtn.isSupported()){
+        backBtn.enable()
+        backBtn.show()
+    }
 })
 
 onBeforeUnmount(() => {
-    if(backBtn == null) return;
+    if(!backBtn) return;
     backBtn.disable(true)
 })
 </script>
