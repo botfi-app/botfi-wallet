@@ -10,13 +10,15 @@ import Utils from '../../classes/Utils';
 import Modal from './Modal.vue';    
 import { Modal as bsModal } from 'bootstrap'
 import Http from '../../classes/Http';
+import { useRouter } from "vue-router"
 
 const isLoading = ref(false)
 const initialErrMsg = ref("")
 const id = ref("new-scan-modal")
 const chainId = ref("")
 const contract = ref("")
-const supportedChains = ref([])
+const supportedChains = ref({})
+const router = useRouter()
 
 onBeforeMount(() => {
     initialize()
@@ -27,6 +29,17 @@ const initialize = async () => {
 
         isLoading.value = true 
 
+        let dbData = (localStorage.getItem("scanner_chains") || "").trim()
+
+        if(dbData != ""){
+           try {
+             let dataJson = JSON.parse(dbData)
+             if(dataJson.length > 0) {
+                supportedChains.value = dataJson
+             }
+           } catch(e){}
+        }
+
         let resultStatus = await Http.getApi("/scanner/chains")
 
         if(resultStatus.isError()){
@@ -35,6 +48,7 @@ const initialize = async () => {
         }
 
         supportedChains.value = (resultStatus.getData() || [])
+        localStorage.setItem("scanner_chains", JSON.stringify(supportedChains))
 
     } catch(e){
 
@@ -45,6 +59,20 @@ const initialize = async () => {
         isLoading.value = false
     }
 }
+
+const onSubmit = async () => {
+
+    if(!Utils.isAddress(contract.value)){
+        return Utils.mAlert("A valid contract address is required")
+    }
+
+    if(!(chainId.value in supportedChains.value)){
+        return Utils.mAlert("Select a valid network")
+    }
+
+    router.push(`/scanner/result/${chainId.value}/${contract.value}`)
+}
+
 </script>
 <template>
     <Modal
@@ -72,9 +100,9 @@ const initialize = async () => {
                                 id="supported_chains"
                             >
                                 <option value="">Select Network</option>
-                                <template v-for="( name, id ) in supportedChains">
-                                    <option :value="id">
-                                        {{ name }}
+                                <template v-for="( item, idx ) in supportedChains">
+                                    <option :value="item.absoluteChainId">
+                                        {{ item.name.trim() }}
                                     </option>
                                 </template>
                             </select>
@@ -83,7 +111,9 @@ const initialize = async () => {
                             </label>
                         </div>
                         <div class="mt-3">
-                            <button class="btn btn-primary rounded w-full btn-lg">
+                            <button @click.prevent="onSubmit"
+                                class="btn btn-primary rounded w-full btn-lg"
+                            >
                                 Scan
                             </button>
                         </div>
@@ -92,3 +122,9 @@ const initialize = async () => {
             </template>
     </Modal>
 </template>
+<style lang="scss">
+.form-select {
+   
+        text-transform: capitalize !important;
+}
+</style>
