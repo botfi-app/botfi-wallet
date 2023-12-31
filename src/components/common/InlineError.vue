@@ -19,7 +19,7 @@ const onRetry = () => {
         <div class="d-flex flex-column align-items-center">
             <img 
                 loading="lazy" 
-                src="/images/svg/page_error.svg"
+                src="/images/svg/cross.svg"
                 alt=""
                 v-if="props.hasImage"
                 class="my-3"
@@ -30,9 +30,9 @@ const onRetry = () => {
                 Oops!
             </h1>
             <h5  style="--bs-text-opacity: .5;"
-                :class="`text-center text-dark-emphasis px-4 ${props.textClass}`"
+                :class="`text-center text-dark-emphasis px-4 ${props.textClass} text-capitalize`"
             >
-                {{ props.text }}
+                {{ props.text.replace("_", " ") }}
             </h5>
             <div class="mt-2 d-flex w-full justify-content-center">
                 <button @click.prevent="onRetry"
@@ -48,8 +48,7 @@ const onRetry = () => {
 <style lang="scss">
 .inline_page_error{
     img {
-        height: 160px;
-        max-width: 95%;
+        width: 128px;
     }
 }
 </style>

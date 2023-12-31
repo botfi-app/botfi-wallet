@@ -18,7 +18,8 @@ const id = ref("new-scan-modal")
 const chainId = ref("")
 const contract = ref("")
 const supportedChains = ref({})
-const router = useRouter()
+
+const emits = defineEmits(["submit"])
 
 onBeforeMount(() => {
     initialize()
@@ -70,7 +71,9 @@ const onSubmit = async () => {
         return Utils.mAlert("Select a valid network")
     }
 
-    router.push(`/scanner/result/${chainId.value}/${contract.value}`)
+    emits("submit", chainId.value, contract.value)
+
+    bsModal.getInstance('#'+id.value).hide()
 }
 
 </script>

@@ -1,5 +1,11 @@
 <script setup>
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
+
+const handleSubmit = (chainId, contract) => {
+    router.push(`/scanner/result/${chainId}/${contract}`)
+}
 </script>
 <template>
     <WalletLayout
@@ -25,5 +31,7 @@
             </div>
         </div>
     </WalletLayout>
-    <NewScanModal />
+    <NewScanModal
+        @submit="handleSubmit"
+    />
 </template> 
