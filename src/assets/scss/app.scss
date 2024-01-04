@@ -362,6 +362,11 @@ input[type=number] {
     z-index: 100;
 }
 
+.is-sticky {
+    position: sticky !important;
+    top: 0px !important;
+}
+
 ul.list-group {
     &.rounded li {
         &:first-of-type{

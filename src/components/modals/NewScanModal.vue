@@ -48,9 +48,10 @@ const initialize = async () => {
             return false;
         }
 
-        supportedChains.value = (resultStatus.getData() || [])
-        localStorage.setItem("scanner_chains", JSON.stringify(supportedChains))
+        let resultData = (resultStatus.getData() || [])
+        localStorage.setItem("scanner_chains", JSON.stringify(resultData))
 
+        supportedChains.value = resultData
     } catch(e){
 
         Utils.logError("NewScanModal#initialize:", e)
@@ -67,11 +68,15 @@ const onSubmit = async () => {
         return Utils.mAlert("A valid contract address is required")
     }
 
-    if(!(chainId.value in supportedChains.value)){
+    let sc = supportedChains.value
+
+    if(!(chainId.value in sc)){
         return Utils.mAlert("Select a valid network")
     }
 
-    emits("submit", chainId.value, contract.value)
+    let chainName = sc[chainId.value].name
+
+    emits("submit", chainId.value, chainName, contract.value)
 
     bsModal.getInstance('#'+id.value).hide()
 }

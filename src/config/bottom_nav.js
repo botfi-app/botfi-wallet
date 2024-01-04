@@ -9,6 +9,11 @@ export default [
         icon: "solar:transfer-horizontal-bold",
         url: "/swap"
     },
+    {
+        name: "Scanner",     
+        icon: "mdi:antivirus",
+        url: "/scanner"
+    },
     /*{
         name: "Bridge",   
         icon: "game-icons:bridge",
