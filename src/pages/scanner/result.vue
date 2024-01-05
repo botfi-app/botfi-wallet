@@ -85,6 +85,13 @@ const processScan = async () => {
         if(hi.owner && hi.owner.length > 0){
             _basicInfo["owner"] = hi.owner
             _basicInfo["owner_balance"] = `${noStr(hi.ownerBalance)}`
+
+            let _0xAddrs = [
+                "0x000000000000000000000000000000000000dead",
+                "0x0000000000000000000000000000000000000000"
+            ]
+
+            _basicInfo["owner_renounced"] =  (_0xAddrs.includes(hi.owner.toLowerCase())) ? "Yes" : "No"
         }
 
         _basicInfo["has_adequate_liquidity"] = li.isAdequateLiquidityPresent ? 'Yes' : 'No'
@@ -181,13 +188,14 @@ const saveToHistory = async () => {
                         <div class="mt-2">
                          
                             <div class="accordion px-0 mx-0" id="scan-analysis">
+
                                 <div class="accordion-item px-0 mx-0">
                                     <h2 class="accordion-header">
-                                        <button class="accordion-button collapsed px-2" 
+                                        <button class="accordion-button  px-2" 
                                             type="button" 
                                             data-bs-toggle="collapse" 
                                             data-bs-target="#basic-info" 
-                                            aria-expanded="false" 
+                                            aria-expanded="true" 
                                             aria-controls="basic-info"
                                         >
                                             <div class="fw-bold text-upper ls-2 hint fs-11">
@@ -208,7 +216,9 @@ const saveToHistory = async () => {
                                                                 {{ key.replace(/(_)+/g, " ") }}
                                                             </div>
                                                             <div class="fs-14 fw-medium text-break">
-                                                                {{ value }}
+                                                                {{ value }} <template v-if="['creator','owner'].includes(key)">
+                                                                    <CopyBtn :text="value" btnClasses="text-warning" />
+                                                                </template>
                                                             </div>
                                                         </div>
                                                     </li>
@@ -220,16 +230,9 @@ const saveToHistory = async () => {
 
                                 <ScanIssuesRender 
                                     id="project-analysis-issues"
-                                    title="project Analysis"
+                                    title="Project Analysis"
                                     :data="projectIssues"
                                 />
-
-                                <ScanIssuesRender 
-                                    id="holders-analysis-issues"
-                                    title="Holders Analysis"
-                                    :data="scanResult.holdersInfo.issues"
-                                />
-
 
                                 <ScanIssuesRender 
                                     id="liquidity-analysis-issues"
@@ -237,36 +240,50 @@ const saveToHistory = async () => {
                                     :data="scanResult.liquidityInfo.issues"
                                 />
 
-                                <div class="accordion-item px-0 mx-0">
-                                    <h2 class="accordion-header">
-                                        <button class="accordion-button px-2" 
+                                <ScanIssuesRender 
+                                    id="holders-analysis-issues"
+                                    title="Holders Analysis"
+                                    :data="scanResult.holdersInfo.issues"
+                                />
+                                
+                                    <div class="accordion-item px-0 mx-0">
+                                        <h2 class="accordion-header">
+                                      <button class="accordion-button collapsed px-2" 
                                             type="button" 
                                             data-bs-toggle="collapse" 
-                                            data-bs-target="#top-10-holders" 
+                                            data-bs-target="#top_token_holders" 
                                             aria-expanded="false" 
-                                            aria-controls="top-10-holders"
+                                            aria-controls="top_token_holders"
                                         >
                                             <div class="fw-bold text-upper ls-2 hint fs-11">
                                                 Top 10 Holders
                                             </div>
                                         </button>
                                     </h2>
-                                    <div id="top-10-holders" 
-                                        class="accordion-collapse collapse px-0 mx-0" 
+                                    <div id="top_token_holders" 
+                                        class="accordion-collapse collapse px-0 mx-0 is-sticky" 
                                         data-bs-parent="#scan-analysis"
                                     >
                                         <div class="accordion-body px-0">
                                             <ul class="list-group list-group-flush px-0 mx-0">
-                                                <template v-for="(value, key) in scanResult.holdersInfo.topHolders">
-                                                    <li class="list-group-item py-3 mx-0 d-flex align-items-center">
-                                                        Lol
-                                                    </li>
+                                                <template v-for="item in scanResult.holdersInfo.topHolders">
+                                                    <div class="list-group-item list-group-item-action py-3">
+                                                        <div class="d-flex w-100 justify-content-between">
+                                                            <div class="mb-1">
+                                                                {{ Number(Utils.formatCrypto(item.balance)).toLocaleString('fullwide', {useGrouping:true}) }}
+                                                            </div>
+                                                            <small class="fw-medium">{{ item.percent.toFixed(2) }}%</small>
+                                                        </div>
+                                                        <small class="hint text-break">
+                                                            {{ item.address }} <CopyBtn :text="item.address" btnClasses="text-success" />
+                                                        </small>
+                                                    </div>
                                                 </template>
                                             </ul>
                                         </div>
                                     </div>
-
                                 </div>
+                              
                             </div>
                         </div>
                     </loading-view>
@@ -278,7 +295,7 @@ const saveToHistory = async () => {
         @submit="onSubmit"
     />
 </template> 
-<style lang="scss" scoped>
+<style lang="scss">
 .accordion-button[aria-expanded=true] {
     background: rgba(0,0,0, 0.2) !important;
 }

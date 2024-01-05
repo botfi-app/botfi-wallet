@@ -18,10 +18,12 @@ const initialize = async () => {
 
     let sk = `${botUtils.getUid()}_scan_history`
 
-    let histoyDataStr = localStorage.getItem(sk) || "{}"
-    let historyArr = {}
+    let histoyDataStr = localStorage.getItem(sk) || "[]"
+    let historyArr = []
 
     try{ historyArr = JSON.parse(histoyDataStr) } catch(e){}
+
+    if(historyArr.length == 0) return;
 
     //console.log("historyObj===>", historyObj)
     scanHistory.value = historyArr
