@@ -1,4 +1,10 @@
 <script setup>
+/**
+ * BotFi (https://botfi.app)
+ * @author BotFi <hello@botfi.app>
+ * @license MIT 
+ */
+
 import { inject, onBeforeMount, ref } from 'vue';
 import WalletLayout from '../../layouts/WalletLayout.vue';
 import ProfilePhoto from '../../components/common/ProfilePhoto.vue';

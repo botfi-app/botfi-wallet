@@ -5,6 +5,12 @@
     }
 </route>
 <script setup>
+/**
+ * BotFi (https://botfi.app)
+ * @author BotFi <hello@botfi.app>
+ * @license MIT 
+ */
+
 import { inject, onBeforeMount, ref, watch } from 'vue';
 import { useWalletStore } from "../store/walletStore"
 import { useTokens } from "../composables/useTokens"

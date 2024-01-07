@@ -1,3 +1,9 @@
+/**
+ * BotFi (https://botfi.app)
+ * @author BotFi <hello@botfi.app>
+ * @license MIT 
+ */
+
 import tinycolor from "tinycolor2";
 import TelegramCore from "../classes/bots/TelegramCore";
 import EventBus from "../classes/EventBus"

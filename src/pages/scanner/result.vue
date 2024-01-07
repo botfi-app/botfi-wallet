@@ -68,37 +68,43 @@ const processScan = async () => {
         projectName.value = projectInfo.name;
         projectIssues.value = _projectIssues
 
-        let hi = resultData.holdersInfo
-        let li =  resultData.liquidityInfo
+        let hi = resultData.holdersInfo || null 
+        let li =  resultData.liquidityInfo || null
 
         let noStr = (v) => Number(v || "").toLocaleString('fullwide', {useGrouping:true})
 
         //let contractName = projectInfo.contractName;
 
         let _basicInfo = {
-            name: projectInfo.name, 
-            total_supply: `${noStr(hi.tokenTotalSupply)}`,
-            creator: hi.creator,
-            creator_balance: `${noStr(hi.creatorBalance)}`
+            name: projectInfo.name
         }
 
-        if(hi.owner && hi.owner.length > 0){
-            _basicInfo["owner"] = hi.owner
-            _basicInfo["owner_balance"] = `${noStr(hi.ownerBalance)}`
+        if(hi){
 
-            let _0xAddrs = [
-                "0x000000000000000000000000000000000000dead",
-                "0x0000000000000000000000000000000000000000"
-            ]
+            _basicInfo["total_supply"] = `${noStr(hi.tokenTotalSupply)}`,
+            _basicInfo["creator"] = hi.creator,
+            _basicInfo["creator_balance"] = `${noStr(hi.creatorBalance)}`
 
-            _basicInfo["owner_renounced"] =  (_0xAddrs.includes(hi.owner.toLowerCase())) ? "Yes" : "No"
+            if(hi.owner && hi.owner.length > 0){
+                _basicInfo["owner"] = hi.owner
+                _basicInfo["owner_balance"] = `${noStr(hi.ownerBalance)}`
+
+                let _0xAddrs = [
+                    "0x000000000000000000000000000000000000dead",
+                    "0x0000000000000000000000000000000000000000"
+                ]
+
+                _basicInfo["owner_renounced"] =  (_0xAddrs.includes(hi.owner.toLowerCase())) ? "Yes" : "No"
+            }
         }
 
-        _basicInfo["has_adequate_liquidity"] = li.isAdequateLiquidityPresent ? 'Yes' : 'No'
+        if(li){
+            _basicInfo["has_adequate_liquidity"] = li.isAdequateLiquidityPresent ? 'Yes' : 'No'
         
-        _basicInfo["total_liquidity"] = `${noStr(li.totalLiquidity)}`
-        _basicInfo["total_liquidity_burned"] = `${li.totalBurnedPercent}%`
-        _basicInfo["total_liquidity_locked"] = `${li.totalLockedPercent}%`
+            _basicInfo["total_liquidity"] = `${noStr(li.totalLiquidity)}`
+            _basicInfo["total_liquidity_burned"] = `${li.totalBurnedPercent}%`
+            _basicInfo["total_liquidity_locked"] = `${li.totalLockedPercent}%`
+        }
 
         basicInfo.value = _basicInfo
 
@@ -235,18 +241,20 @@ const saveToHistory = async () => {
                                 />
 
                                 <ScanIssuesRender 
+                                    v-if="scanResult.liquidityInfo"
                                     id="liquidity-analysis-issues"
                                     title="Liquidity Analysis"
                                     :data="scanResult.liquidityInfo.issues"
                                 />
 
                                 <ScanIssuesRender 
+                                    v-if="scanResult.holdersInfo"
                                     id="holders-analysis-issues"
                                     title="Holders Analysis"
                                     :data="scanResult.holdersInfo.issues"
                                 />
                                 
-                                    <div class="accordion-item px-0 mx-0">
+                                    <div v-if="scanResult.holdersInfo" class="accordion-item px-0 mx-0">
                                         <h2 class="accordion-header">
                                       <button class="accordion-button collapsed px-2" 
                                             type="button" 

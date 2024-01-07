@@ -1,4 +1,10 @@
 <script setup>
+/**
+ * BotFi (https://botfi.app)
+ * @author BotFi <hello@botfi.app>
+ * @license MIT 
+ */
+
 import { onBeforeMount, ref } from 'vue';
 import { useWalletStore } from "../store/walletStore"
 import { useRouter, useRoute } from 'vue-router';

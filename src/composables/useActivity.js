@@ -1,7 +1,9 @@
 /**
  * BotFi (https://botfi.app)
  * @author BotFi <hello@botfi.app>
+ * @license MIT 
  */
+
 
 import {ref, inject, computed, onBeforeMount, onBeforeUnmount } from 'vue'
 import { useDB } from "./useDB"

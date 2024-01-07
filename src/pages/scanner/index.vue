@@ -64,8 +64,8 @@ const initialize = async () => {
                             <router-link :to="`/scanner/result/${item.chainId}/${item.chainName}/${item.contract}`" 
                                 class="list-group-item list-group-item-action py-3"
                             >
-                                <div class="d-flex w-100 justify-content-between">
-                                    <h5 class="mb-1">{{ item.name }}</h5>
+                                <div class="d-flex w-100 justify-content-between flex-wrap">
+                                    <div class="mb-1 text-break fw-semibold">{{ item.name }}</div>
                                     <small class="text-capitalize hint">{{ item.chainName }}</small>
                                 </div>
                                 <small class="hint">{{ item.contract }}</small>

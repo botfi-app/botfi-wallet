@@ -10,13 +10,18 @@ cd botfi-wallet
 ```
 2. Inside **botfi-wallet/config** directory, open & update the configurations in **app.js**
 
+### Install Dependencies
+```sh 
+npm i -f
+```
+
 ### Run Dev Mode
 ```sh 
-yarn dev
+npm run dev
 ```
 
 ### Build Production Mode
 ```sh 
-yarn build
+npm run build
 ```
 

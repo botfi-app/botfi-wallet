@@ -1,4 +1,9 @@
 <script setup>
+/**
+ * BotFi (https://botfi.app)
+ * @author BotFi <hello@botfi.app>
+ * @license MIT 
+ */
 
 import { onBeforeMount, ref, watch } from "vue"
 import { useRouter, useRoute } from 'vue-router';

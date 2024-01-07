@@ -1,3 +1,9 @@
+/**
+ * BotFi (https://botfi.app)
+ * @author BotFi <hello@botfi.app>
+ * @license MIT 
+ */
+
 import { defineStore } from 'pinia'
 import {ref, computed, toValue, toRaw, inject, onBeforeMount } from 'vue'
 import Status from '../classes/Status';
