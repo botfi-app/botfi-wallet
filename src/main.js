@@ -1,6 +1,7 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import telegram from './plugins/telegram'
+import botFiPWA from './plugins/pwa'
 import SimpleBar from 'simplebar'
 import 'simplebar/dist/simplebar.css';
 import Bugsnag from '@bugsnag/js'
@@ -15,6 +16,11 @@ import App from './App.vue'
 import router from "./router"
 //import RouterPrefetch from 'vue-router-prefetch'
 
+const platforms = appConfig.platforms 
+const platformPlugins = {
+    pwa: botFiPWA,
+    telegram
+}
 
 window.Buffer = Buffer
 
@@ -64,9 +70,23 @@ app
  .use(router)
  //.use(RouterPrefetch)
  .use(pinia)
- .use(telegram, { router })
  .use(VueLazyLoad)
  .directive("number", numberInput)
  .directive("integer", integerInput)
-    
+
+
+ let loc = window.location
+ 
+let platform = platforms[loc.hostname.toLowerCase()] || ""
+
+if(platform == ""){
+    if(loc.pathname != '/error/unknown-client'){
+        window.location = "/error/unknown-client"
+    }
+} else {
+    app.use(platformPlugins[platform], { router })
+}
+
+console.log("platformName===>", platform)
+
 app.mount('#app')

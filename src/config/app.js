@@ -11,7 +11,13 @@ export default {
     
     app_name: "BotFi Wallet",
 
+    platforms: {
+        "pwa.botfi.app": "pwa",
+        "tbot.botfi.app": "telegram"
+    },
+
     server_url: "https://api.botfi.app",
+
     chains_data_url: "https://github.com/ethereum-lists/chains/blob/master/_data/chains",
 
     ///is dev
