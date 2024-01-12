@@ -573,4 +573,9 @@ export default class Utils {
 
         return data
     }
+
+    static isStandalonePWA() {
+        return (window.app_platform && (window.matchMedia('(display-mode: standalone)').matches 
+        || window.navigator.standalone === true))
+    }
 }

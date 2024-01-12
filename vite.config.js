@@ -12,8 +12,8 @@ import IconsResolver from 'unplugin-icons/resolver'
 import ViteCompression2  from 'vite-plugin-compression2'
 import zlib from "node:zlib"
 import VitePreload from "vite-plugin-preload";
-//import { VitePWA } from 'vite-plugin-pwa'
-//import siteManisfest from "./public/site.webmanifest.json"
+import { VitePWA } from 'vite-plugin-pwa'
+import siteManisfest from "./public/site.webmanifest.json"
 import { visualizer } from "rollup-plugin-visualizer";
 import dynamicImport from 'vite-plugin-dynamic-import'
 import legacy from '@vitejs/plugin-legacy'
@@ -27,6 +27,14 @@ const plugins = [
   visualizer(),
   
   AutoImport(),
+
+  VitePWA({
+    manifest: siteManisfest,
+    registerType: 'autoUpdate',
+      devOptions: {
+        enabled: true
+      }
+  }),
   
   legacy({ targets: ['defaults', 'not IE 11'] }),
   

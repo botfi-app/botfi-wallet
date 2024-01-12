@@ -3,7 +3,8 @@ export default {
     server_url: "https://dev-server.botfi.app",
 
     platforms: {
-        pwa:      "botfi-dev.com",
-        telegram: "botfi-dev.botfi.app"
+        "botfi-dev.com":        "pwa",
+        "pwa-dev.botfi.app":    "pwa",
+        "botfi-dev.botfi.app":  "telegram"
     },
 }

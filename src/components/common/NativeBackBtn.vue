@@ -1,5 +1,5 @@
 <script setup>
-import { onBeforeMount, onBeforeUnmount, inject } from 'vue';
+import { onBeforeMount, onBeforeUnmount, inject, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 const props = defineProps({
@@ -8,7 +8,8 @@ const props = defineProps({
 
 const botUtils = inject("botUtils")
 const router = useRouter()
-let backBtn = null
+const backBtn = ref(null)
+const callbackFunc = ref(null)
 
 onBeforeMount(() => {
     let url = props.url.trim();
@@ -17,19 +18,33 @@ onBeforeMount(() => {
         url = "/wallet"
     }
 
-    let func = () => router.push(url) 
+    callbackFunc.value = () => router.push(url) 
 
-    backBtn = botUtils.backBtn(func)
+    let _backBtn = botUtils.backBtn(callbackFunc.value)
 
-    if(backBtn && backBtn.isSupported()){
-        backBtn.enable()
-        backBtn.show()
+   // console.log("_backBtn===>", _backBtn)
+
+    if(_backBtn != null && _backBtn.isSupported()){
+        
+        _backBtn.enable()
+        _backBtn.show()
+
+        backBtn.value = _backBtn
     }
+
+    
 })
 
 onBeforeUnmount(() => {
-    if(!backBtn) return;
-    backBtn.disable(true)
+    if(!backBtn.value) return;
+    backBtn.value.disable(true)
 })
 </script>
-<template></template>
+<template>
+    <div v-if="backBtn == null || !backBtn.isSupported()">
+       <div class="d-flex align-items-center justify-content-start mt-2">
+            <Icon name="carbon:arrow-left" class="me-2" />
+            <span>Back</span>
+       </div> 
+    </div>
+</template>

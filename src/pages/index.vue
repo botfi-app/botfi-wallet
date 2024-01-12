@@ -34,7 +34,7 @@ const initialize = async () => {
         v-if="initialized"
         :center-content="true"
     >
-        <div class="d-flex flex-column w-400 px-5 align-items-center">
+        <div class="d-flex flex-column w-400 px-5 auth-box align-items-center justify-content-center">
         
             <top-logo />
 

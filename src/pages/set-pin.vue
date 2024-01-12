@@ -97,12 +97,14 @@ const onSave = async () => {
         title="Set Pin"
         v-if="initialized"
     >
-        <div class="d-flex flex-column w-400 pb-5 align-items-center">
-            
-            <top-logo />
-            
+        <div class="w-400">
             <NativeBackBtn url="/"  />
+        </div>
 
+        <div class="d-flex flex-column w-400 pb-5 align-items-center">
+
+            <top-logo />
+        
             <div class="px-4 w-full">
                 <div class="mb-3">
                     <PinCode 

@@ -16,6 +16,7 @@ import App from './App.vue'
 import router from "./router"
 //import RouterPrefetch from 'vue-router-prefetch'
 
+
 const platforms = appConfig.platforms 
 const platformPlugins = {
     pwa: botFiPWA,
@@ -84,9 +85,16 @@ if(platform == ""){
         window.location = "/error/unknown-client"
     }
 } else {
+
     app.use(platformPlugins[platform], { router })
 }
 
+window.app_platform = platform
+
+console.log("platforms===>", platforms)
+console.log("loc.hostname.toLowerCase()===>", loc.hostname.toLowerCase())
 console.log("platformName===>", platform)
 
 app.mount('#app')
+
+

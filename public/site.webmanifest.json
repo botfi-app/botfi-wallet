@@ -1,10 +1,6 @@
 {
-    "name": "BotFi.app",
+    "name": "BotFi",
     "short_name": "BotFi",
-    "description": "BotFi is an innovative AI-assisted crypto bot available on Telegram and Messenger designed to streamline your daily DeFi tasks, including swapping, bridging, and sniping across various blockchains.",
-    
-    "includeAssets": ["favicon.ico", "apple-touch-icon.png", "mask-icon.svg"],
-
     "icons": [
         {
             "src": "/android-chrome-192x192.png",
@@ -12,24 +8,21 @@
             "type": "image/png"
         },
         {
-            "src": "/icon512_rounded.png",
+            "src": "/android-chrome-512x512.png",
             "sizes": "512x512",
             "type": "image/png"
-          },
-          {
-            "src": "/icon512_rounded.png",
-            "sizes": "512x512",
-            "type": "image/png",
-            "purpose": "any"
-          },
-          {
-            "src": "/icon512_maskable.png",
-            "sizes": "512x512",
-            "type": "image/png",
-            "purpose": "maskable"
-          }
+        }
     ],
-    "theme_color": "#f2fbfa",
-    "background_color": "#f2fbfa",
-    "display": "standalone"
+    "theme_color": "#0d201f",
+    "background_color": "#0d201f",
+    "display": "standalone",
+    "id": "app.botfi.pwa",
+    "dir": "auto",
+    "orientation": "portrait",
+    "categories": [
+      "business",
+      "finance",
+      "productivity",
+      "utilities"
+    ]
 }

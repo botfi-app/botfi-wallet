@@ -5,7 +5,7 @@
  */
 
 import tinycolor from "tinycolor2";
-import TelegramCore from "../classes/bots/TelegramCore";
+import TelegramCore from "../classes/platforms/TelegramCore";
 import EventBus from "../classes/EventBus"
 
 export default {
