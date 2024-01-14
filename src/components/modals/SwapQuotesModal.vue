@@ -39,7 +39,7 @@ const onItemClick = (index) => {
         title="Quotes"
         :has-header="true"
         :has-footer="false"
-        size="modal-sm"
+        size="modal-md"
     >
         <template #body>
             <div class="p-2" v-if="initialized">

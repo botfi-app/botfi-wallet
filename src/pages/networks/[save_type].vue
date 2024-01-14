@@ -152,11 +152,10 @@ const onSave = async () => {
         :show-nav="false"
         v-if="initialized"
         :page-error="pageError"
+        backUrl="/networks"
     >   
 
-        <NativeBackBtn />
-
-        <div class="w-400">
+        <div class="w-800">
             <div class="fixed-topnav">
                 <div class="d-flex body-bg justify-content-between flex-nowrap p-3 align-items-center">
                     <div>

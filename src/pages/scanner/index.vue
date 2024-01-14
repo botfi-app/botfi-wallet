@@ -36,13 +36,13 @@ const initialize = async () => {
         :has-header="false"
     >
 
-        <div class="w-800 mb-5 pt-2">
+        <div class="w-800 mb-5 pt-2 px-2">
             <div class="d-flex align-items-center justify-content-between flex-nowrap">
                 <div class="center-vh">
                     <NativeBackBtn url="/wallet" />
                     <div class="fw-semibold fs-6">Scanner</div>
                 </div>
-                <div class="ps-2">
+                <div>
                     <button class="btn btn-primary rounded-pill v-center"
                         data-bs-toggle="modal" 
                         data-bs-target="#new-scan-modal"
@@ -53,7 +53,7 @@ const initialize = async () => {
                 </div>
             </div>
             <div class="scan-history">
-                <div class="fw-bold text-upper ls-2 hint fs-11 mt-2 mx-2">
+                <div class="fw-bold text-upper ls-2 hint fs-11 mt-2">
                     Scan History
                 </div>
                 <div v-if="scanHistory.length == 0">

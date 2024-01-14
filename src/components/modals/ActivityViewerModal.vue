@@ -97,7 +97,7 @@ onBeforeMount(async () => {
         title="Activity"
         :has-header="true"
         :has-footer="false"
-        size="modal-sm"
+        size="modal-md"
     >
         <template #body>
             <div class="p-2 py-4 px-3">

@@ -20,12 +20,10 @@ const initialize = async () => {
         :showNav="true"
         :hasNetSelect="true"
         :hasAddrSelect="true"
+        backUrl="/wallet"
     >   
-        <NativeBackBtn 
-            url="/wallet"
-        />
-        
-        <div class="w-400 mb-5">
+
+        <div class="w-800 mb-5">
             <div class="mt-3 mx-2">
                 <TokensAndActivityTabs 
                     :limit="null"

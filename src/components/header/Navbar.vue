@@ -15,7 +15,7 @@ const props = defineProps({
             <div class="fw-semibold fs-6 pe-2 text-truncate d-flex align-items-center"  
                 style="max-width: 45vw;"
             >   
-                <NativeBackBtn 
+                <NativeBackBtn  
                     :url="props.backUrl" 
                     v-if="props.backUrl != null" 
                 />

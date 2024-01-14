@@ -61,16 +61,18 @@ const currencyItemClick = async (item) => {
 </script>
 <template>
     <WalletLayout
-        title="Fiat Currency" 
+        title="" 
         :page-error="pageError"
         :showNav="false"
     >   
 
-        <NativeBackBtn url="/settings" />
-
-        <div class="w-400 mb-5">
+        <div class="w-800 mb-5">
             <div class="d-flex p-2 justify-content-between align-items-center flex-nowrap">
-                <div class="fw-semibold fs-6 pe-2">Fiat Currency</div>
+          
+                <div class="center-vh">
+                    <NativeBackBtn url="/settings" />
+                    <div class="fw-semibold fs-6 pe-2">Fiat Currency</div>
+                </div>
                 <div class="fw-medium d-flex">
                     <div>Default:</div>
                     <div class="text-primary fw-semibold ms-2">

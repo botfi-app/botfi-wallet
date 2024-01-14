@@ -1,6 +1,7 @@
 <script setup>
 import { onBeforeMount, onBeforeUnmount, inject, ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
+import Utils from '../../classes/Utils';
 
 const props = defineProps({
     url: { type: String, default: "" },
@@ -12,12 +13,17 @@ const botUtils = inject("botUtils")
 const router = useRouter()
 const backBtn = ref(null)
 const callbackFunc = ref(null)
+const route = useRoute()
 
 onBeforeMount(() => {
     let url = props.url.trim();
 
     if(url == '') {
-        url = "/wallet"
+       url = route.query.r || "";
+
+        if(url == ''){
+            url = "/wallet"
+        }
     }
 
     callbackFunc.value = () => router.push(url) 
@@ -42,19 +48,22 @@ onBeforeUnmount(() => {
 </script>
 <template>
     <div v-if="backBtn == null || !backBtn.isSupported()">
-       <button 
-            @click="callbackFunc"
+       <a href="#" 
+            @click.prevent="callbackFunc"
             :class="`
-                btn 
-                btn-none 
-                rounded-pill d-flex 
+                rounded-pill 
+                d-flex 
                 align-items-center 
                 justify-content-start
                 {{ props.btnClass }}
+                mx-0
+                ps-0
+                pe-2
+                border-none
             `"
         >
             <Icon name="carbon:arrow-left" />
             <span v-if="props.text != ''" class="ms-2">{{props.text}}</span>
-       </button> 
+         </a> 
     </div>
 </template>

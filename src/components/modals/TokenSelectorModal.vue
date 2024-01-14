@@ -370,7 +370,7 @@ const importToken = async () => {
         title="Select Token"
         :has-header="true"
         :has-footer="false"
-        size="modal-sm"
+        size="modal-md"
     >
         <template #body>
             

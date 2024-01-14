@@ -12,13 +12,10 @@ import ImportERC20ByContract from '../../components/tokens/import-erc20/ImportER
         :showNav="true"
         :hasNetSelect="true"
         :hasAddrSelect="false"
+        backUrl="/tokens"
     >   
 
-        <NativeBackBtn 
-            url="/tokens"
-        />
-
-        <div class="w-400 mb-5">
+        <div class="w-800 mb-5">
 
             <TabbedContent
                 :tabs="[

@@ -66,7 +66,7 @@ const doCopy = () => Utils.copyText({ text: privateKey.value, showToast: true })
         title="Reveal Private Key"
         :has-header="true"
         :has-footer="false"
-        size="modal-sm"
+        size="modal-md"
     >
             <template #body>
                 <div class='px-3 py-2'>
@@ -74,7 +74,7 @@ const doCopy = () => Utils.copyText({ text: privateKey.value, showToast: true })
                     <div class="w-full d-flex flex-column align-items-center justify-content-center pb-3" 
                         v-if="privateKey==''"
                     >
-                        <div>
+                        <div class=" w-full px-2">
                             <PinCode 
                                 label="Pin"
                                 @change="(v) => pin = v"
@@ -89,7 +89,7 @@ const doCopy = () => Utils.copyText({ text: privateKey.value, showToast: true })
                         </div>
                     </div>
                     <div class="w-full" v-else>
-                        <div class="form-floating mb-3 rounded">
+                        <div class="form-floating mb-3 rounded w-full">
                             <input 
                                 type="text" 
                                 :value="props.data.address"

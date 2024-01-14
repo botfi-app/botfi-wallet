@@ -13,12 +13,10 @@ const { settings } = useSettings()
         :showNav="true"
         :hasNetSelect="false"
         :hasAddrSelect="false"
-        icon="basil:settings-solid"
+        backUrl="/wallet"
     >   
-
-        <NativeBackBtn url="/wallet" />
         
-        <div class="w-400 mb-5">
+        <div class="w-800 mb-5">
             <div class="mt-3"> 
                 <div class="h-divided" />           
                 <nav class="list-group list-group-flush">
@@ -31,28 +29,50 @@ const { settings } = useSettings()
                                 <span class="me-2 text-primary">
                                     {{ (settings.defaultCurrency || "USD").toUpperCase() }}
                                 </span>
-                                <Icon name="ph:coin-vertical-duotone" :size="24" />
+                                <Icon 
+                                    class="text-primary" 
+                                    name="ph:coin-vertical-duotone" 
+                                    :size="24" 
+                                />
                             </div>
                         </div>
                     </router-link>
                     <a class="list-group-item fw-semibold py-3">
                         <div class="d-flex justify-content-between ">
                             <div>Reveal Seed Phrase</div>
-                            <Icon name="solar:password-minimalistic-input-bold-duotone" :size="24" />
+                            <Icon 
+                                class="text-primary" 
+                                name="solar:password-minimalistic-input-bold-duotone" 
+                                :size="20" 
+                            />
                         </div>
                     </a>
-                    <a class="list-group-item fw-semibold py-3">
+                    <router-link 
+                        to="networks?r=/settings" 
+                        class="list-group-item fw-semibold py-3"
+                    >
                         <div class="d-flex justify-content-between ">
                             <div>Network Settings</div>
-                            <Icon name="ic:twotone-network-wifi-2-bar" :size="24" />
+                            <Icon 
+                                name="ic:twotone-network-wifi-2-bar" 
+                                :size="20" 
+                                class="text-primary" 
+                            />
                         </div>
-                    </a>
-                    <a class="list-group-item fw-semibold py-3">
+                    </router-link>
+                    <router-link 
+                        to="/wallet/addresses?r=/settings" 
+                        class="list-group-item fw-semibold py-3"
+                    >
                         <div class="d-flex justify-content-between ">
-                            <div>Account Settings</div>
-                            <Icon name="solar:user-bold-duotone" :size="24" />
+                            <div>Wallets</div>
+                            <Icon 
+                                class="text-primary" 
+                                name="solar:user-bold-duotone" 
+                                :size="20" 
+                            />
                         </div>
-                    </a>
+                    </router-link>
                 </nav>
             </div>
         </div>
