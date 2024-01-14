@@ -32,15 +32,16 @@ const initialize = async () => {
 <template>
     <WalletLayout
         title=""
-        :has-footer="false"
+        :has-footer="true"
         :has-header="false"
     >
 
-        <NativeBackBtn url="/wallet" />
-
-        <div class="w-400 mb-5">
-            <div class="d-flex p-2 align-items-center justify-content-between flex-nowrap">
-                <div class="fw-semibold fs-6 pe-2">Scanner</div>
+        <div class="w-800 mb-5 pt-2">
+            <div class="d-flex align-items-center justify-content-between flex-nowrap">
+                <div class="center-vh">
+                    <NativeBackBtn url="/wallet" />
+                    <div class="fw-semibold fs-6">Scanner</div>
+                </div>
                 <div class="ps-2">
                     <button class="btn btn-primary rounded-pill v-center"
                         data-bs-toggle="modal" 

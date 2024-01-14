@@ -88,11 +88,11 @@ const onSubmit = async () => {
         title="New Scan"
         :has-header="true"
         :has-footer="false"
-        size="modal-sm"
+        size="modal-md"
     >
             <template #body>
                 <loading-view :isLoading="isLoading">
-                    <div class='m-2 my-3'>
+                    <div class='m-2 my-3 px-3'>
                         <div class="form-floating mb-3">
                             <input v-model="contract"
                                 type="text" 

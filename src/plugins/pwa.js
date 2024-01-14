@@ -15,6 +15,8 @@ export default {
 
         enforceFixedSize()
 
+        ensureStandaloneMode()
+
         let botUtils = (new PWACore())
 
         window.botUtils = botUtils;
@@ -29,11 +31,15 @@ const isStandalone = () => (window.matchMedia('(display-mode: standalone)').matc
 || window.navigator.standalone === true)
 
 
+const ensureStandaloneMode = async() => {
+    //if(isStandalone()) return;
+}
+
 const enforceFixedSize = () => {
 
     if(!isStandalone()) return;
     
-    let width = 400;
+    let width = 500;
     let height = (0.8) * window.screen.height;
 
     // Size window after open the app

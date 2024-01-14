@@ -5,6 +5,7 @@ export default {
     platforms: {
         "botfi-dev.com":        "pwa",
         "pwa-dev.botfi.app":    "pwa",
-        "botfi-dev.botfi.app":  "telegram"
+        "botfi-dev.botfi.app":  "telegram",
+        "dev-ui.botfi.app":  "telegram"
     },
 }

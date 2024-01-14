@@ -3,7 +3,9 @@ import { onBeforeMount, onBeforeUnmount, inject, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 const props = defineProps({
-    url: { type: String, default: "" }
+    url: { type: String, default: "" },
+    text: { type: String, default: ""  },
+    btnClass: { type: String, default: "" }
 })
 
 const botUtils = inject("botUtils")
@@ -31,8 +33,6 @@ onBeforeMount(() => {
 
         backBtn.value = _backBtn
     }
-
-    
 })
 
 onBeforeUnmount(() => {
@@ -42,9 +42,19 @@ onBeforeUnmount(() => {
 </script>
 <template>
     <div v-if="backBtn == null || !backBtn.isSupported()">
-       <div class="d-flex align-items-center justify-content-start mt-2">
-            <Icon name="carbon:arrow-left" class="me-2" />
-            <span>Back</span>
-       </div> 
+       <button 
+            @click="callbackFunc"
+            :class="`
+                btn 
+                btn-none 
+                rounded-pill d-flex 
+                align-items-center 
+                justify-content-start
+                {{ props.btnClass }}
+            `"
+        >
+            <Icon name="carbon:arrow-left" />
+            <span v-if="props.text != ''" class="ms-2">{{props.text}}</span>
+       </button> 
     </div>
 </template>

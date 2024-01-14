@@ -44,7 +44,7 @@ const initialize = async () => {
                     class="my-2 no-underline  w-full"
                     rel="prefetch"
                 >
-                    <button class="btn w-full btn-primary rounded-pill ">
+                    <button class="btn btn-lg w-full btn-primary rounded-pill ">
                         Create Wallet
                     </button>
                 </router-link>
@@ -53,7 +53,7 @@ const initialize = async () => {
                     class="my-2 no-underline  w-full"
                     rel="prefetch"
                 >
-                    <button class="btn w-full btn-success rounded-pill">
+                    <button class="btn btn-lg w-full btn-success rounded-pill">
                         Import Wallet
                     </button>
                 </router-link>

@@ -60,7 +60,7 @@ const  handleSubmit = async () => {
         :has-footer="false"
     >
         <template #body>
-            <div>
+            <div class="px-3">
                 <p class="p-2 pt-3 text-center hint">      
                     To ensure the accuracy of the seed phrase you wrote down, 
                     please provide the words in their respective positions.
@@ -90,7 +90,7 @@ const  handleSubmit = async () => {
                 <div class="m-2 my-4">
                     <button 
                         @click="handleSubmit"
-                        class="btn btn-success w-full rounded-pill"
+                        class="btn btn-lg btn-success w-full rounded-pill"
                     >
                         Continue
                     </button>

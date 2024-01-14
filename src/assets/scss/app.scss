@@ -7,7 +7,7 @@ $success: #69f0ae;
 $info:    #03a9f4;
 $warning: #ffc107;
 $danger:  #ec407a;
- 
+$appMaxWidth: 800px;
 
 @import "~/bootswatch/dist/cosmo/variables";
 @import "./bootstrap";
@@ -56,11 +56,10 @@ body {
 
 .app-main {
     width: 100%;
-    max-width: 800px;
+    max-width: $appMaxWidth;
     height: 100vh;
     margin-left: auto;
     margin-right: auto;
-
 }
 
 a, a:visited, a:active {
@@ -76,6 +75,13 @@ a, a:visited, a:active {
 .w-400 {
     width: 100%;
     max-width: 400px;
+    margin-right: auto !important;
+    margin-left: auto !important;
+}
+
+.w-800 {
+    width: 100%;
+    max-width: 800px;
     margin-right: auto !important;
     margin-left: auto !important;
 }
@@ -386,13 +392,16 @@ ul.list-group {
 
 .bottom-bar {
     position: fixed;
-    bottom: 10px;
-    left: 0px;
+    bottom: 5px;
+    left: 50% !important;
+    transform: translate(-50%, 0%);
     width: 100%;
+    max-width: $appMaxWidth;
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 10 !important;
+    
 
     .b-tabs {
     

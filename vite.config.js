@@ -13,10 +13,12 @@ import ViteCompression2  from 'vite-plugin-compression2'
 import zlib from "node:zlib"
 import VitePreload from "vite-plugin-preload";
 import { VitePWA } from 'vite-plugin-pwa'
-import siteManisfest from "./public/site.webmanifest.json"
+import siteManisfest from "./public/site.webmanifest.js"
 import { visualizer } from "rollup-plugin-visualizer";
 import dynamicImport from 'vite-plugin-dynamic-import'
 import legacy from '@vitejs/plugin-legacy'
+//import basicSsl from '@vitejs/plugin-basic-ssl'
+
 
 
 const plugins = [
@@ -80,6 +82,10 @@ if (process.env.NODE_ENV === "production") {
       })
     ]
   )
+} else {
+  plugins.push(...[
+    ///basicSsl()
+  ])
 }
 
 export default defineConfig({
@@ -112,9 +118,10 @@ export default defineConfig({
   },
 
   server: {
-    host: 'localhost',
+    host: 'botfi-dev.com',
     port: 5173,
     strictPort: true, 
+    //https: true,
     headers: {
       "localtonet-skip-warning": "true"
     }

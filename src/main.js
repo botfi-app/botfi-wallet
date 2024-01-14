@@ -85,7 +85,8 @@ if(platform == ""){
         window.location = "/error/unknown-client"
     }
 } else {
-
+    
+    console.log("platformPlugins[platform]===>", platformPlugins[platform])
     app.use(platformPlugins[platform], { router })
 }
 

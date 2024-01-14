@@ -13,7 +13,7 @@ const props = defineProps({
     title:    { type: String, default: ""},
     hasHeader: { type: Boolean, default: true },
     hasFooter: { type: Boolean, default: true },
-    size: { type: String, default: '' }
+    size: { type: String, default: 'modal-md' }
 })
 
 let _modal = null
@@ -56,7 +56,7 @@ const cleanupModal = () => {
 </script>
 <template>
    <div class="modal" :id="props.id" ref="modalEl" tabindex="-1">
-        <div :class="`modal-dialog ${props.size}`">
+        <div :class="`modal-dialog ${props.size} px-3`">
             <div class="modal-content">
                 <div class="modal-header" v-if="hasHeader">
                     <slot name="header">

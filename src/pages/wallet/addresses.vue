@@ -119,11 +119,13 @@ const copyAddress = async (addr) =>{
         :show-nav="false"
     >   
 
-        <NativeBackBtn />
-
-        <div class="w-400 mb-5">
+        <div class="w-800 mb-5">
             <div class="d-flex p-2 align-items-center justify-content-between flex-nowrap">
-                <div class="fw-semibold fs-6 pe-2">Wallets</div>
+
+                <div class="center-vh">
+                    <NativeBackBtn />
+                    <div class="fw-semibold fs-6 pe-2">Wallets</div>
+                </div>
                 
                 <div class="ps-2">
                     <button class="btn btn-primary rounded-pill v-center"
@@ -150,24 +152,22 @@ const copyAddress = async (addr) =>{
                 <ul class="list-group list-group-flush w-full no-select">
                     <li v-if="dataToRender != null"
                         v-for="(item,key) in dataToRender" 
-                        class="list-group-item list-group-item-action py-4 center-vh"
+                        class="list-group-item list-group-item-action w-full py-4 d-flex justify-content-between"
                         :key="key"
                         role="button" 
                         @click="onItemClick(item, key)"
                     >
 
-                        <div class="pe-2">
+                        
+                        <div class="pe-2 d-flex">
                             <Avatar 
                                 :name="item.address" 
-                                :size="38"
+                                :size="24"
                                 :square="true"
                                 variant="ring"
-                                class="rounded"
+                                class="rounded me-1"
                                 :id="`addr-icon-${item.address}`"
-                            />
-                        </div>
-                        <div class="d-flex center-vh">
-                          
+                            />                          
                             <div class="no-select addr-item">
                                 <span class="text-break fs-14">
                                     {{ item.address }} 
@@ -179,14 +179,14 @@ const copyAddress = async (addr) =>{
                                     {{item.name}} 
                                 </span>
                             </div>
-
-                            <Icon name="solar:star-circle-bold-duotone" 
-                                :size="32"
-                                v-if="walletStore.activeWallet.address != null && 
-                                   walletStore.activeWallet.address == item.address"
-                                class="ms-3 text-success"
-                            />
                         </div>
+
+                        <Icon name="solar:star-circle-bold-duotone" 
+                            :size="32"
+                            v-if="walletStore.activeWallet.address != null && 
+                                walletStore.activeWallet.address == item.address"
+                            class="ms-3 text-success"
+                        />
                     </li>
                 </ul>
             </loading-view>
@@ -229,7 +229,7 @@ const copyAddress = async (addr) =>{
                 :title="menuModalTitle"
                 :has-header="true"
                 :has-footer="false"
-                size="modal-sm"
+                size="modal-md"
             >
                 <template #body>
                     <ul class="list-group list-group-flush w-full no-select"

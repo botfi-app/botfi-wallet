@@ -116,6 +116,10 @@ const onSave = async () => {
         isLoading.value = false 
     }
 }
+
+const getCopySeedPhrase = () => (
+    seedPhraseArray.value.map((v, idx) => (`${idx+1}. ${v}`)).join('\r\n')
+)
 </script>
 
 <template>
@@ -124,11 +128,11 @@ const onSave = async () => {
         :show-nav="false"
         v-if="initialized"
     >
-     
+
+        <NativeBackBtn  url="/set-pin?next=create-wallet"  />
+
         <div class="w-400">
             
-            <NativeBackBtn  url="/set-pin?next=create-wallet"  />
-
             <loading-view :isLoading="isLoading">
 
                 <div class="d-flex flex-column px-3 pb-5 align-items-center">
@@ -155,7 +159,7 @@ const onSave = async () => {
                         <button 
                             class="btn btn-info rounded-pill mx-1 w-full"
                             id="copy-btn"
-                            :data-clipboard-text="seedPhraseArray.join(' ')"
+                            :data-clipboard-text="getCopySeedPhrase()"
                         >
                             Copy
                         </button>
@@ -208,7 +212,7 @@ const onSave = async () => {
               
                     <div class=" w-full">
                         <button @click.prevent="showVerifyPhraseModal" 
-                            class="btn rounded-pill btn-primary w-full"
+                            class="btn btn-lg rounded-pill btn-primary w-full"
                         >
                             Continue
                         </button>

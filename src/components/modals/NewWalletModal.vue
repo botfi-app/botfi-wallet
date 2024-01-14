@@ -63,7 +63,7 @@ const createWallet = async () => {
         :title="props.title"
         :has-header="true"
         :has-footer="false"
-        size="modal-sm"
+        size="modal-md"
         >
             <template #body>
                 <div class='m-2 my-3'>

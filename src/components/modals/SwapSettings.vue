@@ -28,7 +28,7 @@ watch(slippage, updateSetting);
         title="Setting"
         :has-header="true"
         :has-footer="false"
-        size="modal-sm"
+        size="modal-md"
     >
         <template #body>
            <div class="py-4 px-2">

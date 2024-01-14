@@ -138,13 +138,14 @@ const onSearch = async (keyword, filteredData) => {
         v-if="isNetReady"
     >   
 
-        <NativeBackBtn />
-
-        <div class="w-400 mb-5">
+        <div class="w-800 mb-5">
             
             <loading-view :isLoading="isLoading" :key="dataState">
                 <div class="d-flex p-2 justify-content-between align-items-center flex-nowrap">
-                    <div class="fw-semibold fs-6 pe-2">Networks</div>
+                    <div class="center-vh">
+                        <NativeBackBtn />
+                        <div class="fw-semibold fs-6">Networks</div>
+                    </div>
                     <div class="ps-2">
                         <router-link to="/networks/add" class="no-underline">
                             <button class="btn btn-primary rounded-pill v-center">
@@ -209,7 +210,7 @@ const onSearch = async (keyword, filteredData) => {
             :title="modalTitle"
             :has-header="true"
             :has-footer="false"
-            size="modal-sm"
+            size="modal-md"
         >
             <template #body>
                 <ul class="list-group list-group-flush w-full no-select"
