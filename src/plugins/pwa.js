@@ -7,6 +7,8 @@
 import tinycolor from "tinycolor2";
 import PWACore from "../classes/platforms/PWACore";
 import EventBus from "../classes/EventBus"
+import default_theme from "../config/default_theme";
+import AppTheme from "../classes/AppTheme";
 
 
 export default {
@@ -37,7 +39,7 @@ const ensureStandaloneMode = async() => {
 
 const enforceFixedSize = () => {
 
-    if(!isStandalone()) return;
+    //if(!isStandalone()) return;
     
     let width = 500;
     let height = (0.8) * window.screen.height;
@@ -49,4 +51,6 @@ const enforceFixedSize = () => {
         //e.preventDefault()
         window.resizeTo(width, height)
     })
+
+    AppTheme.setTheme("light", default_theme.light)
 }

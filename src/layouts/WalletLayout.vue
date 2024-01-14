@@ -14,7 +14,8 @@ const props = defineProps({
     hasAddrSelect: { type: Boolean, default: false },
     icon: { type: String, default: ''},
     isLoading: { type: Boolean, default: false },
-    hasFooter: { type: Boolean, default: false }
+    hasFooter: { type: Boolean, default: false },
+    backUrl: {type: null, default: null},
 })
 
 const walletStore = useWalletStore()
@@ -43,6 +44,7 @@ onBeforeMount(() => {
                 :hasNetSelect="props.hasNetSelect"
                 :hasAddrSelect="props.hasAddrSelect"
                 :icon="props.icon"
+                :backUrl="props.backUrl"
             />
         </template>
 

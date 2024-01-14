@@ -601,10 +601,9 @@ const fetchQuoteGasInfo = async (idx) => {
         :pageError="pageError"
         :isLoading="!initialized"
         :hasFooter="true"
+        backUrl="/wallet"
     >   
-        <NativeBackBtn url="/wallet" />
-
-        <div  class="swap-engine w-400 mb-5 pt-1 px-2">
+        <div  class="swap-engine w-800 mb-5 pt-1 px-2">
             <div  class="mt-4 token-a">
                 <div class="d-flex my-1 mx-1 justify-content-between align-items-center">
                     <div></div>
@@ -715,7 +714,7 @@ const fetchQuoteGasInfo = async (idx) => {
                 </div>
             </div>
             <div class="">
-                <button class="btn btn-success rounded-lg w-full" 
+                <button class="btn btn-success btn-lg rounded-lg w-full" 
                     :disabled="isFetchingQuotes || quotesError != '' || hasInsufficientFunds"
                     @click="handleOnSubmit"
                 >   
