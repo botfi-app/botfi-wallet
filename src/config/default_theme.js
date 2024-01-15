@@ -30,5 +30,30 @@ export default {
 
     dark: {
 
+        accent_text_color: "#29b327",
+
+        bg_color: "#29302e",
+
+        button_color: "#27b28f",
+
+        button_text_color: "#ffffff",
+
+        destructive_text_color: "#ef5b5b",
+
+        header_bg_color: "#0f1c10",
+
+        hint_color: "#b1c3d5",
+
+        link_color: "#29b327",
+
+        secondary_bg_color: "#0f1c10",
+
+        section_bg_color: "#182c18",
+
+        section_header_text_color: "#b1c3d5",
+
+        subtitle_text_color: "#b1c3d5",
+
+        text_color: "#ffffff"
     }
 }

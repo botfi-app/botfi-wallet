@@ -148,10 +148,16 @@ const onFirstInputPaste = (e, index) => {
   <main-layout
       title="Create Wallet"
       :show-nav="false"
-      :backUrl="backUrl"
   >
-    
-    <div class="w-400">
+    <div class="m-2">
+     <NativeBackBtn  
+        :url="backUrl"  
+        btn-class="btn btn-warning btn-md px-3" 
+        text="Back"  
+      />
+    </div>
+
+    <div class="w-800">
       
       <div class="d-flex flex-column px-3 pb-5 align-items-center">
 
@@ -190,20 +196,22 @@ const onFirstInputPaste = (e, index) => {
             </div>
           </template>
         </div>
-        <div class="form-check my-4">
-          <input 
-              v-model="hasAgreedSeedPhraseTerms"
-              class="form-check-input" 
-              type="checkbox" 
-              id="hasAgreedSeedPhraseTerms"
-          />
-          <label class="form-check-label hint" for="hasAgreedSeedPhraseTerms">
-              I understand that the seed phrase won't be saved on BotFi's servers
-          </label>
+        <div class="my-2 d-flex flex-column w-full">
+          <div class="form-check my-4">
+            <input 
+                v-model="hasAgreedSeedPhraseTerms"
+                class="form-check-input" 
+                type="checkbox" 
+                id="hasAgreedSeedPhraseTerms"
+            />
+            <label class="form-check-label hint" for="hasAgreedSeedPhraseTerms">
+                I understand that the seed phrase won't be saved on BotFi's servers
+            </label>
+          </div>
         </div>
         <div class=" w-full">
           <button @click.prevent="onSave" 
-            class="btn btn-success w-full rounded-pill"
+            class="btn btn-success w-full rounded-pill py-2"
           >
             Import
           </button>

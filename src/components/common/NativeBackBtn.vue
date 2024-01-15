@@ -52,18 +52,15 @@ onBeforeUnmount(() => {
             @click.prevent="callbackFunc"
             :class="`
                 rounded-pill 
-                d-flex 
-                align-items-center 
-                justify-content-start
-                {{ props.btnClass }}
                 mx-0
-                ps-0
-                pe-2
-                border-none
+                px-0
+                ${ props.btnClass }
             `"
         >
-            <Icon name="carbon:arrow-left" />
-            <span v-if="props.text != ''" class="ms-2">{{props.text}}</span>
+            <div class=" d-flex align-items-center justify-content-start">
+                <Icon name="carbon:arrow-left" />
+                <span v-if="props.text != ''" class="ms-2">{{props.text}}</span>
+            </div>
          </a> 
     </div>
 </template>

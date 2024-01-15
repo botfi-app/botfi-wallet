@@ -98,7 +98,11 @@ const onSave = async () => {
         v-if="initialized"
     >
         <div class="p-2">
-            <NativeBackBtn url="/"  />
+            <NativeBackBtn 
+                url="/" 
+                btn-class="btn btn-warning btn-md px-3" 
+                text="Back"  
+            />
         </div>
 
         <div class="d-flex flex-column w-400 pb-5 align-items-center">

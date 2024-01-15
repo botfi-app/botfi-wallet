@@ -53,7 +53,7 @@ const initialize = async () => {
                     class="my-2 no-underline  w-full"
                     rel="prefetch"
                 >
-                    <button class="btn btn-lg w-full btn-success rounded-pill">
+                    <button class="btn btn-lg w-full btn-warning rounded-pill">
                         Import Wallet
                     </button>
                 </router-link>

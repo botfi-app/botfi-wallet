@@ -129,9 +129,15 @@ const getCopySeedPhrase = () => (
         v-if="initialized"
     >
 
-        <NativeBackBtn  url="/set-pin?next=create-wallet"  />
+        <div class="m-2">
+            <NativeBackBtn  
+                url="/set-pin?next=create-wallet"  
+                btn-class="btn btn-warning btn-md px-3" 
+                text="Back"  
+            />
+        </div>
 
-        <div class="w-400">
+        <div class="w-800">
             
             <loading-view :isLoading="isLoading">
 
@@ -186,7 +192,7 @@ const getCopySeedPhrase = () => (
 
                 
 
-                    <div class="mt-4 mb-4">
+                    <div class="mt-4 mb-4 d-flex flex-column w-full">
                         <div class="form-check">
                             <input 
                                 v-model="hasCopiedSeedPhrase"

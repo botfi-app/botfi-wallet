@@ -52,5 +52,5 @@ const enforceFixedSize = () => {
         window.resizeTo(width, height)
     })
 
-    AppTheme.setTheme("light", default_theme.light)
+    AppTheme.setTheme("dark", default_theme.dark)
 }
