@@ -108,19 +108,7 @@ const pasteWords = async () => {
   if(!c.isSupported()) return; 
 
   c.readText((textData) => {
-
-    textData = textData.trim()
-
-    if(textData == '') return true;
-
-    let dataArr = textData
-                    .replace(/^\s+|\s+$/g,'')
-                    .split(/\s+/);
-
-    if(dataArr.length != 12) return true;
-
-    seedPhraseArray.value = dataArr
-
+    __handleDataPaste(textData.trim())
   })
 
 }
@@ -129,17 +117,25 @@ const onFirstInputPaste = (e, index) => {
 
   let pastedData = e.clipboardData.getData('text')
 
-  if(pastedData == '') return true;
+  __handleDataPaste(pastedData)
 
-  let pastedDataArr = pastedData
+  e.preventDefault()
+
+}
+
+const __handleDataPaste = (data) => {
+
+  if(data == '') return true;
+
+  let pastedDataArr = data
                         .replace(/^\s+|\s+$/g,'')
                         .split(/\s+/);
 
-  if(pastedDataArr.length != 12) return true;
-
+  if(pastedDataArr.length != 12){
+    return Utils.mAlert("Only 12 words seed phrase supported")
+  }
+  
   seedPhraseArray.value = pastedDataArr
-
-  e.preventDefault()
 
 }
 </script>

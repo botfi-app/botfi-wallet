@@ -46,4 +46,19 @@ export default class PWACore {
     // cloud store
     cloudStore = ()  => this.notSupported()
 
+    clipboard() {
+
+        //console.log("this.webApp.version====>", this.webApp.version)
+        //let _p = this.webApp.platform.toLowerCase()
+        let isSupported =  ('clipboard' in navigator)
+
+        if(!isSupported){
+            return this.notSupported()
+        }
+
+        return {
+            isSupported: () => isSupported,
+            readText: (callback) => navigator.clipboard.readText().then(callback)
+        }
+    }
 }
