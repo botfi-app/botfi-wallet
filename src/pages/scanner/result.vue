@@ -168,13 +168,14 @@ const saveToHistory = async () => {
         :has-header="false"
     >
 
-        <NativeBackBtn url="/scanner" />
-
-        <div class="w-400 mb-5">
+        <div class="w-800 mb-5">
             <div class="d-flex p-2 align-items-center justify-content-between flex-nowrap">
-                <div class="fw-semibold fs-6 pe-2 text-truncate">
-                    Scan Result
+        
+                <div class="center-vh">
+                    <NativeBackBtn url="/scanner" />
+                    <div class="fw-semibold fs-6 pe-2">Scan Result</div>
                 </div>
+                
                 <div class="ps-2">
                     <button class="btn btn-primary rounded-pill v-center"
                         data-bs-toggle="modal" 

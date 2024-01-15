@@ -109,7 +109,7 @@ const reloadItems = async () => {
                         class="flex-grow-1"
                     />
                     <button @click.prevent="reloadItems"
-                        class="btn btn-none text-success rounded-circle btn-sm mx-2 p-0"
+                        class="btn btn-none text-primary rounded-circle btn-sm mx-2 p-0"
                     >
                         <Icon name="solar:refresh-bold" :size="28" />
                     </button>

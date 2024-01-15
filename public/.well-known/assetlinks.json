@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "app.botfi.pwa_dev.twa",
+        "sha256_cert_fingerprints": ["22:50:DE:32:44:34:95:2C:F1:A2:23:40:44:0D:13:97:90:44:62:FA:C3:5F:C8:B7:E3:46:30:80:38:5F:B4:79"]
+      }
+    }]
