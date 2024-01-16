@@ -32,9 +32,4 @@ const props = defineProps({
     </div>
 </template>
 <style scoped lang="scss">
-.addr-select-btn {
-    //border-color: var(--bs-primary) !important;
-    //color: var(--bs-body-color);
-    //line-height: 20px;
-}
 </style>

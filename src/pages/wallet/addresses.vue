@@ -8,7 +8,6 @@
 import { useRouter } from 'vue-router';
 import { useWalletStore } from '../../store/walletStore';
 import { ref, watch } from 'vue'
-import Avatar from '../../components/common/Avatar.vue';
 import NewWalletModal from '../../components/modals/NewWalletModal.vue';
 import WalletNameEditor from '../../components/modals/WalletNameEditor.vue';
 import { Modal as bsModal } from 'bootstrap'

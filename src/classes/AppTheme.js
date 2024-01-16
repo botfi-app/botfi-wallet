@@ -23,7 +23,7 @@ export default class AppTheme {
     
         let colors = themeParams
 
-        console.log("colors===>", colors)
+        //console.log("colors===>", colors)
     
         const setCssVar = (name, value) => {
             //console.log(`--${name}: `, value)

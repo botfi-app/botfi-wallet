@@ -6,7 +6,8 @@ import { onBeforeMount, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 const props = defineProps({
-    btnClass: { type: String, default: ''}
+    btnClass: { type: String, default: ''},
+    showArrow: { type: Boolean, default: false }
 })
 
 const router = useRouter()
@@ -27,9 +28,8 @@ const openWallets = () => {
 </script>
 <template>
     <div class="w-full">
-        <button :class="`btn py-2 d-block addr-select-btn w-full ${btnClass}`" 
+        <div :class="`btn py-2 d-block addr-select-btn w-full ${btnClass}`" 
             v-if="activeWallet"
-            data-bs-toggle="modal" 
         >
             <div class="d-flex align-items-center justify-content-between fs-16">
 
@@ -57,13 +57,19 @@ const openWallets = () => {
                 <div>
                     <CopyBtn 
                         :text="activeWallet.address"
-                        btnClasses="btn btn-sm p-0 btn-primary rounded copybtn" 
+                        btnClasses="text-primary" 
                         :showToast="true"
                         successText="Address Copied"
                     />
                 </div>
+
+                <Icon v-if="showArrow"
+                    @click.prevent="openWallets" 
+                    name="akar-icons:chevron-right" 
+                    class="ms-1 text-light" 
+                />
             </div>
-        </button>
+        </div>
     </div>
 </template>
 <style scoped>

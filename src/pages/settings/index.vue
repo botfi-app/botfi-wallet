@@ -3,6 +3,7 @@
 import { onBeforeMount, ref } from 'vue'
 import Icon from '../../components/common/Icon.vue';
 import { useSettings } from "../../composables/useSettings"
+import RevealSeedPhraseModal from '../../components/modals/RevealSeedPhraseModal.vue';
 
 const { settings } = useSettings()
 
@@ -37,7 +38,10 @@ const { settings } = useSettings()
                             </div>
                         </div>
                     </router-link>
-                    <a class="list-group-item fw-semibold py-3">
+                    <a  href="#reveal_seed_phrase_modal"
+                        data-bs-toggle="modal"
+                        class="list-group-item fw-semibold py-3"
+                    >
                         <div class="d-flex justify-content-between ">
                             <div>Reveal Seed Phrase</div>
                             <Icon 
@@ -76,7 +80,7 @@ const { settings } = useSettings()
                 </nav>
             </div>
         </div>
-
+        <RevealSeedPhraseModal />
         <BottomNav />
     </WalletLayout>
 </template>

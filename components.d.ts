@@ -54,6 +54,7 @@ declare module '@vue/runtime-core' {
     Popover: typeof import('./src/components/popovers/Popover.vue')['default']
     ProfilePhoto: typeof import('./src/components/common/ProfilePhoto.vue')['default']
     RevealPrivateKey: typeof import('./src/components/modals/RevealPrivateKey.vue')['default']
+    RevealSeedPhraseModal: typeof import('./src/components/modals/RevealSeedPhraseModal.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     ScanIssuesRender: typeof import('./src/components/scanner/ScanIssuesRender.vue')['default']

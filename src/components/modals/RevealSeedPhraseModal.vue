@@ -3,11 +3,9 @@ import { onUpdated, ref } from 'vue';
 import Utils from '../../classes/Utils';
 import Modal from './Modal.vue';
 import PinCode from '../common/PinCode.vue';    
-import { Modal as bsModal } from 'bootstrap'
 import { useWalletStore } from '../../store/walletStore';
 
 const props = defineProps({
-    id: String, 
     data: { type: Object, required: true }
 })
 
@@ -15,9 +13,9 @@ const emits = defineEmits(["success"])
 
 const walletStore = useWalletStore()
 const pin = ref("")
-const privateKey  = ref("")
+const seedPhrase  = ref("")
 
-const revealPk = async () => {
+const revealSeedPhrase = async () => {
 
     let loader;
 
@@ -25,32 +23,18 @@ const revealPk = async () => {
 
         let _p = pin.value.toString().trim()
 
-        //console.log("_p===>", _p)
-
         if(_p == ""){
             return Utils.mAlert("Pin code is required")
         }
 
-        let addr = props.data.address
-
-        loader = Utils.loader("Decrypting Wallet")
-
-        let resultStatus = await walletStore.decryptPrivateKey(addr, _p)
+        loader = Utils.loader("Decrypting seed phrase")
 
         loader.close()
 
-        if(resultStatus.isError()){
-            return Utils.mAlert(resultStatus.getMessage())
-        }
-
-        let walletInfo = resultStatus.getData() || {}
-
-        //console.log("resultStatus===>", resultStatus)
-
-        privateKey.value = walletInfo.decryptedPk || ""
+        seedPhrase.value = walletStore.defaultWallet.phrase
 
     } catch(e){
-        Utils.logError("RevealPrivateKey#revealPk", e)
+        Utils.logError("RevealSeedPhraseModal#revealSeedPhrase", e)
         Utils.mAlert(Utils.generalErrorMsg)
         if(loader) loader.close()
     }
@@ -60,17 +44,18 @@ const revealPk = async () => {
 </script>
 <template>
     <Modal
-        :id="id"
-        title="Reveal Private Key"
+        id="reveal_seed_phrase_modal"
+        title="Reveal Seed Phrase"
         :has-header="true"
         :has-footer="false"
         size="modal-md"
+        @hide="()=> seedPhrase=''"
     >
             <template #body>
                 <div class='px-3 py-2'>
                             
                     <div class="w-full d-flex flex-column align-items-center justify-content-center pb-3" 
-                        v-if="privateKey==''"
+                        v-if="seedPhrase==''"
                     >
                         <div class=" w-full px-2">
                             <PinCode 
@@ -79,7 +64,7 @@ const revealPk = async () => {
                             />
                         </div>
                         <div class="mt-4 px-2 w-full ">
-                            <button @click.prevent="revealPk" 
+                            <button @click.prevent="revealSeedPhrase" 
                                     class="btn rounded-pill btn-primary w-full"
                             >
                                 Reveal
@@ -87,35 +72,20 @@ const revealPk = async () => {
                         </div>
                     </div>
                     <div class="w-full" v-else>
-                        <div class="form-floating mb-3 rounded w-full">
-                            <input 
-                                type="text" 
-                                :value="props.data.address"
-                                class="form-control rounded" 
-                                id="w_address" 
-                                :readonly="true"
-                                :disabled="true"
-                            />
-                            <label for="w_address">
-                                <span class="">Address</span> 
-                                <span class="hint muted fs-12 font-monospace">
-                                    ({{ props.data.name }})
-                                </span>
-                            </label>
-                        </div>
                         <div class="form-floating">
                             <textarea 
                                 class="form-control rounded mt-1" 
                                 placeholder=""
-                                id="textarea_reveal_pk" 
+                                id="textarea_seed_phrase" 
                                 style="min-height: 100px;"
                                 :readonly="true"
-                                v-model="privateKey" 
+                                v-model="seedPhrase" 
                             />
-                            <label for="textarea_reveal_pk">Private Key</label>
+                            <label for="textarea_seed_phrase">Seed Phrase</label>
                         </div>
                         <div class="my-3">
-                            <button @click.prevent="Utils.copyText({ text: privateKey, showToast: true })"
+                            <button 
+                                @click.prevent="Utils.copyText({ text: seedPhrase, showToast: true })"
                                 class="btn btn-success w-full rounded fw-semibold"
                             >
                                 Copy
