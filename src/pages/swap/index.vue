@@ -20,9 +20,12 @@ import SwapSettings from '../../components/modals/SwapSettings.vue';
 import { MaxUint256, parseUnits } from 'ethers';
 import SwapQuotesModal from '../../components/modals/SwapQuotesModal.vue';
 import ConfirmSwapModal from '../../components/modals/ConfirmSwapModal.vue';
+import { useRoute } from 'vue-router';
 
 let web3 = null;
 let contracts;
+
+const route = useRoute()
 
 const initialized   = ref(false)
 const isLoading     = ref(false)
@@ -211,8 +214,15 @@ const initialize = async () => {
 
     activeWallet.value = await wallets.getActiveWalletInfo()
 
+    // route 
+    let _uriTokenA = route.query.from || ""
+
+    let tokenAAddr = (_uriTokenA != "" && Utils.isAddress(_uriTokenA))
+                        ? _uriTokenA
+                        : Utils.nativeTokenAddr
+
     netInfo.value = await networks.getActiveNetworkInfo()
-    tokenA.value = await tokensCore.getTokenByAddr(Utils.nativeTokenAddr)
+    tokenA.value = await tokensCore.getTokenByAddr(tokenAAddr)
 
     isChainSupported.value  = await swapCore.isChainSupported()
 
@@ -714,7 +724,7 @@ const fetchQuoteGasInfo = async (idx) => {
                 </div>
             </div>
             <div class="">
-                <button class="btn btn-success btn-lg rounded-lg w-full" 
+                <button class="btn btn-primary btn-lg rounded-lg w-full" 
                     :disabled="isFetchingQuotes || quotesError != '' || hasInsufficientFunds"
                     @click="handleOnSubmit"
                 >   

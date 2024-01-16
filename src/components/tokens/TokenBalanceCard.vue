@@ -41,7 +41,7 @@ const actionArr = ref([
     },
     { text: "Swap", 
       icon: "streamline:interface-arrows-reload-2-arrows-load-arrow-sync-square-loading-reload-synchronize", 
-      onClick: () => router.push("/"),
+      onClick: () => router.push(`/swap?from=${props.tokenAddress}`),
       attr: {}
     },
 ])

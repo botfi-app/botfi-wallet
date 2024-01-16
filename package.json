@@ -58,6 +58,7 @@
     "whatwg-fetch": "^3.6.17"
   },
   "devDependencies": {
+    "@capacitor/cli": "^5.6.0",
     "@fullhuman/postcss-purgecss": "^5.0.0",
     "@fullhuman/vue-cli-plugin-purgecss": "^5.0.0",
     "@iconify/vue": "^4.1.1",
