@@ -10,6 +10,7 @@
     "compile": "npx hardhat compile"
   },
   "dependencies": {
+    "@axelar-network/axelarjs-sdk": "^0.13.9",
     "@bugsnag/js": "^7.21.0",
     "@bugsnag/plugin-vue": "^7.19.0",
     "@ethereumjs/tx": "^5.0.0",

@@ -93,7 +93,7 @@ watch(tokens, () => {
     >
         <div class="rounded-lg px-2 pb-3">
             <WalletSelect 
-                btnClass="btn-none border-none py-2" 
+                btnClass="btn-none no-border border-none py-4" 
                 :showArrow="true"
             />
             <div class="h-divider mb-3" />

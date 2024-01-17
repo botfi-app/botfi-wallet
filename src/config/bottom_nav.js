@@ -10,6 +10,11 @@ export default [
         url: "/swap"
     },
     {
+        name: "Bridge",     
+        icon: "fa6-solid:bridge-water",
+        url: "/bridge"
+    },
+    {
         name: "Scanner",     
         icon: "mdi:antivirus",
         url: "/scanner"

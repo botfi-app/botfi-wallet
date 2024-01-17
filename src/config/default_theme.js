@@ -29,31 +29,18 @@ export default {
     },
 
     dark: {
-
-        accent_text_color: "#29b327",
-
-        bg_color: "#29302e",
-
-        button_color: "#27b28f",
-
-        button_text_color: "#ffffff",
-
-        destructive_text_color: "#ef5b5b",
-
-        header_bg_color: "#0f1c10",
-
-        hint_color: "#b1c3d5",
-
-        link_color: "#29b327",
-
-        secondary_bg_color: "#0f1c10",
-
-        section_bg_color: "#182c18",
-
-        section_header_text_color: "#b1c3d5",
-
-        subtitle_text_color: "#b1c3d5",
-
-        text_color: "#ffffff"
+        "bg_color": "#1e1e1e",
+        "section_bg_color": "#181918",
+        "secondary_bg_color": "#000000",
+        "text_color": "#ffffff",
+        "hint_color": "#7d7d7d",
+        "link_color": "#92bb6d",
+        "button_color": "#95c46c",
+        "button_text_color": "#ffffff",
+        "header_bg_color": "#232523",
+        "accent_text_color": "#9ec778",
+        "section_header_text_color": "#a1cf7f",
+        "subtitle_text_color": "#7e7e7e",
+        "destructive_text_color": "#ee686f"
     }
 }

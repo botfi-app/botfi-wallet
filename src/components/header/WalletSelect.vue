@@ -54,26 +54,32 @@ const openWallets = () => {
                     {{  Utils.maskAddress(activeWallet.address, 6, 6)  }}
                 </div>
 
-                <div>
+                <div class="center-vh">
                     <CopyBtn 
                         :text="activeWallet.address"
                         btnClasses="text-primary" 
                         :showToast="true"
                         successText="Address Copied"
                     />
+                
+                    <Icon v-if="showArrow"
+                        @click.prevent="openWallets" 
+                        name="akar-icons:chevron-right" 
+                        class="ms-1 text-light" 
+                    />
                 </div>
-
-                <Icon v-if="showArrow"
-                    @click.prevent="openWallets" 
-                    name="akar-icons:chevron-right" 
-                    class="ms-1 text-light" 
-                />
             </div>
         </div>
     </div>
 </template>
-<style scoped>
-.addr-select-btn:hover {
-    background: none !important;
+<style scoped lang="scss">
+.addr-select-btn {
+    &:hover{
+        background: none !important;
+    }
+    &:active {
+        border:none !important;
+    }
 }
+
 </style>
