@@ -1082,6 +1082,11 @@
   resolved "https://registry.npmjs.org/@bugsnag/safe-json-stringify/-/safe-json-stringify-6.0.0.tgz"
   integrity sha512-htzFO1Zc57S8kgdRK9mLcPVTW1BY2ijfH7Dk2CeZmspTWKdKqSo1iwmqrq2WtRjFlo8aRZYgLX0wFrDXF/9DLA==
 
+"@capacitor/android@^5.6.0":
+  version "5.6.0"
+  resolved "https://registry.npmjs.org/@capacitor/android/-/android-5.6.0.tgz"
+  integrity sha512-6O7xV6K6c8WvQzKxOe7fnhRyoVpS3TNDXy1FyfhvOvclBvu+1JddSdFvW4e4dSL60s2c00sCzNRgYhm+cn0/dQ==
+
 "@capacitor/cli@^5.6.0":
   version "5.6.0"
   resolved "https://registry.npmjs.org/@capacitor/cli/-/cli-5.6.0.tgz"
@@ -1104,6 +1109,23 @@
     tar "^6.1.11"
     tslib "^2.4.0"
     xml2js "^0.5.0"
+
+"@capacitor/core@^5.0.0", "@capacitor/core@^5.6.0":
+  version "5.6.0"
+  resolved "https://registry.npmjs.org/@capacitor/core/-/core-5.6.0.tgz"
+  integrity sha512-xJhCOUGPHw0QYDA3YH+CmL6qiV9DH4Ij3yPxSenymjrtLuXI197u9ddCZwGEwgVIkh9kGZBBKzsNkn89SZ2gdQ==
+  dependencies:
+    tslib "^2.1.0"
+
+"@capacitor/preferences@^5.0.6":
+  version "5.0.6"
+  resolved "https://registry.npmjs.org/@capacitor/preferences/-/preferences-5.0.6.tgz"
+  integrity sha512-aDe4wGTVSAIue6XXdUFgyz7SGszxK/Ptt/iWTydMpzc1PlZXw1XTTnciM+S+SLLNZFzXlkpXT3wMnh9t0DojUA==
+
+"@capacitor/status-bar@^5.0.6":
+  version "5.0.6"
+  resolved "https://registry.npmjs.org/@capacitor/status-bar/-/status-bar-5.0.6.tgz"
+  integrity sha512-7od8CxsBnot1XMK3IeOkproFL4hgoKoWAc3pwUvmDOkQsXoxwQm4SR9mLwQavv1XfxtHbFV9Ukd7FwMxOPSViw==
 
 "@chainsafe/as-sha256@^0.3.1":
   version "0.3.1"
@@ -12208,6 +12230,11 @@ swipejs@^2.3.1:
   resolved "https://registry.npmjs.org/swipejs/-/swipejs-2.3.1.tgz"
   integrity sha512-mUL5MKSVkpQ2/CMgurNNgiKNRKcRkkD1/bfe8f2Y5MZW74E99p3zCxBrV9C7goMmBY4J8lrH3Dm0IQvaV64UEQ==
 
+swiper@^11.0.5:
+  version "11.0.5"
+  resolved "https://registry.npmjs.org/swiper/-/swiper-11.0.5.tgz"
+  integrity sha512-rhCwupqSyRnWrtNzWzemnBLMoyYuoDgGgspAm/8iBD3jCvAWycPLH4Z3TB0O5520DHLzMx94yUMH/B9Efpa48w==
+
 symbol-observable@^2.0.3:
   version "2.0.3"
   resolved "https://registry.npmjs.org/symbol-observable/-/symbol-observable-2.0.3.tgz"
@@ -12573,7 +12600,7 @@ tslib@^1.9.3:
   resolved "https://registry.npmjs.org/tslib/-/tslib-1.14.1.tgz"
   integrity sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==
 
-tslib@^2.0.1, tslib@^2.4.0, tslib@2.4.0:
+tslib@^2.0.1, tslib@^2.1.0, tslib@^2.4.0, tslib@2.4.0:
   version "2.4.0"
   resolved "https://registry.npmjs.org/tslib/-/tslib-2.4.0.tgz"
   integrity sha512-d6xOpEDfsi2CZVlPQzGeux8XMwLT9hssAsaPYExaQMuYskwb+x1x7J371tWlbBdWHroy99KnVB6qIkUbs5X3UQ==

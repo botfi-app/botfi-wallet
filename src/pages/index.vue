@@ -34,7 +34,10 @@ const initialize = async () => {
         v-if="initialized"
         :center-content="true"
     >
-        <div class="d-flex flex-column w-400 px-5 auth-box align-items-center justify-content-center">
+        <div v-if="1==1">
+            <IntroSlider />
+        </div>
+        <div v-else class="d-flex flex-column w-400 px-5 auth-box align-items-center justify-content-center">
         
             <top-logo />
 
@@ -44,7 +47,7 @@ const initialize = async () => {
                     class="my-2 no-underline  w-full"
                     rel="prefetch"
                 >
-                    <button class="btn btn-lg w-full btn-primary rounded-pill ">
+                    <button class="btn w-full btn-primary rounded-pill">
                         Create Wallet
                     </button>
                 </router-link>
@@ -53,7 +56,7 @@ const initialize = async () => {
                     class="my-2 no-underline  w-full"
                     rel="prefetch"
                 >
-                    <button class="btn btn-lg w-full btn-warning rounded-pill">
+                    <button class="btn w-full btn-warning rounded-pill">
                         Import Wallet
                     </button>
                 </router-link>

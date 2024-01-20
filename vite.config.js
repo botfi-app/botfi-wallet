@@ -118,7 +118,7 @@ export default defineConfig({
   },
 
   server: {
-    host: 'botfi-dev.com',
+    host: '0.0.0.0',///'botfi-dev.com',
     port: 5173,
     strictPort: true, 
     //https: true,

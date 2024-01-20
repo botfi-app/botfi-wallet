@@ -129,10 +129,10 @@ const getCopySeedPhrase = () => (
         v-if="initialized"
     >
 
-        <div class="m-2">
+        <div class="m-3">
             <NativeBackBtn  
                 url="/set-pin?next=create-wallet"  
-                btn-class="btn btn-warning btn-md px-3" 
+                btn-class="btn btn-warning px-3"  
                 text="Back"  
             />
         </div>

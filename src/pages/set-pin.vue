@@ -97,10 +97,10 @@ const onSave = async () => {
         title="Set Pin"
         v-if="initialized"
     >
-        <div class="p-2">
+        <div class="p-3">
             <NativeBackBtn 
                 url="/" 
-                btn-class="btn btn-warning btn-md px-3" 
+                btn-class="btn btn-warning px-3" 
                 text="Back"  
             />
         </div>
@@ -148,7 +148,7 @@ const onSave = async () => {
             </div>
 
             <div class="mt-4 w-full px-4">
-                <button @click.prevent="onSave" class="btn btn-lg rounded-pill btn-primary w-full">
+                <button @click.prevent="onSave" class="btn rounded-pill btn-primary w-full">
                     Continue
                 </button>
             </div>

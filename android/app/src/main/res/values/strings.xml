@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">BotFi</string>
+    <string name="title_activity_main">BotFi</string>
+    <string name="package_name">app.botfi.app</string>
+    <string name="custom_url_scheme">app.botfi.app</string>
+</resources>

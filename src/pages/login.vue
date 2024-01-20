@@ -164,13 +164,13 @@ const resetWallets = async () => {
 
             <div class="mb-2 px-3 d-flex flex-column align-items-center w-full">
                 <button
-                    class="btn btn-lg w-full  rounded shadow btn-primary mb-4"
+                    class="btn w-full  rounded shadow btn-primary mb-4"
                     @click.prevent="handleLogin"
                 >
                     Login
                 </button>
                 <button 
-                    class="btn-none btn-lg text-danger w-full btn btn-md mb-2"
+                    class="btn-none text-danger w-full btn btn-md mb-2"
                     @click="resetWallets"
                 >
                     Reset Wallets

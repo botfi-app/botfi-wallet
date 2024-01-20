@@ -1,7 +1,5 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
-import telegram from './plugins/telegram'
-import botFiPWA from './plugins/pwa'
 import SimpleBar from 'simplebar'
 import 'simplebar/dist/simplebar.css';
 import Bugsnag from '@bugsnag/js'
@@ -18,10 +16,6 @@ import router from "./router"
 
 
 const platforms = appConfig.platforms 
-const platformPlugins = {
-    pwa: botFiPWA,
-    telegram
-}
 
 window.Buffer = Buffer
 
@@ -36,66 +30,93 @@ Bugsnag.start({
 const bugsnagVue = Bugsnag.getPlugin('vue')
 
 
-const app = createApp(App)
-
 BigInt.prototype["toJSON"] = function () {
     return this.toString();
 }
 
-router.beforeResolve(() => {
-    let appDom = document.getElementById("app");
-    let mainLoader = document.getElementById("main-loader");
-    appDom.classList.add("hidden")
-    mainLoader.classList.remove("hidden")
-})
+// start the app 
+const startApp = async () => {
 
-router.afterEach(() => {
-    window.setTimeout(() => {
-     
+    const app = createApp(App)
+
+    router.beforeResolve(() => {
         let appDom = document.getElementById("app");
         let mainLoader = document.getElementById("main-loader");
-        mainLoader.classList.add("hidden");
-        appDom.classList.remove("hidden");
+        appDom.classList.add("hidden")
+        mainLoader.classList.remove("hidden")
+    })
 
-        [...document.querySelectorAll('[data-simplebar]')]
-            .map(el => new SimpleBar(el));
+    router.afterEach(() => {
+        window.setTimeout(() => {
+        
+            let appDom = document.getElementById("app");
+            let mainLoader = document.getElementById("main-loader");
+            mainLoader.classList.add("hidden");
+            appDom.classList.remove("hidden");
 
-        [...document.querySelectorAll('.dropdown-toggle')]
-            .map(dropdownToggleEl => new bootstrap.Dropdown(dropdownToggleEl))
-    }, 200);
-})
+            [...document.querySelectorAll('[data-simplebar]')]
+                .map(el => new SimpleBar(el));
 
+            [...document.querySelectorAll('.dropdown-toggle')]
+                .map(dropdownToggleEl => new bootstrap.Dropdown(dropdownToggleEl))
+        }, 200);
+    })
 
-app 
- .use(bugsnagVue)
- .use(router)
- //.use(RouterPrefetch)
- .use(pinia)
- .use(VueLazyLoad)
- .directive("number", numberInput)
- .directive("integer", integerInput)
+    await loadPlatformPlugin(app)
 
+    app 
+    .use(bugsnagVue)
+    .use(router)
+    //.use(RouterPrefetch)
+    .use(pinia)
+    .use(VueLazyLoad)
+    .directive("number", numberInput)
+    .directive("integer", integerInput)
 
- let loc = window.location
- 
-let platform = platforms[loc.hostname.toLowerCase()] || ""
-
-if(platform == ""){
-    if(loc.pathname != '/error/unknown-client'){
-        window.location = "/error/unknown-client"
-    }
-} else {
     
-    console.log("platformPlugins[platform]===>", platformPlugins[platform])
-    app.use(platformPlugins[platform], { router })
+
+    app.mount('#app')
 }
 
-window.app_platform = platform
+const loadPlatformPlugin = async (app) => {
 
-console.log("platforms===>", platforms)
-console.log("loc.hostname.toLowerCase()===>", loc.hostname.toLowerCase())
-console.log("platformName===>", platform)
+    let loc = window.location
 
-app.mount('#app')
+    console.log("loc===>", loc)
+    
+    let platform = platforms[loc.hostname.toLowerCase()] || ""
+
+    if(platform == ""){
+        if(loc.pathname != '/error/unknown-client'){
+            window.location = "/error/unknown-client"
+        }
+        return false;
+    } 
+
+    if(platform == 'telegram'){
+        let s = document.createElement('script')
+        s.src = 'https://telegram.org/js/telegram-web-app.js'
+        document.head.appendChild(s)
+    } else if(platform == 'capacitor'){
+      
+    }
+
+    let platformPlugin = (await import(`./plugins/${platform}`)).default
+
+    console.log("platformPlugin====>", platformPlugin)
+
+    app.use(platformPlugin, { router })
+    
+    window.app_platform = platform
+
+    console.log("platforms===>", platforms)
+    console.log("loc.hostname.toLowerCase()===>", loc.hostname.toLowerCase())
+    console.log("platformName===>", platform)
+
+    return true 
+}
+
+
+startApp()
 
 

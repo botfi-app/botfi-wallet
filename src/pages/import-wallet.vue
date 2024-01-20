@@ -145,10 +145,10 @@ const __handleDataPaste = (data) => {
       title="Create Wallet"
       :show-nav="false"
   >
-    <div class="m-2">
+    <div class="p-3">
      <NativeBackBtn  
         :url="backUrl"  
-        btn-class="btn btn-warning btn-md px-3" 
+        btn-class="btn btn-warning px-3" 
         text="Back"  
       />
     </div>

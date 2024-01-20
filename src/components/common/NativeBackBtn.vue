@@ -1,7 +1,6 @@
 <script setup>
 import { onBeforeMount, onBeforeUnmount, inject, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import Utils from '../../classes/Utils';
 
 const props = defineProps({
     url: { type: String, default: "" },
