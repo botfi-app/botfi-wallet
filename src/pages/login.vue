@@ -152,10 +152,10 @@ const resetWallets = async () => {
     >
        
         <div class="d-flex flex-column w-400  align-items-center">
+            
+            <top-logo class="mt-5" />
 
-            <top-logo />
-
-            <div class="p-3 w-full">
+            <div class="p-3 w-full mt-5">
                 <PinCode 
                     label="Enter Pin"
                     @change="(v) => pin = v"

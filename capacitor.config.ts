@@ -6,7 +6,7 @@ const config: CapacitorConfig = {
   webDir: 'dist',
   server: {
     androidScheme: 'https',
-    "url": "http://192.168.8.100:5173",
+    "url": "https://native-dev.botfi.app",
     "cleartext": true
   }
 };

@@ -1117,6 +1117,11 @@
   dependencies:
     tslib "^2.1.0"
 
+"@capacitor/device@^5.0.6":
+  version "5.0.6"
+  resolved "https://registry.npmjs.org/@capacitor/device/-/device-5.0.6.tgz"
+  integrity sha512-tmjK0H8IKbDLMcmzZzJPbV+9yLkKJ76QOdz4A7fZAOYx2GnFHsFngxldq/wKotGAJuDX/ih3ZzHNrzVguzlv2g==
+
 "@capacitor/preferences@^5.0.6":
   version "5.0.6"
   resolved "https://registry.npmjs.org/@capacitor/preferences/-/preferences-5.0.6.tgz"

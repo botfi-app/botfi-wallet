@@ -153,9 +153,9 @@ const getCopySeedPhrase = () => (
 
                     </div>
 
-                    <div class="mt-4 h-divider" />
+                    <div class="h-divider" />
 
-                    <div class="d-flex flex-row py-2 w-full">
+                    <div class="d-flex flex-row py-4 w-full">
                         <button
                             class="btn btn-success rounded-pill mx-1 w-full" 
                             @click="isPhraseHidden=!isPhraseHidden"
@@ -171,7 +171,7 @@ const getCopySeedPhrase = () => (
                         </button>
                     </div>
 
-                    <div class="mt-4 mb-2 h-divider" />
+                    <div class=" h-divider" />
 
                     <div class="py-2 row">
                         <template v-for="(word,index) in seedPhraseArray" :key="index">
@@ -218,7 +218,7 @@ const getCopySeedPhrase = () => (
               
                     <div class=" w-full">
                         <button @click.prevent="showVerifyPhraseModal" 
-                            class="btn btn-lg rounded-pill btn-primary w-full"
+                            class="btn rounded-pill btn-primary w-full"
                         >
                             Continue
                         </button>

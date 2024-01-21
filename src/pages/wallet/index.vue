@@ -64,6 +64,9 @@ const initialize = async() => {
                                 backUrl="/wallet" 
                                 maxWidth="50vw"
                             />
+                            <button class="btn rounded-circle">
+                                <Icon name="basil:settings-solid" />
+                            </button>
                         </div>
                     </div>
 

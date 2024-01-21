@@ -8,6 +8,7 @@ export default {
         "botfi-dev.botfi.app":  "telegram",
         "dev-ui.botfi.app":     "telegram",
         "localhost":            "capacitor",
-        "192.168.8.100":        "capacitor"
+        "192.168.8.100":        "capacitor",
+        "native-dev.botfi.app":  "capacitor",
     },
 }

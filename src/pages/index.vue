@@ -8,17 +8,24 @@
 import { onBeforeMount, ref } from 'vue';
 import { useWalletStore } from "../store/walletStore"
 import { useRouter, useRoute } from 'vue-router';
+import { useSimpleDB } from '../composables/useSimpleDB'
+import Utils from "../classes/Utils"
 
+const skipIntro = ref(false)  
 const initialized = ref(false)
 const walletStore = useWalletStore()
 const router = useRouter()
 const route  = useRoute()
+const _db = useSimpleDB()
 
 onBeforeMount(() => {
+
     initialize()
 })
 
 const initialize = async () => {
+  
+    skipIntro.value = (await _db.getItem("__skip_intro")) || false
 
     if((await walletStore.hasDefaultWallet())){
         router.push(`/login?next=${route.query.next || ''}`)
@@ -27,6 +34,8 @@ const initialize = async () => {
 
     initialized.value = true
 }
+
+const onIntroFinished = () => skipIntro.value = true
 </script>
 <template>
     <main-layout 
@@ -34,14 +43,15 @@ const initialize = async () => {
         v-if="initialized"
         :center-content="true"
     >
-        <div v-if="1==1">
-            <IntroSlider />
-        </div>
+        <IntroSlider 
+            v-if="Utils.isPlatform('capacitor') && !skipIntro"
+            @finish="onIntroFinished"
+        />
         <div v-else class="d-flex flex-column w-400 px-5 auth-box align-items-center justify-content-center">
         
-            <top-logo />
+            <top-logo class="mt-5" />
 
-            <div class="my-5 d-flex flex-column w-full align-items-center w-full">
+            <div class="my-5 d-flex flex-column w-full align-items-center w-full mt-4">
                 <router-link 
                     to="/set-pin?next=create-wallet" 
                     class="my-2 no-underline  w-full"

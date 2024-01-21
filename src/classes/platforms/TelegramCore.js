@@ -146,60 +146,7 @@ export default class TelegramCore {
 
     getViewportHeight = () => this.webApp.viewportHeight;
 
-    // cloud store
-    cloudStore() {
-
-        let isSupported = false; //(this.isMinVersion("6.9"))
-
-        if(!(isSupported || this.webApp)){
-            return this.notSupported()
-        }
-
-        let cs = this.webApp.CloudStorage 
-
-        let getItem = (key) => ((new Promise((resolve, reject) => {
-            //if(!isSupported) return null;
-            cs.getItem(key, function(err, result){
-                if(err){ reject(err) }
-                else { resolve(result) }
-            })
-        })))
-
-        let setItem = (key, value) => ((new Promise((resolve, reject) => {
-            //if(!isSupported) return false;
-            cs.setItem(key, value, (err) => {
-                if(err){ reject(err) }  
-                else { resolve(true) }
-            })
-        })))
-
-        let removeItem = (key) => ((new Promise((resolve, reject) => {
-            //if(!isSupported) return false;
-            cs.removeItem(key, (err) => {
-                if(err){ reject(err) }  
-                else { resolve(true) }
-            })
-        })))
-
-        /*
-        cs.setItem("__bname", "Zak", function(err) {
-            ///if(err) console.log("setItem Err========>>>",err)
-            console.log("Name Set =========>>>>")
-            cs.getItem("__bname", function(err, result) {
-                console.log("err===>", err)
-                console.log("result===>", result)
-                if(err) console.log("setItem Error=====>>>>", err)
-                console.log("result======>", result)
-            })
-        })*/
-
-        return {
-            isSupported: () => isSupported,
-            setItem, 
-            getItem,
-            removeItem
-        }
-    }
+    DB = () => window.localStorage
 
 
     qrCodeReader() {

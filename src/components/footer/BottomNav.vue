@@ -46,8 +46,11 @@ const onTabClick = (index) => {
                      rel="prefetch"
                      @click.prevent="onTabClick(index)"
                   >  
-                     <Icon class='rounded-pill icon mb-1' :name="item.icon" :size="20" />
-                     <div class="ms-1 fs-12">
+                     <Icon class='rounded-pill icon mb-1 icon' 
+                        :name="item.icon" 
+                        :size="20" 
+                     />
+                     <div class="ms-1 fs-11">
                         {{ item.name }}
                      </div>
                   </div>
@@ -57,8 +60,18 @@ const onTabClick = (index) => {
       </div>
    </div>
 </template>
-<style lang="scss">
+<style lang="scss" scoped>
 .bottom-bar-main {
    padding-bottom: 75px;
+}
+
+.icon { padding: 5px; }
+
+.b-tab-item {
+   opacity: 0.4;
+
+   &.active {
+      opacity: 0.9;
+   }
 }
 </style>

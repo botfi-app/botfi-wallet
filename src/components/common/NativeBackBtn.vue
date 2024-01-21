@@ -56,10 +56,10 @@ onBeforeUnmount(() => {
                 ${ props.btnClass }
             `"
         >
-            <div class=" d-flex align-items-center justify-content-start">
+            <span class="d-flex align-items-center justify-content-start">
                 <Icon name="carbon:arrow-left" class="me-2" />
                 <span v-if="props.text != ''">{{props.text}}</span>
-            </div>
+            </span>
          </a> 
     </div>
 </template>

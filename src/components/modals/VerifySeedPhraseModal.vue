@@ -90,7 +90,7 @@ const  handleSubmit = async () => {
                 <div class="m-2 my-4">
                     <button 
                         @click="handleSubmit"
-                        class="btn btn-lg btn-success w-full rounded-pill"
+                        class="btn btn-primary w-full rounded-pill"
                     >
                         Continue
                     </button>

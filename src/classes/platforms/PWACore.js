@@ -43,9 +43,8 @@ export default class PWACore {
 
     backBtn = (onClick = null) => this.notSupported()
 
-    // cloud store
-    cloudStore = ()  => this.notSupported()
-
+    DB = () => window.localStorage
+    
     clipboard() {
 
         //console.log("this.webApp.version====>", this.webApp.version)

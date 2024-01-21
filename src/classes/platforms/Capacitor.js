@@ -3,6 +3,7 @@
  * @author BotFi <hello@botfi.app>
  * @license MIT 
  */
+import { Preferences as sharedPerf } from '@capacitor/preferences';
 
 export default class Capacitor {
 
@@ -43,8 +44,11 @@ export default class Capacitor {
 
     backBtn = (onClick = null) => this.notSupported()
 
-    // cloud store
-    cloudStore = ()  => this.notSupported()
+    DB = () => ({
+        setItem: async (key, value) => sharedPerf.set({key, value}),
+        getItem: async (key) => (await sharedPerf.get({ key })).value,
+        removeItem: async (key) => sharedPerf.remove({ key }),
+    })
 
     clipboard() {
 

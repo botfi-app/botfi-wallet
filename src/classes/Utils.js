@@ -578,4 +578,7 @@ export default class Utils {
         return (window.app_platform && (window.matchMedia('(display-mode: standalone)').matches 
         || window.navigator.standalone === true))
     }
+
+    static appPlatform = () => window.app_platform
+    static isPlatform = (name) => this.appPlatform() == name
 }

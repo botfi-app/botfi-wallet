@@ -14,30 +14,28 @@ import App from './App.vue'
 import router from "./router"
 //import RouterPrefetch from 'vue-router-prefetch'
 
-
+const app = createApp(App)
 const platforms = appConfig.platforms 
 
 window.Buffer = Buffer
 
-// very important
-const pinia = createPinia()
-
-Bugsnag.start({
-  apiKey:   appConfig.bugsnag_key,
-  plugins:  [new BugsnagPluginVue()]
-})
-
-const bugsnagVue = Bugsnag.getPlugin('vue')
-
-
-BigInt.prototype["toJSON"] = function () {
-    return this.toString();
-}
-
 // start the app 
 const startApp = async () => {
 
-    const app = createApp(App)
+    // very important
+    const pinia = createPinia()
+
+    Bugsnag.start({
+    apiKey:   appConfig.bugsnag_key,
+    plugins:  [new BugsnagPluginVue()]
+    })
+
+    const bugsnagVue = Bugsnag.getPlugin('vue')
+
+
+    BigInt.prototype["toJSON"] = function () {
+        return this.toString();
+    }
 
     router.beforeResolve(() => {
         let appDom = document.getElementById("app");
@@ -62,23 +60,22 @@ const startApp = async () => {
         }, 200);
     })
 
-    await loadPlatformPlugin(app)
+    await loadPlatformPlugin()
 
-    app 
-    .use(bugsnagVue)
-    .use(router)
-    //.use(RouterPrefetch)
-    .use(pinia)
-    .use(VueLazyLoad)
-    .directive("number", numberInput)
-    .directive("integer", integerInput)
+    app.use(bugsnagVue)
+        .use(router)
+        //.use(RouterPrefetch)
+        .use(pinia)
+        .use(VueLazyLoad)
+        .directive("number", numberInput)
+        .directive("integer", integerInput)
 
     
 
     app.mount('#app')
 }
 
-const loadPlatformPlugin = async (app) => {
+const loadPlatformPlugin = async () => {
 
     let loc = window.location
 
@@ -108,6 +105,8 @@ const loadPlatformPlugin = async (app) => {
     app.use(platformPlugin, { router })
     
     window.app_platform = platform
+
+    document.body.classList.add(`platform-${platform}`)
 
     console.log("platforms===>", platforms)
     console.log("loc.hostname.toLowerCase()===>", loc.hostname.toLowerCase())

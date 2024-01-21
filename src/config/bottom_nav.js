@@ -2,32 +2,27 @@ export default [
     {
         name: "Wallet",   
         icon: "basil:wallet-solid",
-        url: "/wallet"
+        url: "/wallet",
+        platforms: ['all']
     },
     {
         name: "Swap",     
         icon: "solar:transfer-horizontal-bold",
-        url: "/swap"
+        url: "/swap",
+        platforms: ['all']
     },
     {
-        name: "Bridge",     
-        icon: "fa6-solid:bridge-water",
-        url: "/bridge"
+        name: "Browser",     
+        icon: "bi:browser-chrome",
+        url: "/bridge",
+        platforms: ['capacitor']
     },
     {
-        name: "Scanner",     
-        icon: "mdi:antivirus",
-        url: "/scanner"
-    },
-    /*{
-        name: "Bridge",   
-        icon: "game-icons:bridge",
-        bridge: "/bridge"
-    },*/
-    {
-        name: "Settings", 
-        icon: "basil:settings-solid",
-        url: "/settings"
-    },
+        name: "Explore",     
+        icon: "uim:apps",
+        url: "/scanner",
+        platforms: ['all']
+    }
+ 
  ]
  
