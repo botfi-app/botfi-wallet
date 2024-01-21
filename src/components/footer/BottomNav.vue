@@ -3,6 +3,7 @@ import { onBeforeMount, ref } from "vue";
 import tabItems from "../../config/bottom_nav"
 import Icon from "../common/Icon.vue";
 import { useRouter, useRoute } from "vue-router"; 
+import Utils from "../../classes/Utils";
 
 const activeTab = ref(0)
 const router = useRouter()
@@ -45,6 +46,9 @@ const onTabClick = (index) => {
                      :class="`b-tab-item text-center ${isTabActive(index) ? 'active': ''}`" 
                      rel="prefetch"
                      @click.prevent="onTabClick(index)"
+                     v-if="'platforms' in item && 
+                        (item.platforms.includes('all') || item.platforms.includes(Utils.appPlatform()))
+                     "
                   >  
                      <Icon class='rounded-pill icon mb-1 icon' 
                         :name="item.icon" 

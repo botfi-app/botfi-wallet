@@ -18,7 +18,7 @@ watch(pinValue, () => {
 </script>
 <template>
     <div>
-        <label :for="id" class="fw-bold hint mb-2">
+        <label :for="id" class="fw-medium mb-2">
             {{ props.label }}
         </label>
         <input 

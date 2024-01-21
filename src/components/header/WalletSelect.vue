@@ -17,9 +17,11 @@ const { activeWallet } = walletStore
 let btnClass = ref("btn-outline-primary rounded")
 
 onBeforeMount(() => {
-    if(props.btnClass != ''){
+    console.log('props.btnClass===>', props.btnClass)
+    if(props.btnClass.trim() != ''){
         btnClass.value = props.btnClass
     }
+    console.log('props.btnClasss2===>', btnClass.value)
 })
 
 const openWallets = () => {
@@ -74,11 +76,12 @@ const openWallets = () => {
 </template>
 <style scoped lang="scss">
 .addr-select-btn {
+    
     &:hover{
-        background: none !important;
+        background: none;
     }
-    &:active {
-        border:none !important;
+    &:active, &:focus {
+        border:none;
     }
 }
 

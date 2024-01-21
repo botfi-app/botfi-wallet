@@ -19,10 +19,10 @@ import {
 } from "ethers"
 
 //import { Buffer } from "buffer/";
-import multicall3Config from "../config/multicall3";
+import multicall3Config from "../config/multicall3/index.js";
 import multicall3Abi from "../data/abi_min/multicall3.js"
 import deploylessContractsBytes from "../config/deployless/bytecodes.json"
-import botfiContractAddrs from "../config/contracts/botfi"
+import botfiContractAddrs from "../config/contracts/botfi/index.js"
 
 const defaultAbiCoder = AbiCoder.defaultAbiCoder()
 
@@ -55,6 +55,8 @@ export default class Wallet {
                     return setWalletStatus
                 }
             }
+
+            this.provider.pollingInterval = 5000;
 
             // lets fetch the block to show that the rpc works 
             let blockNo = await this.provider.getBlockNumber()

@@ -11,14 +11,19 @@ import default_theme from "../config/default_theme";
 import AppTheme from "../classes/AppTheme";
 import { StatusBar } from '@capacitor/status-bar';
 import { Device } from '@capacitor/device';
-import { App as CapacitorApp } from '@capacitor/app';
+import { App as CApp } from '@capacitor/app';
 
 
 export default {
 
-    install: (app, options={}) => {
+    install: (app, opts = {}) => {
+
+        let { router } = opts;
+
+        console.log(router)
 
         handleUI()
+        handleBackBtn(router)
 
         AppTheme.setTheme("dark", default_theme.dark)
 
@@ -42,4 +47,26 @@ const handleUI = async () => {
     if(dInfo.operatingSystem.toLowerCase() == 'android'){
         document.body.style.paddingTop = '25px' 
     }
+}
+
+const handleBackBtn = (router) => {
+    CApp.addListener('backButton', ({ canGoBack }) => {
+
+        console.log("router===>", router)
+        let curRoute = router.currentRoute.value.path;
+
+        console.log("curRoute===>", curRoute)
+
+        if(curRoute == "/" || curRoute.startsWith("/wallet")){
+            // todo confirm exit app
+            return;
+        } else {
+            if(canGoBack){
+                router.back()
+            } else {
+                router.push("/wallet")
+            }
+        }
+    });
+      
 }

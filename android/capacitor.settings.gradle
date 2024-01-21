@@ -2,6 +2,12 @@
 include ':capacitor-android'
 project(':capacitor-android').projectDir = new File('../node_modules/@capacitor/android/capacitor')
 
+include ':aparajita-capacitor-biometric-auth'
+project(':aparajita-capacitor-biometric-auth').projectDir = new File('../node_modules/@aparajita/capacitor-biometric-auth/android')
+
+include ':aparajita-capacitor-secure-storage'
+project(':aparajita-capacitor-secure-storage').projectDir = new File('../node_modules/@aparajita/capacitor-secure-storage/android')
+
 include ':capacitor-app'
 project(':capacitor-app').projectDir = new File('../node_modules/@capacitor/app/android')
 
@@ -17,5 +23,11 @@ project(':capacitor-preferences').projectDir = new File('../node_modules/@capaci
 include ':capacitor-status-bar'
 project(':capacitor-status-bar').projectDir = new File('../node_modules/@capacitor/status-bar/android')
 
+include ':capgo-capacitor-native-biometric'
+project(':capgo-capacitor-native-biometric').projectDir = new File('../node_modules/@capgo/capacitor-native-biometric/android')
+
 include ':capgo-inappbrowser'
 project(':capgo-inappbrowser').projectDir = new File('../node_modules/@capgo/inappbrowser/android')
+
+include ':capacitor-native-biometric'
+project(':capacitor-native-biometric').projectDir = new File('../node_modules/capacitor-native-biometric/android')

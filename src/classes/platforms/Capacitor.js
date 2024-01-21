@@ -60,4 +60,5 @@ export default class Capacitor {
             readText: (callback) => Clipboard.read().then((type, value) => callback(value))
         }
     }
+    
 }

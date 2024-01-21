@@ -19,6 +19,7 @@ import { useNFT } from "../composables/useNFT"
 import { useRouter, useRoute } from 'vue-router';
 import Utils from '../classes/Utils'
 import PinCode from '../components/common/PinCode.vue';
+import { useBiometricAuth } from '../composables/useBiometricAuth';
 
 const initialized = ref(false)
 const walletStore = useWalletStore()
@@ -28,6 +29,10 @@ const { removeUsersTokensAndBalances } = useTokens()
 const { removeUserActivity } = useActivity()
 const { removeUserNFTs } = useNFT()
 const route = useRoute()
+const bAuth = useBiometricAuth()
+const unlockWithBiometric = ref(true)
+const supportsBiometricAuth = ref(false)
+const biometricUnlockEnabled = ref(false)
 
 onBeforeMount(() => {
     initialize()
@@ -43,16 +48,48 @@ const initialize = async () => {
        return redirectLoggedIn()
     }
 
-    ///walletStore.logout()
+    await handleBiometricAuth(true)
 
     initialized.value = true 
 }
 
-const handleLogin = async () => {
+const handleBiometricAuth = async (silent=false) => {
+      
+    supportsBiometricAuth.value = await bAuth.isSupported()
+    biometricUnlockEnabled.value = await bAuth.isBiometricAuthEnabled()
+
+    console.log("supportsBiometricAuth===>",supportsBiometricAuth.value)
+    console.log("biometricUnlockEnabled===>", biometricUnlockEnabled.value)
+
+    if(supportsBiometricAuth.value && biometricUnlockEnabled.value){
+
+        let credDataStatus = await bAuth.getCredential(bAuth.authServerName)
+
+        console.log("credDataStatus===>", credDataStatus)
+ 
+        if(credDataStatus.isError()){
+            if(!silent) Utils.mAlert(credDataStatus.getMessage())
+            return;
+        }
+        
+        let credential = credDataStatus.getData() || { password: ""}
+
+        let password = credential.password;
+
+        if(password.length == '') return;
+
+        //pin.value = password
+
+        //await handleLogin(silent)
+    }
+
+}
+
+const handleLogin = async (silent=false) => {
     
     let p = pin.value.toString().trim()
 
-    if(p == '' || p.length < 4){
+    if(p == ''){
         return Utils.errorAlert("Pin code is required")
     }
 
@@ -79,6 +116,10 @@ const handleLogin = async () => {
 
         return Utils.errorAlert(errMsg)
     }
+
+    console.log("p===>", p)
+
+    await bAuth.enableBiometricAuth(p)
 
     redirectLoggedIn()
 }
@@ -162,6 +203,22 @@ const resetWallets = async () => {
                 />
             </div>
 
+
+            <div v-if="supportsBiometricAuth"
+                class="p-3 w-full my-1 mb-3 d-flex align-items-center"
+            >
+                <label for="unlockWithBiometric" class="me-2" id="">Unlock with Biometric?</label>
+                <div class="form-check form-switch">
+                    <input 
+                        class="form-check-input rounded-pill" 
+                        type="checkbox" 
+                        role="switch" 
+                        id="unlockWithBiometric" 
+                        checked
+                        v-model="unlockWithBiometric"
+                    />
+                </div>
+            </div>
             <div class="mb-2 px-3 d-flex flex-column align-items-center w-full">
                 <button
                     class="btn w-full  rounded shadow btn-primary mb-4"

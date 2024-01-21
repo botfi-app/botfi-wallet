@@ -619,11 +619,10 @@ const fetchQuoteGasInfo = async (idx) => {
                     <div></div>
                     <div>
                         <button
-                            class="mb-1 btn btn-info rounded-circle p-0 center-vh"
+                            class="mb-1 btn btn-warning text-white rounded-circle btn-icon bg-dark-3"
                             data-bs-toggle="modal" 
                             data-bs-target="#swapSettings"
                             @click.prevent
-                            style="width: 22px; height: 22px;"
                         >
                             <Icon name="ant-design:setting-filled" :size="16" />
                         </button>
@@ -687,12 +686,12 @@ const fetchQuoteGasInfo = async (idx) => {
                                 <div class="center-vh">
                                     <div>Slippage: {{ swapSetting.slippage }}%</div>
                                     <a href="#" 
-                                        class="ms-1"
+                                        class="ms-1 "
                                         data-bs-toggle="modal" 
                                         data-bs-target="#swapSettings"
                                         @click.prevent
                                     >
-                                        <Icon name="basil:edit-outline" class="text-info" />
+                                        <Icon name="basil:edit-outline" class="text-warning" />
                                     </a>
                                 </div>
                                 <div class="center-vh my-1">
@@ -724,7 +723,7 @@ const fetchQuoteGasInfo = async (idx) => {
                 </div>
             </div>
             <div class="">
-                <button class="btn btn-primary btn-lg rounded-lg w-full" 
+                <button class="btn btn-primary rounded-lg w-full" 
                     :disabled="isFetchingQuotes || quotesError != '' || hasInsufficientFunds"
                     @click="handleOnSubmit"
                 >   
