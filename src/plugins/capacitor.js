@@ -11,6 +11,7 @@ import default_theme from "../config/default_theme";
 import AppTheme from "../classes/AppTheme";
 import { StatusBar } from '@capacitor/status-bar';
 import { Device } from '@capacitor/device';
+import { App as CapacitorApp } from '@capacitor/app';
 
 
 export default {
@@ -30,7 +31,6 @@ export default {
         window.botUtils = botUtils;
         
         app.provide("botUtils", botUtils)
-
        
     }
 }

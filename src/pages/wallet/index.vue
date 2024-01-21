@@ -59,14 +59,26 @@ const initialize = async() => {
                                 </div>
                             </div>
                         </div>
-                        <div class="d-flex">
+                        <div class="d-flex center-vh">
                             <NetworkSelect 
                                 backUrl="/wallet" 
                                 maxWidth="50vw"
                             />
-                            <button class="btn rounded-circle">
-                                <Icon name="basil:settings-solid" />
-                            </button>
+                            <router-link to="/setting" 
+                                rel="prefetch"
+                                class="btn btn-icon rounded-circle bg-dark-3 ms-2 op-80"
+                            >
+                                <Icon 
+                                    name="solar:scanner-line-duotone" 
+                                    :size="24" 
+                                />
+                            </router-link>
+                            <router-link to="/settings" 
+                                rel="prefetch"
+                                class="btn btn-icon rounded-circle bg-dark-3 ms-2"
+                            >
+                                <Icon name="codicon:settings" :size="24" class="op-60" />
+                            </router-link>
                         </div>
                     </div>
 

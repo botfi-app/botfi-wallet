@@ -4,6 +4,7 @@
  * @license MIT 
  */
 import { Preferences as sharedPerf } from '@capacitor/preferences';
+import { Clipboard } from '@capacitor/clipboard';
 
 export default class Capacitor {
 
@@ -52,17 +53,11 @@ export default class Capacitor {
 
     clipboard() {
 
-        //console.log("this.webApp.version====>", this.webApp.version)
-        //let _p = this.webApp.platform.toLowerCase()
-        let isSupported =  ('clipboard' in navigator)
-
-        if(!isSupported){
-            return this.notSupported()
-        }
+        let isSupported =  true
 
         return {
             isSupported: () => isSupported,
-            readText: (callback) => navigator.clipboard.readText().then(callback)
+            readText: (callback) => Clipboard.read().then((type, value) => callback(value))
         }
     }
 }

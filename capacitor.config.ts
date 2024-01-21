@@ -8,6 +8,11 @@ const config: CapacitorConfig = {
     androidScheme: 'https',
     "url": "https://native-dev.botfi.app",
     "cleartext": true
+  },
+  plugins: {
+    CapacitorHttp: {
+      enabled: true,
+    }
   }
 };
 

@@ -383,7 +383,7 @@ ul.list-group {
     }
 }
 
-.net-select-btn {
+.net-select-btn, .bg-dark-3 {
     background: var(--bs-body-bg-dark-3) !important;
 }
 
@@ -603,6 +603,13 @@ ul.list-group {
     }
 }
 
+.btn-icon {
+    padding: 8px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .d-inline-block {
     display: inline-block !important;
 }
@@ -670,4 +677,10 @@ ul.list-group {
     top: 10vh !important;
 }
 
- 
+ .op-60 {
+    opacity: 0.6 !important;
+ }
+
+ .btn:active, a:active, a:focus { border: none !important; }
+
+ .noborder{ border: none !important; }

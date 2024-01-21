@@ -65,7 +65,7 @@ const onTabClick = (index) => {
    padding-bottom: 75px;
 }
 
-.icon { padding: 5px; }
+.icon { padding: 2px; }
 
 .b-tab-item {
    opacity: 0.4;
