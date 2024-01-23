@@ -73,9 +73,14 @@ const onClose = async () => {
     emits("close")
 }
 
-const toggleFlash = () => {
+const toggleFlash = async () => {
     if(html5QrCode == null) return;
-    
+
+    isFlashOn.value = !isFlashOn.value
+
+    await html5QrCode.applyVideoConstraints({
+        advanced: [{torch: isFlashOn.value }]
+    })
 }
 </script>
 <template>
@@ -99,8 +104,9 @@ const toggleFlash = () => {
                     @click.prevent="toggleFlash"
                 >
                     <Icon 
-                        name="solar:flashlight-bold-duotone"
+                        name="material-symbols-light:flashlight-on"
                         :class="(isFlashOn) ? 'text-primary': 'text-black'"
+                        :size="28"
                     />
                 </button>
             </div>
