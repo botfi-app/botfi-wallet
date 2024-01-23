@@ -16,8 +16,14 @@ export const useBiometricAuth =  () => {
     const bAuthKey = "app.botfi.app.auth_password"
 
     const isSupported = async () => {
+
+        if(!Utils.isPlatform("capacitor")) return false; 
+
         try{
             let info = await NativeBiometric.isAvailable()
+
+            //console.log("info===>", info)
+
             return (Utils.isPlatform("capacitor") && info.isAvailable)
         } catch(e){
             Utils.logError("",e)
@@ -27,6 +33,8 @@ export const useBiometricAuth =  () => {
 
     const setCredential = async ({ key, username, password }) => {
         try {   
+
+            if(!isSupported()) return Status.success();
             
             let params = {
                 username, 
@@ -36,7 +44,7 @@ export const useBiometricAuth =  () => {
 
             //console.log("params ===>", params)
 
-            let result = await NativeBiometric.setCredentials(params)
+             await NativeBiometric.setCredentials(params)
 
             //console.log("setCredo Result===>", result)
 
@@ -47,19 +55,22 @@ export const useBiometricAuth =  () => {
         }
     }
 
-    const verifyBiometric = async () => {
+    const verifyIdentity = async () => {
         try {
-            const verified = await NativeBiometric.verifyIdentity({
-                reason: "Authenticate to unlock wallet",
-                title: "Authentication",
-                subtitle: "Please authenticate to unlock your wallet",
+            
+            await NativeBiometric.verifyIdentity({
+                reason:     "Authenticate to proceed",
+                title:      "Authentication",
+                subtitle:   "Kindly authenticate to proceed",
                 description: "",
             })
 
-            return verified
+           return Status.success()
+            
         } catch(e){
-            Utils.logError("useBiometricAuth#setCredential:", e)
-            return false
+            Utils.logError("useBiometricAuth#verifyIdentity:", e)
+            return Status.error(e.message)
+                         .setCode(e.code)
         }
     }
 
@@ -101,7 +112,7 @@ export const useBiometricAuth =  () => {
     const clearBiometricAuth = async () => {
         try {
 
-            await sDB.removeItem("biometric_auth_enabled")
+            await sDB.setItem("biometric_auth_enabled", false)
             await deleteCredential(bAuthKey)
 
             return Status.success()
@@ -140,6 +151,7 @@ export const useBiometricAuth =  () => {
         enableBiometricAuth,
         isBiometricAuthEnabled,
         clearBiometricAuth,
-        authServerName: bAuthKey
+        authServerName: bAuthKey,
+        verifyIdentity
     }
 }

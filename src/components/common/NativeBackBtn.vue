@@ -57,7 +57,7 @@ onBeforeUnmount(() => {
             `"
         >
             <span class="d-flex align-items-center justify-content-start">
-                <Icon name="carbon:arrow-left" class="me-2" />
+                <Icon name="bx:arrow-back" class="me-2" :size="24" />
                 <span v-if="props.text != ''">{{props.text}}</span>
             </span>
          </a> 

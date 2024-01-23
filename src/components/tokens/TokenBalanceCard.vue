@@ -121,9 +121,9 @@ watch(tokens, () => {
                             class="btn btn-primary p-0 rounded-circle center-vh"
                             v-bind="item.attr"
                         >
-                            <Icon :name="item.icon" class="text-light" />
+                            <Icon :name="item.icon"  />
                         </button>
-                        <div class="text-center text fs-14 hint fw-semibold">
+                        <div class="fs-12 hint fw-semibold mt-2">
                             {{ item.text }}
                         </div>
                     </div>

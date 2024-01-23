@@ -40,7 +40,26 @@ body {
     font-family: -apple-system,BlinkMacSystemFont,avenir next,avenir,helvetica neue,helvetica,ubuntu,roboto,noto,segoe ui,arial,sans-serif;
    
     width: 100% !important;
+
+    .scanner-ui { 
+        background: transparent;
+        width: 100vh;
+        height: 100vh;
+        display: none; 
+        border: 25% solid rgba(0,0,0,0.5);
+    }
+
+    &.qrscanner { 
+        background-color: transparent;
+        *:not(.scanner-ui) { display: none;}
+
+        .scanner-ui { 
+            display: block; 
+            overflow: hidden;
+        }
+    }
 }
+
 
 .btn-primary-soft, .btn-soft-primary {
     background: rgba(var(--bs-primary-rgb), 0.25) !important;

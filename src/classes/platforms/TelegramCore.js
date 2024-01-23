@@ -12,7 +12,7 @@ export default class TelegramCore {
     isTelegram  = true 
 
     constructor(_tgram = {}) {
-        console.log("_tgram===>", _tgram)
+       // console.log("_tgram===>", _tgram)
         this.telegram = _tgram
         this.webApp = _tgram.WebApp || null;
     }

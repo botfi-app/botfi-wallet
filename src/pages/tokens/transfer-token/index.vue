@@ -19,6 +19,7 @@ import { useSettings } from '../../../composables/useSettings'
 import { parseUnits } from 'ethers';
 import ConfirmTokenSend from '../../../components/modals/ConfirmTokenSend.vue';
 import { Modal as bsModal } from 'bootstrap'
+import QRCodeReaderModal from '../../../components/modals/QRCodeReaderModal.vue';
 
 
 const route = useRoute()
@@ -44,7 +45,7 @@ const amountError = ref("")
 const isLoading = ref(false)
 const defaultCurrency = ref("usd")
 const confirmModalId = ref("confirm-token-send")
-
+const openQRCodeReader = ref(false)
 
 onBeforeMount(async () => {
   initialize()
@@ -87,9 +88,9 @@ const initialize = async () => {
 
         isPageLoading.value = true 
 
-        qrCodeReader.value = botUtils.qrCodeReader()
+        //qrCodeReader.value = botUtils.qrCodeReader()
 
-        qrReaderSupported.value = qrCodeReader.value.isSupported()
+        //qrReaderSupported.value = qrCodeReader.value.isSupported()
 
         tokenAddress.value = route.params.contract; 
 
@@ -117,47 +118,38 @@ const initialize = async () => {
 }
 
 
-const showQRCodeReader = () => {
-    
-    if(!qrReaderSupported.value) return;
-
-    qrCodeReader.value.show("Scan Address", (data)=> {
+const onQrCodeScanSuccess = (data) => {
         
-        qrCodeReader.value.close()
+    try {
 
-        try {
+        if(data == ''){
+            return Utils.mAlert("QRCode reader returned an empty data")
+        } 
 
-            if(data == ''){
-                return Utils.mAlert("QRCode reader returned an empty data")
-            } 
-
-            if(Utils.isAddress(data)){
-                recipient.value = data
-                return true
-            }
-
-            let parsed = EthUriParser.parseURL(data)
-
-            if(("address" in parsed) && Utils.isAddress(parsed.address)){
-                recipient.value = parsed.address
-            } else {
-                Utils.mAlert("Invalid recipient address")
-            }   
-
-        } catch(e){
-            
-            console.log("send-token#showQRCodeReader:", e, e.stack)
-            
-            let msg = (e.message == 'Not an Ethereum URI')
-                ? e.message
-                : "Failed to parse QRCode data"
-            
-            Utils.mAlert(msg)
+        if(Utils.isAddress(data)){
+            recipient.value = data
+            return true
         }
 
-    })
-}
+        let parsed = EthUriParser.parseURL(data)
 
+        if(("address" in parsed) && Utils.isAddress(parsed.address)){
+            recipient.value = parsed.address
+        } else {
+            Utils.mAlert("Invalid recipient address")
+        }   
+
+    } catch(e){
+        
+        console.log("send-token#showQRCodeReader:", e, e.stack)
+        
+        let msg = (e.message == 'Not an Ethereum URI')
+            ? e.message
+            : "Failed to parse QRCode data"
+        
+        Utils.mAlert(msg)
+    }
+}
 
 const setMaxAmount = () => {
     amount.value = balanceInfo.value.balanceDecimal 
@@ -185,28 +177,30 @@ const confirmSendToken = async () => {
       :hasNetSelect="false"
       :hasAddrSelect="false"
       :pageError="pageError"
-     
     >   
 
-        <NativeBackBtn 
-            :url="`/tokens/${tokenAddress}`"
-        />
-    
         <div class="w-400 mb-5">
            
             <div class='d-flex justify-content-between px-2'>
+
                 <div class="center-vh">
-                    <Image
-                        :src="tokenInfo.image"
-                        :placeholder="tokenInfo.symbol"
-                        :width="22"
-                        :height="22"
-                        class="rounded-circle shadow me-2"
+                    <NativeBackBtn 
+                        :url="`/tokens/${tokenAddress}`"
+                        text=""
                     />
-                    <div class="fw-semibold fs-6 pe-2 text-truncate">
-                        {{ tokenInfo.name }}
-                    </div>
-                </div> 
+                    <div class="center-vh">
+                        <Image
+                            :src="tokenInfo.image"
+                            :placeholder="tokenInfo.symbol"
+                            :width="22"
+                            :height="22"
+                            class="rounded-circle shadow me-2"
+                        />
+                        <div class="fw-semibold fs-6 pe-2 text-truncate">
+                            {{ tokenInfo.name }}
+                        </div>
+                    </div> 
+                </div>
                 <NetworkSelect backUrl="/tokens#tab-tokens" />
             </div>
 
@@ -229,9 +223,11 @@ const confirmSendToken = async () => {
                                 Send To
                             </label>
                         </div>
-                        <div class="recipient-btns" v-if="qrReaderSupported">
-                            <button @click.prevent="showQRCodeReader"
-                                class="btn p-1 btn-sm rounded-circle text-info"
+                        <div class="recipient-btns">
+                            <button 
+                                class="btn btn-sm btn-none"
+                                data-bs-toggle="modal"
+                                data-bs-target="#qrcode_reader_modal"
                             >
                                 <Icon name="ri:qr-scan-2-line" />
                             </button>
@@ -285,18 +281,17 @@ const confirmSendToken = async () => {
                 :key="`${recipient}-${amount}`"
             />
         </div>
-          
+        <QRCodeReaderModal
+            @success="onQrCodeScanSuccess"
+            title="Scan Address"
+            @close="openQRCodeReader=false"
+        />
     </WalletLayout>
 </template>
 <style lang="scss">
 
 input#recipient{
-
     padding-right: 35px;
-
-    &.no-qrcode {
-        padding-right: 10px;
-    }
 }
 
 .recipient-btns {

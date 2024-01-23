@@ -13,18 +13,20 @@ import "./assets/scss/app.scss"
 import App from './App.vue'
 import router from "./router"
 //import RouterPrefetch from 'vue-router-prefetch'
-
+   
+const pinia = createPinia()
 const app = createApp(App)
 const platforms = appConfig.platforms 
 
 window.Buffer = Buffer
 
+app.use(pinia)
+    .use(router)
+
 // start the app 
 const startApp = async () => {
 
-    // very important
-    const pinia = createPinia()
-
+ 
     Bugsnag.start({
     apiKey:   appConfig.bugsnag_key,
     plugins:  [new BugsnagPluginVue()]
@@ -63,9 +65,6 @@ const startApp = async () => {
     await loadPlatformPlugin()
 
     app.use(bugsnagVue)
-        .use(router)
-        //.use(RouterPrefetch)
-        .use(pinia)
         .use(VueLazyLoad)
         .directive("number", numberInput)
         .directive("integer", integerInput)

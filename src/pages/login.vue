@@ -11,7 +11,7 @@
  * @license MIT 
  */
 
-import { inject, onBeforeMount, ref, watch } from 'vue';
+import { inject, onBeforeMount, onMounted, ref, watch } from 'vue';
 import { useWalletStore } from "../store/walletStore"
 import { useTokens } from "../composables/useTokens"
 import { useActivity } from "../composables/useActivity"
@@ -33,6 +33,8 @@ const bAuth = useBiometricAuth()
 const unlockWithBiometric = ref(true)
 const supportsBiometricAuth = ref(false)
 const biometricUnlockEnabled = ref(false)
+const bAuthRetries = ref(0)
+const biometricAuthError = ref("")
 
 onBeforeMount(() => {
     initialize()
@@ -48,10 +50,12 @@ const initialize = async () => {
        return redirectLoggedIn()
     }
 
-    await handleBiometricAuth(true)
-
-    initialized.value = true 
+    initialized.value = true  
 }
+
+onMounted(() => {
+    handleBiometricAuth(false)
+})
 
 const handleBiometricAuth = async (silent=false) => {
       
@@ -63,9 +67,31 @@ const handleBiometricAuth = async (silent=false) => {
 
     if(supportsBiometricAuth.value && biometricUnlockEnabled.value){
 
+        bAuthRetries.value += 1
+        biometricAuthError.value = ''
+
+        // first lets authenticate user first 
+        let authStatus = await bAuth.verifyIdentity()
+
+        //console.log("isAuthenticated===>", isAuthenticated)
+
+        if(authStatus.isError()){
+
+            let errCode = authStatus.code
+
+            if([1,2,3,4].includes(errCode) ||  bAuthRetries.value >= 5) {
+                biometricUnlockEnabled.value = false
+                bAuth.clearBiometricAuth()
+            }
+
+            biometricAuthError.value = 'Biometric auth failed: '+authStatus.getMessage()
+
+            return false; 
+        }
+
         let credDataStatus = await bAuth.getCredential(bAuth.authServerName)
 
-        console.log("credDataStatus===>", credDataStatus)
+        //console.log("credDataStatus===>", credDataStatus)
  
         if(credDataStatus.isError()){
             if(!silent) Utils.mAlert(credDataStatus.getMessage())
@@ -78,9 +104,8 @@ const handleBiometricAuth = async (silent=false) => {
 
         if(password.length == '') return;
 
-        //pin.value = password
-
-        //await handleLogin(silent)
+        pin.value = password
+        await handleLogin(silent)
     }
 
 }
@@ -90,7 +115,8 @@ const handleLogin = async (silent=false) => {
     let p = pin.value.toString().trim()
 
     if(p == ''){
-        return Utils.errorAlert("Pin code is required")
+        if(!silent) Utils.errorAlert("Pin code is required")
+        return false;
     }
 
     let loader =  Utils.loader("Decrypting wallets..")
@@ -117,9 +143,19 @@ const handleLogin = async (silent=false) => {
         return Utils.errorAlert(errMsg)
     }
 
-    console.log("p===>", p)
+    if(!biometricUnlockEnabled.value){
+        
+        if(unlockWithBiometric) {
+            // first lets authenticate user first 
+            let authStatus = await bAuth.verifyIdentity()
 
-    await bAuth.enableBiometricAuth(p)
+            if(!authStatus.isError()){
+                await bAuth.enableBiometricAuth(p)
+            }
+        }
+    } else {
+        if(!unlockWithBiometric) await bAuth.clearBiometricAuth()
+    }
 
     redirectLoggedIn()
 }
@@ -196,13 +232,25 @@ const resetWallets = async () => {
             
             <top-logo class="mt-5" />
 
-            <div class="p-3 w-full mt-5">
+            <div class="p-3 w-full mt-5 d-block">
                 <PinCode 
                     label="Enter Pin"
                     @change="(v) => pin = v"
                 />
+              
+                <div class="biometric-btn">
+                    <a href="#" v-if="biometricUnlockEnabled" 
+                        @click.prevent="handleBiometricAuth"
+                        class="btn btn-none p-0 m-0"
+                    >
+                        <Icon name="material-symbols:fingerprint" :size="32" />
+                    </a>
+                </div>
             </div>
 
+            <div v-if="biometricAuthError != ''" class="fs-12 fw-medium text-danger my-1">
+                {{ biometricAuthError }}
+            </div>
 
             <div v-if="supportsBiometricAuth"
                 class="p-3 w-full my-1 mb-3 d-flex align-items-center"
@@ -236,3 +284,11 @@ const resetWallets = async () => {
         </div>
     </main-layout>
 </template>
+<style lang="scss">
+.biometric-btn {
+    position: absolute;
+    right: 0;
+    margin-right: 25px;
+    margin-top: -44px;
+}
+</style>

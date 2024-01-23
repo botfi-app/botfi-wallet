@@ -107,7 +107,7 @@ export default class Utils {
             ttl = null,
         } = opts
 
-        let position = (this.isExpanded()) ? "center" : "top"
+        //let position = (this.isExpanded()) ? "center" : "top"
 
         let html = `<div class="mt-4">${text}</div>`
 
@@ -115,7 +115,7 @@ export default class Utils {
             title: "",
             html,
             icon: null,
-            position
+            ///position
         }
 
         if(ttl != null) {
