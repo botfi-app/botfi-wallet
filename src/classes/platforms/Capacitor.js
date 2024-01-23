@@ -5,11 +5,7 @@
  */
 import { Preferences as sharedPerf } from '@capacitor/preferences';
 import { Clipboard } from '@capacitor/clipboard';
-import {
-    BarcodeScanner,
-    BarcodeFormat,
-    LensFacing,
-  } from '@capacitor-mlkit/barcode-scanning';
+
 
 export default class Capacitor {
 
@@ -66,38 +62,6 @@ export default class Capacitor {
         }
     }
     
-    qrCodeReader() {
-
-        const startScan = async () => {
-         
-            document.body.classList.add("qrscanner"); // add the qrscanner class to body
-
-            /// Add the `barcodeScanned` listener
-            await BarcodeScanner.addListener('barcodeScanned',async (result) => {
-                callback(result.barcode);
-                stopScan()
-            });
-
-            // Start the barcode scanner
-            await BarcodeScanner.startScan();
-
-            await stopScan()
-        }
-
-        const stopScan = async () => {
-            document.body.classList.remove("qrscanner"); // remove the qrscanner from the body 
-            await BarcodeScanner.removeAllListeners();
-            BarcodeScanner.stopScan();
-        };
-   
-        return {
-            isSupported: () => false,
-            show: (title, callback) => {
-                startScan(callback)
-            },
-            getInstance: BarcodeScanner,            
-            close: () => stopScan()
-        }
-    }
+  
 
 }

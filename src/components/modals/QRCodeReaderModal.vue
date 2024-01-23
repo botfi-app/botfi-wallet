@@ -16,7 +16,7 @@ let html5QrCode = null
 
 const camCapabilites = ref(null)
 const config = { fps: 10, qrbox: {width: 250, height: 250} }
-
+const isFlashOn = ref(false)
 
 onBeforeMount(() => {
     nativeQRCodeReader.value = botUtils.qrCodeReader()
@@ -38,6 +38,8 @@ const stopScan = async () => {
         }
         
     } catch(e){}
+
+    camCapabilites.value = null
 }
 
 const onScanSuccess = (decodedText, decodedResult) => {
@@ -48,6 +50,7 @@ const onScanSuccess = (decodedText, decodedResult) => {
 
 
 const onShow = () => {
+    
     html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess);
 
     let intval = setInterval(async () => {
@@ -58,8 +61,9 @@ const onShow = () => {
 
         try{
             camCapabilites.value = html5QrCode.getRunningTrackCameraCapabilities()
+            clearInterval(intval)
         } catch(e) {}
-        
+
     }, 500)
 
 }
@@ -67,6 +71,11 @@ const onShow = () => {
 const onClose = async () => {
     stopScan()
     emits("close")
+}
+
+const toggleFlash = () => {
+    if(html5QrCode == null) return;
+    
 }
 </script>
 <template>
@@ -83,14 +92,34 @@ const onClose = async () => {
             <div>
                 <div id="qrCodeReader"></div>
             </div>
-            <div class="menu-area p-2">
-                
+            <div class="menu-area w-full center-vh" v-if="camCapabilites != null">
+                <button 
+                    v-if="camCapabilites.torchFeature()" 
+                    class="btn rounded-lg p-0 torch-btn shadow center-vh"
+                    @click.prevent="toggleFlash"
+                >
+                    <Icon 
+                        name="solar:flashlight-bold-duotone"
+                        :class="(isFlashOn) ? 'text-primary': 'text-black'"
+                    />
+                </button>
             </div>
         </template>
     </Modal>
 </template>
 <style lang="scss">
 .menu-area {
-    background: var(--bg-dark-2);
+   position: absolute;
+   left: 0;
+   right: 0;
+   bottom: 15px;
+}
+.torch-btn {
+   
+   z-index: 99;
+   width: 42px;
+   height: 42px; 
+   background: rgba(255, 255, 255, 0.7) !important;
+   border-radius: 50%;
 }
 </style>
