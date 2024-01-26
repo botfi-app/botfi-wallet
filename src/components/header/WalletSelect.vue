@@ -17,11 +17,11 @@ const { activeWallet } = walletStore
 let btnClass = ref("btn-outline-primary rounded")
 
 onBeforeMount(() => {
-    console.log('props.btnClass===>', props.btnClass)
+   // console.log('props.btnClass===>', props.btnClass)
     if(props.btnClass.trim() != ''){
         btnClass.value = props.btnClass
     }
-    console.log('props.btnClasss2===>', btnClass.value)
+   // console.log('props.btnClasss2===>', btnClass.value)
 })
 
 const openWallets = () => {

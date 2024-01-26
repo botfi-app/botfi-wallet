@@ -4,9 +4,7 @@
  * @license MIT 
  */
 
-import tinycolor from "tinycolor2";
 import PWACore from "../classes/platforms/PWACore";
-import EventBus from "../classes/EventBus"
 import default_theme from "../config/default_theme";
 import AppTheme from "../classes/AppTheme";
 
@@ -17,25 +15,16 @@ export default {
 
         enforceFixedSize()
 
-        ensureStandaloneMode()
-
         let botUtils = (new PWACore())
 
         window.botUtils = botUtils;
         
         app.provide("botUtils", botUtils)
-
         
     }
 }
 
-const isStandalone = () => (window.matchMedia('(display-mode: standalone)').matches 
-|| window.navigator.standalone === true)
 
-
-const ensureStandaloneMode = async() => {
-    //if(isStandalone()) return;
-}
 
 const enforceFixedSize = () => {
 

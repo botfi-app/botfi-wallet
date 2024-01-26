@@ -60,7 +60,7 @@ const getBalance = () => {
                                 :height="24"
                                 class="rounded-circle"
                             />
-                            <div class="fw-semibold px-2 text-upper">{{ p.tokenInfo.symbol }}</div>
+                            <div class="fw-meium px-2 text-upper">{{ p.tokenInfo.symbol }}</div>
                             <Icon name="fluent:chevron-down-24-filled" />
                         </button>
                     </div>
@@ -76,7 +76,7 @@ const getBalance = () => {
                     </div>
                 </div>
                 <div v-if="p.tokenInfo != null" 
-                    class="d-flex center-vh fs-14 lh-2 fw-medium hint m-pointer"
+                    class="d-flex center-vh fs-14 lh-2  hint m-pointer"
                     @click="emit('balance-click', p.tokenInfo.balanceInfo)"
                 >
                     <div class=''>Balance:</div> 

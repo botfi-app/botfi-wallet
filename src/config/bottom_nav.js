@@ -11,14 +11,14 @@ export default [
         url: "/swap",
         platforms: ['all']
     },
-    {
+    /*{
         name: "Browser",     
         icon: "bi:browser-chrome",
-        url: "/bridge",
+        url: "/browser",
         platforms: ['capacitor']
-    },
+    },*/
     {
-        name: "Explore",     
+        name: "Scanner",     
         icon: "uim:apps",
         url: "/scanner",
         platforms: ['all']

@@ -1,5 +1,5 @@
 @import "./animate/animate.min.css";
-@import "./loader.scss";
+//@import "./loader.scss";
 
 
 //$secondary: #FAB612;
@@ -9,10 +9,10 @@ $warning: #ffc107;
 $danger:  #ec407a;
 $appMaxWidth: 800px;
 
-@import "~/bootswatch/dist/cosmo/variables";
+//@import "~/bootswatch/dist/cosmo/variables";
 @import "./bootstrap";
-@import "~/bootswatch/dist/cosmo/bootswatch";
-@import "./botfi_loader.scss";
+//@import "~/bootswatch/dist/cosmo/bootswatch";
+//@import "./botfi_loader.scss";
 
 [data-bs-theme=dark] {
     .text-dark {
@@ -41,22 +41,8 @@ body {
    
     width: 100% !important;
 
-    .scanner-ui { 
-        background: transparent;
-        width: 100vh;
-        height: 100vh;
-        display: none; 
-        border: 25% solid rgba(0,0,0,0.5);
-    }
-
-    &.qrscanner { 
-        background-color: transparent;
-        *:not(.scanner-ui) { display: none;}
-
-        .scanner-ui { 
-            display: block; 
-            overflow: hidden;
-        }
+    &[data-app-loaded="true"] {
+        background: var(--bs-body-bg);
     }
 }
 

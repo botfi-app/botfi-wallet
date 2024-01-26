@@ -5,12 +5,22 @@ import { useSimpleDB } from '../../composables/useSimpleDB'
 // Import Swiper styles
 import 'swiper/css';
 import introData from '../../config/intro_slider'
-import { ref } from 'vue';
+import { onBeforeMount, onBeforeUnmount, onMounted, ref } from 'vue';
+import { StatusBar } from '@capacitor/status-bar';
 
 const db = useSimpleDB()
 const curSlide = ref(0)
 const swiperInst = ref(null)
 const emit = defineEmits(["finish"])
+
+onMounted(async ()=> {
+   await StatusBar.setOverlaysWebView({ overlay: true });
+})
+
+onBeforeUnmount(async () => {
+    await StatusBar.setOverlaysWebView({ overlay: false });
+})
+
 
 const onSlideChange = (i) => {
     //console.log(i)
@@ -73,6 +83,7 @@ const setFinished = async () => {
 <style lang="scss">
     .swiper {
         overflow: 'hidden';
+        padding-top: -20px;
     }
     .swiper-slide {
     

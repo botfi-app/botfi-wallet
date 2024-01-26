@@ -11,7 +11,6 @@ import { ZeroAddress, isAddress as ethersIsAddress, formatUnits, getAddress, par
 import { v5 as uuidv5 } from 'uuid';
 import appConfig from "../config/app.js"
 import * as dayjs from 'dayjs'
-import { useNetworks } from '../composables/useNetworks.js';
 import Http from './Http.js';
 
 
@@ -39,10 +38,10 @@ export default class Utils {
 
     static getSwal(extraOpts = {}) {
 
-        let position = (this.isExpanded()) ? "center" : "top"
+        //let position = (this.isExpanded()) ? "center" : "top"
 
         return Swal.mixin({
-            position,
+           // position,
             buttonsStyling: false,
             customClass: {
                 confirmButton: 'btn mx-1 shadow-lg px-5 btn-primary rounded-pill',
@@ -213,13 +212,25 @@ export default class Utils {
     }
 
     static toast(text, autoclose=true) {
-        let $t = document.getElementById("main-toast")
-        $t.querySelector(".text").textContent = text
-        $t.classList.remove("hide")
+        const Toast = Swal.mixin({
+            toast: true,
+            position: "top",
+            showConfirmButton: false,
+            timer: 5000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+              toast.onmouseenter = Swal.stopTimer;
+              toast.onmouseleave = Swal.resumeTimer;
+              toast.onclick = () => Toast.close()
+            },
+            backdrop: false,
+            background: this.getCssVar('bs-body-bg-dark-2')
+          });
 
-        if(autoclose){
-            setTimeout(() => { $t.classList.add("hide") }, 3_000)
-        }
+          Toast.fire({
+            icon: "success",
+            title: text
+          });
     }
     
     static getTokenIconName(symbol) {
@@ -239,8 +250,8 @@ export default class Utils {
 
     static getTokenIconUrl(symbol) {
         symbol = this.getTokenIconName(symbol)
-        //console.log("symbol===>", symbol)
-        let uri = `/images/crypto/${symbol.toLowerCase()}.svg`
+        let cdnUrl = (appConfig.crypto_icons_cdn || "").trim()
+        let uri = `${cdnUrl}/images/crypto/${symbol.toLowerCase()}.svg`
         return uri
     }
 

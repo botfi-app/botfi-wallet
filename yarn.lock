@@ -1162,20 +1162,15 @@
   resolved "https://registry.npmjs.org/@capacitor/preferences/-/preferences-5.0.6.tgz"
   integrity sha512-aDe4wGTVSAIue6XXdUFgyz7SGszxK/Ptt/iWTydMpzc1PlZXw1XTTnciM+S+SLLNZFzXlkpXT3wMnh9t0DojUA==
 
-"@capacitor/screen-orientation@^5.0.6":
+"@capacitor/splash-screen@^5.0.6":
   version "5.0.6"
-  resolved "https://registry.npmjs.org/@capacitor/screen-orientation/-/screen-orientation-5.0.6.tgz"
-  integrity sha512-WK8zBo+i0ivzIY7gmvr37AMFVGGIsgFUm/vUWAH9molu5qZ3w899VqwROgntAWgr2GMIpihQ3LQBg+4Cd6Rndw==
+  resolved "https://registry.npmjs.org/@capacitor/splash-screen/-/splash-screen-5.0.6.tgz"
+  integrity sha512-9B8wSm89D+LlshFw8B+mjPU8pJNf1WOx2mkMjMvcH0/EqxNaE+ZaO8lPCX+9WvWSEZs3O3l11qiSnOFHeK0t9A==
 
 "@capacitor/status-bar@^5.0.6":
   version "5.0.6"
   resolved "https://registry.npmjs.org/@capacitor/status-bar/-/status-bar-5.0.6.tgz"
   integrity sha512-7od8CxsBnot1XMK3IeOkproFL4hgoKoWAc3pwUvmDOkQsXoxwQm4SR9mLwQavv1XfxtHbFV9Ukd7FwMxOPSViw==
-
-"@capgo/inappbrowser@^1.3.3":
-  version "1.3.3"
-  resolved "https://registry.npmjs.org/@capgo/inappbrowser/-/inappbrowser-1.3.3.tgz"
-  integrity sha512-NewdbONO5WWP3ugtCLr1FiurczszUxLuQTyCAnaRmyi+G7rpk1oCgE/PdPxwblHUORd6jmTR6UuSpTSF4LZEgw==
 
 "@chainsafe/as-sha256@^0.3.1":
   version "0.3.1"
@@ -2244,6 +2239,11 @@
   integrity sha512-El2Jhmv6bWuakhvnw1dl6xOhqLeVhlY8DIAJ06NtZRAoDcOzeGzvOtPzMCszVgCT0EQz+LOctyfgQ5Oszba19A==
   dependencies:
     multiformats "^12.0.1"
+
+"@jcesarmobile/ssl-skip@^0.2.0":
+  version "0.2.0"
+  resolved "https://registry.npmjs.org/@jcesarmobile/ssl-skip/-/ssl-skip-0.2.0.tgz"
+  integrity sha512-hkhOM5+qPm5xzOYcbUODzYTZKyATEM3qixzUL1gJsJckZ5wAUQxyZJFM3hcUANv8fV8cONfX7A+d/DJpzVvM+Q==
 
 "@jridgewell/gen-mapping@^0.3.0", "@jridgewell/gen-mapping@^0.3.2":
   version "0.3.3"
@@ -3841,10 +3841,10 @@
   resolved "https://registry.npmjs.org/@vascosantos/moving-average/-/moving-average-1.1.0.tgz"
   integrity sha512-MVEJ4vWAPNbrGLjz7ITnHYg+YXZ6ijAqtH5/cHwSoCpbvuJ98aLXwFfPKAUfZpJMQR5uXB58UJajbY130IRF/w==
 
-"@vitejs/plugin-basic-ssl@^1.0.2":
-  version "1.0.2"
-  resolved "https://registry.npmjs.org/@vitejs/plugin-basic-ssl/-/plugin-basic-ssl-1.0.2.tgz"
-  integrity sha512-DKHKVtpI+eA5fvObVgQ3QtTGU70CcCnedalzqmGSR050AzKZMdUzgC8KmlOneHWH8dF2hJ3wkC9+8FDVAaDRCw==
+"@vitejs/plugin-basic-ssl@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.npmjs.org/@vitejs/plugin-basic-ssl/-/plugin-basic-ssl-1.1.0.tgz"
+  integrity sha512-wO4Dk/rm8u7RNhOf95ZzcEmC9rYOncYgvq4z3duaJrCgjN8BxAnDVyndanfcJZ0O6XZzHz6Q0hTimxTg8Y9g/A==
 
 "@vitejs/plugin-legacy@^4.1.0":
   version "4.1.1"
@@ -5112,6 +5112,11 @@ capacitor-native-biometric@^4.2.2:
   dependencies:
     "@capacitor/core" "^3.4.3"
 
+capacitor-plugin-safe-area@^2.0.6:
+  version "2.0.6"
+  resolved "https://registry.npmjs.org/capacitor-plugin-safe-area/-/capacitor-plugin-safe-area-2.0.6.tgz"
+  integrity sha512-7arNdX72Zbx5GtP9XlJFOne13QM8/FibTuBqG2EPdqBMGdYNiMk4G8ivD/Ovt2/w9VGWahOBCWwo2S99UgT1VQ==
+
 case@^1.6.3:
   version "1.6.3"
   resolved "https://registry.npmjs.org/case/-/case-1.6.3.tgz"
@@ -5777,6 +5782,13 @@ create-require@^1.1.0, create-require@^1.1.1:
   resolved "https://registry.npmjs.org/create-require/-/create-require-1.1.1.tgz"
   integrity sha512-dcKFX3jn0MpIaXjisoRvexIJVEKzaq7z2rZKxf+MSr9TkdmHmsU4m2lcLojrj/FHl8mk5VxMmYA+ftRkP/3oKQ==
 
+cross-env@^7.0.3:
+  version "7.0.3"
+  resolved "https://registry.npmjs.org/cross-env/-/cross-env-7.0.3.tgz"
+  integrity sha512-+/HKd6EgcQCJGh2PSjZuUitQBQynKor4wrFbRg4DtAgS1aWO+gU52xpH7M9ScGgXSYmAVS9bIJ8EzuaGw0oNAw==
+  dependencies:
+    cross-spawn "^7.0.1"
+
 cross-fetch@^3.1.5:
   version "3.1.8"
   resolved "https://registry.npmjs.org/cross-fetch/-/cross-fetch-3.1.8.tgz"
@@ -5804,7 +5816,7 @@ cross-spawn@^6.0.0:
     shebang-command "^1.2.0"
     which "^1.2.9"
 
-cross-spawn@^7.0.0, cross-spawn@^7.0.3:
+cross-spawn@^7.0.0, cross-spawn@^7.0.1, cross-spawn@^7.0.3:
   version "7.0.3"
   resolved "https://registry.npmjs.org/cross-spawn/-/cross-spawn-7.0.3.tgz"
   integrity sha512-iRDPJKUPVEND7dHPO8rkbOnPpyDygcDFtWjpeWNCgy8WP2rXcxXL8TskReQl6OrB2G7+UJrags1q15Fudc7G6w==
@@ -11627,6 +11639,11 @@ public-encrypt@^4.0.0:
     parse-asn1 "^5.0.0"
     randombytes "^2.0.1"
     safe-buffer "^5.1.2"
+
+pulltorefreshjs@^0.1.22:
+  version "0.1.22"
+  resolved "https://registry.npmjs.org/pulltorefreshjs/-/pulltorefreshjs-0.1.22.tgz"
+  integrity sha512-haxNVEHnS4NCQA7NeG7TSV69z4uqy/N7nfPRuc4dPWe8H6ygUrMjdNeohE+6v0lVVX/ukSjbLYwPUGUYtFKfvQ==
 
 pump@^3.0.0:
   version "3.0.0"

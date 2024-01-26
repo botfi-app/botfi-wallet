@@ -31,6 +31,8 @@ export const useTokens = () => {
     const botUtils = inject("botUtils")
     const { fetchSettings } = useSettings()
 
+    //console.log("botUtils===>", botUtils)
+
     const { 
         getWalletAddresses, 
         getActiveWalletInfo, 

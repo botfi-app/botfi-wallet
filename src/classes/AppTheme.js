@@ -4,6 +4,7 @@
  * @author BotFi <hello@botfi.app>
  */
 import tinycolor from "tinycolor2";
+import EventBus from "./EventBus";
 
 export default class AppTheme {
 
@@ -274,6 +275,8 @@ export default class AppTheme {
         if(cssStyles != ""){
             this.setCssStyle(cssStyles)
         }
+
+        EventBus.emit("themeChange", { scheme, themeParams })
     }
     
     static setCssStyle = (text) => {

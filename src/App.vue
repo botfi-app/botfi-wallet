@@ -4,17 +4,17 @@ import { useTokens } from './composables/useTokens';
 import { onBeforeMount, ref, onMounted } from 'vue';
 import EventBus from './classes/EventBus';
 import { useRouter } from 'vue-router';
-//import { listen as qlisten } from 'quicklink';
 
 
-
+const walletStore = useWalletStore()
+  const tokensCore = useTokens()
 const isUpdatingBalance = ref(false); 
 const router = useRouter()
 
 onBeforeMount(() => {
 
   updateBalances()
-  setInterval(updateBalances, 30_000);
+  setInterval(()=> updateBalances(), 30_000);
 
   EventBus.on("login", () => updateBalances())
   EventBus.on("update-balance",  () => updateBalances())
@@ -24,8 +24,7 @@ onBeforeMount(() => {
 
 const updateBalances = async() => {
 
-  const walletStore = useWalletStore()
-  const tokensCore = useTokens()
+ 
   
   if(!walletStore.isLoggedIn() || isUpdatingBalance.value == true) return;
   

@@ -2,7 +2,7 @@
 import { onBeforeMount, onBeforeUnmount, inject, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 
-const props = defineProps({
+const p = defineProps({
     url: { type: String, default: "" },
     text: { type: String, default: ""  },
     btnClass: { type: String, default: "" }
@@ -15,7 +15,7 @@ const callbackFunc = ref(null)
 const route = useRoute()
 
 onBeforeMount(() => {
-    let url = props.url.trim();
+    let url = p.url.trim();
 
     if(url == '') {
        url = route.query.r || "";
@@ -53,12 +53,12 @@ onBeforeUnmount(() => {
                 rounded-pill 
                 mx-0
                 px-0
-                ${ props.btnClass }
+                ${ p.btnClass }
             `"
         >
-            <span class="d-flex align-items-center justify-content-start">
+            <span class="d-flex align-items-center justify-content-start me-1">
                 <Icon name="bx:arrow-back" class="me-2" :size="24" />
-                <span v-if="props.text != ''">{{props.text}}</span>
+                <span v-if="p.text != ''" class="me-2">{{p.text}}</span>
             </span>
          </a> 
     </div>

@@ -62,8 +62,8 @@ const handleBiometricAuth = async (silent=false) => {
     supportsBiometricAuth.value = await bAuth.isSupported()
     biometricUnlockEnabled.value = await bAuth.isBiometricAuthEnabled()
 
-    console.log("supportsBiometricAuth===>",supportsBiometricAuth.value)
-    console.log("biometricUnlockEnabled===>", biometricUnlockEnabled.value)
+    //console.log("supportsBiometricAuth===>",supportsBiometricAuth.value)
+    //console.log("biometricUnlockEnabled===>", biometricUnlockEnabled.value)
 
     if(supportsBiometricAuth.value && biometricUnlockEnabled.value){
 
@@ -248,7 +248,7 @@ const resetWallets = async () => {
                 </div>
             </div>
 
-            <div v-if="biometricAuthError != ''" class="fs-12 fw-medium text-danger my-1">
+            <div v-if="biometricAuthError != ''" class="px-3 fs-12 fw-medium text-danger my-1">
                 {{ biometricAuthError }}
             </div>
 

@@ -131,7 +131,7 @@ const onSave = async () => {
                     id="hasAgreedNoPinOnServer"
                 />
                 <label class="form-check-label hint" for="hasAgreedNoPinOnServer">
-                    I understand that the password won't be sent to BotFi's server
+                    I understand that the password won't be stored on BotFi's server
                 </label>
             </div>
 
@@ -143,7 +143,7 @@ const onSave = async () => {
                     id="hasAgreedNoPinReset"
                 />
                 <label class="form-check-label hint" for="hasAgreedNoPinReset">
-                    I understand that the password cannot be resetted when forgotten
+                    I understand that the password cannot be reset if forgottens
                 </label>
             </div>
 

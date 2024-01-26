@@ -75,10 +75,10 @@ const  handleSubmit = async () => {
                                     class="form-control w-full rounded-lg" 
                                     :id="`word_${key}`" 
                                     :placeholder="`Enter word #${key + 1}`"
-                                    :autocapitalize="false"
-                                    :autocomplete="false"
-                                    :autocorrect="false"
-                                    :autosave="false"
+                                    autoCapitalize='off'
+                                    autocomplete="off"
+                                    autocorrect="off"
+                                    autosave="off"
                                 >
                                 <label :for="`word_${key}`">
                                     Word #{{ key + 1 }}

@@ -7,6 +7,8 @@ if(is_dev){
     devConfig = appDevConfig
 }
 
+//console.log("is_dev===>", is_dev)
+
 export default {
     
     app_name: "BotFi Wallet",
@@ -25,6 +27,8 @@ export default {
 
     ///is dev
     is_dev,
+
+    crypto_icons_cdn: "https://assets.botfi.app",
 
     // gecko api endpoint 
     gecko_api_endpoint: "https://api.coingecko.com/api/v3/",

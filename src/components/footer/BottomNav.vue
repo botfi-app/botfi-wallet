@@ -54,7 +54,7 @@ const onTabClick = (index) => {
                         :name="item.icon" 
                         :size="20" 
                      />
-                     <div class="ms-1 fs-11">
+                     <div class="ms-1 fs-12">
                         {{ item.name }}
                      </div>
                   </div>

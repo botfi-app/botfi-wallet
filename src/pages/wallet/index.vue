@@ -51,11 +51,11 @@ const initialize = async() => {
                                 :user-id="`${userInfo.id}`" 
                                 :size="26"
                                 :rounded="false"
+                                v-if="Utils.isPlatform('telegram')"
                             />
-                            <div class="ps-2 d-flex align-items-center">
-                                <div class="text-muted hint pe-1">Hi, </div>
-                                <div class="text-truncate">
-                                    {{ name }}
+                            <div v-else>
+                                <div class="rounded-lg p-1 shadow center-vh">
+                                    <img src="/images/svg/logo.svg" width="28" />
                                 </div>
                             </div>
                         </div>
@@ -64,7 +64,7 @@ const initialize = async() => {
                                 backUrl="/wallet" 
                                 maxWidth="50vw"
                             />
-                            <router-link to="/setting" 
+                            <!--                            <router-link to="/setting" 
                                 rel="prefetch"
                                 class="btn btn-icon rounded-circle bg-dark-3 ms-2 op-80"
                             >
@@ -73,6 +73,7 @@ const initialize = async() => {
                                     :size="24" 
                                 />
                             </router-link>
+                            -->
                             <router-link to="/settings" 
                                 rel="prefetch"
                                 class="btn btn-icon rounded-circle bg-dark-3 ms-2"
@@ -99,3 +100,6 @@ const initialize = async() => {
         
     </WalletLayout>
 </template>
+<style lang="scss">
+
+</style>

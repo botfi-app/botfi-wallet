@@ -9,9 +9,11 @@ export {}
 
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
+    AccountSelectModal: typeof import('./src/components/modals/AccountSelectModal.vue')['default']
     ActivityList: typeof import('./src/components/activity/ActivityList.vue')['default']
     ActivityTab: typeof import('./src/components/wallet/tabs/ActivityTab.vue')['default']
     ActivityViewerModal: typeof import('./src/components/modals/ActivityViewerModal.vue')['default']
+    AddressBar: typeof import('./src/components/browser/AddressBar.vue')['default']
     Avatar: typeof import('./src/components/common/Avatar.vue')['default']
     BotFiLoader: typeof import('./src/components/common/BotFiLoader.vue')['default']
     BotFiProvider: typeof import('./src/layouts/BotFiProvider.vue')['default']
@@ -55,7 +57,6 @@ declare module '@vue/runtime-core' {
     PinCode: typeof import('./src/components/common/PinCode.vue')['default']
     Popover: typeof import('./src/components/popovers/Popover.vue')['default']
     ProfilePhoto: typeof import('./src/components/common/ProfilePhoto.vue')['default']
-    QRCodeReader: typeof import('./src/components/modals/QRCodeReader.vue')['default']
     QRCodeReaderModal: typeof import('./src/components/modals/QRCodeReaderModal.vue')['default']
     RevealPrivateKey: typeof import('./src/components/modals/RevealPrivateKey.vue')['default']
     RevealSeedPhraseModal: typeof import('./src/components/modals/RevealSeedPhraseModal.vue')['default']

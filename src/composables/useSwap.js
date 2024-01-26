@@ -32,7 +32,7 @@ export const useSwap =  () => {
 
     const isSupported = computed(()=> $state.value.isSupported )
     const routes = computed(() => $state.value.routes)
-    const contractsInfo = computed(() => $state.value.contractsInfo)
+   // const contractsInfo = computed(() => $state.value.contractsInfo)
     const simpleDB = useSimpleDB()
 
     onBeforeMount(() => {

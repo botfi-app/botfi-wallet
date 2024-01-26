@@ -12,14 +12,18 @@ import IconsResolver from 'unplugin-icons/resolver'
 import ViteCompression2  from 'vite-plugin-compression2'
 import zlib from "node:zlib"
 import VitePreload from "vite-plugin-preload";
-import { VitePWA } from 'vite-plugin-pwa'
-import siteManisfest from "./public/site.webmanifest.js"
+//import { VitePWA } from 'vite-plugin-pwa'
 import { visualizer } from "rollup-plugin-visualizer";
 import dynamicImport from 'vite-plugin-dynamic-import'
 import legacy from '@vitejs/plugin-legacy'
-//import basicSsl from '@vitejs/plugin-basic-ssl'
+import { argv } from 'process'
+import basicSsl from '@vitejs/plugin-basic-ssl'
 
+//console.log("process.env.====>", process.env.BOTFI_PLATFORM)
 
+const botfiPlatform = process.env.BOTFI_PLATFORM || ""
+
+console.log("Building for Platform:", botfiPlatform)
 
 const plugins = [
   vue(),
@@ -30,31 +34,20 @@ const plugins = [
   
   AutoImport(),
 
+  /*
   VitePWA({
     manifest: siteManisfest,
     registerType: 'autoUpdate',
       devOptions: {
         enabled: true
       }
-  }),
+  }),*/
   
-  legacy({ targets: ['defaults', 'not IE 11'] }),
+  
+  //legacy({ targets: ['defaults', 'not IE 11'] }),
   
   Pages({
-    importMode(filepath, options) {
-      //console.log("filePath===>", filepath)
-      
-      let routesArr = [
-        "/src/pages/index.vue",
-        "/src/pages/wallet/index.vue",
-        "/src/pages/settings/index.vue"
-      ]
-
-      return (routesArr.includes(filepath))
-            ? "sync"
-            : "async"
-    }
-
+    importMode: (botfiPlatform == 'capacitor') ? 'sync': 'async'
   }),
 
   Icons({ compiler: 'vue3' }),
@@ -70,21 +63,25 @@ const plugins = [
 ]
 
 if (process.env.NODE_ENV === "production") {
-  plugins.push(...[
-      ViteCompression2({
-        include: /(\.(html|css|jsx?|ts|json|txt|woff|tff|woff2|otf))$/i,
-        algorithm: 'brotliCompress',
-        threshold: 1000,
-        compressionOptions: {
-          [zlib.constants.BROTLI_PARAM_QUALITY]: 11,
-        },
-        filename: "[path][base].br"
-      })
-    ]
-  )
+
+  if(botfiPlatform != 'capacitor'){
+    plugins.push(...[
+        ViteCompression2({
+          include: /(\.(html|css|jsx?|ts|json|txt|woff|tff|woff2|otf))$/i,
+          algorithm: 'brotliCompress',
+          threshold: 1000,
+          compressionOptions: {
+            [zlib.constants.BROTLI_PARAM_QUALITY]: 11,
+          },
+          filename: "[path][base].br"
+        })
+      ]
+    )
+  }
+
 } else {
   plugins.push(...[
-    ///basicSsl()
+    basicSsl()
   ])
 }
 

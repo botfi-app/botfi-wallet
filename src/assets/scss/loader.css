@@ -1,0 +1,37 @@
+.loader {
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+}
+
+.loader.loader-sm { 
+    width: 40px !important; 
+    height: 40px !important; 
+}
+.loader.loader-sm::after {
+    width: 24px;
+    height: 24px;
+    border-width: 3px;
+}
+
+
+.loader::after {
+  content: " ";
+  display: block;
+  width: 64px;
+  height: 64px;
+  margin: 8px;
+  border-radius: 50%;
+  border: 6px solid #3bedb2;
+  border-color: #3bedb2 transparent #3bedb2 transparent;
+  animation: loader-anim 1.2s linear infinite;
+}
+
+@keyframes loader-anim {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

@@ -4,15 +4,20 @@
  * @license MIT 
  */
 
-import tinycolor from "tinycolor2";
 import Capacitor from "../classes/platforms/Capacitor";
 import EventBus from "../classes/EventBus"
 import default_theme from "../config/default_theme";
 import AppTheme from "../classes/AppTheme";
-import { StatusBar } from '@capacitor/status-bar';
-import { Device } from '@capacitor/device';
+///import { StatusBar } from '@capacitor/status-bar';
+//import { Device } from '@capacitor/device';
 import { App as CApp } from '@capacitor/app';
+import { StatusBar } from "@capacitor/status-bar";
+import Utils from "../classes/Utils";
+//import { SafeArea } from 'capacitor-plugin-safe-area';
 
+EventBus.on("themeChange", async({ scheme, themeParams }) => {
+    await StatusBar.setBackgroundColor({ color: themeParams.bg_color})
+})
 
 export default {
 
@@ -20,16 +25,10 @@ export default {
 
         let { router } = opts;
 
-        console.log(router)
-
-        handleUI()
         handleBackBtn(router)
 
         AppTheme.setTheme("dark", default_theme.dark)
 
-        StatusBar.setOverlaysWebView({ overlay: true });
-
-       // StatusBar.hide();
         
         let botUtils = (new Capacitor())
 
@@ -40,26 +39,28 @@ export default {
     }
 }
 
-const handleUI = async () => {
-    // fix statusbar
-    let dInfo = await  Device.getInfo()
-
-    if(dInfo.operatingSystem.toLowerCase() == 'android'){
-        document.body.style.paddingTop = '25px' 
-    }
-}
 
 const handleBackBtn = (router) => {
-    CApp.addListener('backButton', ({ canGoBack }) => {
+    CApp.addListener('backButton', async ({ canGoBack }) => {
 
-        console.log("router===>", router)
+        //console.log("router===>", router)
         let curRoute = router.currentRoute.value.path;
 
-        console.log("curRoute===>", curRoute)
+        //console.log("curRoute===>", curRoute)
 
         if(curRoute == "/" || curRoute.startsWith("/wallet")){
-            // todo confirm exit app
-            return;
+            let  confirm = await Utils.getSwal().fire({
+                title: "Confirm Exit",
+                text: "Do you want to exit the app?",
+                showConfirmButton: true,
+                showCancelButton: true,
+                confirmButtonText: "Yes!"
+            })
+
+            if(confirm.isConfirmed){
+                return CApp.exitApp()
+            }
+
         } else {
             if(canGoBack){
                 router.back()

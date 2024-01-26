@@ -62,7 +62,7 @@ onMounted(() => {
                         </div> 
                         <CopyBtn 
                             :text="props.address" 
-                            btnClasses="btn copy-btn btn-danger p-0 px-1 rounded m-1"
+                            btnClasses="btn copy-btn text-warning p-0 px-1 rounded m-1"
                         />
                     </div>
                 </div>

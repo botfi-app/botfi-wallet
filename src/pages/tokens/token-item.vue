@@ -53,27 +53,30 @@ const initialize = async () => {
     :hasAddrSelect="false"
     :pageError="pageError"
     v-if="initialized && tokenInfo != null"
-  >   
-
-    <NativeBackBtn 
-      url="/tokens#tab-tokens"
-    />
+  >  
 
     <div class="w-400 mb-5">
       <div class='d-flex justify-content-between px-2'>
+         
         <div class="center-vh">
-          <Image
-            :src="tokenInfo.image"
-            :placeholder="tokenInfo.symbol"
-            :width="22"
-            :height="22"
-            class="rounded-circle shadow me-2"
+          <NativeBackBtn 
+            url="/tokens#tab-tokens"
           />
-          <div class="fw-semibold fs-6 pe-2 text-truncate">
-            {{ tokenInfo.name }}
-          </div>
-        </div> 
         
+          <div class="center-vh">
+            <Image
+              :src="tokenInfo.image"
+              :placeholder="tokenInfo.symbol"
+              :width="22"
+              :height="22"
+              class="rounded-circle shadow me-2"
+            />
+            <div class="fw-semibold fs-6 pe-2 text-truncate">
+              {{ tokenInfo.name }}
+            </div>
+          </div> 
+        </div>
+
         <NetworkSelect backUrl="/tokens#tab-tokens" />
       </div>
       <div class="px-2">
