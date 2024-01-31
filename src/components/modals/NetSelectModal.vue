@@ -6,20 +6,23 @@ const { isNetReady, activeNetwork } = useNetworks()
 
 </script>
 <template>
-    <button v-if="isNetReady" 
-        class="btn center-vh rounded-circle net-select-btn px-0 shadow"
+    <router-link
+        to="/networks?r=/browser&returnOnSelect" 
+        v-if="isNetReady" 
+        type="button" 
+        class="btn position-relative rounded-circle p-0 m-0 net-select-btn"
     >
         <Image 
             :width="30" 
             :height="30" 
-            class="rounded-circle shadow"
+            class="rounded-circle bg-white"
             :src="activeNetwork.icon" 
             :placeholder="activeNetwork.name"
         />
-    </button>
+        <span class="position-absolute bottom-0 start-0  p-1 bg-success border border-none rounded-circle">
+        </span>
+    </router-link>
 </template>
 <style lang="scss">
-.net-select-btn {
-    background: rgba(255,255,255,0.6);
-}
+
 </style>

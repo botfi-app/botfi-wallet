@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@axelar-network/axelarjs-sdk": "^0.13.8",
-    "@botfi-app/capacitor-webview-embed": "^3.1.8",
+    "@botfi-app/capacitor-webview-embed": "^3.1.9",
     "@bugsnag/js": "^7.21.0",
     "@bugsnag/plugin-vue": "^7.19.0",
     "@capacitor/android": "^5.6.0",

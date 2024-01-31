@@ -30,49 +30,23 @@ onActivated(async () => {
 })
 
 const hideBrowser = async () => {
-    let t = getActiveTab()
-    if(t != null) {
-        await t.webview.hide()
-    }
+    isBrowserHidden.value = true
 }
 
 const showBrowser = async () => {
-    let t = getActiveTab()
-    if(t != null)  await t.webview.show()
-}
-
-const exitBrowserConfirm = async () => {
-    
-    await hideBrowser()
-
-    let  confirm = await Utils.getSwal().fire({
-        title: "Exit Browser",
-        text: "Press 'Ok' to exit the browser",
-        showConfirmButton: true,
-        showCancelButton: true,
-        confirmButtonText: "Ok"
-    })
-
-    if(!confirm.isConfirmed){
-        await showBrowser()
-        return false;
-    } 
-
-    router.go("/wallet")
+    isBrowserHidden.value = false
 }
 
 const handleAppEvents = () => {
     CApp.addListener('backButton', async () => {
-        console.log("hehehehe")
+        
         if(activeTabId == null){
-            await exitBrowserConfirm()
             return false
         }   
 
         let t = tabs.value[activeTabId.value]
 
         if(!t.canGoBack){
-            await exitBrowserConfirm()
             return false
         }
 
@@ -94,10 +68,6 @@ const handleBrowserInit = () => {
     setTimeout(async ()=> {
         if(activeTabId.value == null){
            await newTab({ setActive: true })
-           await newTab()
-           await newTab()
-           await newTab()
-           await newTab()
         }
 
         initialized = true 
@@ -152,7 +122,7 @@ const handleWebviewEvents = async (tabId) => {
 
     w.handleNavigation(async (event) => {
         
-        if(!event.url) return;
+        if(!('url'  in event)) return;
 
         if (event.newWindow) {
             await newTab({ setActive: true, url: event.url })
@@ -164,10 +134,17 @@ const handleWebviewEvents = async (tabId) => {
         event.complete(true);
     });
 
-    w.onPageLoaded(async (e) => {
+    w.onPageLoaded(async (dataObj) => {
+        
+        let { url = ''} = dataObj
+
         tabs.value[tabId].canGoBack = (await w.canGoBack())
         tabs.value[tabId].canGoForward = (await w.canGoForward())
         tabs.value[tabId].progress = 0;
+        
+        if(url.trim() != '') {
+            tabs.value[tabId].url = url
+        }
     })
     
     w.onProgress((p) => {
@@ -180,7 +157,11 @@ const getActiveTab = () => tabs.value[activeTabId.value]
 
 const handleURLChange = async (newUrl) => {
     //console.log("newUrl====>",newUrl)
-    await getActiveTab().webview.loadUrl(newUrl)
+     getActiveTab().webview.loadUrl(newUrl)
+}
+
+const openHome = async () => {
+    getActiveTab().webview.loadUrl(browserConfig.homepage)
 }
 
 const goBack = async () => {
@@ -213,11 +194,12 @@ const reload = () => {
                 :url="tabs[activeTabId].url"
                 :totalTabs="Object.keys(tabs).length + 1"
                 @urlChange="handleURLChange"
+                @openHome="openHome"
             />
           <template v-for="tabInfo in tabs" :key="tabInfo.id">
             <div 
                 :id="tabInfo.id"
-                :class="`tab w-100 flex-grow-1`"
+                :class="`tab w-100 flex-grow-1 ${isBrowserHidden ? 'hidden': ''}`"
                 v-if="(tabInfo.id == activeTabId)"
             ></div>
             <div v-else class="tab not-active"></div>
@@ -241,6 +223,7 @@ const reload = () => {
 .tab{
     width: 100vw;
     display: block;
+    height: calc(100vh - 120px) !important;
     &.not-active {
         display: none;
     }

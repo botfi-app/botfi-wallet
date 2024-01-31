@@ -1,12 +1,15 @@
 <script setup>
 import { ref, watch } from 'vue';
-import AccountSelectModal from '../modals/AccountSelectModal.vue';
+import { useWalletStore } from '../../store/walletStore';
+import Avatar from '../common/avatar.vue';
+import Utils from '../../classes/Utils';
 
 const p = defineProps({
     canGoBack: { type: Boolean, default: false }, 
     canGoForward: { type: Boolean, default: false }
 })
 
+const walletStore = useWalletStore()
 const emits = defineEmits(["goBack", "goForward", "reload"])
 
 const canGoBack = ref(p.canGoBack)
@@ -45,8 +48,22 @@ watch(p, () => {
             <Icon name="tabler:reload" class="icon" :size="28" />
         </button>
 
-        <div class="pe-3">
-            <AccountSelectModal btnClass="px-2" />
+        <div class="pe-3" v-if="walletStore.activeWallet">
+            <router-link to="/wallet/addresses?r=/browser&returnOnSelect"
+                :class="`btn text-truncate fs-14 acct-select-btn ms-1 px-2 center-vh rounded-pill`"
+            >
+                <Avatar 
+                    :name="walletStore.activeWallet.address" 
+                    :square="false" 
+                    :size="28" 
+                    variant="ring"
+                    class="rounded"
+                    :key="walletStore.activeWallet.address"
+                />
+                <div class="ms-1">
+                    {{ Utils.maskAddress(walletStore.activeWallet.address, 2, 4) }}
+                </div>
+            </router-link>
         </div>
     </div>
 </template>
@@ -70,6 +87,10 @@ watch(p, () => {
         &.disabled {
             .icon { opacity: 0.2;}
         }
+    }
+
+    .acct-select-btn {
+        background:var(--bs-body-bg);
     }
 }
 </style>

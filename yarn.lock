@@ -1029,10 +1029,10 @@
     "@babel/helper-validator-identifier" "^7.22.20"
     to-fast-properties "^2.0.0"
 
-"@botfi-app/capacitor-webview-embed@^3.1.8":
-  version "3.1.8"
-  resolved "https://registry.npmjs.org/@botfi-app/capacitor-webview-embed/-/capacitor-webview-embed-3.1.8.tgz"
-  integrity sha512-Sj9PSqACBn/1yiHOzYn1MFc158S10H9UEIx/by686fUFdhZfeuZY/AyGfFsLnRgcFL7z8B17nrtOyy+bUNvwkg==
+"@botfi-app/capacitor-webview-embed@^3.1.9":
+  version "3.1.9"
+  resolved "https://registry.npmjs.org/@botfi-app/capacitor-webview-embed/-/capacitor-webview-embed-3.1.9.tgz"
+  integrity sha512-KIygWVlqnVuQkg4D6LFfWFq+/0augRXWci7LKhwNhSeHV8uP1Ay9/aKTtPAC47d1m8Z3SCz5+aUsXicHMFJHaw==
   dependencies:
     resize-observer-polyfill "^1.5.1"
 

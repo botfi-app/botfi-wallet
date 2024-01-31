@@ -1,6 +1,5 @@
 <script setup>
 import { onUpdated, ref, watch } from 'vue';
-import AccountSelectModal from '../modals/AccountSelectModal.vue';
 import Utils from '../../classes/Utils';
 import NetSelectModal from '../modals/NetSelectModal.vue';
 import { isURL } from 'validator'
@@ -21,7 +20,7 @@ const fullUrl = ref(p.url)
 const urlHost = ref("")
 const isSecure = ref(false)
 
-const emits = defineEmits(["urlChange"])
+const emits = defineEmits(["urlChange", "openHome"])
 
 watch(p, () => {
     //console.log("p===>", p)
@@ -82,6 +81,16 @@ const handleUserInput = (e) => {
 <template>
     <div class="w-100">
         <div id="browser-addr-bar" class="d-flex justify-content-space align-items-center px-2 py-2">
+            
+            <div>
+                <a href="#" @click.prevent="$emit('openHome')" 
+                    class="btn b-home-btn center-vh  me-2"
+                >
+                    <Icon name="iconamoon:home-light" :size="24" />
+                </a>
+            </div>
+        
+
             <div :class="`
                 addr-input-wrapper 
                 w-full 
@@ -136,14 +145,18 @@ const handleUserInput = (e) => {
     </div>
   
 </template>
-<style lang="scss">
+<style lang="scss" scoped>
 #browser-addr-bar {
+
+    $iconH: 32px;
+    $iconW: 32px;
+    $itemBg: var(--bs-body-bg);
     
     background: var(--bs-body-bg-dark-5);
     height: 60px;
 
     .addr-input-wrapper {
-        background: var(--bs-body-bg);
+        background: $itemBg;
         height: 44px;
         border-radius: 20px;
         justify-content: space-evenly;
@@ -169,7 +182,7 @@ const handleUserInput = (e) => {
         }
 
         &.focus {
-            background: var(--bs-body-bg);
+            background: $itemBg;
             .input-btns { visibility: visible; }
             border: 2px solid var(--bs-primary);
             font-weight: normal;
@@ -179,7 +192,29 @@ const handleUserInput = (e) => {
             }
         }
     }
-}
+    .tabs-btn {
+        height: $iconH;
+        border: none !important;
+        background: $itemBg !important;
+    }
+
+    .menu-btns {
+        .btn {
+            margin: 0px 8px;
+        }
+    }
+
+   
+    .b-home-btn {
+        width: 44px !important;
+        height: 44px !important;
+        background: $itemBg !important;
+        border-radius: 50%;
+        padding: 0;
+        opacity: 0.8;
+    }
+}  // end browser address bar
+
 
 .loading-bar {
     width: 0%;
@@ -187,18 +222,6 @@ const handleUserInput = (e) => {
     background: var(--bs-primary);  
     position: relative;
     transition: width 1s ease-in-out, visibility 1s linear;
-}
-
-.tabs-btn {
-    height: 32px;
-    border: none !important;
-    background: var(--bs-body-bg) !important;
-}
-
-.menu-btns {
-    .btn {
-        margin: 0px 8px;
-    }
 }
 
 

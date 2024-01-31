@@ -1,6 +1,6 @@
 
 <script setup>
-import { onBeforeMount, ref } from 'vue';
+import { onActivated, onBeforeMount, onDeactivated, ref } from 'vue';
 import Utils from '../../classes/Utils';
 import WalletLayout from '../../layouts/WalletLayout.vue';
 import NativeBackBtn from '../../components/common/NativeBackBtn.vue';
@@ -11,10 +11,13 @@ import MainBtn from "../../components/common/MainBtn.vue"
 import { useRouter } from 'vue-router';
 import { useNetworks } from '../../composables/useNetworks';
 import Modal from '../../components/modals/Modal.vue';
+import { useRoute } from 'vue-router';
 
+const route = useRoute()
 const net = useNetworks()
 const { isNetReady, allNetworks, activeNetwork } = net;
 const router = useRouter()
+
 const initialized = ref(false)
 const isLoading   = ref(false)
 const modalTitle  = ref("")
@@ -23,15 +26,20 @@ const modalId = ref('net-opt-modal-'+Date.now())
 let _modal = null
 const dataState = ref(Date.now())
 const networksDataToRender = ref({})
+let returnOnSelect = false
+let backUrl = ""
 
-const initialize = async () => {
-    initialized.value = true
-}
+onActivated(() => {
+    let q = route.query;
+    returnOnSelect = ("returnOnSelect" in q)
 
-onBeforeMount(() => {
-    initialize()
+    backUrl = (q.r || "").trim();
+    if(backUrl == '') backUrl = "/wallet"
 })
 
+onDeactivated(()=>{
+    returnOnSelect = false
+})
 
 const onItemClick = async (item) => {
    
@@ -59,6 +67,14 @@ const setDefaultNetwork = async () => {
     dataState.value = Date.now()
 
     _modal.hide()
+
+    console.log("returnOnSelect====>", returnOnSelect)
+
+    if(returnOnSelect) {
+        setTimeout(() => {
+            router.push(backUrl)
+        }, 200)
+    }
 }
 
 const removeNetwork = async () => {
@@ -176,12 +192,12 @@ const onSearch = async (keyword, filteredData) => {
 
                             <div class="rounded-circle net-icon-bg center-vh">
                                 <Image 
-                                    :width="16"
-                                    :height="16"
+                                    :width="20"
+                                    :height="20"
                                     :src="item.icon" 
                                     alt=""
                                     :placeholder="item.name.charAt(0)"
-                                    class="rounded-circle  mselect-icon"
+                                    class="rounded-circle"
                                 />
                             </div>
                         
@@ -246,4 +262,8 @@ const onSearch = async (keyword, filteredData) => {
         </Modal>
     </WalletLayout>
 </template>
-<style
+<style lang="scss">
+.net-icon-bg {
+    background: rgba(255, 255, 255, 0.8);
+}
+</style>

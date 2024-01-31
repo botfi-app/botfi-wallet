@@ -5,7 +5,7 @@
  * @license MIT 
  */
 
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { useWalletStore } from '../../store/walletStore';
 import { ref, watch } from 'vue'
 import NewWalletModal from '../../components/modals/NewWalletModal.vue';
@@ -16,6 +16,9 @@ import RevealPrivateKey from '../../components/modals/RevealPrivateKey.vue';
 import ImportWallet from '../../components/modals/ImportWallet.vue';
 
 const walletStore = useWalletStore()
+const route = useRoute()
+const router = useRouter()
+
 const isLoading   = ref(false)
 const menuModalTitle  = ref("")
 const selectedItem = ref(null) 
@@ -27,6 +30,16 @@ const menuModalInst = ref(null)
 const walletNameEditorModalId = ref("wallet-name-editor-modal-"+Date.now())
 const revealPKModalId = ref("reveal-pk-modal-"+Date.now())
 const importWalletModalId = ref("import-wallet-"+Date.now())
+
+let returnOnSelect = false
+
+onActivated(() => {
+    let q = route.query;
+    returnOnSelect = ("returnOnSelect" in q)
+
+    backUrl = (q.r || "").trim();
+    if(backUrl == '') backUrl = "/wallet"
+})
 
 const onSearch = async (keyword, filteredData) => {
    dataToRender.value = filteredData
