@@ -45,103 +45,26 @@ const updateWallet = async (item, key) => {
 <template>
     <div v-if="walletStore.activeWallet">
         <button 
-            :class="`btn text-truncate acct-select-btn ms-1  center-vh rounded-circle`"
-            data-bs-toggle="modal"
-            :data-bs-target="'#'+id"
+            :class="`btn text-truncate fs-14 acct-select-btn ms-1 px-2 center-vh rounded-pill`"
         >
             <Avatar 
                 :name="walletStore.activeWallet.address" 
                 :square="false" 
-                :size="38" 
+                :size="28" 
                 variant="ring"
                 class="rounded"
                 :key="walletStore.activeWallet.address"
             />
+            <div class="ms-1">
+                {{ Utils.maskAddress(walletStore.activeWallet.address, 2, 4) }}
+            </div>
         </button>
     </div>
-    <Modal
-        :id="id"
-        title="Wallets"
-        :has-header="true"
-        :has-footer="false"
-        size="modal-md"
-    >
-        <template #body>
-            
-            <ScrollToTop
-               :scrollElement="`#${id}`"
-            />
-
-            <div class="w-800 mb-5">
-              
-                <div class="p-2 my-2 search-sticky">
-                    <search-form 
-                        placeholder="Search"
-                        @change="onSearch"
-                        :dataToFilter="walletStore.wallets || []"
-                        :filterKeys="['name', 'address']"
-                        :mode="{start: true, end: true }"
-                        :key="`${walletStore.wallets.length}-${(walletStore.activeWallet || {}).address}`"
-                    />
-                </div>
-                <loading-view :isLoading="isLoading">
-                
-                    <ul class="list-group list-group-flush w-full no-select">
-                        <li v-if="dataToRender != null"
-                            v-for="(item,key) in dataToRender" 
-                            class="list-group-item list-group-item-action w-full py-4 d-flex justify-content-between"
-                            :key="key"
-                            role="button" 
-                            @click="updateWallet(item, key)"
-                        >
-
-                            
-                            <div class="pe-2 d-flex align-items-start">
-                                <div>
-                                    <Avatar 
-                                        :name="item.address" 
-                                        :size="28"
-                                        :square="true"
-                                        variant="ring"
-                                        class="rounded me-1"
-                                        :id="`addr-icon-${item.address}`"
-                                    />  
-                                </div>                        
-                                <div class="no-select addr-item flex-grow-1">
-                                    <span class="text-break fs-14">
-                                        {{ item.address }} 
-                                    </span>
-                                    <span 
-                                        class='fs-12 hint ms-2 font-monospace'
-                                        v-if="item.address != item.name"
-                                    >
-                                        {{item.name}} 
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div>
-                                <Icon name="mdi:success" 
-                                    :size="24"
-                                    v-if="walletStore.activeWallet.address != null && 
-                                        walletStore.activeWallet.address == item.address"
-                                    class="ms-3 text-success"
-                                />
-                            </div>
-                        </li>
-                    </ul>
-                </loading-view>
-            </div>
-
-        </template>
-    </Modal>
 </template>
 <style lang="scss">
  .acct-select-btn {
-    height: 45px;
-    width: 45px;
-    padding: 0px;
-    border-radius: 50%;
-    background: var(--bs-body-bg-dark-4) !important;
+    background: var(--bs-body-bg) !important;
+    opacity: 0.8;
+    font-size: 14px;
  }
 </style>

@@ -43,12 +43,9 @@ const updateBalances = async() => {
 
 <template>
   <router-view v-slot="{ Component, route }">
-    <transition  
-      name="custom-classes"
-      enter-active-class="animate__animated animate__zoomIn animate__fastest"
-    >
-      <component :is="Component" :key="route.path"  />
-    </transition>
+      <KeepAlive>
+        <component :is="Component"   />
+      </KeepAlive>
   </router-view>
   
   <toast />

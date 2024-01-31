@@ -173,14 +173,17 @@ const onSearch = async (keyword, filteredData) => {
                         @click="onItemClick(item)"
                     >
                         <div class="d-flex align-items-center">
-                            <Image 
-                                :width="16"
-                                :height="16"
-                                :src="item.icon" 
-                                alt=""
-                                :placeholder="item.name.charAt(0)"
-                                class="rounded-circle mselect-icon"
-                            />
+
+                            <div class="rounded-circle net-icon-bg center-vh">
+                                <Image 
+                                    :width="16"
+                                    :height="16"
+                                    :src="item.icon" 
+                                    alt=""
+                                    :placeholder="item.name.charAt(0)"
+                                    class="rounded-circle  mselect-icon"
+                                />
+                            </div>
                         
                             <div class="no-select ms-2">
                                 <div class="fw-medium">{{ item.name }} &nbsp;
@@ -243,3 +246,4 @@ const onSearch = async (keyword, filteredData) => {
         </Modal>
     </WalletLayout>
 </template>
+<style

@@ -12,6 +12,7 @@ import { v5 as uuidv5 } from 'uuid';
 import appConfig from "../config/app.js"
 import * as dayjs from 'dayjs'
 import Http from './Http.js';
+import { v4 as uuidv4 } from 'uuid';
 
 
 export default class Utils {
@@ -149,9 +150,11 @@ export default class Utils {
         //if(!ttl || ttl <= 0) ttl = 1440 * 1000;
 
         let htmlContent = (text) =>( `
-            <div class="loading-modal flex justify-center flex-col items-center">
+            <div class="loading-modal text-center flex justify-center flex-col items-center">
                 <div class="my-4">${text}</div>
-                <div class="loader loader-sm"></div>
+                <div class="spinner-border text-primary spinner-border-sm" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
             </div>
         `);
 
@@ -592,4 +595,8 @@ export default class Utils {
 
     static appPlatform = () => window.app_platform
     static isPlatform = (name) => this.appPlatform() == name
+
+    static getUUID  = () => uuidv4()
+    
+
 }

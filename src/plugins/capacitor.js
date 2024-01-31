@@ -44,11 +44,12 @@ const handleBackBtn = (router) => {
     CApp.addListener('backButton', async ({ canGoBack }) => {
 
         //console.log("router===>", router)
-        let curRoute = router.currentRoute.value.path;
+        let curRoute = router.currentRoute.value.path.toLowerCase();
 
-        //console.log("curRoute===>", curRoute)
+        /// for browser we use the native button inside the browser
+        if(curRoute == "/browser") return;
 
-        if(curRoute == "/" || curRoute.startsWith("/wallet")){
+        if(["/","/wallet"].includes(curRoute)){
             let  confirm = await Utils.getSwal().fire({
                 title: "Confirm Exit",
                 text: "Do you want to exit the app?",

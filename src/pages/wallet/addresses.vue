@@ -159,14 +159,16 @@ const copyAddress = async (addr) =>{
 
                         
                         <div class="pe-2 d-flex">
-                            <Avatar 
-                                :name="item.address" 
-                                :size="24"
-                                :square="true"
-                                variant="ring"
-                                class="rounded me-1"
-                                :id="`addr-icon-${item.address}`"
-                            />                          
+                            <div>
+                                <Avatar 
+                                    :name="item.address" 
+                                    :size="24"
+                                    :square="true"
+                                    variant="ring"
+                                    class="rounded me-1"
+                                    :id="`addr-icon-${item.address}`"
+                                />    
+                            </div>                      
                             <div class="no-select addr-item">
                                 <span class="text-break fs-14">
                                     {{ item.address }} 
@@ -180,12 +182,14 @@ const copyAddress = async (addr) =>{
                             </div>
                         </div>
 
-                        <Icon name="solar:star-circle-bold-duotone" 
-                            :size="32"
-                            v-if="walletStore.activeWallet.address != null && 
-                                walletStore.activeWallet.address == item.address"
-                            class="ms-3 text-success"
-                        />
+                        <div v-if="walletStore.activeWallet.address != null && 
+                                    walletStore.activeWallet.address == item.address"
+                        >
+                            <Icon name="solar:star-circle-bold-duotone" 
+                                :size="32"
+                                class="ms-3 text-success"
+                            />
+                        </div>
                     </li>
                 </ul>
             </loading-view>

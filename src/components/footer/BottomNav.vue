@@ -1,5 +1,5 @@
 <script setup>
-import { onBeforeMount, ref } from "vue";
+import { onActivated, onBeforeMount, ref } from "vue";
 import tabItems from "../../config/bottom_nav"
 import Icon from "../common/Icon.vue";
 import { useRouter, useRoute } from "vue-router"; 
@@ -16,6 +16,10 @@ const isTabActive = (index) => parseInt(index) == parseInt(activeTab.value)
 
 onBeforeMount(() => {
   initialize()
+})
+
+onActivated(()=>{
+   initialize()
 })
 
 const initialize = () => {

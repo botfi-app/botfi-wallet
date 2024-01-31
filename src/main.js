@@ -63,7 +63,7 @@ const startApp = async () => {
 const rmLoaderNShowContent = () => {
     window.setTimeout(() => {
 
-        console.log("Hmmmmm----->>>>>", )
+       // console.log("Hmmmmm----->>>>>", )
     
         let appDom = document.getElementById("app");
         let mainLoader = document.getElementById("main-loader");
@@ -82,7 +82,7 @@ const loadPlatformPlugin = async () => {
 
     let loc = window.location
 
-    console.log("loc===>", loc)
+    //console.log("loc===>", loc)
     
     let platform = platforms[loc.hostname.toLowerCase()] || ""
 

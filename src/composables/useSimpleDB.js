@@ -4,11 +4,16 @@
  */
 
 import { inject } from "vue"
+import Utils from "../classes/Utils"
 
 export const useSimpleDB = () => {
     
     const botUtils = inject("botUtils")
-    const _db = localStorage//botUtils.DB()
+
+    const _db = (Utils.isPlatform("capacitor"))
+                ? botUtils.DB()
+                : localStorage
+    
 
     //console.log("_db===>", _db)
 

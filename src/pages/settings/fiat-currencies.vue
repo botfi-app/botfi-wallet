@@ -38,6 +38,7 @@ const initiatialize = async () => {
 }
 
 const onSearch = async (keyword, filteredData) => {
+    console.log("filteredData===>", filteredData)
    dataToRender.value = filteredData
 }
 

@@ -1,59 +1,205 @@
 <script setup>
-import { ref } from 'vue';
+import { onUpdated, ref, watch } from 'vue';
 import AccountSelectModal from '../modals/AccountSelectModal.vue';
+import Utils from '../../classes/Utils';
+import NetSelectModal from '../modals/NetSelectModal.vue';
+import { isURL } from 'validator'
+import browser from '../../config/browser';
 
+const p = defineProps({
+    progress: { type: Number, default: 0 },
+    url: { type: String, default: "" },
+    totalTabs: { type: Number, default: 0 }, 
+})
+
+const inputRef = ref()
+const userInput = ref("")
+const urlInputText = ref("")
 const inputFocused = ref(false)
+const progress = ref(0)
+const fullUrl = ref(p.url)
+const urlHost = ref("")
+const isSecure = ref(false)
+
+const emits = defineEmits(["urlChange"])
+
+watch(p, () => {
+    //console.log("p===>", p)
+    progress.value = p.progress
+    fullUrl.value = p.url
+}, { deep: true });
+
+watch(fullUrl, () => {
+    let parsedUrl = new URL(fullUrl.value)
+    urlHost.value = parsedUrl.host
+    isSecure.value = (parsedUrl.protocol == 'https:')
+
+    if(!inputFocused.value){
+        urlInputText.value = urlHost.value
+    }
+})
+
+const handleOnSubmit = () => {
+
+    let text = userInput.value.trim()
+
+    if(!isURL(text)){
+        text = `${browser.default_search}${text}`
+    }
+
+    userInput.value = ''
+
+    inputRef.value.blur()
+
+    emits("urlChange",  text)
+}
+
+const inputFocus = (e) => {
+    let _input = inputRef.value
+    inputFocused.value = true
+    _input.value = fullUrl.value
+    _input.select()
+}
+
+const inputBlur = (e) => {
+        
+    if(e.relatedTarget && e.relatedTarget.classList.contains("clear-btn")){
+        e.target.focus()
+        inputRef.value.value = ""
+        return false;
+    }
+
+    inputFocused.value = false
+    urlInputText.value = urlHost.value
+}
+
+const handleUserInput = (e) => {
+    userInput.value = e.target.value;
+}
+
 
 </script>
 <template>
-    <div class="addr-bar d-flex align-items-center px-2 pt-3">
-        <div class="d-flex w-full flex-grow-1">
-            <input 
-                class="w-full addr-input form-control" 
-                @focus="inputFocused = true"
-                @blur="inputFocused = false"
-            />
-            <div :class="`center-vh input-btns ${inputFocused ? 'input-focused': ''}`">
-                <a href="#" class="btn btn-none p-0 text-warning">
-                    <Icon name="solar:copy-bold-duotone" />
+    <div class="w-100">
+        <div id="browser-addr-bar" class="d-flex justify-content-space align-items-center px-2 py-2">
+            <div :class="`
+                addr-input-wrapper 
+                w-full 
+                center-vh 
+                flex-grow-1
+                px-3
+                ${inputFocused ? 'focus': ''}`
+            ">
+                
+                <div>
+                    <Icon v-if="isSecure" class="text-success" name="uis:lock" :size="20" />
+                    <Icon v-else class="text-danger" name="f7:lock-slash-fill" :size="20" />
+                </div>
+
+                <form @submit.prevent="handleOnSubmit" class="w-full">
+                    <input 
+                        ref="inputRef"
+                        id="addr-bar-input"
+                        type="text"
+                        class="w-full no-border flex-grow-1"
+                        style="border:none;" 
+                        v-model="urlInputText"
+                        @focus="inputFocus"
+                        @blur="inputBlur"
+                        autocapitalize="off"
+                        autosave="off"
+                        autocorrect="off"
+                        @keydown="handleUserInput"
+                    />
+                </form>
+                <div class="center-vh">
+                    <button class="btn btn-none rounded-circle p-0 clear-btn">
+                        <Icon name="ooui:close" :size="20" />
+                    </button>
+                </div>
+            </div>
+            <div class="d-flex center-vh ms-2 menu-btns">
+                <NetSelectModal />
+                <a href="#" @click.prevent
+                    class="btn rounded py-0  center-vh fs-14 tabs-btn"
+                >
+                   {{ p.totalTabs }}
                 </a>
-                <a href="#" class="ms-1 btn btn-none p-0">
-                    <Icon name="carbon:close-filled" />
-                </a>
+             
             </div>
         </div>
-        <div class="addr-bar-btns">
-            <AccountSelectModal btnClass="net-select px-2" />
-        </div>
+        <div  v-if="progress > 0 && progress < 1"
+            class="loading-bar p-0 m-0 shadow" 
+            :style="{ width: `${(progress * 100)}%` }"
+        />
+ 
     </div>
+  
 </template>
 <style lang="scss">
-.addr-bar {
-    padding: 5px;
+#browser-addr-bar {
+    
+    background: var(--bs-body-bg-dark-5);
+    height: 60px;
 
-    .input-btns {
-        display: none;
-        position: absolute;
-        right: 65px;
-        margin-top: 7px;
-        margin-right: 4px;
-
-        &.input-focused {
-            display: flex;
-        }
-    }
-
-    .addr-input {
-        background: var(--bs-body-bg-dark-6);
-        height: 45px;
+    .addr-input-wrapper {
+        background: var(--bs-body-bg);
+        height: 44px;
         border-radius: 20px;
-        font-size: 14px;
-        padding-right: 60px;
+        justify-content: space-evenly;
 
-        &:focus {
-            background: var(--bs-body-bg-dark-3);
+        .clear-btn {
+           display: none;
+           position: relative;
+           z-index: 9999;
+           border: none !important;
+        }
+
+        input {
+            background: none !important;
+            border: none !important;
+            height: 44px;
+            outline: none;
+            font-weight: 400;
+            font-size: 15px;
+            opacity: 0.85;
+            letter-spacing: 0.6px;
+            -webkit-outline: none;
+            text-align: center;
+        }
+
+        &.focus {
+            background: var(--bs-body-bg);
             .input-btns { visibility: visible; }
+            border: 2px solid var(--bs-primary);
+            font-weight: normal;
+
+            .clear-btn {
+                display: inline-block;
+            }
         }
     }
 }
+
+.loading-bar {
+    width: 0%;
+    height: 3px; 
+    background: var(--bs-primary);  
+    position: relative;
+    transition: width 1s ease-in-out, visibility 1s linear;
+}
+
+.tabs-btn {
+    height: 32px;
+    border: none !important;
+    background: var(--bs-body-bg) !important;
+}
+
+.menu-btns {
+    .btn {
+        margin: 0px 8px;
+    }
+}
+
+
 </style>
