@@ -4,7 +4,6 @@
  * @license MIT 
  */
 
-
 import { onBeforeMount, ref, computed, toValue } from "vue"
 import { useSimpleDB } from "./useSimpleDB"
 import Wallet from "../classes/Wallet"

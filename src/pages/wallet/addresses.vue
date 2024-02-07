@@ -7,7 +7,7 @@
 
 import { useRouter, useRoute } from 'vue-router';
 import { useWalletStore } from '../../store/walletStore';
-import { ref, watch } from 'vue'
+import { ref, onActivated } from 'vue'
 import NewWalletModal from '../../components/modals/NewWalletModal.vue';
 import WalletNameEditor from '../../components/modals/WalletNameEditor.vue';
 import { Modal as bsModal } from 'bootstrap'
@@ -32,6 +32,7 @@ const revealPKModalId = ref("reveal-pk-modal-"+Date.now())
 const importWalletModalId = ref("import-wallet-"+Date.now())
 
 let returnOnSelect = false
+let backUrl = "/wallet"
 
 onActivated(() => {
     let q = route.query;
@@ -63,8 +64,8 @@ const onItemClick = async (item, key) => {
 
    menuModalTitle.value = `<div class='center-vh'>
                                 <div class="d-inline mt-1">${iconDom}</div>
-                                <div class='ps-3 pe-2' style='line-height:18px;'>
-                                    <span class='fs-14 text-break'>${item.address}</span>
+                                <div class='ps-3 pe-2'>
+                                    <span class='fs-14 text-break'>${Utils.maskAddress(item.address, 6, 6)}</span>
                                     <span class='ms-1 fs-12 hint font-monospace'>${item.name}</span>
                                 </div>
                             </div>`        
@@ -84,6 +85,10 @@ const setActiveWallet = async () => {
 
     dataState.value = Date.now()
     menuModalInst.value.hide()
+
+    window.setTimeout(() => {
+        router.push(backUrl)
+    }, 200)
 }
 
 const editItemName = async () => {
@@ -198,8 +203,8 @@ const copyAddress = async (addr) =>{
                         <div v-if="walletStore.activeWallet.address != null && 
                                     walletStore.activeWallet.address == item.address"
                         >
-                            <Icon name="solar:star-circle-bold-duotone" 
-                                :size="32"
+                            <Icon name="clarity:check-line" 
+                                :size="24"
                                 class="ms-3 text-success"
                             />
                         </div>

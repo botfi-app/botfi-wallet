@@ -68,7 +68,7 @@ const setDefaultNetwork = async () => {
 
     _modal.hide()
 
-    console.log("returnOnSelect====>", returnOnSelect)
+    //console.log("returnOnSelect====>", returnOnSelect)
 
     if(returnOnSelect) {
         setTimeout(() => {

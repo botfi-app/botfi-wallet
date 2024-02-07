@@ -1,11 +1,15 @@
 <script setup>
 import { nextTick, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref } from 'vue';
-import { WebviewEmbed } from '@botfi-app/capacitor-webview-embed/dist/esm/index.js'; 
+import { WebviewEmbed } from '@botfi-app/capacitor-webview-embed';  
 import browserConfig from "../../config/browser"
 import Utils from '../../classes/Utils';
 import { App as CApp } from '@capacitor/app';
 import { useRouter, useRoute } from 'vue-router';
+import { useWalletStore } from '../../store/walletStore';
+import { useBrowser } from "../../composables/useBrowser"
 
+const browserCore = useBrowser()
+const walletStore = useWalletStore()
 const router = useRouter()
 const route = useRoute()
 const tabs = ref({})
@@ -14,6 +18,8 @@ const initialized = ref(false)
 const isBrowserHidden = ref(false)
 const addressBarRef = ref()
 const toolbarRef = ref()
+const urlInputFocused = ref(false)
+const { connectedSites } = browserCore;
 
 onMounted(() => {
     if(initialized.value) return;
@@ -22,11 +28,13 @@ onMounted(() => {
     handleAppEvents()
 
     initialized.value = true 
+
+    console.log("connectedSites===>", connectedSites)
 })
 
 
 onActivated(async () => {
-  
+
 })
 
 const hideBrowser = async () => {
@@ -39,8 +47,13 @@ const showBrowser = async () => {
 
 const handleAppEvents = () => {
     CApp.addListener('backButton', async () => {
+
+        if(urlInputFocused.value){
+            document.getElementById("addr-bar-input").blur()
+            return false
+        }
         
-        if(activeTabId == null){
+        if(activeTabId.value == null){
             return false
         }   
 
@@ -53,14 +66,11 @@ const handleAppEvents = () => {
         t.webview.goBack()
     });
 
-    CApp.addListener('appStateChange', ({ isActive }) => {
-        if(!isActive) {
-            hideBrowser()
-        } else {
-            if(route.path == '/browser'){
-                showBrowser()
-            }
-        }
+    CApp.addListener('appStateChange', async ({ isActive }) => {
+       if(!walletStore.isLoggedIn() || route.path != '/browser'){
+            hideBrowser()   
+            router.go("/wallet")   
+       }
     });
 }
 
@@ -70,13 +80,13 @@ const handleBrowserInit = () => {
            await newTab({ setActive: true })
         }
 
-        initialized = true 
+        initialized.value = true 
     }, 1000);
 }
 
 const newTab = async ({ url = browserConfig.homepage, setActive=false }) => { 
 
-    let tabId = `wv-tab-${Utils.getUUID()}`
+    let tabId = Utils.getUUID()
 
     if(setActive) activeTabId.value = tabId
 
@@ -91,6 +101,9 @@ const newTab = async ({ url = browserConfig.homepage, setActive=false }) => {
         progress: 0 
     }
 
+    let injectScript = browserCore.getInjectScript(tabId)
+    
+    //console.log("jsToInject===>", jsToInject)
 
     //lets make sure the element is ready 
     let intval = window.setInterval( async () => {
@@ -100,7 +113,15 @@ const newTab = async ({ url = browserConfig.homepage, setActive=false }) => {
 
         clearInterval(intval)
 
-        await webview.open({ url, element })
+        await webview.open({ 
+            url, 
+            element,  
+            script: {
+                javascript: injectScript,
+                injectionTime: 0
+            },
+            webMessageJsObjectName: "botfi_msg_channel"
+        })
 
         if(!setActive) webview.hide()
 
@@ -145,10 +166,18 @@ const handleWebviewEvents = async (tabId) => {
         if(url.trim() != '') {
             tabs.value[tabId].url = url
         }
+
+        //tabs.value[tabId].webview.postMessage("helloooo");
     })
     
     w.onProgress((p) => {
         tabs.value[tabId].progress = p.value;
+    })
+
+    w.onMessage(async (msgItem) => {
+
+       let resultStatus =  browserCore.processWebMessage(w, msgItem) 
+
     })
 }
 
@@ -192,9 +221,10 @@ const reload = () => {
             <AddressBar 
                 :progress="tabs[activeTabId].progress" 
                 :url="tabs[activeTabId].url"
-                :totalTabs="Object.keys(tabs).length + 1"
+                :totalTabs="Object.keys(tabs).length"
                 @urlChange="handleURLChange"
                 @openHome="openHome"
+                @inputFocused="(v) => urlInputFocused = v"
             />
           <template v-for="tabInfo in tabs" :key="tabInfo.id">
             <div 

@@ -1,5 +1,5 @@
 <script setup>
-import { onUpdated, ref, watch } from 'vue';
+import { nextTick, onUpdated, ref, watch } from 'vue';
 import Utils from '../../classes/Utils';
 import NetSelectModal from '../modals/NetSelectModal.vue';
 import { isURL } from 'validator'
@@ -11,6 +11,7 @@ const p = defineProps({
     totalTabs: { type: Number, default: 0 }, 
 })
 
+const clearBtn = ref()
 const inputRef = ref()
 const userInput = ref("")
 const urlInputText = ref("")
@@ -20,7 +21,7 @@ const fullUrl = ref(p.url)
 const urlHost = ref("")
 const isSecure = ref(false)
 
-const emits = defineEmits(["urlChange", "openHome"])
+const emits = defineEmits(["urlChange", "openHome", "inputFocused"])
 
 watch(p, () => {
     //console.log("p===>", p)
@@ -37,6 +38,8 @@ watch(fullUrl, () => {
         urlInputText.value = urlHost.value
     }
 })
+
+watch(inputFocused, () => emits("inputFocused", inputFocused.value))
 
 const handleOnSubmit = () => {
 
@@ -57,14 +60,18 @@ const inputFocus = (e) => {
     let _input = inputRef.value
     inputFocused.value = true
     _input.value = fullUrl.value
-    _input.select()
+
+    if(e.relatedTarget == clearBtn.value) return;
+
+    nextTick(() => _input.select())
+    
 }
 
 const inputBlur = (e) => {
         
-    if(e.relatedTarget && e.relatedTarget.classList.contains("clear-btn")){
+    if(e.relatedTarget == clearBtn.value){
         e.target.focus()
-        inputRef.value.value = ""
+        e.target.value = ""
         return false;
     }
 
@@ -122,7 +129,7 @@ const handleUserInput = (e) => {
                     />
                 </form>
                 <div class="center-vh">
-                    <button class="btn btn-none rounded-circle p-0 clear-btn">
+                    <button ref="clearBtn" class="btn btn-none rounded-circle p-0 clear-btn">
                         <Icon name="ooui:close" :size="20" />
                     </button>
                 </div>
