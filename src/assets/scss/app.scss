@@ -689,3 +689,9 @@ ul.list-group {
  .btn:active, a:active, a:focus { border: none !important; }
 
  .noborder{ border: none !important; }
+
+.modal-dialog{
+    &.modal-dialog-centered .modal-content {
+        margin-top: 0px !important;
+    }
+}

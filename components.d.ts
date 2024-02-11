@@ -58,6 +58,7 @@ declare module '@vue/runtime-core' {
     NonceEditor: typeof import('./src/components/common/NonceEditor.vue')['default']
     NoResults: typeof import('./src/components/common/NoResults.vue')['default']
     PageError: typeof import('./src/components/common/PageError.vue')['default']
+    PermissionModal: typeof import('./src/components/modals/PermissionModal.vue')['default']
     PinCode: typeof import('./src/components/common/PinCode.vue')['default']
     Popover: typeof import('./src/components/popovers/Popover.vue')['default']
     ProfilePhoto: typeof import('./src/components/common/ProfilePhoto.vue')['default']

@@ -65,29 +65,29 @@ const createWallet = async () => {
         :has-footer="false"
         size="modal-md"
     >
-            <template #body>
-                <div class='m-2 my-3'>
-                    <div class="form-floating mb-3 rounded">
-                        <input type="text" 
-                            v-model="walletName"
-                            class="form-control rounded" 
-                            id="wallet_name" 
-                            placeholder="eg. Alice Wallet"
-                            :autocapitalize="false"
-                            :autocomplete="false"
-                            :autocorrect="false"
-                        />
-                        <label for="wallet_name">Wallet Name</label>
-                    </div>
-                    <div class="my-3">
-                        <button @click.prevent="createWallet"
-                            class="btn btn-primary w-full rounded fw-semibold"
-                        >
-                            Create
-                        </button>
-                    </div>
+        <template #body>
+            <div class='m-2 my-3'>
+                <div class="form-floating mb-3 rounded">
+                    <input type="text" 
+                        v-model="walletName"
+                        class="form-control rounded" 
+                        id="wallet_name" 
+                        placeholder="eg. Alice Wallet"
+                        :autocapitalize="false"
+                        :autocomplete="false"
+                        :autocorrect="false"
+                    />
+                    <label for="wallet_name">Wallet Name</label>
                 </div>
-            </template>
+                <div class="my-3">
+                    <button @click.prevent="createWallet"
+                        class="btn btn-primary w-full rounded fw-semibold"
+                    >
+                        Create
+                    </button>
+                </div>
+            </div>
+        </template>
 
-        </Modal>
+    </Modal>
 </template>

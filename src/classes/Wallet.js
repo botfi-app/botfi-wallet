@@ -15,7 +15,8 @@ import {
     Interface,
     isAddress,
     ZeroAddress,
-    AbiCoder
+    AbiCoder,
+    Network
 } from "ethers"
 
 //import { Buffer } from "buffer/";
@@ -23,8 +24,10 @@ import multicall3Config from "../config/multicall3/index.js";
 import multicall3Abi from "../data/abi_min/multicall3.js"
 import deploylessContractsBytes from "../config/deployless/bytecodes.json"
 import botfiContractAddrs from "../config/contracts/botfi/index.js"
+import app from "../config/app.js";
 
 const defaultAbiCoder = AbiCoder.defaultAbiCoder()
+
 
 export default class Wallet {
 
@@ -44,9 +47,17 @@ export default class Wallet {
             this.netInfo = netInfo
             this.chainId = netInfo.chainId;
 
-            let rpc = netInfo.rpc[0]
+            let chainIdBN = BigInt(netInfo.chainId.toString())
 
-            this.provider = new ethers.JsonRpcProvider(rpc)
+            let ethersNet = Network.from(chainIdBN)
+
+            let rpc = netInfo.rpcUrls[0]
+
+            this.provider = new ethers.JsonRpcProvider(
+                            rpc, 
+                            ethersNet, 
+                            { staticNetwork: ethersNet }
+                        )
 
             if(wallet != null){
                 let setWalletStatus = await this.setWallet(wallet)
@@ -56,7 +67,7 @@ export default class Wallet {
                 }
             }
 
-            this.provider.pollingInterval = 5000;
+            //this.provider.pollingInterval = 5000;
 
             // lets fetch the block to show that the rpc works 
             let blockNo = await this.provider.getBlockNumber()
@@ -73,6 +84,37 @@ export default class Wallet {
             Utils.logError("Wallet#connect:", e)
             return Status.error("Failed to connect to network's rpc")
                          .setCode(ErrorCodes.RPC_CONNECT_FAILED)
+        }
+    }
+
+    async ping(rpcUrl) {
+
+        let pingErr = Status.error("Failed to connect to RPC node")
+                            .setCode(ErrorCodes.FAILED_TO_PING_RPC_NODE)
+
+        try{
+
+            let getBlock = {"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1};
+
+            const response = await fetch(rpcUrl, {
+                method: 'POST',
+                headers: {'content-type' : 'application/json'},
+                body:    JSON.stringify(getBlock)
+            });
+
+            if(!response.ok){
+                return pingErr
+            }
+
+            let data = await response.json()
+            
+            let blockNo = parseInt(data.result, 16)
+            
+            if(!Number.isInteger(blockNo)) return pingErr
+
+            return Status.success()
+        } catch(e) {
+            return pingErr
         }
     }
 
@@ -965,7 +1007,66 @@ export default class Wallet {
             return Status.error("Failed to fetch block info")
         }
     }
-
-
     
+    async getAddress(){
+       return this.signer.getAddress()
+    }
+
+    async rpcSendTx(method, params) {
+        try{
+
+            if(params.length == 0){
+                let err = new Error("Invalid parameters")
+                err.code = ErrorCodes.invalidParams
+                throw err
+            }
+
+           await  this.provider.call(params[0])
+           return this.provider.send(method, params)
+
+        } catch(e){
+            throw e;
+        }
+    }
+
+
+    async queryRPCMethod(method, params=[]) {
+
+        let query = null;
+
+        switch(method){
+            case "eth_requestAccounts":
+                query = async () => [await this.getAddress()]
+            break;
+            case "eth_accounts":
+                query = async () => [await this.getAddress()]
+            break;
+            case "eth_sendTransaction":
+                query = () => this.rpcSendTx("eth_sendTransaction", params)
+            break;
+            case "eth_sendRawTransaction":
+                query = () => this.rpcSendTx("eth_sendRawTransaction", params)
+            break;
+            case "web3_clientVersion":
+                query = () => app.app_name_slug
+            break;
+            default:
+                query = () => this.provider.send(method, params)
+            break;
+        }
+
+        try {
+
+            let result = await query()
+
+            return Status.successData(result)
+
+        } catch(e){
+            return Status.error(e.message)
+                         .setCode(e.code)
+        }
+
+       
+    }
+
 }

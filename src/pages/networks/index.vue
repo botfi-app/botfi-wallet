@@ -48,7 +48,7 @@ const onItemClick = async (item) => {
     }
     
     selectedItem.value = item 
-    modalTitle.value = `<span class='text-primary'>${item.name}</span>`        
+    modalTitle.value = `<span class='text-primary'>${item.chainName}</span>`        
     _modal.show()
 }
 
@@ -87,7 +87,7 @@ const removeNetwork = async () => {
 
     let confirm = await Utils.getSwal().fire({
                     title: "Remove Network",
-                    text: `Confirm the removal of '${_selected.name} (${_selected.chainId})'`,
+                    text: `Confirm the removal of '${_selected.chainName} (${_selected.chainId})'`,
                     showConfirmButton: true,
                     showCancelButton: true,
                     confirmButtonText: "Confirm"
@@ -176,7 +176,7 @@ const onSearch = async (keyword, filteredData) => {
                         placeholder="Search"
                         @change="onSearch"
                         :dataToFilter="allNetworks"
-                        :filterKeys="['name', 'shortName']"
+                        :filterKeys="['chainName', 'shortName']"
                     />
                 </div>
                 
@@ -194,15 +194,15 @@ const onSearch = async (keyword, filteredData) => {
                                 <Image 
                                     :width="20"
                                     :height="20"
-                                    :src="item.icon" 
+                                    :src="item.icon || ''" 
                                     alt=""
-                                    :placeholder="item.name.charAt(0)"
+                                    :placeholder="item.chainName"
                                     class="rounded-circle"
                                 />
                             </div>
                         
                             <div class="no-select ms-2">
-                                <div class="fw-medium">{{ item.name }} &nbsp;
+                                <div class="fw-medium">{{ item.chainName }} &nbsp;
                                     <span class='fs-12 hint'>{{item.chainId}} </span>
                                 </div>
                                 

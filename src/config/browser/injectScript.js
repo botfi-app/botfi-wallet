@@ -2,7 +2,7 @@ import browser from "."
 
 export default (tabId) => {
 
-    let maxRequestWaitTime = browser.maxRequestWaitTime || 10_000;
+    let maxRequestWaitTime = browser.maxRequestWaitTime || 30_000;
 
     return `(function(){
 
@@ -24,13 +24,10 @@ export default (tabId) => {
                 msgRequests[requestId] = null
             }
 
-            let origin = window.location.origin;
-
             let dataToSend = JSON.stringify({
                 requestData: message,
                 requestId,
                 requiresReply: waitForReply,
-                origin,
                 tabId
             });
             
@@ -47,16 +44,26 @@ export default (tabId) => {
                 return (new Promise((resolve, reject) => {
                     let intval = setInterval(() => {
 
-                        let _reply = msgRequests[requestId];
+                        let _replyStatus = msgRequests[requestId];
 
-                        if(_reply != null){
-                           return resolve(_reply)
+                        if(_replyStatus != null){
+                            clearInterval(intval)
+                           if(_replyStatus.type == "success"){
+                              return resolve(_replyStatus.data)
+                           } else {
+
+                            let err = new Error(_replyStatus.msg)
+                            err.code = _replyStatus.code || null
+
+                             return reject(err)
+                           }
                         }
 
                         // after 30s, lets just return null
                         waitCount += timeIntval
 
                         if(waitCount == ${maxRequestWaitTime}){
+                            clearInterval(intval)
                             reject(new Error("REQUEST_TAKING_TOO_LONG"))
                         }
 
@@ -68,17 +75,27 @@ export default (tabId) => {
         }
 
         // listen to incoming messages 
-        window.addEventListener("message", (opts) => {
+        window.addEventListener("message", (e) => {
+
+            let msgObj = e.data
+
+            if(msgObj == "") return;
+
+            try{
+                msgObj = JSON.parse(msgObj)
+            } catch(e){ 
+                return false;
+            }
             
             const { 
                 requestId = "", 
                 msgType="", 
                 origin, 
                 data = null 
-            } = opts; 
+            } = msgObj; 
 
             if(msgType == "callback"){
-                if(window.location.origin != origin || !(requestId in msgRequests)) return;
+                if(location.origin != origin || !(requestId in msgRequests)) return;
                 msgRequests[requestId] = data
                 return true;
             }
@@ -86,7 +103,7 @@ export default (tabId) => {
             else if(msgType == "event" && data != null) {
                 let { eventName = "", eventData = null } = data
                 
-                if(eventName == null) return true;
+                if(eventName.trim() == "") return true;
 
                 registeredEvents[eventName].forEach(callbackFunc => {
                     if(typeof callbackFunc == 'function'){

@@ -13,6 +13,8 @@ export default {
     
     app_name: "BotFi Wallet",
 
+    app_name_slug: "botfi_wallet",
+
     platforms: {
         "pwa.botfi.app":  "pwa",
         "tbot.botfi.app": "telegram",

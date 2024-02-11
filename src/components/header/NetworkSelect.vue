@@ -34,11 +34,11 @@ onBeforeMount(() => {
                 :width="24" 
                 :height="24" 
                 class="rounded-circle shadow"
-                :src="activeNetwork.icon" 
-                :placeholder="activeNetwork.name"
+                :src="activeNetwork.icon || ''" 
+                :placeholder="activeNetwork.chainName"
             />
             <div class="ms-2 me-2 a text-truncate fs-6">
-                {{ activeNetwork.name }}
+                {{ activeNetwork.chainName }}
             </div>
             <div>
                 <Icon name="charm:chevron-down" :size="20" />

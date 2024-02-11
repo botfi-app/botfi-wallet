@@ -9,7 +9,7 @@ export default class EventBus{
         document.dispatchEvent(new CustomEvent(event, { detail: data }));
     }
 
-    static on(event, callback) {
+    static on(event, callback=(()=>{})) {
         document.addEventListener(event, (e) => callback(e.detail));
     }
 

@@ -47,7 +47,7 @@
     "easyqrcodejs": "^4.5.0",
     "esm-seedrandom": "^3.0.5",
     "eth-url-parser": "^1.0.4",
-    "ethers": "6.8.1",
+    "ethers": "6.11.0",
     "floating-vue": "^2.0.0-beta.24",
     "helia": "^2.0.3",
     "lokijs": "^1.5.12",

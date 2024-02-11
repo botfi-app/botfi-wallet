@@ -30,4 +30,14 @@ export default {
     unsupportedMethod: 4200,
     disconnected: 4900,
     chainDisconnected: 4901,
+
+    CHAIN_DOESNT_EXIST: 4902,
+
+    SECURE_RPC_URL_REQUIRED: -100000,
+
+    INVALID_CHAIN_ID_HEX_VALUE: -32602,
+
+    INVALID_NATIVE_CURRENCY_SYMBOL: -32602,
+
+    FAILED_TO_PING_RPC_NODE: -32602,
 }

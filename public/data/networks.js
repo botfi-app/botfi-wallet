@@ -5,7 +5,7 @@ export default {
     networks: {
 
         1: { 
-            name: "Ethereum",
+            chainName: "Ethereum",
             chainId: 1,
             chain: "ETH",
             shortName: "eth",
@@ -14,13 +14,13 @@ export default {
                 symbol:     "ETH",
                 decimals:   18
             },
-            rpc: ["https://ethereum.publicnode.com"],
-            explorers: [ "https://ethercan.io"],
+            rpcUrls: ["https://ethereum.publicnode.com"],
+            blockExplorerUrls: [ "https://ethercan.io"],
             icon: "/images/crypto/eth.svg"
         },
 
         137: {
-            name: "Polygon",
+            chainName: "Polygon",
             chainId: 137,
             chain: "MATIC",
             shortName: "matic",
@@ -29,13 +29,13 @@ export default {
                 symbol:     "MATIC",
                 decimals:   18
             },
-            rpc: ["https://polygon-bor.publicnode.com"],
-            explorers: [ "https://polygonscan.com"],
+            rpcUrls: ["https://polygon-bor.publicnode.com"],
+            blockExplorerUrls: [ "https://polygonscan.com"],
             icon: "/images/crypto/matic.svg"
         },
 
         56: {
-            name: "BNBChain",
+            chainName: "BNBChain",
             chainId: 56,
             chain: "BSC",
             shortName: "bnb",
@@ -44,13 +44,13 @@ export default {
                 symbol:     "BNB",
                 decimals:   18
             },
-            rpc: ["https://bsc.publicnode.com"],
-            explorers: [ "https://bscscan.com"],
+            rpcUrls: ["https://bsc.publicnode.com"],
+            blockExplorerUrls: [ "https://bscscan.com"],
             icon: "/images/crypto/bnb.svg"
         },
 
         42161: {
-            name: "Arbitrum One",
+            chainName: "Arbitrum One",
             chainId: 42161,
             chain: "ETH",
             shortName: "arb",
@@ -61,13 +61,13 @@ export default {
                 chainId:    1,
                 icon: "/images/crypto/eth.svg"
             },
-            rpc: ["https://arb1.arbitrum.io/rpc"],
-            explorers: [ "https://arbiscan.io/"],
+            rpcUrls: ["https://arb1.arbitrum.io/rpcUrls"],
+            blockExplorerUrls: [ "https://arbiscan.io/"],
             icon: "/images/crypto/arb.svg"
         },
 
         324: {
-            name: "zkSync Era Mainnet",
+            chainName: "zkSync Era Mainnet",
             chainId: 324,
             chain: "ETH",
             shortName: 'zksync',
@@ -78,13 +78,13 @@ export default {
                 chainId:    1,
                 icon: "/images/crypto/eth.svg"
             },
-            rpc: ["https://mainnet.era.zksync.io"],
-            explorers: [ "https://explorers.zksync.io/"],
+            rpcUrls: ["https://mainnet.era.zksync.io"],
+            blockExplorerUrls: [ "https://blockExplorerUrls.zksync.io/"],
             icon: "/images/crypto/zksync.svg"
         },
 
         10: {
-            name: "OP Mainnet",
+            chainName: "OP Mainnet",
             chainId: 10,
             chain: "ETH",
             shortName: "op",
@@ -95,13 +95,13 @@ export default {
                 chainId:    1,
                 icon: "/images/crypto/eth.svg"
             },
-            rpc: ["https://mainnet.optimism.io"],
-            explorers: [ "https://explorers.optimism.io"],
+            rpcUrls: ["https://mainnet.optimism.io"],
+            blockExplorerUrls: [ "https://blockExplorerUrls.optimism.io"],
             icon: "/images/crypto/op.svg"
         },
 
         8453: {
-            name: "Base Mainnet",
+            chainName: "Base Mainnet",
             chainId: 8453,
             chain: "ETH",
             shortName: "base",
@@ -112,13 +112,13 @@ export default {
                 chainId:    1,
                 icon: "/images/crypto/eth.svg"
             },
-            rpc: ["https://mainnet.base.org"],
-            explorers: [ "https://basescan.org"],
+            rpcUrls: ["https://mainnet.base.org"],
+            blockExplorerUrls: [ "https://basescan.org"],
             icon: "/images/crypto/base.svg"
         },
 
         59144: {
-            name: "Linea Mainnet",
+            chainName: "Linea Mainnet",
             chainId: 59144,
             chain: "ETH",
             shortName: "linea",
@@ -129,13 +129,13 @@ export default {
                 chainId:    1,
                 icon: "/images/crypto/eth.svg"
             },
-            rpc: ["https://rpc.linea.build"],
-            explorers: [ "https://lineascan.build/"],
+            rpcUrls: ["https://rpcUrls.linea.build"],
+            blockExplorerUrls: [ "https://lineascan.build/"],
             icon: "/images/crypto/linea.svg"
         },
 
         43114: { 
-            name: "Avalanche Network",
+            chainName: "Avalanche Network",
             chainId: 43114,
             chain: "AVAX",
             shortName: "eth",
@@ -144,13 +144,13 @@ export default {
                 symbol:     "AVAX",
                 decimals:   18
             },
-            rpc: ["https://avalanche-c-chain.publicnode.com"],
-            explorers: [ "https://snowtrace.io/"],
+            rpcUrls: ["https://avalanche-c-chain.publicnode.com"],
+            blockExplorerUrls: [ "https://snowtrace.io/"],
             icon: "/images/crypto/avax.svg"
         },
 
         106: { 
-            name: "Velas EVM",
+            chainName: "Velas EVM",
             chainId: 106,
             chain: "Velas",
             shortName: "VLX",
@@ -159,13 +159,13 @@ export default {
                 symbol:     "VLX",
                 decimals:   18
             },
-            rpc: ["https://evmexplorer.velas.com/rpc"],
-            explorers: [ "https://evmexplorer.velas.com/rpc"],
+            rpcUrls: ["https://evmexplorer.velas.com/rpcUrls"],
+            blockExplorerUrls: [ "https://evmexplorer.velas.com/rpcUrls"],
             icon: "/images/crypto/avax.svg"
         },
 
         250: { 
-            name: "Fantom Opera",
+            chainName: "Fantom Opera",
             chainId: 250,
             chain: "Fantom",
             shortName: "FTM",
@@ -174,13 +174,13 @@ export default {
                 symbol:     "FTM",
                 decimals:   18
             },
-            rpc: ["https://fantom.publicnode.com"],
-            explorers: ["https://ftmscan.com/"],
+            rpcUrls: ["https://fantom.publicnode.com"],
+            blockExplorerUrls: ["https://ftmscan.com/"],
             icon: "/images/crypto/ftm.svg"
         },
 
         25: { 
-            name: "Cronos Mainnet",
+            chainName: "Cronos Mainnet",
             chainId: 25,
             chain: "Cronos",
             shortName: "CRO",
@@ -189,13 +189,13 @@ export default {
                 symbol:     "CRO",
                 decimals:   18
             },
-            rpc: ["https://evm.cronos.org"],
-            explorers: ["https://cronos.org/explorer"],
+            rpcUrls: ["https://evm.cronos.org"],
+            blockExplorerUrls: ["https://cronos.org/explorer"],
             icon: "/images/crypto/cro.svg"
         },
 
         100: { 
-            name: "Gnosis Chain",
+            chainName: "Gnosis Chain",
             chainId: 100,
             chain: "Gnosis",
             shortName: "GNO",
@@ -204,13 +204,13 @@ export default {
                 symbol:     "GNO",
                 decimals:   18
             },
-            rpc: ["https://rpc.gnosischain.com"],
-            explorers: ["https://gnosisscan.io"],
+            rpcUrls: ["https://rpcUrls.gnosischain.com"],
+            blockExplorerUrls: ["https://gnosisscan.io"],
             icon: "/images/crypto/gno.svg"
         },
 
         1284: { 
-            name: "Moonbeam",
+            chainName: "Moonbeam",
             chainId: 1284,
             chain: "Moonbeam",
             shortName: "GLMR",
@@ -219,13 +219,13 @@ export default {
                 symbol:     "GLMR",
                 decimals:   18
             },
-            rpc: ["https://rpc.api.moonbeam.network"],
-            explorers: ["https://moonbeam.moonscan.io/"],
+            rpcUrls: ["https://rpcUrls.api.moonbeam.network"],
+            blockExplorerUrls: ["https://moonbeam.moonscan.io/"],
             icon: "/images/crypto/glmr.svg"
         },
 
         86: { 
-            name: "GateChain Mainnet",
+            chainName: "GateChain Mainnet",
             chainId: 86,
             chain: "Gate",
             shortName: "Gate",
@@ -234,13 +234,13 @@ export default {
                 symbol:     "GT",
                 decimals:   18
             },
-            rpc: ["https://evm.nodeinfo.cc"],
-            explorers: ["https://gatescan.org"],
+            rpcUrls: ["https://evm.nodeinfo.cc"],
+            blockExplorerUrls: ["https://gatescan.org"],
             icon: "/images/crypto/gt.svg"
         },
 
         66: { 
-            name: "OKExChain Mainnet",
+            chainName: "OKExChain Mainnet",
             chainId: 66,
             chain: "OKExChain",
             shortName: "okb",
@@ -249,13 +249,13 @@ export default {
                 symbol:     "OKB",
                 decimals:   18
             },
-            rpc: ["https://exchainrpc.okex.org"],
-            explorers: ["https://www.oklink.com/okexchain"],
+            rpcUrls: ["https://exchainrpc.okex.org"],
+            blockExplorerUrls: ["https://www.oklink.com/okexchain"],
             icon: "/images/crypto/okb.svg"
         },
 
         40: { 
-            name: "Telos EVM Mainnet",
+            chainName: "Telos EVM Mainnet",
             chainId: 40,
             chain: "Telos",
             shortName: "TLOS",
@@ -264,13 +264,13 @@ export default {
                 symbol:     "TLOS",
                 decimals:   18
             },
-            rpc: ["https://mainnet.telos.net/evm"],
-            explorers: ["https://teloscan.io"],
+            rpcUrls: ["https://mainnet.telos.net/evm"],
+            blockExplorerUrls: ["https://teloscan.io"],
             icon: "/images/crypto/tlos.svg"
         },
 
         128: { 
-            name: "Huobi ECO Chain Mainnet",
+            chainName: "Huobi ECO Chain Mainnet",
             chainId: 128,
             chain: "Heco",
             shortName: "Heco",
@@ -279,13 +279,13 @@ export default {
                 symbol:     "HT",
                 decimals:   18
             },
-            rpc: ["https://http-mainnet.hecochain.com"],
-            explorers: ["https://hecoinfo.com"],
+            rpcUrls: ["https://http-mainnet.hecochain.com"],
+            blockExplorerUrls: ["https://hecoinfo.com"],
             icon: "/images/crypto/ht.svg"
         },
 
         1101: {
-            name: "Polygon zkEVM",
+            chainName: "Polygon zkEVM",
             chainId: 1101,
             chain: "ETH",
             shortName: "zkevm",
@@ -296,8 +296,8 @@ export default {
                 chainId:    1,
                 icon: "/images/crypto/eth.svg"
             },
-            rpc: ["https://zkevm-rpc.com"],
-            explorers: [ "https://zkevm.polygonscan.com/"],
+            rpcUrls: ["https://zkevm-rpcUrls.com"],
+            blockExplorerUrls: [ "https://zkevm.polygonscan.com/"],
             icon: "/images/crypto/pols.svg"
         },
     }

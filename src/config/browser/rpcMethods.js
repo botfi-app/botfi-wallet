@@ -5,13 +5,17 @@ export default {
     
     wallet_addEthereumChain: { 
         hasPermission: true,
-        template: "{{WEBSITE}} wants to add {{NETWORK_NAME}} ({{CHAIN_ID}}) to your network list",
-        askAlways: true
+        template: `
+            <div>{{WEBSITE}} wants to add a new chain to your wallet.</div>
+            <div class="my-1 mt-2">Network Name: {{CHAIN_NAME}}</div>
+            <div class="my-1">Chain ID: {{CHAIN_ID}}</div>
+        `,
+        askAlways: true,
     },
 
     wallet_switchEthereumChain: { 
         hasPermission: true,
-        template: "{{WEBSITE}} wants to switch to {{NETWORK_NAME}} ({{CHAIN_ID}})"
+        template: "{{WEBSITE}} wants to switch your current chain to: {{CHAIN_NAME}} ({{CHAIN_ID}})",
     },
 
     wallet_watchAsset: {
@@ -20,15 +24,15 @@ export default {
         askAlways: true
     },
 
-    wallet_scanQRCode: {
+    /*wallet_scanQRCode: {
         hasPermission: true,
         template: "{{WEBSITE}} wants to utilize the QRCode scanner",
         askAlways: true
-    },
+    },*/
 
     eth_requestAccounts: {
         hasPermission: true,
-        template: "{{WEBSITE}} wants to utilize the QRCode scanner",
+        template: "{{WEBSITE}} wants to connect to your wallet",
         askAlways: false
     },
 

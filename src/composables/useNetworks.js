@@ -9,6 +9,9 @@ import { useSimpleDB } from "./useSimpleDB"
 import Wallet from "../classes/Wallet"
 import Status from "../classes/Status"
 import app from "../config/app"
+import ErrorCodes from "../classes/ErrorCodes"
+import Utils from "../classes/Utils"
+import EventBus from "../classes/EventBus"
 
 const $state = ref({
     isReady: false, 
@@ -71,7 +74,7 @@ export const useNetworks = () => {
             await DB.setItem(USER_NETWORKS, userNetworkInfo)
         }
 
-        //console.log("userNetworkInfo===>", userNetworkInfo)
+        console.log("userNetworkInfo===>", userNetworkInfo)
 
         $s.userNetworkInfo   = userNetworkInfo
         $s.userActiveNetwork = userNetworkInfo.networks[userNetworkInfo.default]
@@ -96,7 +99,13 @@ export const useNetworks = () => {
 
         //console.log("netInfo===>", netInfo)
 
-        let connectStatus = await walletCore.connect(netInfo)
+        /*let connectStatus = await walletCore.connect(netInfo)
+
+        if(connectStatus.isError()) {
+            return connectStatus
+        }*/
+
+        let connectStatus = await walletCore.ping(netInfo.rpcUrls[0])
 
         if(connectStatus.isError()) {
             return connectStatus
@@ -111,7 +120,14 @@ export const useNetworks = () => {
         $s.userNetworkInfo = userNeworkInfo
         $s.userActiveNetwork =  netInfo
 
+        EventBus.emit("onNetworkChange", netInfo)
+
         return Status.success()
+    }
+
+
+    const exists = async (chainId) => {
+        return (chainId in (await getUserNetworks()))
     }
 
     const removeNetwork = async (chainId) => {
@@ -163,7 +179,7 @@ export const useNetworks = () => {
 
 
         let connectStatus = await walletCore.connect(
-                                {rpc: [rpc] }
+                                {rpcUrls: [rpc] }
                             )
 
         if(connectStatus.isError()) {
@@ -176,6 +192,14 @@ export const useNetworks = () => {
     const saveNetwork = async (netInfo, setDefault=false) => {
 
         netInfo = toValue(netInfo)
+
+        if(!netInfo.icon || netInfo.icon == ""){
+            if("iconUrls" in netInfo && Array.isArray(netInfo.iconUrls)) {
+                if(netInfo.iconUrls.length > 0){
+                    netInfo.icon = netInfo.iconUrls[0]
+                }
+            }
+        }
 
         let $s = $state.value;
 
@@ -197,6 +221,65 @@ export const useNetworks = () => {
         return Status.success()
     }
 
+    const wallet_addEthereumChain = async (params=[]) => {
+
+        let invalidParamsErr = Status.error("Invalid params")
+                                    .setCode(ErrorCodes.invalidParams)
+
+        if(params.length == 0){
+            return invalidParamsErr
+        }
+
+        let netInfo = params[0]
+
+        let { chainId = "", chainName = "", rpcUrls = [], nativeCurrency = {}} = netInfo
+
+        if(chainName.trim() == ""){
+            return invalidParamsErr
+        }
+        
+        if(!Array.isArray(rpcUrls)) return invalidParamsErr
+
+        if(!rpcUrls[0].startsWith("https://") || !Utils.isValidUrl(rpcUrls[0])){
+            return Status.error("Atleast 1 valid secure rpc url is required")
+                         .setCode(ErrorCodes.SECURE_RPC_URL_REQUIRED)
+        }
+
+        let chainIdStr = chainId.toString()
+
+        if(!chainIdStr.startsWith("0x") || chainIdStr == '0x'){
+            return Status.error(`Invalid chain id hex value`)
+                        .setCode(ErrorCodes.INVALID_CHAIN_ID_HEX_VALUE)
+        }
+
+        chainId = parseInt(chainIdStr,16)
+
+        // native currency symbol
+        let assetSymbol = (nativeCurrency.symbol || "").trim()
+
+        if(assetSymbol == ""){
+            return Status.error(`Expected 2-6 character string 'nativeCurrency.symbol'.`)
+                        .setCode(ErrorCodes.INVALID_NATIVE_CURRENCY_SYMBOL)
+        }
+
+        let userNetwoks = await getUserNetworks()
+
+        if(chainId in userNetwoks) return Status.success()
+
+        //let walletCore = new Wallet()
+
+        /*let connectStatus = await walletCore.ping(rpcUrls[0])
+
+        if(connectStatus.isError()) {
+            return connectStatus
+        }*/
+
+        netInfo["chainId"] = chainId
+
+        await saveNetwork(netInfo)
+
+        return Status.success()
+    }
 
     const clearNetworks = async () => {
         await DB.removeItem(USER_NETWORKS)
@@ -237,7 +320,7 @@ export const useNetworks = () => {
 
         //console.log("netInfo====>", netInfo)
 
-        let explorers = netInfo.explorers || []
+        let explorers = netInfo.blockExplorerUrls || []
 
         let exp;
         let isDefault;
@@ -269,8 +352,10 @@ export const useNetworks = () => {
         resetNetworks,
         fetchNetworkInfo,
         saveNetwork,
+        wallet_addEthereumChain,
         clearNetworks,
         getWeb3Conn,
-        getExplorer
+        getExplorer,
+        exists
     }
  }

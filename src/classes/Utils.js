@@ -101,6 +101,24 @@ export default class Utils {
         })
     }
 
+
+    static showConfirmPopup({
+        title,
+        text,
+        confirmText = "Yes!",
+        cancelText  = "No"
+    }) {
+        return this.getSwal().fire({
+            title,
+            text,
+            showConfirmButton: true, 
+            confirmButtonText: confirmText,
+            showCloseButton: false,
+            showDenyButton: true,
+            denyButtonText: cancelText,
+        })
+    }
+
     static mAlert(text, opts = {}) {
 
         let {

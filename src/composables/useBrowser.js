@@ -13,40 +13,26 @@ import injectScript from "../config/browser/injectScript"
 import Utils from "../classes/Utils"
 import ErrorCodes from "../classes/ErrorCodes"
 import rpcMethods from "../config/browser/rpcMethods"
+import { isURL } from 'validator'
+import { usePermission } from "./usePermission"
+import { useWalletStore } from "../store/walletStore"
+import { useNetworks } from "./useNetworks"
+import EventBus from "../classes/EventBus"
 
 const $state = ref({
-   connectedSites: []
+
 })
 
 export const useBrowser = () => {
 
-    const db = useSimpleDB()
-
-    onBeforeMount(async ()=>{
-        await getConnectedSites()
-    })
-
-    const getConnectedSites = async () => {
-        
-        let dataStr = await db.getItem("connected_sites") || "{}"
-        let dataJson = JSON.parse(dataStr)
-        
-        $state.value.connectedSites = dataJson
-
-        return dataJson
-    }
-
-    const connectedSites = computed(() => $state.value.connectedSites)
-
-    const isSiteConnected = async (origin) => {
-        let _connectedSites = await getConnectedSites()
-        origin = origin.trim().toLowerCase()
-        return (origin in _connectedSites)
-    }
+    const permission  = usePermission()
+    const walletStore = useWalletStore()
+    const netCore     = useNetworks()
 
     const getInjectScript = (tabId) => {
         return injectScript(tabId)
     }
+
 
     const getRpcMethodInfo = (name="") => {
 
@@ -62,17 +48,62 @@ export const useBrowser = () => {
         return methodInfo
     }
 
-    const _processWebMessage = async(sourceOrigin, method, params) => {
+    const processPermissionText = async ({method, text, origin, params}) => {
+        
+        text = text.replace("{{WEBSITE}}", `<strong>${origin}</strong>`)
+
+        if(["wallet_addEthereumChain"].includes(method)){
+            let paramObj = params[0]
+            let chainName = paramObj.chainName
+            let chainId = paramObj.chainId
+
+            text = text.replace("{{CHAIN_NAME}}", chainName)
+                                .replace("{{CHAIN_ID}}", chainId)
+        } 
+        else if(method == "wallet_switchEthereumChain"){
+            let chainId = parseInt(params[0], 16)
+            let chainInfo = (await netCore.getUserNetworks())[chainId] || null
+
+            if(chainInfo){
+                text = text.replace("{{CHAIN_NAME}}", chainInfo.name)
+                           .replace("{{CHAIN_ID}}", chainInfo.id)
+            }
+            
+        }
+
+        //console.log("text===>", text)
+
+        return text
+    }
+    
+
+    const _processWebMessage = async({
+        origin="", 
+        method, 
+        params=[],
+        permissionModal,
+
+    }) => {
         try {
 
-            if(!validator.isURL(sourceOrigin)){
+            permissionModal = toValue(permissionModal)
+
+            console.log("method===>", method)
+            console.log("params====>", params)
+            console.log("getConnectedSites===>", await permission.getConnectedSites())
+
+            if(origin.trim().length == 0){
                 return Status.error("Invalid source origin")
                               .setCode(ErrorCodes.invalidRequest)
             }
-            
+
+ 
             // firstly, lets check if user is connected
-            if(!["eth_accounts","eth_requestAccounts"].includes(method)){
-                if(isSiteConnected(sourceOrigin)){
+            if(!["eth_accounts",
+                 "eth_requestAccounts",
+                ].includes(method))
+            {
+                if(!(await permission.isSiteConnected(origin))) {
                     return Status.error("Wallet not connected")
                                 .setCode(ErrorCodes.unauthorized)
                 }
@@ -83,7 +114,7 @@ export const useBrowser = () => {
                              .setCode(ErrorCodes.invalidRequest)
             }
 
-            //lets check if the requested method exists
+            //lets check if the requested method exists 
             let rpcMethodInfo = getRpcMethodInfo(method)
 
             if(rpcMethodInfo == null){
@@ -91,12 +122,96 @@ export const useBrowser = () => {
                             .setCode(ErrorCodes.methodNotFound) 
             }
             
+            console.log("permissionModal====>", permissionModal)
+            console.log("rpcMethodInfo===>", rpcMethodInfo)
+            console.log("orign====>>>>", origin)
+
+            if(method == "wallet_switchEthereumChain"){
+                if(params.length == 0){
+                    return Status.error("Invalid parameters")
+                              .setCode(ErrorCodes.invalidParams)
+                }
+
+                let chainId = (params[0].toString().startsWith('0x')) 
+                                ? parseInt(params[0], 16)
+                                : parseInt(params[0])
+
+                if(!(await netCore.exists(chainId))){
+                    return Status.error("Network doesnt exist, kindly add it first")
+                            .setCode(ErrorCodes.CHAIN_DOESNT_EXIST)
+                }
+            }
 
             if(rpcMethodInfo.hasPermission){
+                
+                if(!(await permission.isSiteConnected(origin)) || 
+                    rpcMethodInfo.askAlways == true
+                ){
+
+                    let text = rpcMethodInfo.template || ""
+
+                    text = await processPermissionText({method, text, origin, params})
+
+                    console.log("text", text)
+
+                    let warning = rpcMethodInfo.warning || ""
+
+                    let pResult = await permissionModal.show({
+                                    title: "Permission",
+                                    method,
+                                    text,
+                                    warning
+                                })
+
+                    //console.log("pResult====>", pResult)
+
+                    if(!pResult.isConfirmed){
+                        return Status.error("User rejected operation")
+                    }
+
+                    await permission.connectSite(origin)
+               }
 
             }
 
-            return Status.success()
+            if(method == "wallet_addEthereumChain"){
+
+                let resultStatus =  await netCore.wallet_addEthereumChain(params)
+
+                if(!resultStatus.isError()){
+
+                    EventBus.emit("hideBrowser", true)
+
+                    let {chainId, chainName} = params[0]
+
+                    let popup = await Utils.showConfirmPopup({
+                        text: `Switch your active network to ${chainName} (chainId: ${chainId})`
+                    })
+
+                    if(popup.isConfirmed){
+                       let switchStatus = await netCore.setActiveNetwork(chainId)
+                       console.log("switchStatus===>", switchStatus)
+                    }
+
+                    EventBus.emit("hideBrowser", false)
+                }
+
+                return resultStatus;
+            } else if (method == "wallet_switchEthereumChain") {
+                return netCore.setActiveNetwork(parseInt(params[0], 16))
+            }
+
+            // lets login user in 
+            let web3ConnStatus = await walletStore.getWeb3Conn()
+
+            if(web3ConnStatus.isError()){
+                return web3ConnStatus
+            }
+
+            let web3 = web3ConnStatus.getData()
+
+            return web3.queryRPCMethod(method, params)
+
         } catch(e){
             Utils.logError("useBrowser#processWebMessage:", e)
             return Status.error("Failed to process data")
@@ -104,36 +219,62 @@ export const useBrowser = () => {
         }
     }
 
-    const processWebMessage = async(webview, dataObj) => {
+    const processWebMessage = async({
+        webview, 
+        dataObj, 
+        permissionModal
+    }) => {
 
         const { sourceOrigin="", message="" } = dataObj
         const msgObj = JSON.parse(message)
-
+        
         const requestData = msgObj.requestData || {}
+        const requestId = msgObj.requestId || ""
 
         const method = requestData["method"] || ""
         const params = requestData["params"] || []
 
-        let resultStatus = await  _processWebMessage(sourceOrigin, method, params)
+        let resultStatus =  await  _processWebMessage({
+                                origin: sourceOrigin, 
+                                method, 
+                                params,
+                                permissionModal
+                            })
 
-
-       let result;
-
-       if(resultStatus.isError()){
-            result = new Error(resultStatus.getMessage())
-            result.code = result.getCode()
-        } else {
-            result = resultStatus.getData()
+        console.log("resultStatus===>", resultStatus)
+        
+        let finalMessage = {
+            origin: sourceOrigin,
+            requestId,
+            method,
+            msgType: "callback",
+            data: resultStatus
         }
 
-        
+        console.log("finalMessage===>", finalMessage)
+
+        webview.postMessage(JSON.stringify(finalMessage))
     } //end func
+
+
+    const emitWeb3Event = async (webview, eventName, eventData) => {
+        
+        let data = { eventName, eventData }
+
+        let finalMessage = {
+            origin: null,
+            requestId: null,
+            msgType: "event",
+            data
+        }
+
+        webview.postMessage(JSON.stringify(finalMessage))
+    }
     
     return {
         getInjectScript,
-        connectedSites,
-        getConnectedSites,
-        processWebMessage
+        processWebMessage,
+        emitWeb3Event
     }
 }
 

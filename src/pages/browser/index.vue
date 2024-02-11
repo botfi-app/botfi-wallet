@@ -1,5 +1,5 @@
 <script setup>
-import { nextTick, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref } from 'vue';
+import { nextTick, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, watch } from 'vue';
 import { WebviewEmbed } from '@botfi-app/capacitor-webview-embed';  
 import browserConfig from "../../config/browser"
 import Utils from '../../classes/Utils';
@@ -7,7 +7,13 @@ import { App as CApp } from '@capacitor/app';
 import { useRouter, useRoute } from 'vue-router';
 import { useWalletStore } from '../../store/walletStore';
 import { useBrowser } from "../../composables/useBrowser"
+import { usePermission } from '../../composables/usePermission';
+import EventBus from '../../classes/EventBus';
+import { useNetworks } from '../../composables/useNetworks';
 
+const netCore = useNetworks()
+
+const { activeNetwork } = netCore
 const browserCore = useBrowser()
 const walletStore = useWalletStore()
 const router = useRouter()
@@ -16,10 +22,9 @@ const tabs = ref({})
 const activeTabId = ref(null)
 const initialized = ref(false)
 const isBrowserHidden = ref(false)
-const addressBarRef = ref()
-const toolbarRef = ref()
 const urlInputFocused = ref(false)
-const { connectedSites } = browserCore;
+const { connectedSites } = usePermission();
+const permissionModalRef = ref()
 
 onMounted(() => {
     if(initialized.value) return;
@@ -29,20 +34,36 @@ onMounted(() => {
 
     initialized.value = true 
 
-    console.log("connectedSites===>", connectedSites)
+    //console.log("connectedSites===>", connectedSites)
 })
 
 
 onActivated(async () => {
+    EventBus.on("hideBrowser", (hide) => {
+        if(hide)  hideBrowser()
+        else  showBrowser()
+    })
+})
 
+onDeactivated(() => {
+    EventBus.on("hideBrowser")
+})
+
+watch(activeNetwork, () => {
+    let chainIdHex = "0x"+activeNetwork.value.chainId.toString(16)
+    emitWeb3Events("chainChanged", chainIdHex)
 })
 
 const hideBrowser = async () => {
     isBrowserHidden.value = true
+    let tab = getActiveTab()
+    if(tab != null) await tab.webview.hide()
 }
 
 const showBrowser = async () => {
     isBrowserHidden.value = false
+    let tab = getActiveTab()
+    if(tab != null) await tab.webview.show()
 }
 
 const handleAppEvents = () => {
@@ -174,11 +195,15 @@ const handleWebviewEvents = async (tabId) => {
         tabs.value[tabId].progress = p.value;
     })
 
-    w.onMessage(async (msgItem) => {
+    w.onMessage(async (dataObj) => {
 
-       let resultStatus =  browserCore.processWebMessage(w, msgItem) 
+        browserCore.processWebMessage({
+            webview: w, 
+            dataObj,
+            permissionModal: permissionModalRef
+        });
+    });
 
-    })
 }
 
 
@@ -210,6 +235,17 @@ const goForward = () => {
 const reload = () => {
     getActiveTab().webview.reload();
 }
+
+
+const emitWeb3Events = async (eventName, value) => {
+    let _tabs = tabs.value
+    Object.keys(_tabs).forEach((tabId) => {
+        let t = _tabs[tabId]
+        if(t.webview){
+            browserCore.emitWeb3Event(t.webview, eventName, value)
+        }
+    })
+}
 </script>
 <template>
     <WalletLayout
@@ -217,7 +253,7 @@ const reload = () => {
         :show-nav="false"
         :has-footer="false"
     >  
-        <div class="browser d-flex flex-column">
+        <div class="browser">
             <AddressBar 
                 :progress="tabs[activeTabId].progress" 
                 :url="tabs[activeTabId].url"
@@ -229,7 +265,7 @@ const reload = () => {
           <template v-for="tabInfo in tabs" :key="tabInfo.id">
             <div 
                 :id="tabInfo.id"
-                :class="`tab w-100 flex-grow-1 ${isBrowserHidden ? 'hidden': ''}`"
+                :class="`tab w-100 flex-grow-1 ${isBrowserHidden ? 'b-hidden': ''}`"
                 v-if="(tabInfo.id == activeTabId)"
             ></div>
             <div v-else class="tab not-active"></div>
@@ -242,6 +278,12 @@ const reload = () => {
                 :canGoForward="tabs[activeTabId].canGoForward"
             />
         </div>
+
+        <PermissionModal 
+            @show="hideBrowser"
+            @hide="showBrowser"
+            ref="permissionModalRef"
+        />
     </WalletLayout> 
 </template>
 <style lang="scss">
@@ -257,6 +299,8 @@ const reload = () => {
     &.not-active {
         display: none;
     }
+
+    &.b-hidden { visibility: hidden; }
 }
 
 </style>
