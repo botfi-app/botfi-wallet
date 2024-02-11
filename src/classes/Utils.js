@@ -616,5 +616,10 @@ export default class Utils {
 
     static getUUID  = () => uuidv4()
     
-
+    static hexToInt(val){
+        return (val.toString().startsWith("0x"))
+                    ? parseInt(val,16)
+                    : val
+    }
+    
 }

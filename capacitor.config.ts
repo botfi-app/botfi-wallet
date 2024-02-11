@@ -8,7 +8,7 @@ const config: CapacitorConfig = {
   server: {
     androidScheme: 'https',
 
-    // remove this plugin during production build:  @jcesarmobile/ssl-skip
+    // remove is plthugin during production build:  @jcesarmobile/ssl-skip
     "url":  "https://192.168.8.100:5173",
     "cleartext": true
   },
@@ -19,7 +19,7 @@ const config: CapacitorConfig = {
 
   plugins: {
     CapacitorHttp: {
-      enabled: true,
+      enabled: false,
     },
 
   }

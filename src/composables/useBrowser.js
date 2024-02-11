@@ -178,22 +178,30 @@ export const useBrowser = () => {
 
                 let resultStatus =  await netCore.wallet_addEthereumChain(params)
 
+                console.log("params=======>", params)
+                console.log("wallet_addEthereumChain===>", resultStatus)
+
                 if(!resultStatus.isError()){
 
                     EventBus.emit("hideBrowser", true)
 
-                    let {chainId, chainName} = params[0]
+                    let { chainId, chainName } = params[0]
 
                     let popup = await Utils.showConfirmPopup({
                         text: `Switch your active network to ${chainName} (chainId: ${chainId})`
                     })
 
+                    EventBus.emit("hideBrowser", false)
+
                     if(popup.isConfirmed){
-                       let switchStatus = await netCore.setActiveNetwork(chainId)
-                       console.log("switchStatus===>", switchStatus)
+
+                       let switchStatus = await netCore.setActiveNetwork(Utils.hexToInt(chainId))
+                       
+                       if(switchStatus.isError()) {
+                            return switchStatus
+                       }
                     }
 
-                    EventBus.emit("hideBrowser", false)
                 }
 
                 return resultStatus;
@@ -241,7 +249,11 @@ export const useBrowser = () => {
                                 permissionModal
                             })
 
-        console.log("resultStatus===>", resultStatus)
+        //console.log("resultStatus===>", resultStatus)
+
+        /*if(resultStatus.isError()){
+             Utils.toast(resultStatus.getMessage())
+        }*/
         
         let finalMessage = {
             origin: sourceOrigin,
@@ -254,6 +266,14 @@ export const useBrowser = () => {
         console.log("finalMessage===>", finalMessage)
 
         webview.postMessage(JSON.stringify(finalMessage))
+
+        if(["eth_accounts", "eth_requestAccounts",].includes(method) && 
+            !resultStatus.isError()
+        ){
+            let activeNet = await netCore.getActiveNetworkInfo()
+            emitWeb3Event(webview, "connect", { chainId: "0x"+parseInt(activeNet.chainId, 16) })
+        }
+
     } //end func
 
 

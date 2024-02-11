@@ -18,11 +18,11 @@ const pageTitle     = ref("")
 const subTitle      = ref("")
 
 const formData      = ref({
-    name: "",
+    chainName: "",
     nativeCurrency: { symbol: ""},
-    chainId:   null,
-    rpc:      [''],
-    explorers: ['']
+    chainId:            null,
+    rpcUrls:            [''],
+    blockExplorerUrls:  ['']
 })
 const saveType      = ref("")
 const netChainId    = ref(null)
@@ -84,10 +84,10 @@ const onSave = async () => {
 
         let fd = formData.value
 
-        let rpc = (fd.rpc[0] || "").trim()
+        let rpc = (fd.rpcUrls[0] || "").trim()
         let currencySymbol = (fd.nativeCurrency.symbol || "").trim();
 
-        if(fd.name.trim() == ''){
+        if(fd.chainName.trim() == ''){
             return Utils.mAlert("A valid name is required")
         }
 
@@ -106,7 +106,7 @@ const onSave = async () => {
         }
 
         // explorer
-        let explorer = (fd.explorers[0] || "").trim()
+        let explorer = (fd.blockExplorerUrls[0] || "").trim()
 
         if(explorer != ""){
             if(!Utils.isValidUrl(explorer)){
@@ -152,15 +152,15 @@ const onSave = async () => {
         :show-nav="false"
         v-if="initialized"
         :page-error="pageError"
-        backUrl="/networks"
     >   
 
         <div class="w-800">
             <div class="fixed-topnav">
                 <div class="d-flex body-bg justify-content-between flex-nowrap p-3 align-items-center">
                     <div>
-                        <div class="fw-semibold fs-6 pe-2">
-                            {{ pageTitle }}
+                        <div class="fw-semibold fs-6 pe-2 center-vh">
+                            <NativeBackBtn url="/networks" />
+                            <div>{{ pageTitle }}</div>
                         </div>
                         <div class="mt-1 fw-semibold fs-12 text-truncate" v-if="subTitle != ''">
                             {{ subTitle }}
@@ -178,7 +178,7 @@ const onSave = async () => {
 
                 <div class="form-floating mb-3">
                     <input 
-                        v-model="formData.name"
+                        v-model="formData.chainName"
                         type="text" 
                         class="form-control rounded" 
                         :autocapitalize="false"
@@ -192,7 +192,7 @@ const onSave = async () => {
 
                 <div class="form-floating mb-3">
                     <input 
-                        v-model="formData.rpc[0]"
+                        v-model="formData.rpcUrls[0]"
                         type="text" 
                         class="form-control rounded" 
                         :autocapitalize="false"
@@ -234,7 +234,7 @@ const onSave = async () => {
                 </div>
                 <div class="form-floating mb-3">
                     <input 
-                        v-model="formData.explorers[0]"
+                        v-model="formData.blockExplorerUrls[0]"
                         type="text" 
                         class="form-control rounded" 
                         id="explorer" 

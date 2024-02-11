@@ -12,10 +12,13 @@ import EventBus from '../../classes/EventBus';
 import { useNetworks } from '../../composables/useNetworks';
 
 const netCore = useNetworks()
-
 const { activeNetwork } = netCore
-const browserCore = useBrowser()
+
 const walletStore = useWalletStore()
+const { activeWallet } = walletStore
+
+const browserCore = useBrowser()
+
 const router = useRouter()
 const route = useRoute()
 const tabs = ref({})
@@ -43,16 +46,22 @@ onActivated(async () => {
         if(hide)  hideBrowser()
         else  showBrowser()
     })
+
+    EventBus.on("chainChanged", (netInfo)=>{
+        emitWeb3Events("chainChanged", "0x"+netInfo.chainId.toString(16))
+    })
+
+    EventBus.on("accountsChanged", (account)=>{
+        emitWeb3Events("accountsChanged", [account])
+    })
 })
 
 onDeactivated(() => {
     EventBus.on("hideBrowser")
+    EventBus.off("chainChanged")
+    EventBus.off("accountsChanged")
 })
 
-watch(activeNetwork, () => {
-    let chainIdHex = "0x"+activeNetwork.value.chainId.toString(16)
-    emitWeb3Events("chainChanged", chainIdHex)
-})
 
 const hideBrowser = async () => {
     isBrowserHidden.value = true
@@ -196,7 +205,6 @@ const handleWebviewEvents = async (tabId) => {
     })
 
     w.onMessage(async (dataObj) => {
-
         browserCore.processWebMessage({
             webview: w, 
             dataObj,

@@ -32,7 +32,6 @@ export const useWalletStore = defineStore('walletStore', () => {
 
     const $state = ref(defaultState); 
 
-
     const defaultWallet          = computed(()       =>    $state.value.defaultWallet )
     const wallets                = computed(()       =>    $state.value.wallets )
     const password               = computed(()       =>    $state.value.password )
@@ -113,6 +112,7 @@ export const useWalletStore = defineStore('walletStore', () => {
         let $s = $state.value
         $s.activeWalletAddr = addr 
         await DB.setItem(ACTIVE_WALLET_ADDR, addr)
+        EventBus.emit("accountsChanged", addr)
         return Status.success()
     }
 

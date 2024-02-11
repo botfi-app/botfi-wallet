@@ -74,7 +74,7 @@ export const useNetworks = () => {
             await DB.setItem(USER_NETWORKS, userNetworkInfo)
         }
 
-        console.log("userNetworkInfo===>", userNetworkInfo)
+        //console.log("userNetworkInfo===>", userNetworkInfo)
 
         $s.userNetworkInfo   = userNetworkInfo
         $s.userActiveNetwork = userNetworkInfo.networks[userNetworkInfo.default]
@@ -89,15 +89,21 @@ export const useNetworks = () => {
     }
 
     const setActiveNetwork = async (chainId) => {
+
+        console.log("chainId===>", chainId)
         
         let $s = $state.value;
         let walletCore = new Wallet()
 
         let userNeworkInfo = await getUserNetworks()
 
-        let netInfo = userNeworkInfo.networks[chainId]
+        console.log("userNeworkInfo===>", userNeworkInfo.networks)
 
-        //console.log("netInfo===>", netInfo)
+        let netInfo = userNeworkInfo.networks[chainId] || null
+
+        if(netInfo == null){
+            return Status.error("Network not found")
+        }
 
         /*let connectStatus = await walletCore.connect(netInfo)
 
@@ -120,7 +126,7 @@ export const useNetworks = () => {
         $s.userNetworkInfo = userNeworkInfo
         $s.userActiveNetwork =  netInfo
 
-        EventBus.emit("onNetworkChange", netInfo)
+        EventBus.emit("chainChanged", netInfo)
 
         return Status.success()
     }
@@ -170,6 +176,8 @@ export const useNetworks = () => {
         $s.userNetworkInfo = userNetworkInfo
         $s.userActiveNetwork =  userNetworkInfo.networks[userNetworkInfo.default]
 
+        EventBus.emit("chainChanged", $s.userActiveNetwork)
+
         return Status.successData(userNetworkInfo)
     }
 
@@ -215,6 +223,8 @@ export const useNetworks = () => {
         }
 
         await DB.setItem(USER_NETWORKS, userNeworkInfo)
+
+        //console.log("userNeworkInfo===>", userNeworkInfo)
 
         $s.userNetworkInfo = userNeworkInfo
 
@@ -262,21 +272,33 @@ export const useNetworks = () => {
                         .setCode(ErrorCodes.INVALID_NATIVE_CURRENCY_SYMBOL)
         }
 
-        let userNetwoks = await getUserNetworks()
+        let userNetworks = (await getUserNetworks()).networks || {}
 
-        if(chainId in userNetwoks) return Status.success()
+        //console.log("userNetworks===>", userNetworks)
 
-        //let walletCore = new Wallet()
+        if(chainId in userNetworks) return Status.success()
 
-        /*let connectStatus = await walletCore.ping(rpcUrls[0])
+        let walletCore = new Wallet()
+
+        let connectStatus = await walletCore.ping(rpcUrls[0])
 
         if(connectStatus.isError()) {
             return connectStatus
-        }*/
+        }
+
+        let iconUrls = netInfo.iconUrls || []
+
+        if(iconUrls.length == 0){
+            iconUrls.push(Utils.getTokenIconUrl(assetSymbol))
+        }
 
         netInfo["chainId"] = chainId
 
-        await saveNetwork(netInfo)
+        let resultStatus = await saveNetwork(netInfo)
+
+        //console.log("saveNetwork====>", resultStatus)
+
+        if(resultStatus.isError()) return resultStatus
 
         return Status.success()
     }

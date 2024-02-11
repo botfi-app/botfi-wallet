@@ -61,7 +61,7 @@ export default {
                 chainId:    1,
                 icon: "/images/crypto/eth.svg"
             },
-            rpcUrls: ["https://arb1.arbitrum.io/rpcUrls"],
+            rpcUrls: ["https://arb1.arbitrum.io/rpc"],
             blockExplorerUrls: [ "https://arbiscan.io/"],
             icon: "/images/crypto/arb.svg"
         },
@@ -79,7 +79,7 @@ export default {
                 icon: "/images/crypto/eth.svg"
             },
             rpcUrls: ["https://mainnet.era.zksync.io"],
-            blockExplorerUrls: [ "https://blockExplorerUrls.zksync.io/"],
+            blockExplorerUrls: [ "https://era.zksync.network/" ],
             icon: "/images/crypto/zksync.svg"
         },
 
@@ -96,7 +96,7 @@ export default {
                 icon: "/images/crypto/eth.svg"
             },
             rpcUrls: ["https://mainnet.optimism.io"],
-            blockExplorerUrls: [ "https://blockExplorerUrls.optimism.io"],
+            blockExplorerUrls: [ "https://optimistic.etherscan.io/"],
             icon: "/images/crypto/op.svg"
         },
 
@@ -129,7 +129,7 @@ export default {
                 chainId:    1,
                 icon: "/images/crypto/eth.svg"
             },
-            rpcUrls: ["https://rpcUrls.linea.build"],
+            rpcUrls: ["https://rpc.linea.build"],
             blockExplorerUrls: [ "https://lineascan.build/"],
             icon: "/images/crypto/linea.svg"
         },
@@ -159,8 +159,8 @@ export default {
                 symbol:     "VLX",
                 decimals:   18
             },
-            rpcUrls: ["https://evmexplorer.velas.com/rpcUrls"],
-            blockExplorerUrls: [ "https://evmexplorer.velas.com/rpcUrls"],
+            rpcUrls: ["https://evmexplorer.velas.com/rpc"],
+            blockExplorerUrls: ["https://evmexplorer.velas.com/"],
             icon: "/images/crypto/avax.svg"
         },
 
@@ -204,7 +204,7 @@ export default {
                 symbol:     "GNO",
                 decimals:   18
             },
-            rpcUrls: ["https://rpcUrls.gnosischain.com"],
+            rpcUrls: ["https://rpc.gnosischain.com"],
             blockExplorerUrls: ["https://gnosisscan.io"],
             icon: "/images/crypto/gno.svg"
         },
@@ -219,7 +219,7 @@ export default {
                 symbol:     "GLMR",
                 decimals:   18
             },
-            rpcUrls: ["https://rpcUrls.api.moonbeam.network"],
+            rpcUrls: ["https://rpc.api.moonbeam.network"],
             blockExplorerUrls: ["https://moonbeam.moonscan.io/"],
             icon: "/images/crypto/glmr.svg"
         },
@@ -296,7 +296,7 @@ export default {
                 chainId:    1,
                 icon: "/images/crypto/eth.svg"
             },
-            rpcUrls: ["https://zkevm-rpcUrls.com"],
+            rpcUrls: ["https://zkevm-rpc.com"],
             blockExplorerUrls: [ "https://zkevm.polygonscan.com/"],
             icon: "/images/crypto/pols.svg"
         },
