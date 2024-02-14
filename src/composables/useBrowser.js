@@ -18,16 +18,15 @@ import { usePermission } from "./usePermission"
 import { useWalletStore } from "../store/walletStore"
 import { useNetworks } from "./useNetworks"
 import EventBus from "../classes/EventBus"
+import { useTx } from "./useTx"
 
-const $state = ref({
-
-})
 
 export const useBrowser = () => {
 
     const permission  = usePermission()
     const walletStore = useWalletStore()
     const netCore     = useNetworks()
+    const txCore      = useTx()
 
     const getInjectScript = (tabId) => {
         return injectScript(tabId)
@@ -50,7 +49,9 @@ export const useBrowser = () => {
 
     const processPermissionText = async ({method, text, origin, params}) => {
         
-        text = text.replace("{{WEBSITE}}", `<strong>${origin}</strong>`)
+        let parsedDomain = new URL(origin)
+
+        text = text.replace("{{WEBSITE}}", `<strong>${parsedDomain.hostname}</strong>`)
 
         if(["wallet_addEthereumChain"].includes(method)){
             let paramObj = params[0]
@@ -69,7 +70,11 @@ export const useBrowser = () => {
                            .replace("{{CHAIN_ID}}", chainInfo.id)
             }
             
+        } else if(method == "eth_sendTransaction"){
+
+             
         }
+       
 
         //console.log("text===>", text)
 
@@ -121,6 +126,8 @@ export const useBrowser = () => {
                 return Status.error("Request method not found")
                             .setCode(ErrorCodes.methodNotFound) 
             }
+
+            let parsedTxData = null
             
             console.log("permissionModal====>", permissionModal)
             console.log("rpcMethodInfo===>", rpcMethodInfo)
@@ -140,7 +147,8 @@ export const useBrowser = () => {
                     return Status.error("Network doesnt exist, kindly add it first")
                             .setCode(ErrorCodes.CHAIN_DOESNT_EXIST)
                 }
-            }
+            } 
+        
 
             if(rpcMethodInfo.hasPermission){
                 
@@ -150,18 +158,21 @@ export const useBrowser = () => {
 
                     let text = rpcMethodInfo.template || ""
 
-                    text = await processPermissionText({method, text, origin, params})
+                    text = await processPermissionText({method, text, origin, txParams: params})
 
                     console.log("text", text)
 
                     let warning = rpcMethodInfo.warning || ""
+                    let confirmBtn = rpcMethodInfo.confirmBtn || "Confirm"
 
-                    let pResult = await permissionModal.show({
-                                    title: "Permission",
-                                    method,
-                                    text,
-                                    warning
-                                })
+                    let pResult =   await permissionModal.show({
+                                        title: "Permission",
+                                        method,
+                                        text,
+                                        warning,
+                                        origin,
+                                        confirmBtn
+                                    })
 
                     //console.log("pResult====>", pResult)
 
@@ -178,8 +189,8 @@ export const useBrowser = () => {
 
                 let resultStatus =  await netCore.wallet_addEthereumChain(params)
 
-                console.log("params=======>", params)
-                console.log("wallet_addEthereumChain===>", resultStatus)
+               // console.log("params=======>", params)
+               // console.log("wallet_addEthereumChain===>", resultStatus)
 
                 if(!resultStatus.isError()){
 

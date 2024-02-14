@@ -11,17 +11,20 @@ export default {
             <div class="my-1">Chain ID: {{CHAIN_ID}}</div>
         `,
         askAlways: true,
+        confirmBtn: 'Add Network'
     },
 
     wallet_switchEthereumChain: { 
         hasPermission: true,
         template: "{{WEBSITE}} wants to switch your current chain to: {{CHAIN_NAME}} ({{CHAIN_ID}})",
+        confirmBtn: 'Switch Network'
     },
 
     wallet_watchAsset: {
         hasPermission: true,
         template: "{{WEBSITE}} wants to add '{{ASSET_SYMBOL}}' to your assets",
-        askAlways: true
+        askAlways: true,
+        confirmBtn: 'Add Asset'
     },
 
     /*wallet_scanQRCode: {
@@ -33,7 +36,8 @@ export default {
     eth_requestAccounts: {
         hasPermission: true,
         template: "{{WEBSITE}} wants to connect to your wallet",
-        askAlways: false
+        askAlways: false,
+        confirmBtn: 'Connect'
     },
 
     eth_accounts: {
@@ -44,23 +48,28 @@ export default {
         hasPermission: true,
         askAlways: true,
         template: "",
+        confirmBtn: 'Sign'
     },
 
     personal_sign: {
         hasPermission: true,
         askAlways: true,
+        confirmBtn: 'Sign'
     },
 
     eth_sendTransaction: {
         hasPermission: true,
         askAlways: true,
-        template: ""
+        template: "{{WEBSITE}} wants to execute a transaction with your wallet",
+        warning: "This operation may cost you money, only allow trusted websites."
     },
 
     eth_sendRawTransaction: {
         hasPermission: true,
         askAlways: true,
-        template: ""
+        template: "",
+        template: "{{WEBSITE}} wants to execute a transaction with your wallet",
+        warning: "This operation may cost you money, only allow trusted websites."
     },
 
     web3_clientVersion: {

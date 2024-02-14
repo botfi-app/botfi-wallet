@@ -16,7 +16,8 @@ import {
     isAddress,
     ZeroAddress,
     AbiCoder,
-    Network
+    Network,
+    Transaction
 } from "ethers"
 
 //import { Buffer } from "buffer/";
@@ -932,7 +933,7 @@ export default class Wallet {
             if(_evtName == eventNameOrSig || 
                 _evtSig == eventNameOrSig || 
                 topicsArray.includes(eventNameOrSig)    ||
-                topicsArray.includes(ethersUtils.id(eventNameOrSig))
+                topicsArray.includes(ethers.id(eventNameOrSig))
             ){
                 _selectedEvt = eventObj;
                 break;
@@ -1021,9 +1022,20 @@ export default class Wallet {
                 throw err
             }
 
-           await  this.provider.call(params[0])
-           return this.provider.send(method, params)
+            let txDataObj = params[0]
 
+            if(method == "eth_sendRawTransaction"){
+                txDataObj = Transaction.from(params[0])
+            }
+
+            // test tx first
+            await this.provider.call(txDataObj)
+            
+            //let tx = await this.signer.sendTransaction(txDataObj)
+            
+            //return tx.hash;
+
+            new Error("Tx Failed")
         } catch(e){
             throw e;
         }

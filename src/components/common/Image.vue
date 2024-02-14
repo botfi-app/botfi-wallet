@@ -22,8 +22,6 @@ onBeforeMount(() => {
 
     let src = (attrs.src || "").trim()
 
-   // console.log("props====>", props)
-
     if(src == "") {
         hasImgError.value = true
     }
@@ -51,7 +49,6 @@ const onImgLoad = () => {
 
 const onImgLoadError = () => {
     hasImgError.value = true 
-    //console.log("hasImgError.value===>", hasImgError.value)
 }
 </script>
 <template>
@@ -77,7 +74,6 @@ const onImgLoadError = () => {
             ref="imgRef" 
             @load="onImgLoad"
             @error="onImgLoadError"
-            style="background: rgba(255,255,255, 0.6)"
         />
     </template>
 </template>

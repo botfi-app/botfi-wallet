@@ -595,7 +595,8 @@ export const useTokens = () => {
         let inputs = [
             {target: contract, abi: erc20Abi, label: "symbol", method: "symbol", args: [] },
             {target: contract, abi: erc20Abi, label: "name", method: "name", args: [] },
-            {target: contract, abi: erc20Abi, label: "decimals", method: "decimals", args: [] }
+            {target: contract, abi: erc20Abi, label: "decimals", method: "decimals", args: [] },
+           // {target: contract, abi: erc20Abi, label: "totalSupply", method: "totalSupply", args: [] }
         ]
 
         if(wallet != null && Utils.isAddress(wallet)){

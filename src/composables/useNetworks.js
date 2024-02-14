@@ -90,14 +90,14 @@ export const useNetworks = () => {
 
     const setActiveNetwork = async (chainId) => {
 
-        console.log("chainId===>", chainId)
+        //console.log("chainId===>", chainId)
         
         let $s = $state.value;
         let walletCore = new Wallet()
 
         let userNeworkInfo = await getUserNetworks()
 
-        console.log("userNeworkInfo===>", userNeworkInfo.networks)
+        //console.log("userNeworkInfo===>", userNeworkInfo.networks)
 
         let netInfo = userNeworkInfo.networks[chainId] || null
 

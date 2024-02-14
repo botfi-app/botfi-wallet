@@ -2,39 +2,74 @@
 import { nextTick, ref, watch } from 'vue';
 import { Modal as bsModal } from 'bootstrap';
 import { usePermission } from "../../composables/usePermission"
+import { useWalletStore } from '../../store/walletStore';
+import Utils from '../../classes/Utils';
+import { useNetworks } from '../../composables/useNetworks';
+//const permManager = usePermission()
 
-const permManager = usePermission()
+const walletStore = useWalletStore()
+const netCore = useNetworks()
+const { isNetReady, activeNetwork } = netCore
 
+const isLoading = ref(false)
 const id = ref("permission_modal")
 const title = ref("")
 const text  = ref("")
 const warningText = ref("")
 const extraParams = ref([])
 const method = ref(null)
+const origin = ref("")
+
+const activeWalletAddr = ref("")
 
 const emits = defineEmits(["show", "hide"])
 
+const errorMsg = ref("")
 const isOpened = ref(null)
 const isConfirmed = ref(false)
+const isReady = ref(false)
+const confirmBtn = ref("")
+const txParams = ref()
+
+const templateParams = ref([])
 
 
-const  show = async ({
-    title:          _title          = "",
-    text:           _text           = "",
-    extraParams:    _extraParams    = [],
-    warningText:    _warningText    = "",
-    method:         _method         = ""
-}) => {
+const initialize = async () => {
 
-    title.value           = _title;
-    text.value            = _text;
-    extraParams.value     = _extraParams;
-    warningText.value     = _warningText
-    method.value          = _method
+    errorMsg.value = ""
 
+    activeWalletAddr.value = (await walletStore.getActiveWalletInfo()).address;
+
+    if(!["eth_sendTransaction"].includes(method.value)) return;
+
+    let txDataObj = txParams.value[0] ||  null
+
+    //lets fetch the tx data 
+    if(txDataObj == null){
+        return errorMsg.value = "Transaction parameters required"
+    }
+
+    
+}
+
+
+const  show = async (opts={}) => {
+
+    isLoading.value = true 
+
+    title.value           = opts.title || "";
+    text.value            = opts.text || "";
+    extraParams.value     = opts.extraParams || [];
+    warningText.value     = opts.warningText || "";
+    method.value          = opts.method || ""
+    txParams.value        = opts.txParams || []  
+    origin.value          = opts.origin || ""    
+    confirmBtn.value      = opts.confrimBtn || "Confirm"
+
+   
     bsModal.getInstance("#"+id.value).show()
 
-    isOpened.value = true
+    await initialize()
 
     return (new Promise((resolve, reject) => {
         let intval = setInterval(() => {
@@ -72,6 +107,7 @@ const onShow = () => {
 
 const onHide = () => {
     isOpened.value = false 
+    isReady.value = false
     emits('hide')
 }
 
@@ -106,10 +142,11 @@ const handleRejectBtn = () => {
                     />
                 </div>
                 <div class="my-2  my-3" v-if="title != ''">
-                    <h4> {{ title }}</h4>
+                    <h2> {{ title }}</h2>
+                    <div class="fs-12 muted">{{ origin }}</div>
                 </div>
 
-                <p v-if="text != ''" 
+                <h4 v-if="text != ''" 
                     class="my-2 mt-4"
                     v-html="text"
                 />
@@ -119,21 +156,38 @@ const handleRejectBtn = () => {
                     v-html="warningText"
                 />
 
-                <div class="mt-4 center-vh">
-                    <div class="px-1">
-                        <button class="btn btn-success p-3 w-full rounded-lg"
-                            @click.prevent="handleApproveBtn"
-                        >
-                            Approve
-                        </button>
+                <div class="my-3" v-if="isNetReady">
+                    <div class="fs-12 fw-bold muted text-start mb-1">Network</div>
+                    <div class="net-select-btn p-3 text-start rounded-lg">
+                        <div class="d-flex align-items-center">
+                            <Image 
+                                :width="24" 
+                                :height="24" 
+                                class="rounded-circle shadow"
+                                :src="activeNetwork.icon || ''" 
+                                :placeholder="activeNetwork.chainName"
+                            />
+                            <div class="ps-2 fw-semibold">
+                                {{ activeNetwork.chainName }}
+                            </div>
+                        </div>
+                        <div class="fs-12 muted">
+                            {{ Utils.maskAddress(activeWalletAddr, 8, 12) }}
+                        </div>
                     </div>
-                    <div class="px-1">
-                        <button class="btn btn-danger p-3 w-full rounded-lg"
-                            @click.prevent="handleRejectBtn"
-                        >
-                            Reject
-                        </button>
-                    </div>
+                </div>
+
+                <div class="mt-4 center-vh w-full">
+                    <button class="btn btn-success p-3 w-full me-2 rounded-lg"
+                        @click.prevent="handleApproveBtn"
+                    >
+                        {{ confirmBtn }}
+                    </button>
+                    <button class="btn btn-danger p-3 w-full rounded-lg"
+                        @click.prevent="handleRejectBtn"
+                    >
+                        Cancel
+                    </button>
                 </div>
             </div>
         </template>
