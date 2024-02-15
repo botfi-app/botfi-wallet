@@ -13,7 +13,8 @@ const props = defineProps({
     title:    { type: String, default: ""},
     hasHeader: { type: Boolean, default: true },
     hasFooter: { type: Boolean, default: true },
-    size: { type: String, default: 'modal-md' }
+    size: { type: String, default: 'modal-md' },
+    modalOpts: { type: Object, default: {} }
 })
 
 let _modal = null
@@ -27,7 +28,7 @@ const initModal = () => {
 
     let mElement = modalEl.value;
    
-    _modal = new bsModal(mElement)
+    _modal = new bsModal(mElement, props.modalOpts)
 
     mElement.addEventListener("shown.bs.modal", () => {
         $emit("show", mElement, _modal)
@@ -55,7 +56,7 @@ const cleanupModal = () => {
 }
 </script>
 <template>
-   <div class="modal" :id="props.id" ref="modalEl" tabindex="-1">
+   <div class="modal" :id="props.id" ref="modalEl" v-bind="props.modalAttrs" tabindex="-1">
         <div :class="`modal-dialog ${props.size} px-3`">
             <div class="modal-content">
                 <div class="modal-header" v-if="hasHeader">

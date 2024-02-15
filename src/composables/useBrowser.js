@@ -158,7 +158,7 @@ export const useBrowser = () => {
 
                     let text = rpcMethodInfo.template || ""
 
-                    text = await processPermissionText({method, text, origin, txParams: params})
+                    text = await processPermissionText({method, text, origin, params})
 
                     console.log("text", text)
 
@@ -171,7 +171,8 @@ export const useBrowser = () => {
                                         text,
                                         warning,
                                         origin,
-                                        confirmBtn
+                                        confirmBtn,
+                                        txParams: params
                                     })
 
                     //console.log("pResult====>", pResult)

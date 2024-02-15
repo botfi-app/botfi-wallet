@@ -8,12 +8,7 @@
     <template v-if="props.isLoading">
         <div class="parent d-flex align-items-center justify-content-center py-4">
             <div class="center-vh text-center">
-                <div>
-                    <div class="loader loader-sm"></div>
-                    <div v-if="props.loadingText!=''" class="text-center my-1">
-                        {{ props.loadingText }}
-                    </div>
-                </div>
+                <BotFiLoader :text="props.loadingText" size="loader-sm" />
             </div>
         </div>
     </template>
