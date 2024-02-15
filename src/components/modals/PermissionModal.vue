@@ -5,8 +5,12 @@ import { usePermission } from "../../composables/usePermission"
 import { useWalletStore } from '../../store/walletStore';
 import Utils from '../../classes/Utils';
 import { useNetworks } from '../../composables/useNetworks';
-//const permManager = usePermission()
+import { useTx } from '../../composables/useTx';
+import { useTokens } from '../../composables/useTokens';
 
+
+const tokensCore = useTokens()
+const txCore = useTx()
 const walletStore = useWalletStore()
 const netCore = useNetworks()
 const { isNetReady, activeNetwork } = netCore
@@ -38,27 +42,37 @@ const initialize = async () => {
 
     try {
 
+        //console.log("txParams.value===>", txParams.value)
+
         isLoading.value = true
 
         errorMsg.value = ""
 
         activeWalletAddr.value = (await walletStore.getActiveWalletInfo()).address;
 
-        if(!["eth_sendTransaction"].includes(method.value)) return;
 
-        let txDataObj = txParams.value[0] ||  null
+        if(!["eth_sendTransaction"].includes(method.value)){
 
-        //lets fetch the tx data 
-        if(txDataObj == null){
-            return errorMsg.value = "Transaction parameters required"
+            // lets get user native balance 
+            nativeBalance.value = await tokensCore.
+
+
+            let txDataObj = txParams.value[0] ||  null
+
+            //lets fetch the tx data 
+            if(txDataObj == null){
+                return errorMsg.value = "Transaction parameters required"
+            }
+
+            parsedTxData = await txCore.decodeTxData(txDataObj)
+
         }
 
-        parsedTxData = await txCore.decodeTxData(txParamObj)
-
     } catch(e){
+        Utils.logError("PermissionModal#initialize:", e)
         errorMsg.value = e.message;
     } finally {
-       // isLoading.value = false
+        isLoading.value = false
     }
 }
 
@@ -164,8 +178,8 @@ const handleRejectBtn = () => {
                         v-html="text"
                     />
 
-                    <p v-if="errorMsg != ''" class='p-2 text-danger'>
-                        <div class="fw-semibold text-start">Error:</div>
+                    <p v-if="errorMsg != ''" class='p-2 text-danger text-start'>
+                        <div class="fw-semibold">Error:</div>
                         {{  errorMsg }}
                     </p>
 
