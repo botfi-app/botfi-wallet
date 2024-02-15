@@ -25,6 +25,7 @@ const method = ref(null)
 const origin = ref("")
 
 const activeWalletAddr = ref("")
+const nativeTokenInfo = ref({})
 
 const emits = defineEmits(["show", "hide"])
 
@@ -46,16 +47,19 @@ const initialize = async () => {
 
         isLoading.value = true
 
+        isReady.value = false
+
         errorMsg.value = ""
 
         activeWalletAddr.value = (await walletStore.getActiveWalletInfo()).address;
 
 
-        if(!["eth_sendTransaction"].includes(method.value)){
+        if(["eth_sendTransaction"].includes(method.value)){
 
             // lets get user native balance 
-            nativeBalance.value = await tokensCore.
+            nativeTokenInfo.value = await tokensCore.getNativeToken()
 
+            console.log("nativeTokenInfo.value===>", nativeTokenInfo.value)
 
             let txDataObj = txParams.value[0] ||  null
 
@@ -64,15 +68,24 @@ const initialize = async () => {
                 return errorMsg.value = "Transaction parameters required"
             }
 
-            parsedTxData = await txCore.decodeTxData(txDataObj)
+            let _data = await txCore.decodeTxData(txDataObj)
 
-        }
+            let infoText = _data.infoText || ""
+            let warning = _data.warningText || ""
+
+            if(infoText != ""){
+                
+            }
+
+            console.log("parsedTxData.value====>", _data)
+        } //end if eth_sendTransaction
 
     } catch(e){
         Utils.logError("PermissionModal#initialize:", e)
         errorMsg.value = e.message;
     } finally {
         isLoading.value = false
+        isReady.value = true
     }
 }
 
@@ -150,8 +163,8 @@ const handleRejectBtn = () => {
         :id="id"
         title=""
         :has-header="false"
-        :has-footer="false"
-        size="modal-lg modal-dialog-centered w-100 perm-modal"
+        :has-footer="true"
+        size="modal-lg modal-dialog-scrollable modal-dialog-centered w-100 perm-modal"
         :modalOpts="{ backdrop: 'static', keyboard: false }"
         @show="onShow"
         @hide="onHide"
@@ -173,7 +186,7 @@ const handleRejectBtn = () => {
                         <div class="fs-12 muted">{{ origin }}</div>
                     </div>
 
-                    <h4 v-if="text != ''" 
+                    <div v-if="text != ''" 
                         class="my-2 mt-4"
                         v-html="text"
                     />
@@ -211,21 +224,22 @@ const handleRejectBtn = () => {
                         />
                     </div>
                 </LoadingView>
-
-                <div class="mt-4 center-vh w-full">
-                    <button class="btn btn-danger p-3 w-full rounded-lg"
-                        @click.prevent="handleRejectBtn"
-                    >
-                        Cancel
-                    </button>
-                    <button v-if="errorMsg == '' && !isLoading"
-                        class="btn btn-success p-3 w-full me-2 rounded-lg"
-                        @click.prevent="handleApproveBtn"
-                    >
-                        {{ confirmBtn }}
-                    </button>
-                    
-                </div>
+            </div>
+        </template>
+        <template #footer>
+            <div class="mt-4 center-vh w-full">
+                <button class="btn btn-danger p-3 w-full rounded-lg me-2"
+                    @click.prevent="handleRejectBtn"
+                >
+                    Cancel
+                </button>
+                <button v-if="errorMsg == '' && !isLoading && isReady"
+                    class="btn btn-success p-3 w-full rounded-lg"
+                    @click.prevent="handleApproveBtn"
+                >
+                    {{ confirmBtn }}
+                </button>
+                
             </div>
         </template>
     </Modal>

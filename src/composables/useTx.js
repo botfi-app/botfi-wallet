@@ -41,7 +41,7 @@ export const useTx = () => {
 
             //console.log("decoded====>", decoded)
 
-            let methodName = decoded.name;
+            let methodName = methodInfo.name;
 
             let contractAddr = txInfo.to;
             let tokenInfo = null;
@@ -82,7 +82,13 @@ export const useTx = () => {
                 methodArgs.push(argData)
             }
 
-            return { methodName,  methodArgs, tokenInfo }
+            return { 
+                    methodName,  
+                    methodArgs, 
+                    tokenInfo, 
+                    infoText: methodInfo.text || "", 
+                    warningText: methodInfo.warning || ""
+            }
 
         } catch(e){
             Utils.logError("useTx#decodeTxData:", e)
