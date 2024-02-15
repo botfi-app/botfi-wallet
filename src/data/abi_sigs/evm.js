@@ -26,7 +26,7 @@ export default {
         name:   "approve",
         params: ["spender", "amount"],
         text:   "{{WEBSITE}} requires your approval to spend your tokens",
-        warning: "Approving this operation grants the spender permission to transfer or withdraw your assets."
+        warning: "Approving this operation grants the spender permission to transfer/withdraw your assets."
     },
 
     "0xb88d4fde": {

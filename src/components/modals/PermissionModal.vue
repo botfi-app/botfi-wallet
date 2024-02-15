@@ -7,7 +7,7 @@ import Utils from '../../classes/Utils';
 import { useNetworks } from '../../composables/useNetworks';
 import { useTx } from '../../composables/useTx';
 import { useTokens } from '../../composables/useTokens';
-
+import { formatUnits } from "ethers"
 
 const tokensCore = useTokens()
 const txCore = useTx()
@@ -37,7 +37,10 @@ const confirmBtn = ref("")
 const txParams = ref()
 
 const decodedContractInfo = ref([])
-const parsedTxData = ref(null)
+//const parsedTxData = ref(null)
+
+const txValue = ref(null)
+const txValueText = ref("")
 
 const initialize = async () => {
 
@@ -55,17 +58,27 @@ const initialize = async () => {
 
 
         if(["eth_sendTransaction"].includes(method.value)){
-
+            
             // lets get user native balance 
-            nativeTokenInfo.value = await tokensCore.getNativeToken()
+            let nToken = await tokensCore.getNativeToken()
+            nativeTokenInfo.value = nToken;
 
-            console.log("nativeTokenInfo.value===>", nativeTokenInfo.value)
+            //console.log("nativeTokenInfo.value===>", nativeTokenInfo.value)
 
             let txDataObj = txParams.value[0] ||  null
 
             //lets fetch the tx data 
             if(txDataObj == null){
                 return errorMsg.value = "Transaction parameters required"
+            }
+
+            txValue.value = txDataObj.value || null 
+
+            //console.log("txValue.value===>", txValue.value)
+
+            if(!["0x", "0x0", null].includes(txValue.value)){
+                let _txValueText = Utils.formatCrypto(formatUnits(txValue.value, nToken.decimals)) 
+                txValueText.value = `${_txValueText} ${nToken.symbol.toUpperCase()}`
             }
 
             let _data = await txCore.decodeTxData(txDataObj)
@@ -84,9 +97,20 @@ const initialize = async () => {
 
             if(warning != "") warningText.value = warning
 
-            console.log("parsedTxData.value====>", _data)
+            let tokenInfo = _data.tokenInfo || null
 
-            let methodInfoArr = []
+    
+            let methodInfoArr = [{
+                name: "contract",
+                value: txDataObj.to
+            }]
+
+            if(tokenInfo != null){
+                methodInfoArr.push({
+                    name: "Token", 
+                    value: `${tokenInfo.name} (${tokenInfo.symbol.toUpperCase()})`
+                })
+            }
 
             methodInfoArr.push({
                 name:  "Method",
@@ -99,8 +123,8 @@ const initialize = async () => {
 
                 let argValueStr = item.argValue.toString()
 
-                if("formattedArgValue" in item){
-                    argValueStr = item.formattedArgValue
+                if("argValueFormatted" in item){
+                    argValueStr = item.argValueFormatted
                 }
 
                 methodInfoArr.push({
@@ -109,6 +133,7 @@ const initialize = async () => {
                 })
             })
 
+      
             decodedContractInfo.value = methodInfoArr
         } //end if eth_sendTransaction
 
@@ -218,6 +243,10 @@ const handleRejectBtn = () => {
                         <div class="fs-12 muted">{{ origin }}</div>
                     </div>
 
+                    <div v-if="txValueText != ''" class="text-center text-primary">
+                        <h2 class="text-break">-{{ txValueText }}</h2>
+                    </div>
+
                     <div v-if="text != ''" 
                         class="my-2 mt-4"
                         v-html="text"
@@ -231,11 +260,18 @@ const handleRejectBtn = () => {
                     <div v-else>
 
                         <template v-if="warningText != ''">
-                            <div class="d-flex text-start">
+                            <div class="d-flex text-start mt-4">
                                 <div><Icon name="typcn:warning-outline" class="text-danger" :size="24"  /></div>
                                 <div class="fs-12 ms-2 text-danger" v-html="warningText"></div>
                             </div>
                         </template>
+
+                        <div class="d-flex text-start my-2" v-if="txValueText != ''">
+                            <div><Icon name="typcn:warning-outline" class="text-warning" :size="24"  /></div>
+                            <div class="fs-12 ms-2 text-warning text-break">
+                                This transaction will transfer/withdraw {{ txValueText }} from your wallet
+                            </div>
+                        </div>
 
                         <div class="my-3" v-if="isNetReady">
                             <div class="fs-12 fw-bold muted text-start mb-1">Network</div>
@@ -270,8 +306,11 @@ const handleRejectBtn = () => {
                                             <div class="fs-12 fw-medium text-capitalize pe-4">
                                                 {{ item.name }}:
                                             </div>
-                                            <div class="fs-12 fw-medium text-break text-end">
-                                                {{ item.value }}
+                                            <div class="fs-12 fw-medium text-break text-end d-flex">
+                                                <div class="" v-if="Utils.isAddress(item.value)">
+                                                    <CopyBtn :text="item.value" btnClasses="text-warning" />
+                                                </div>
+                                                <div>{{ item.value }}</div>
                                             </div>
                                         </div>
                                     </template>
