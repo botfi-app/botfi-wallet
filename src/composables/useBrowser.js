@@ -156,6 +156,8 @@ export const useBrowser = () => {
                     rpcMethodInfo.askAlways == true
                 ){
 
+                    EventBus.emit("hideBrowser", true)
+
                     let text = rpcMethodInfo.template || ""
 
                     text = await processPermissionText({method, text, origin, params})
@@ -175,7 +177,7 @@ export const useBrowser = () => {
                                         txParams: params
                                     })
 
-                    //console.log("pResult====>", pResult)
+                    EventBus.emit("hideBrowser", false)
 
                     if(!pResult.isConfirmed){
                         return Status.error("User rejected operation")

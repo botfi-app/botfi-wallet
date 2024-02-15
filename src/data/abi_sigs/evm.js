@@ -25,8 +25,8 @@ export default {
         abi:    "approve(address,uint256)",
         name:   "approve",
         params: ["spender", "amount"],
-        text:   "{{WEBSITE}} needs your approval for token spend",
-        warning: "Approving this operation will allow the spender to transfer or withdraw your assets"
+        text:   "{{WEBSITE}} requires your approval to spend your tokens",
+        warning: "Approving this operation grants the spender permission to transfer or withdraw your assets."
     },
 
     "0xb88d4fde": {

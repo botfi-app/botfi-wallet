@@ -14,6 +14,7 @@ const props = defineProps({
     hasHeader: { type: Boolean, default: true },
     hasFooter: { type: Boolean, default: true },
     size: { type: String, default: 'modal-md' },
+    dialogClass:  { type: String, default: '' },
     modalOpts: { type: Object, default: {} }
 })
 
@@ -56,8 +57,8 @@ const cleanupModal = () => {
 }
 </script>
 <template>
-   <div class="modal" :id="props.id" ref="modalEl" v-bind="props.modalAttrs" tabindex="-1">
-        <div :class="`modal-dialog ${props.size} px-3`">
+   <div class="modal" :id="props.id" ref="modalEl"  tabindex="-1">
+        <div :class="`modal-dialog ${props.size} ${props.dialogClass} px-3`">
             <div class="modal-content">
                 <div class="modal-header" v-if="hasHeader">
                     <slot name="header">

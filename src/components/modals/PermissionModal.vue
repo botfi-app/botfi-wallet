@@ -36,7 +36,7 @@ const isReady = ref(false)
 const confirmBtn = ref("")
 const txParams = ref()
 
-const templateParams = ref([])
+const decodedContractInfo = ref([])
 const parsedTxData = ref(null)
 
 const initialize = async () => {
@@ -70,14 +70,46 @@ const initialize = async () => {
 
             let _data = await txCore.decodeTxData(txDataObj)
 
+            if(_data == null) return;
+
             let infoText = _data.infoText || ""
             let warning = _data.warningText || ""
 
-            if(infoText != ""){
-                
+            let website = (new URL(origin.value)).hostname
+
+            if(infoText != "") {
+                infoText = infoText.replace("{{WEBSITE}}", `<strong>${website}</strong>`)
+                text.value = infoText
             }
 
+            if(warning != "") warningText.value = warning
+
             console.log("parsedTxData.value====>", _data)
+
+            let methodInfoArr = []
+
+            methodInfoArr.push({
+                name:  "Method",
+                value: _data.methodName
+            })
+
+            let methodArgs = _data.methodArgs || []
+
+            methodArgs.forEach(item => {
+
+                let argValueStr = item.argValue.toString()
+
+                if("formattedArgValue" in item){
+                    argValueStr = item.formattedArgValue
+                }
+
+                methodInfoArr.push({
+                    name:  item.argName, 
+                    value: argValueStr
+                })
+            })
+
+            decodedContractInfo.value = methodInfoArr
         } //end if eth_sendTransaction
 
     } catch(e){
@@ -164,13 +196,13 @@ const handleRejectBtn = () => {
         title=""
         :has-header="false"
         :has-footer="true"
-        size="modal-lg modal-dialog-scrollable modal-dialog-centered w-100 perm-modal"
+        dialogClass="modal-lg modal-dialog-scrollable modal-dialog-centered  perm-modal"
         :modalOpts="{ backdrop: 'static', keyboard: false }"
         @show="onShow"
         @hide="onHide"
     >   
         <template #body>
-            <div class="p-4 text-center">
+            <div class="py-4 px-3 text-center">
                 <LoadingView :isLoading="isLoading" loadingText="Loading..">
 
                     <div class="center-vh">
@@ -197,6 +229,14 @@ const handleRejectBtn = () => {
                     </p>
 
                     <div v-else>
+
+                        <template v-if="warningText != ''">
+                            <div class="d-flex text-start">
+                                <div><Icon name="typcn:warning-outline" class="text-danger" :size="24"  /></div>
+                                <div class="fs-12 ms-2 text-danger" v-html="warningText"></div>
+                            </div>
+                        </template>
+
                         <div class="my-3" v-if="isNetReady">
                             <div class="fs-12 fw-bold muted text-start mb-1">Network</div>
                             <div class="net-select-btn p-3 text-start rounded-lg">
@@ -218,10 +258,27 @@ const handleRejectBtn = () => {
                             </div>
                         </div>
 
-                        <p v-if="warningText != ''" 
-                            class="text-warning"
-                            v-html="warningText"
-                        />
+                    
+                        <template v-if="decodedContractInfo.length > 0">
+                            <div>
+                                <div class="fs-12 fw-bold muted text-start mb-1 mt-4">
+                                    Contract Info
+                                </div>
+                                <div class="px-3 py-2 bg-darken-5 rounded-lg">
+                                    <template v-for="item in decodedContractInfo">
+                                        <div class="d-flex justify-content-between align-items-start my-3">
+                                            <div class="fs-12 fw-medium text-capitalize pe-4">
+                                                {{ item.name }}:
+                                            </div>
+                                            <div class="fs-12 fw-medium text-break text-end">
+                                                {{ item.value }}
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div> 
+                        </template>
+
                     </div>
                 </LoadingView>
             </div>
@@ -245,5 +302,10 @@ const handleRejectBtn = () => {
     </Modal>
 </template>
 <style lang="scss">
-
+    .perm-modal {
+        width: 100% !important;
+        margin: 10px 0px; 
+        padding: 0px;
+        .modal-content { margin: 0px !important; padding: 0px !important; }
+    }
 </style>
