@@ -7,7 +7,7 @@ import Utils from '../../classes/Utils';
 import { useNetworks } from '../../composables/useNetworks';
 import { useTx } from '../../composables/useTx';
 import { useTokens } from '../../composables/useTokens';
-import { Wallet, formatUnits, getUint, getBigInt, parseUnits } from "ethers"
+import { Wallet, formatUnits, getUint, getBigInt, parseUnits, formatEther } from "ethers"
 
 const tokensCore = useTokens()
 const txCore = useTx()
@@ -50,17 +50,19 @@ const txValueText = ref("")
 
 const  hasInsufficientNativeToken = ref(false)
 
+const defaultGasLimit = ref(null)
 const gasPriceFromOrigin = ref(null)
 const txGasLimit = ref(null)
+
 const txMaxFeePerGas = ref(null)
 const txPriorityFeePerGas = ref(null)
 const txTotalFeeUint = ref(null)
 const txTotalFeeDecimals = ref(null)
 
-const feeData = ref(null) 
+const totalTxValueBN = ref(null)
+const totalTxValueText = ref(null)
 
-const gasFeeInEthBN = ref(null)
-const gasFeeInEthText = ref(null)
+const feeData = ref(null) 
 
 
 const isTxValueNull = (val) => ["0x0", "0x", null, undefined].includes(val)
@@ -90,6 +92,8 @@ const initialize = async () => {
             // lets get user native balance 
             let nToken = await tokensCore.getNativeToken()
             nativeTokenInfo.value = nToken;
+
+            console.log("nativeTokenInfo.value===>", nativeTokenInfo.value)
 
             let web3ConnStatus = await walletStore.getWeb3Conn()
 
@@ -225,6 +229,13 @@ const processGasInfo = async (txDataObj) => {
     feeData.value  = fd
     txGasLimit.value = getBigInt(gasLimit)
     defaultGasLimit.value = txGasLimit.value
+
+    //txMaxFeePerGas.value = fd.maxFeePerGas
+    //txPriorityFeePerGas.value = fd.maxPriorityFeePerGas
+
+    //txTotalFeeUint.value = 
+
+    //processFeeAndFinalAmount()
 }
 
 
@@ -308,10 +319,13 @@ const  onGasPriceChange = (data={}) => {
     } = data
 
     //console.log("data===>", data)
+
+    let nTokenSymbol = nativeTokenInfo.value.symbol.toUpperCase()
+
     txGasLimit.value          = gasLimit
     txMaxFeePerGas.value      = maxFeePerGas 
     txTotalFeeUint.value      = totalFee
-    txTotalFeeDecimals.value  = totalFeeDecimals
+    txTotalFeeDecimals.value  = Utils.formatCrypto(totalFeeDecimals) +" "+ nTokenSymbol
     txPriorityFeePerGas.value = maxPriorityFeePerGas
 
     processFeeAndFinalAmount()
@@ -319,14 +333,18 @@ const  onGasPriceChange = (data={}) => {
 
 const processFeeAndFinalAmount = () => {
 
-    let nToken = nativeToken.value 
-    let nBalance = nToken.balanceInfo 
+    let nToken = nativeTokenInfo.value 
+    let nBalance = nToken.balanceInfo.balance 
+
+    //console.log("nBalance===>", nBalance)
              
-    if( txTotalFeeUint.value >= balance){
+    totalTxValueBN.value = txTotalFeeUint.value + txValueBN.value
+    totalTxValueText.value = formatEther(totalTxValueBN.value) + " " + nToken.symbol.toUpperCase()
+
+    if(totalTxValueBN.value > nBalance){
         return  hasInsufficientNativeToken.value = true
     }
-
-}
+}   
 </script>
 <template>
     <Modal
@@ -436,7 +454,7 @@ const processFeeAndFinalAmount = () => {
             </div>
         </template>
         <template #footer>
-            <div v-if="isTx" class="summary fs-12 fw-medium text-break w-100 mt-2">
+            <div v-if="isTx && isReady" class="summary fs-12 fw-medium text-break w-100 mt-2">
                 <div class="space-between w-100">
                     <div class="me-3 text-start">Amount: </div>
                     <div class="text-end">{{ txValueText }}</div>
@@ -444,7 +462,7 @@ const processFeeAndFinalAmount = () => {
                 <div class="space-between w-100">
                     <div class="me-3 text-start">Network Fee: </div>
                     <div class="d-flex text-end">
-                        <div class="">{{ gasFeeInEthText }}</div>
+                        <div class="">{{ txTotalFeeDecimals }}</div>
                         <GasFeePicker
                             :nativeTokenInfo="nativeTokenInfo"
                             :feeData="feeData"
@@ -459,6 +477,10 @@ const processFeeAndFinalAmount = () => {
                             @hide="() => mbodyTopMargin = 0"
                         />
                     </div>
+                </div>
+                <div class="space-between w-100">
+                    <div class="me-3 text-start">Amount + Network Fee: </div>
+                    <div class="text-end">{{ totalTxValueText }}</div>
                 </div>
             </div>
             <div class="mt-3 center-vh w-full">
