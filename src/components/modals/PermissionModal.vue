@@ -7,7 +7,7 @@ import Utils from '../../classes/Utils';
 import { useNetworks } from '../../composables/useNetworks';
 import { useTx } from '../../composables/useTx';
 import { useTokens } from '../../composables/useTokens';
-import { formatUnits } from "ethers"
+import { Wallet, formatUnits, getUint, getBigInt, parseUnits } from "ethers"
 
 const tokensCore = useTokens()
 const txCore = useTx()
@@ -39,8 +39,31 @@ const txParams = ref()
 const decodedContractInfo = ref([])
 //const parsedTxData = ref(null)
 
+const hasTxValue = ref(false)
 const txValue = ref(null)
+const txValueBN = ref(BigInt("0"))
+
+let web3Conn = null;
+
+const isTx = ref(false)
 const txValueText = ref("")
+
+const  hasInsufficientNativeToken = ref(false)
+
+const gasPriceFromOrigin = ref(null)
+const txGasLimit = ref(null)
+const txMaxFeePerGas = ref(null)
+const txPriorityFeePerGas = ref(null)
+const txTotalFeeUint = ref(null)
+const txTotalFeeDecimals = ref(null)
+
+const feeData = ref(null) 
+
+const gasFeeInEthBN = ref(null)
+const gasFeeInEthText = ref(null)
+
+
+const isTxValueNull = (val) => ["0x0", "0x", null, undefined].includes(val)
 
 const initialize = async () => {
 
@@ -54,34 +77,55 @@ const initialize = async () => {
 
         errorMsg.value = ""
 
+        web3Conn = null 
+
+
         activeWalletAddr.value = (await walletStore.getActiveWalletInfo()).address;
 
 
         if(["eth_sendTransaction"].includes(method.value)){
+
+            isTx.value = true
             
             // lets get user native balance 
             let nToken = await tokensCore.getNativeToken()
             nativeTokenInfo.value = nToken;
 
-            //console.log("nativeTokenInfo.value===>", nativeTokenInfo.value)
+            let web3ConnStatus = await walletStore.getWeb3Conn()
 
-            let txDataObj = txParams.value[0] ||  null
+            if(web3ConnStatus.isError()){
+                return errorMsg.value = web3ConnStatus.getMessage()
+            }
+
+            web3Conn = web3ConnStatus.getData()
+
+            let txParamsObj = txParams.value[0] ||  null
 
             //lets fetch the tx data 
-            if(txDataObj == null){
+            if(txParamsObj == null){
                 return errorMsg.value = "Transaction parameters required"
             }
 
-            txValue.value = txDataObj.value || null 
+            await processGasInfo(txParamsObj)
 
-            //console.log("txValue.value===>", txValue.value)
+            txValue.value = txParamsObj.value || null 
 
-            if(!["0x", "0x0", null].includes(txValue.value)){
-                let _txValueText = Utils.formatCrypto(formatUnits(txValue.value, nToken.decimals)) 
-                txValueText.value = `${_txValueText} ${nToken.symbol.toUpperCase()}`
+            //console.log("txDataObj==>", txDataObj)
+
+
+            let _txValueText = "0"
+
+            if(isTxValueNull(txValue.value)){
+                hasTxValue.value = true
+                txValueBN.value =  getUint(txValue.value)
+                _txValueText = Utils.formatCrypto(formatUnits(txValue.value, nToken.decimals)) 
             }
 
-            let _data = await txCore.decodeTxData(txDataObj)
+            txValueText.value = `${_txValueText} ${nToken.symbol.toUpperCase()}`
+
+            //console.log("hasTxValue.value===>", hasTxValue.value)
+
+            let _data = await txCore.decodeTxData(txParamsObj)
 
             if(_data == null) return;
 
@@ -102,7 +146,7 @@ const initialize = async () => {
     
             let methodInfoArr = [{
                 name: "contract",
-                value: txDataObj.to
+                value: txParamsObj.to
             }]
 
             if(tokenInfo != null){
@@ -144,6 +188,43 @@ const initialize = async () => {
         isLoading.value = false
         isReady.value = true
     }
+}
+
+const processGasInfo = async (txDataObj) => {
+
+    //console.log("txDataObj===>", txDataObj)
+    
+    //let nToken = nativeTokenInfo.value
+
+    let fdStatus = await web3Conn.getFeeData()
+
+    if(fdStatus.isError()){
+        return errorMsg.value = fdStatus.getMessage()
+    }
+ 
+    let fd = fdStatus.getData()
+
+    let _siteGasPrice = txDataObj.gasPrice || null
+    let gasLimit = txDataObj.gas || null
+    
+    if(!isTxValueNull(_siteGasPrice)){
+        gasPriceFromOrigin.value = getBigInt(_siteGasPrice)
+    }
+
+    if(isTxValueNull(gasLimit)){
+
+        let estimateStatus = await web3Conn.getETHGasEstimate(txDataObj)
+
+        if(estimateStatus.isError()){
+            return errorMsg.value = estimateStatus.getMessage()
+        }
+
+        gasLimit = estimateStatus.getData()
+    }
+
+    feeData.value  = fd
+    txGasLimit.value = getBigInt(gasLimit)
+    defaultGasLimit.value = txGasLimit.value
 }
 
 
@@ -214,6 +295,38 @@ const handleRejectBtn = () => {
     isConfirmed.value = false 
     hide()
 }
+
+const  onGasPriceChange = (data={}) => {
+
+    let { 
+        name, 
+        maxFeePerGas, 
+        totalFee, 
+        totalFeeDecimals,
+        maxPriorityFeePerGas,  
+        gasLimit 
+    } = data
+
+    //console.log("data===>", data)
+    txGasLimit.value          = gasLimit
+    txMaxFeePerGas.value      = maxFeePerGas 
+    txTotalFeeUint.value      = totalFee
+    txTotalFeeDecimals.value  = totalFeeDecimals
+    txPriorityFeePerGas.value = maxPriorityFeePerGas
+
+    processFeeAndFinalAmount()
+}
+
+const processFeeAndFinalAmount = () => {
+
+    let nToken = nativeToken.value 
+    let nBalance = nToken.balanceInfo 
+             
+    if( txTotalFeeUint.value >= balance){
+        return  hasInsufficientNativeToken.value = true
+    }
+
+}
 </script>
 <template>
     <Modal
@@ -227,6 +340,7 @@ const handleRejectBtn = () => {
         @hide="onHide"
     >   
         <template #body>
+            <div id="gasfee-picker-container"></div>
             <div class="py-4 px-3 text-center">
                 <LoadingView :isLoading="isLoading" loadingText="Loading..">
 
@@ -243,7 +357,7 @@ const handleRejectBtn = () => {
                         <div class="fs-12 muted">{{ origin }}</div>
                     </div>
 
-                    <div v-if="txValueText != ''" class="text-center text-primary">
+                    <div v-if="hasTxValue" class="text-center text-primary">
                         <h2 class="text-break">-{{ txValueText }}</h2>
                     </div>
 
@@ -266,7 +380,7 @@ const handleRejectBtn = () => {
                             </div>
                         </template>
 
-                        <div class="d-flex text-start my-2" v-if="txValueText != ''">
+                        <div  v-if="hasTxValue" class="d-flex text-start my-2">
                             <div><Icon name="typcn:warning-outline" class="text-warning" :size="24"  /></div>
                             <div class="fs-12 ms-2 text-warning text-break">
                                 This transaction will transfer/withdraw {{ txValueText }} from your wallet
@@ -294,7 +408,6 @@ const handleRejectBtn = () => {
                             </div>
                         </div>
 
-                    
                         <template v-if="decodedContractInfo.length > 0">
                             <div>
                                 <div class="fs-12 fw-bold muted text-start mb-1 mt-4">
@@ -302,11 +415,11 @@ const handleRejectBtn = () => {
                                 </div>
                                 <div class="px-3 py-2 bg-darken-5 rounded-lg">
                                     <template v-for="item in decodedContractInfo">
-                                        <div class="d-flex justify-content-between align-items-start my-3">
-                                            <div class="fs-12 fw-medium text-capitalize pe-4">
+                                        <div class="space-between my-3 fs-12 fw-medium">
+                                            <div class="text-capitalize pe-4 no-break">
                                                 {{ item.name }}:
                                             </div>
-                                            <div class="fs-12 fw-medium text-break text-end d-flex">
+                                            <div class="text-end d-flex  text-break">
                                                 <div class="" v-if="Utils.isAddress(item.value)">
                                                     <CopyBtn :text="item.value" btnClasses="text-warning" />
                                                 </div>
@@ -323,7 +436,32 @@ const handleRejectBtn = () => {
             </div>
         </template>
         <template #footer>
-            <div class="mt-4 center-vh w-full">
+            <div v-if="isTx" class="summary fs-12 fw-medium text-break w-100 mt-2">
+                <div class="space-between w-100">
+                    <div class="me-3 text-start">Amount: </div>
+                    <div class="text-end">{{ txValueText }}</div>
+                </div>
+                <div class="space-between w-100">
+                    <div class="me-3 text-start">Network Fee: </div>
+                    <div class="d-flex text-end">
+                        <div class="">{{ gasFeeInEthText }}</div>
+                        <GasFeePicker
+                            :nativeTokenInfo="nativeTokenInfo"
+                            :feeData="feeData"
+                            :gasLimit="txGasLimit"
+                            :onChainGasLimit="defaultGasLimit"
+                            :popoverOpts="{ placement: 'left'}"
+                            selected="market"
+                            placement="left"
+                            container="#gasfee-picker-container"
+                            @change="onGasPriceChange"
+                            @show="() => mbodyTopMargin = 3"
+                            @hide="() => mbodyTopMargin = 0"
+                        />
+                    </div>
+                </div>
+            </div>
+            <div class="mt-3 center-vh w-full">
                 <button class="btn btn-danger p-3 w-full rounded-lg me-2"
                     @click.prevent="handleRejectBtn"
                 >
@@ -337,6 +475,7 @@ const handleRejectBtn = () => {
                 </button>
                 
             </div>
+            
         </template>
     </Modal>
 </template>

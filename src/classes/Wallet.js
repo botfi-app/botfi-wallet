@@ -658,7 +658,7 @@ export default class Wallet {
         }
     }
 
-    async getETHGasEstimate({ to, value }){
+    async getETHGasEstimate({ to, value, data = null }){
         try {
 
             if(!this.provider){
@@ -667,7 +667,7 @@ export default class Wallet {
 
             let gasData = await this.provider.estimateGas({
                             to,
-                            data: null,
+                            data,
                             value
                         });
 
@@ -677,7 +677,7 @@ export default class Wallet {
             return Status.error("Failed to fetch gas estimate")
         }
     }
-
+    
 
     async getTxNonce(address, blockTag = 'latest') {
         try {
@@ -1047,6 +1047,11 @@ export default class Wallet {
         let query = null;
 
         switch(method){
+
+            case "eth_chainId":
+                console.log("eth_chainId ===> ", this.chainId, "===>", Utils.toHex(this.chainId))
+                query = async () => Utils.toHex(this.chainId)
+            break;
             case "eth_requestAccounts":
                 query = async () => [await this.getAddress()]
             break;

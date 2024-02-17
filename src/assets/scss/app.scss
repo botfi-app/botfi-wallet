@@ -695,3 +695,8 @@ ul.list-group {
         margin-top: 0px !important;
     }
 }
+
+.space-between {
+    display: flex;
+    justify-content: space-between;
+}

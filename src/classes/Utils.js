@@ -621,5 +621,9 @@ export default class Utils {
                     ? parseInt(val,16)
                     : val
     }
-    
+
+    static toHex(_val) {
+        return ("0x"+_val.toString(16))
+    }
+
 }

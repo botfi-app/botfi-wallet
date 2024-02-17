@@ -180,7 +180,8 @@ export const useBrowser = () => {
                     EventBus.emit("hideBrowser", false)
 
                     if(!pResult.isConfirmed){
-                        return Status.error("User rejected operation")
+                        return Status.error("User rejected request")
+                                .setCode(ErrorCodes.userRejectedRequest)
                     }
 
                     await permission.connectSite(origin)

@@ -115,9 +115,13 @@ export default (tabId) => {
 
         window.ethereum = {
             request: async ({ method, params = [] }) => {
-                let message = { method, params, action: "network_request" }
-                return sendMessage(message, true)
+                return sendMessage({ 
+                    method, 
+                    params, 
+                    action: "network_request" 
+                }, true)
             },
+            
             on: (eventName, callback = null) => {
                 if(eventName in registeredEvents){
                     registeredEvents[eventName].push(callback)
