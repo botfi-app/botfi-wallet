@@ -1028,14 +1028,11 @@ export default class Wallet {
                 txDataObj = Transaction.from(params[0])
             }
 
-            // test tx first
-            await this.provider.call(txDataObj)
+  
+            let tx = await this.signer.sendTransaction(txDataObj)
             
-            //let tx = await this.signer.sendTransaction(txDataObj)
-            
-            //return tx.hash;
+            return tx.hash;
 
-            new Error("Tx Failed")
         } catch(e){
             throw e;
         }

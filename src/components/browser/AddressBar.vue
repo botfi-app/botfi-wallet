@@ -1,5 +1,5 @@
 <script setup>
-import { nextTick, onUpdated, ref, watch } from 'vue';
+import { nextTick, onMounted, onUpdated, ref, watch } from 'vue';
 import Utils from '../../classes/Utils';
 import NetSelectModal from '../modals/NetSelectModal.vue';
 import { isURL } from 'validator'
@@ -23,13 +23,20 @@ const isSecure = ref(false)
 
 const emits = defineEmits(["urlChange", "openHome", "inputFocused"])
 
+onMounted(() => {
+    processUrl()
+})
+
 watch(p, () => {
     //console.log("p===>", p)
     progress.value = p.progress
     fullUrl.value = p.url
 }, { deep: true });
 
-watch(fullUrl, () => {
+watch(fullUrl, () => processUrl())
+
+const processUrl = () => {
+
     let parsedUrl = new URL(fullUrl.value)
     urlHost.value = parsedUrl.host
     isSecure.value = (parsedUrl.protocol == 'https:')
@@ -37,7 +44,7 @@ watch(fullUrl, () => {
     if(!inputFocused.value){
         urlInputText.value = urlHost.value
     }
-})
+}
 
 watch(inputFocused, () => emits("inputFocused", inputFocused.value))
 
@@ -64,7 +71,6 @@ const inputFocus = (e) => {
     if(e.relatedTarget == clearBtn.value) return;
 
     nextTick(() => _input.select())
-    
 }
 
 const inputBlur = (e) => {

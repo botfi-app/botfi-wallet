@@ -10,9 +10,10 @@ const props = defineProps({
     popoverOpts: { type: Object, default: {} },
     gasLimit: { type: BigInt, required: true },
     onChainGasLimit: { type: BigInt, required: true },
+    gasPriceFromWebsite: { type: null, default: null },
     placement:   { type: String, default: '' },
     container: { type: String, default: 'body' },
-    selected: { type: String, default: 'market' }
+    selected: { type: String, default: 'market' },
 })
 
 
@@ -48,17 +49,36 @@ const processFeeData = () => {
     let fd = props.feeData
     let gasLimit = BigInt(txGasLimit.value.toString())
 
-    //console.log("feeData===>", feeData)
-    
     let priorityFeeUint = null;
 
     if(fd.supportsEip1559Tx && fd.maxPriorityFeePerGas != null){
         priorityFeeUint = fd.maxFeePerGas + fd.maxPriorityFeePerGas
     }
 
+    console.log("props.gasPriceFromWebsite===>", props.gasPriceFromWebsite)
+
     let totalFeeDecimals = (value) =>  formatUnits(value * gasLimit, 18)
 
-    uiFeeItems.value = {
+    let feesDataObj = {}
+
+    //console.log("props.gasPriceFromWebsite====>", props.gasPriceFromWebsite)
+
+    if(props.gasPriceFromWebsite != null && typeof props.gasPriceFromWebsite === 'bigint'){
+        feesDataObj["website"] = {
+            name: "Website",
+            icon: "material-symbols-light:globe", 
+            duration: "N/A", 
+            clazz: 'text-danger',
+            maxFeePerGas:           fd.gasPrice,
+            totalFee:               (fd.gasPrice * gasLimit),
+            totalFeeDecimals:       totalFeeDecimals(fd.gasPrice),
+            maxPriorityFeePerGas:    0
+        }
+    }
+    
+    feesDataObj = {
+        ...feesDataObj, 
+
         low: { 
             name: "Low",
             icon: "emojione:turtle", 
@@ -82,7 +102,7 @@ const processFeeData = () => {
     }
 
     if(priorityFeeUint != null){
-        uiFeeItems["priority"] =  { 
+        feesDataObj["priority"] =  { 
             name: "Priority", 
             icon: "fluent-emoji:rocket", 
             duration: 15, 
@@ -94,10 +114,14 @@ const processFeeData = () => {
         }
     }
 
+  
+    uiFeeItems.value = feesDataObj
+
+    dataState.value = Date.now()
+
     //lets emit 
     emitChangeEvent((selected.value || 'market'))
 
-    dataState.value = Date.now()
     return true
 }
 
@@ -210,15 +234,15 @@ const closePopover = () => {
                                 :data-key="key"
                             >
                                 <td>
-                                    <div class="d-flex">
+                                    <div class="d-flex align-items-center">
                                         <Icon :name='item.icon' />
                                         <div class="ms-1 text-capitalize">{{ item.name }}</div>
                                     </div>
                                 </td> 
-                                <td :class="item.clazz">
-                                    {{ item.duration }}s+
+                                <td :class="item.clazz" style="width: 20px;">
+                                    {{ `${item.duration}${(item.duration == "N/A") ? "" : "s+"}` }}
                                 </td>
-                                <td class='text-upper break-text' style="max-width: 100px;">
+                                <td class='text-upper break-text' style="max-width: 120px;">
                                     {{  Utils.formatCrypto(item.totalFeeDecimals, 4) }} 
                                     {{ props.nativeTokenInfo.symbol }}
                                 </td>
@@ -266,7 +290,7 @@ const closePopover = () => {
 }
 
 .popover {
-
+    
     --bs-popover-bg: var(--bs-body-bg-dark-8);
     
     //background: var(--bs-body-bg-dark-8) !important;

@@ -19,6 +19,7 @@ import { useWalletStore } from "../store/walletStore"
 import { useNetworks } from "./useNetworks"
 import EventBus from "../classes/EventBus"
 import { useTx } from "./useTx"
+import { useTokens } from "./useTokens"
 
 
 export const useBrowser = () => {
@@ -27,12 +28,15 @@ export const useBrowser = () => {
     const walletStore = useWalletStore()
     const netCore     = useNetworks()
     const txCore      = useTx()
+    const tokenCore   = useTokens()
+
+    const { activeWallet } = walletStore
 
     const getInjectScript = (tabId) => {
         return injectScript(tabId)
     }
 
-
+    
     const getRpcMethodInfo = (name="") => {
 
         if(name.trim() == "") return null
@@ -70,12 +74,7 @@ export const useBrowser = () => {
                            .replace("{{CHAIN_ID}}", chainInfo.id)
             }
             
-        } else if(method == "eth_sendTransaction"){
-
-             
-        }
-       
-
+        } 
         //console.log("text===>", text)
 
         return text
@@ -89,6 +88,9 @@ export const useBrowser = () => {
         permissionModal,
 
     }) => {
+
+        let loader = null
+
         try {
 
             permissionModal = toValue(permissionModal)
@@ -102,13 +104,14 @@ export const useBrowser = () => {
                               .setCode(ErrorCodes.invalidRequest)
             }
 
- 
+            let isSiteConneted = await permission.isSiteConnected(origin)
+
             // firstly, lets check if user is connected
             if(!["eth_accounts",
                  "eth_requestAccounts",
                 ].includes(method))
             {
-                if(!(await permission.isSiteConnected(origin))) {
+                if(!isSiteConneted) {
                     return Status.error("Wallet not connected")
                                 .setCode(ErrorCodes.unauthorized)
                 }
@@ -152,9 +155,7 @@ export const useBrowser = () => {
 
             if(rpcMethodInfo.hasPermission){
                 
-                if(!(await permission.isSiteConnected(origin)) || 
-                    rpcMethodInfo.askAlways == true
-                ){
+                if(!isSiteConneted || rpcMethodInfo.askAlways == true){
 
                     EventBus.emit("hideBrowser", true)
 
@@ -162,7 +163,7 @@ export const useBrowser = () => {
 
                     text = await processPermissionText({method, text, origin, params})
 
-                    console.log("text", text)
+                    //console.log("text", text)
 
                     let warning = rpcMethodInfo.warning || ""
                     let confirmBtn = rpcMethodInfo.confirmBtn || "Confirm"
@@ -174,7 +175,7 @@ export const useBrowser = () => {
                                         warning,
                                         origin,
                                         confirmBtn,
-                                        txParams: params
+                                        requestParams: params
                                     })
 
                     EventBus.emit("hideBrowser", false)
@@ -184,7 +185,15 @@ export const useBrowser = () => {
                                 .setCode(ErrorCodes.userRejectedRequest)
                     }
 
-                    await permission.connectSite(origin)
+                    if(!isSiteConneted){
+                        await permission.connectSite(origin)
+                    }
+
+                    // if the request is eth_sendTransaction, then lets retrieve
+                    // the tx params again, the gas params might have been changed
+                    //params = pResult.requestParams || []
+
+                   // console.log("requestParams===>", params)
                }
 
             }
@@ -222,7 +231,34 @@ export const useBrowser = () => {
                 return resultStatus;
             } else if (method == "wallet_switchEthereumChain") {
                 return netCore.setActiveNetwork(parseInt(params[0], 16))
-            }
+            } 
+            else if (method == "wallet_watchAsset") { 
+
+                let dataObj = params[0] || {}
+
+                let type = (dataObj.type || "").toLowerCase()
+                let opts = dataObj.options || {}
+
+                if(!["erc20", "erc721", "erc1155"].includes(type)){
+                    return Status.error("a valid asset type is required.")
+                                 .setCode(ErrorCodes.INVALID_ASSET_TYPE)
+                }
+
+                let contract = opts.address;
+
+                if(type == "erc20"){
+                    let resultStatus = await tokenCore.processImportERC20Token({ 
+                                            contract,
+                                            wallet: activeWallet.address
+                                        })
+
+                    if(resultStatus.isError()) return resultStatus
+
+                    return Status.successData(true)
+                } else {
+                    
+                }
+            }   
 
             // lets login user in 
             let web3ConnStatus = await walletStore.getWeb3Conn()
@@ -233,12 +269,21 @@ export const useBrowser = () => {
 
             let web3 = web3ConnStatus.getData()
 
-            return web3.queryRPCMethod(method, params)
+            if(["eth_sendTransaction"].includes(method)){
+                EventBus.emit("hideBrowser", true)
+                loader = Utils.loader("Processing Request")
+            }
 
+            let rpcResultStatus = await  web3.queryRPCMethod(method, params)
+
+            return rpcResultStatus
         } catch(e){
             Utils.logError("useBrowser#processWebMessage:", e)
-            return Status.error("Failed to process data")
-                         .setCode(ErrorCodes.PROCESSING_ERROR)
+            return Status.error("Internal error")
+                         .setCode(ErrorCodes.internal)
+        } finally {
+            if(loader) loader.close()
+            EventBus.emit("hideBrowser", false)
         }
     }
 
@@ -286,7 +331,7 @@ export const useBrowser = () => {
             !resultStatus.isError()
         ){
             let activeNet = await netCore.getActiveNetworkInfo()
-            emitWeb3Event(webview, "connect", { chainId: "0x"+parseInt(activeNet.chainId, 16) })
+            emitWeb3Event(webview, "connect", { chainId: Utils.toHex(activeNet.chainId) })
         }
 
     } //end func

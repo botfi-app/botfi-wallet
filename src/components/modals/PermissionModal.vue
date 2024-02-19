@@ -34,7 +34,7 @@ const isOpened = ref(null)
 const isConfirmed = ref(false)
 const isReady = ref(false)
 const confirmBtn = ref("")
-const txParams = ref()
+const requestParams = ref()
 
 const decodedContractInfo = ref([])
 //const parsedTxData = ref(null)
@@ -42,13 +42,16 @@ const decodedContractInfo = ref([])
 const hasTxValue = ref(false)
 const txValue = ref(null)
 const txValueBN = ref(BigInt("0"))
+const txValueText = ref("")
+
 
 let web3Conn = null;
 
 const isTx = ref(false)
-const txValueText = ref("")
 
 const  hasInsufficientNativeToken = ref(false)
+const  extraRequiredBalance = ref(BigInt("0"))
+const  extraRequiredBalanceText = ref("")
 
 const defaultGasLimit = ref(null)
 const gasPriceFromOrigin = ref(null)
@@ -71,7 +74,12 @@ const initialize = async () => {
 
     try {
 
-        //console.log("txParams.value===>", txParams.value)
+        //console.log("requestParams.value===>", requestParams.value)
+
+        hasInsufficientNativeToken.value = false
+
+        extraRequiredBalance.value = BigInt("0")
+        extraRequiredBalanceText.value = ""
 
         isLoading.value = true
 
@@ -81,6 +89,13 @@ const initialize = async () => {
 
         web3Conn = null 
 
+        isTx.value = false
+
+        decodedContractInfo.value = []
+
+        hasTxValue.value = false 
+        txValueBN.value = BigInt("0") 
+        txValueText.value = ""
 
         activeWalletAddr.value = (await walletStore.getActiveWalletInfo()).address;
 
@@ -93,7 +108,7 @@ const initialize = async () => {
             let nToken = await tokensCore.getNativeToken()
             nativeTokenInfo.value = nToken;
 
-            console.log("nativeTokenInfo.value===>", nativeTokenInfo.value)
+            //console.log("nativeTokenInfo.value===>", nativeTokenInfo.value)
 
             let web3ConnStatus = await walletStore.getWeb3Conn()
 
@@ -103,23 +118,23 @@ const initialize = async () => {
 
             web3Conn = web3ConnStatus.getData()
 
-            let txParamsObj = txParams.value[0] ||  null
+            let requestParamsObj = requestParams.value[0] ||  null
 
             //lets fetch the tx data 
-            if(txParamsObj == null){
+            if(requestParamsObj == null){
                 return errorMsg.value = "Transaction parameters required"
             }
 
-            await processGasInfo(txParamsObj)
+            await processGasInfo(requestParamsObj)
 
-            txValue.value = txParamsObj.value || null 
+            txValue.value = requestParamsObj.value || null 
 
             //console.log("txDataObj==>", txDataObj)
 
 
             let _txValueText = "0"
 
-            if(isTxValueNull(txValue.value)){
+            if(!isTxValueNull(txValue.value)){
                 hasTxValue.value = true
                 txValueBN.value =  getUint(txValue.value)
                 _txValueText = Utils.formatCrypto(formatUnits(txValue.value, nToken.decimals)) 
@@ -129,7 +144,7 @@ const initialize = async () => {
 
             //console.log("hasTxValue.value===>", hasTxValue.value)
 
-            let _data = await txCore.decodeTxData(txParamsObj)
+            let _data = await txCore.decodeTxData(requestParamsObj)
 
             if(_data == null) return;
 
@@ -150,7 +165,7 @@ const initialize = async () => {
     
             let methodInfoArr = [{
                 name: "contract",
-                value: txParamsObj.to
+                value: requestParamsObj.to
             }]
 
             if(tokenInfo != null){
@@ -247,7 +262,7 @@ const  show = async (opts={}) => {
     extraParams.value     = opts.extraParams || [];
     warningText.value     = opts.warningText || "";
     method.value          = opts.method || ""
-    txParams.value        = opts.txParams || []  
+    requestParams.value   = opts.requestParams || []  
     origin.value          = opts.origin || ""    
     confirmBtn.value      = opts.confrimBtn || "Confirm"
 
@@ -262,7 +277,8 @@ const  show = async (opts={}) => {
                 
                 resolve({
                     isConfirmed: isConfirmed.value,
-                    isRejected: !isConfirmed.value
+                    isRejected: !isConfirmed.value,
+                    requestParams:   requestParams.value
                 });
 
                 clearInterval(intval)
@@ -328,6 +344,18 @@ const  onGasPriceChange = (data={}) => {
     txTotalFeeDecimals.value  = Utils.formatCrypto(totalFeeDecimals) +" "+ nTokenSymbol
     txPriorityFeePerGas.value = maxPriorityFeePerGas
 
+    let tp = requestParams.value[0]
+    let fd = feeData.value
+
+    if(fd.supportsEip1559Tx){
+        tp.maxFeePerGas = maxFeePerGas
+        tp.maxPriorityFeePerGas = maxPriorityFeePerGas
+    } else {
+        tp.gasPrice = maxFeePerGas
+    }
+
+    tp.gas = gasLimit
+
     processFeeAndFinalAmount()
 }
 
@@ -335,15 +363,17 @@ const processFeeAndFinalAmount = () => {
 
     let nToken = nativeTokenInfo.value 
     let nBalance = nToken.balanceInfo.balance 
-
+    let nSymbol = nToken.symbol.toUpperCase()
     //console.log("nBalance===>", nBalance)
              
     totalTxValueBN.value = txTotalFeeUint.value + txValueBN.value
-    totalTxValueText.value = formatEther(totalTxValueBN.value) + " " + nToken.symbol.toUpperCase()
+    totalTxValueText.value = formatEther(totalTxValueBN.value) + " " + nSymbol
 
     if(totalTxValueBN.value > nBalance){
+        extraRequiredBalance.value = (totalTxValueBN.value - nBalance)
+        extraRequiredBalanceText.value = formatEther(extraRequiredBalance.value) + " " + nSymbol
         return  hasInsufficientNativeToken.value = true
-    }
+    } 
 }   
 </script>
 <template>
@@ -455,21 +485,22 @@ const processFeeAndFinalAmount = () => {
         </template>
         <template #footer>
             <div v-if="isTx && isReady" class="summary fs-12 fw-medium text-break w-100 mt-2">
-                <div class="space-between w-100">
+                <div class="space-between py-1 w-100">
                     <div class="me-3 text-start">Amount: </div>
                     <div class="text-end">{{ txValueText }}</div>
                 </div>
-                <div class="space-between w-100">
+                <div class="space-between py-1 w-100">
                     <div class="me-3 text-start">Network Fee: </div>
-                    <div class="d-flex text-end">
+                    <div class="d-flex text-end align-items-center">
                         <div class="">{{ txTotalFeeDecimals }}</div>
                         <GasFeePicker
                             :nativeTokenInfo="nativeTokenInfo"
                             :feeData="feeData"
                             :gasLimit="txGasLimit"
                             :onChainGasLimit="defaultGasLimit"
+                            :gasPriceFromWebsite="gasPriceFromOrigin"
                             :popoverOpts="{ placement: 'left'}"
-                            selected="market"
+                            :selected="(gasPriceFromOrigin != null) ? 'website' : 'market'"
                             placement="left"
                             container="#gasfee-picker-container"
                             @change="onGasPriceChange"
@@ -478,9 +509,14 @@ const processFeeAndFinalAmount = () => {
                         />
                     </div>
                 </div>
-                <div class="space-between w-100">
+                <div class="space-between w-100 py-1">
                     <div class="me-3 text-start">Amount + Network Fee: </div>
                     <div class="text-end">{{ totalTxValueText }}</div>
+                </div>
+
+                <div class="fs-12 text-danger my-1" v-if="hasInsufficientNativeToken">
+                    Not enough balance, you need to topup 
+                    {{ extraRequiredBalanceText }} to complete the transaction
                 </div>
             </div>
             <div class="mt-3 center-vh w-full">
@@ -489,7 +525,7 @@ const processFeeAndFinalAmount = () => {
                 >
                     Cancel
                 </button>
-                <button v-if="errorMsg == '' && !isLoading && isReady"
+                <button v-if="errorMsg == '' && !isLoading && isReady && !hasInsufficientNativeToken"
                     class="btn btn-success p-3 w-full rounded-lg"
                     @click.prevent="handleApproveBtn"
                 >

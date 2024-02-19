@@ -197,7 +197,6 @@ const handleWebviewEvents = async (tabId) => {
             tabs.value[tabId].url = url
         }
 
-        //tabs.value[tabId].webview.postMessage("helloooo");
     })
     
     w.onProgress((p) => {

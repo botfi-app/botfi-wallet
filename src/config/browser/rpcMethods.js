@@ -64,14 +64,6 @@ export default {
         warning: "This operation may cost you money, only allow trusted websites."
     },
 
-    eth_sendRawTransaction: {
-        hasPermission: true,
-        askAlways: true,
-        template: "",
-        template: "{{WEBSITE}} wants to execute a transaction with your wallet",
-        warning: "This operation may cost you money, only allow trusted websites."
-    },
-
     web3_clientVersion: {
         hasPermission: false,
     },

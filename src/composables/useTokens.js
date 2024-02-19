@@ -16,6 +16,8 @@ import Http from "../classes/Http"
 import { useSettings } from "./useSettings"
 import { useWalletStore } from "../store/walletStore"
 import { Interface as ethersInterface } from "ethers"
+import ErrorCodes from "../classes/ErrorCodes.js"
+import GeckoApi from "../classes/GeckoApi.js"
 
 const $state = ref({
     tokens: {},
@@ -909,6 +911,104 @@ export const useTokens = () => {
         return Status.successData(id)
     }//end import 
 
+
+    /**
+     * process import erc20 token
+     */
+    const processImportERC20Token = async (dataObj) => {
+
+        let loader;
+
+        try {
+
+            const { 
+                contract, 
+                chainId, 
+                wallet,
+                image = "" 
+            } = dataObj;
+
+                
+            if(!Utils.isAddress(contract)){
+                return Status.error(`Invalid address '${contract}'`)
+                             .setCode(ErrorCodes.WATCH_ASSET_INVALID_ADDRESS)
+            }
+
+            loader = Utils.loader("Verifying token contract onchain")
+
+            let verifyStatus = await getERC20TokenInfo(contract, wallet)
+
+            if(verifyStatus.isError()){
+                return Status.error(verifyStatus.getMessage())
+                            .setCode(ErrorCodes.internal)
+            }
+
+            let tokenInfo = verifyStatus.getData()
+
+            let action =   await Utils.getSwal().fire({
+                                showCancelButton:   true,
+                                confirmButtonText:  'Import',
+                                denyButtonText:     'Cancel',
+                                html: Utils.getImportConfirmHtmlMsg(tokenInfo),
+                                title: "Confirm Action",
+                            })
+
+            if(!action.isConfirmed){
+                 return Status.error("User Rejected Request")
+                            .setCode(ErrorCodes.userRejectedRequest)
+            }
+
+            loader = Utils.loader("Processing...")
+
+            let dbTokenInfoStatus = await Http.getApi("/contracts/token-info", { chainId, contract })
+
+
+            if(!dbTokenInfoStatus.isError()){
+                let dbTokenInfo = dbTokenInfoStatus.getData()
+
+                if(dbTokenInfo != null){
+                    tokenInfo.geckoId = dbTokenInfo.geckoId || "";
+
+                    // let uriEnd
+                    //lets get gecko coin info
+                    let geckoCoinInfoStatus = await GeckoApi.getCoinInfo(tokenInfo.geckoId)
+
+                    if(!geckoCoinInfoStatus.isError()){
+                        let geckoCoinInfo = geckoCoinInfoStatus.getData()
+
+                        //console.log("geckoCoinInfo===>", geckoCoinInfo)
+                        let images = geckoCoinInfo.image || {}
+
+                        if("large" in images) {
+                            tokenInfo.image = images.large
+                        }
+                    }
+
+                }
+            }
+
+            if(!("image" in tokenInfo) && Utils.isValidUrl(image)){
+                tokenInfo.image = image
+            }
+
+            //tokenInfo.image = item.image
+            tokenInfo.contract = contract
+            tokenInfo.chainId = chainId
+            delete tokenInfo.balanceOf;
+            delete tokenInfo.balanceOfDecimal;
+
+            // lets now import the token 
+            return importToken(tokenInfo)
+
+        } catch(e){
+            Utils.logError("useTokens#processImportERC20Token: ", e)
+            return Status.error("Failed to import token")
+                         .setCode(ErrorCodes.internal)
+        } finally {
+            if(loader) loader.close()
+        }
+    }
+
     /**
      * remove Token
      */
@@ -1003,6 +1103,7 @@ export const useTokens = () => {
     return {
         getTokens,
         importToken,
+        processImportERC20Token,
         getERC20TokenInfo,
         updateBalances,
         getUserBalances,
