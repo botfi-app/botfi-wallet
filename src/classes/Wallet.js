@@ -1061,9 +1061,9 @@ export default class Wallet {
             case "eth_sendRawTransaction":
                 query = () => this.rpcSendTx("eth_sendRawTransaction", params)
             break;
-            case "web3_clientVersion":
-                query = () => app.app_name_slug
-            break;
+            //case "web3_clientVersion":
+              //  query = () => app.app_name_slug
+            //break;
             default:
                 query = () => this.provider.send(method, params)
             break;

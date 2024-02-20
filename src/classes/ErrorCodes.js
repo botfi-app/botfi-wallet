@@ -43,5 +43,7 @@ export default {
 
     WATCH_ASSET_INVALID_ADDRESS: -32602,
 
+    TOKEN_ERRORS: -32602,
+
     INVALID_ASSET_TYPE:  -32602,
 }

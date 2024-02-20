@@ -11,12 +11,9 @@ import ImportNFTByContract from '../../components/tokens/import-nft/ImportNFTByC
         :showNav="true"
         :hasNetSelect="true"
         :hasAddrSelect="false"
+        backUrl="/tokens#tab-nfts"
     >   
-
-        <NativeBackBtn 
-            url="/tokens#tab-nfts"
-        />
-
+    
         <div class="w-400 mb-5">
             <TabbedContent
                 :tabs="[

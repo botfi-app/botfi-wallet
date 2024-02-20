@@ -173,6 +173,7 @@ const handleWebviewEvents = async (tabId) => {
 
     w.handleNavigation(async (event) => {
         
+        //consolelog("event===>", event)
         if(!('url'  in event)) return;
 
         if (event.newWindow) {

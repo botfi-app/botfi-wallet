@@ -6,7 +6,7 @@ export default {
     wallet_addEthereumChain: { 
         hasPermission: true,
         template: `
-            <div>{{WEBSITE}} wants to add a new chain to your wallet.</div>
+            <div>{{WEBSITE}} is requesting to add a new blockchain to your wallet.</div>
             <div class="my-1 mt-2">Network Name: {{CHAIN_NAME}}</div>
             <div class="my-1">Chain ID: {{CHAIN_ID}}</div>
         `,
@@ -16,15 +16,15 @@ export default {
 
     wallet_switchEthereumChain: { 
         hasPermission: true,
-        template: "{{WEBSITE}} wants to switch your current chain to: {{CHAIN_NAME}} ({{CHAIN_ID}})",
+        template: "{{WEBSITE}} requesting permission to switch your current netwrk to {{CHAIN_NAME}} ({{CHAIN_ID}})",
         confirmBtn: 'Switch Network'
     },
 
     wallet_watchAsset: {
-        hasPermission: true,
-        template: "{{WEBSITE}} wants to add '{{ASSET_SYMBOL}}' to your assets",
+        hasPermission: false,
+        /*template: "{{WEBSITE}} requests permission to import an asset into your wallet.",
         askAlways: true,
-        confirmBtn: 'Add Asset'
+        confirmBtn: 'Add Asset'*/
     },
 
     /*wallet_scanQRCode: {
@@ -35,7 +35,7 @@ export default {
 
     eth_requestAccounts: {
         hasPermission: true,
-        template: "{{WEBSITE}} wants to connect to your wallet",
+        template: "{{WEBSITE}} is  requesting permission to connect with your wallet.",
         askAlways: false,
         confirmBtn: 'Connect'
     },
@@ -60,8 +60,8 @@ export default {
     eth_sendTransaction: {
         hasPermission: true,
         askAlways: true,
-        template: "{{WEBSITE}} wants to execute a transaction with your wallet",
-        warning: "This operation may cost you money, only allow trusted websites."
+        template: "{{WEBSITE}} is requesting authorization to perform a transaction using your wallet",
+        warning: "This operation may incur costs. Please only grant access to trusted websites."
     },
 
     web3_clientVersion: {
@@ -79,6 +79,8 @@ export default {
     eth_chainId: {
         hasPermission: false,
     },
+
+    net_version: { hasPermission: false },
 
     eth_coinbase: { hasPermission: false },
 

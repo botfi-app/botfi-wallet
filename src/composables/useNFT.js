@@ -284,6 +284,73 @@ export const useNFT = () => {
        }
    }
 
+   const processImportNFT = async (data={}) => {
+
+        let loader;
+
+        try {
+
+            let { contract, tokenId, standard, wallet } = data
+            
+            if(!Utils.isAddress(contract)){
+                return Status.error("Invalid contract address")
+            }
+    
+            if(tokenId.trim() == ""){
+                return  Status.error("A valid token ID is required")
+            }
+
+            if(!["erc721", "erc1155"].includes(standard)){
+                return  Status.error(`Unknown Standard '${standard}'`)
+            }
+
+            loader = Utils.loader("Fetching NFT's onchain data")
+
+            let resultStatus = await fetchNFTOnChain(contract, tokenId, standard)
+
+            if(resultStatus.isError()){
+                return Status.error(resultStatus.getMessage())
+            }
+
+            let nftInfo = resultStatus.getData()
+
+            if(nftInfo == null){
+                return Status.error("NFT was not found")
+            }
+            
+            nftInfo.isCustomImport = true
+         
+            let action =   await Utils.getSwal().fire({
+                                showCancelButton: true,
+                                confirmButtonText: 'Import',
+                                denyButtonText:     'Cancel',
+                                html: Utils.getImportNFTConfirmMsg(nftInfo),
+                                title: "Confirm Action",
+                            })
+    
+            if(!action.isConfirmed){
+                return Status.error("User rejected request")
+                            .setCode(ErrorCodes.userRejectedRequest)
+            }
+    
+            let importStatus = await importNFT(nftInfo, wallet)
+
+            if(importStatus.isError()){
+                return Status.error(importStatus.getMessage())
+                            .setCode(ErrorCodes.internal)
+            }
+            
+            return Status.successData(true)
+
+        } catch(e){
+            Utils.logError("useNFT#processImportNFT:", e)
+            return Status.error(Utils.generalErrorMsg)
+                         .setCode(ErrorCodes.internal)
+        } finally {
+            if(loader) loader.close()
+        }
+   }
+
    const nftExists = async (id) => { getNFTs
        //let _nfts = ($state.value.nfts)
        //return (id in $state.value.nfts)
@@ -764,6 +831,7 @@ export const useNFT = () => {
         removeNFT,
         getNFTStandard,
         fetchNFTOnChain,
-        removeUserNFTs
+        removeUserNFTs,
+        processImportNFT
     }
 }

@@ -12,7 +12,7 @@ const tokenStandard = ref("")
 const networks  = useNetworks()
 const activeNetInfo = ref()
 const router = useRouter()
-const { getNFTStandard, fetchNFTOnChain, importNFT } = useNFT()
+const { getNFTStandard, processImportNFT } = useNFT()
 const  {  getActiveWalletInfo } = useWalletStore()
 
 
@@ -29,15 +29,8 @@ const onSubmit = async () => {
         let _tokenId = tokenId.value.toString().trim()
         let _tokenStandard = tokenStandard.value.trim()
 
-        if(!Utils.isAddress(_contractAddr)){
-            return Utils.errorAlert("Invalid contract address")
-        }
-
-        if(!/\d+/.test(_tokenId)){
-            return Utils.errorAlert("A valid token ID is required")
-        }
-
-        loader = Utils.loader(`Processing Request`)
+  
+        loader = Utils.loader(`Detecting NFT Standard`)
 
         //lets retrieve the token Standard 
         if(_tokenStandard == ""){
@@ -50,43 +43,22 @@ const onSubmit = async () => {
             _tokenStandard = tokenStandardStatus.getData()
         }//end auto retrieve token Standard
 
-       
-        let resultStatus = await fetchNFTOnChain(_contractAddr, _tokenId, _tokenStandard)
 
-        //console.log("resultStatus====>", resultStatus)
+        let wallet = (await getActiveWalletInfo()).address
+
+        
+        let resultStatus = await processImportNFT({ 
+                                wallet, 
+                                contract: _contractAddr,
+                                tokenId: _tokenId,
+                                standard: _tokenStandard
+                            })
 
         if(resultStatus.isError()){
-            return Utils.mAlert(resultStatus.getMessage())
+            return Utils.errorAlert(resultStatus.getMessage())
         }
 
-        let nftInfo = resultStatus.getData()
-
-        //console.log("nftInfo===>", nftInfo)
-
-        nftInfo.isCustomImport = true
-         
-        let action =   await Utils.getSwal().fire({
-                            showCancelButton: true,
-                            confirmButtonText: 'Import',
-                            denyButtonText:     'Cancel',
-                            html: Utils.getImportNFTConfirmMsg(nftInfo),
-                            title: "Confirm Action",
-                        })
-
-        if(!action.isConfirmed) return;
-
-        let walletAddr = (await getActiveWalletInfo()).address
-
-
-        loader = Utils.loader("Importing NFT")
-
-        let importStatus = await importNFT(nftInfo, walletAddr)
-
-        if(importStatus.isError()){
-            return Utils.errorAlert(importStatus.getMessage())
-        }
-
-        Utils.mAlert(`${nftInfo.name} (id: ${nftInfo.tokenId}) imported`)
+        Utils.mAlert(`NFT imported`)
         
         contractAddr.value = ''
         tokenId.value = ''
@@ -125,7 +97,7 @@ const onSubmit = async () => {
                 :autocomplete="false"
                 :autocorrect="false"
             />
-            <label for="tokenId">Token Id</label>
+            <label for="tokenId">Token ID</label>
         </div>
         <div>
             <button class="btn btn-primary rounded-pill w-full"

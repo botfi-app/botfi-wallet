@@ -20,6 +20,7 @@ import { useNetworks } from "./useNetworks"
 import EventBus from "../classes/EventBus"
 import { useTx } from "./useTx"
 import { useTokens } from "./useTokens"
+import { useNFT } from "./useNFT"
 
 
 export const useBrowser = () => {
@@ -29,6 +30,7 @@ export const useBrowser = () => {
     const netCore     = useNetworks()
     const txCore      = useTx()
     const tokenCore   = useTokens()
+    const nftCore     = useNFT()
 
     const { activeWallet } = walletStore
 
@@ -109,6 +111,8 @@ export const useBrowser = () => {
             // firstly, lets check if user is connected
             if(!["eth_accounts",
                  "eth_requestAccounts",
+                 "wallet_watchAsset",
+                 "net_version"   
                 ].includes(method))
             {
                 if(!isSiteConneted) {
@@ -246,19 +250,40 @@ export const useBrowser = () => {
 
                 let contract = opts.address;
 
+                EventBus.emit("hideBrowser", true)
+
+                let activeNet = await netCore.getActiveNetworkInfo()
+                let wallet = activeWallet.address
+                let resultStatus; 
+
                 if(type == "erc20"){
-                    let resultStatus = await tokenCore.processImportERC20Token({ 
+                    resultStatus = await tokenCore.processImportERC20Token({ 
                                             contract,
-                                            wallet: activeWallet.address
+                                            wallet,
+                                            chainId: activeNet.chainId
                                         })
-
-                    if(resultStatus.isError()) return resultStatus
-
-                    return Status.successData(true)
-                } else {
                     
+                } else if(["erc721", "erc1155"].includes(type)) {
+
+                    let tokenId = (opts.tokenId || "").toString().trim();
+
+                    if(tokenId == ""){
+                        return Status.error("A valid tokenId is required")
+                                     .setCode(ErrorCodes.TOKEN_ERRORS)
+                    }
+
+                    resultStatus = await nftCore.processImportNFT({
+                                        wallet,
+                                        standard: type,
+                                        contract,
+                                        tokenId
+                                    })
                 }
-            }   
+
+                if(resultStatus.isError()) return resultStatus
+
+                return Status.successData(true)
+            }   //end if watch asset 
 
             // lets login user in 
             let web3ConnStatus = await walletStore.getWeb3Conn()
