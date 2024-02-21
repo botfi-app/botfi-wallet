@@ -94,7 +94,10 @@ export const useTokens = () => {
             //console.log("Calling getTokens")
             let tokensObj = $state.value.tokens
 
-            if(Object.keys(tokensObj) == 0 || force){
+            if(Object.keys(tokensObj).length == 0 || force){
+
+                //reset the tokens
+                tokensObj = {}
 
                 let netInfo = await net.getActiveNetworkInfo()
                 
@@ -123,8 +126,6 @@ export const useTokens = () => {
                 tokensArr.forEach(item => {
 
                     let token = item.contract;
-
-                    ///console.log("balancesObj====>", balancesObj)
                     
                     let tokenBalances = (balancesObj[token.toLowerCase()] || {})
 
@@ -146,17 +147,6 @@ export const useTokens = () => {
 
                 $state.value.tokens = tokensObj;
             }
-
-            //let tokensCount = Object.keys(tokensObj).length  // the +1 is the native token
-
-            /*if(limit != null && Number.isInteger(limit) && tokensCount > (limit+1)) {
-                let slicedItems = Object.fromEntries(
-                    Object.entries(tokensObj).slice(0,limit+1)
-                )
-                return slicedItems
-            }*/
-
-            //console.log("Calling getTokens===>", tokensObj)
 
             return tokensObj;
         } catch(e){
@@ -907,6 +897,8 @@ export const useTokens = () => {
                 : await db.tokens.put(tokenInfo)
 
         EventBus.emit("update-balance")
+
+        getTokens(true);
   
         return Status.successData(id)
     }//end import 
@@ -1032,7 +1024,7 @@ export const useTokens = () => {
             }
             
             //lets get the tokens 
-            let _tokens = await getTokens()
+            let _tokens = await getTokens(true)
 
             return Status.successData(_tokens)
         } catch(e){

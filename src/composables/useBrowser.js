@@ -195,10 +195,8 @@ export const useBrowser = () => {
 
                     // if the request is eth_sendTransaction, then lets retrieve
                     // the tx params again, the gas params might have been changed
-                    //params = pResult.requestParams || []
-
-                   // console.log("requestParams===>", params)
-               }
+                    params = pResult.requestParams || []
+                }
 
             }
 

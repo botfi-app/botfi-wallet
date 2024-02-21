@@ -182,23 +182,22 @@ export const useNFT = () => {
                return resultStatus;
            }
 
-           let resultData = resultStatus.getData() || {}
+           let resultDataArr = resultStatus.getData() || {}
 
-           //console.log("resultData===>", resultData)
+           ///console.log("resultData===>", Array.isArray(resultDataArr))
 
            let bulkData = []
 
-           for(let label of Object.keys(resultData)){
-              // console.log("label===>", label)
+           for(let item of resultDataArr){
+            
+               let label = item.label;
+               let value = item.data
+
                let [methodName, dbItemId] = label.split("_")
 
                dbItemId = parseInt(dbItemId)
 
-               let value = resultData[label]
-
                let dataInfo = nftsArray[dbItemId]
-
-               //console.log("dataId===>", dbItemId)
                
                if(methodName == "balanceOf"){
                    dataInfo.nftInfo.balance = value
@@ -275,7 +274,9 @@ export const useNFT = () => {
 
            let dId = await db.nfts.put(dataToSave)
 
-           await updateOnChainNFTData()
+            updateOnChainNFTData()
+
+            getNFTs(true)
 
            return Status.success("", dId)
        } catch(e){
@@ -368,7 +369,7 @@ export const useNFT = () => {
 
        await db.nfts.where({ id, userId }).delete()
 
-       let newNFTs = await getNFTs()
+       let newNFTs = await getNFTs(true)
        
        return Status.success("", newNFTs)
    }
