@@ -1,3 +1,13 @@
+<route>
+    { name: "browser" }
+</route>
+
+<script>
+  export default {
+    name: 'browser'
+  }
+</script>
+
 <script setup>
 import { nextTick, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, watch } from 'vue';
 import { WebviewEmbed } from '@botfi-app/capacitor-webview-embed';  
@@ -42,6 +52,11 @@ onMounted(() => {
 
 
 onActivated(async () => {
+
+    if(isBrowserHidden.value){
+        showBrowser()
+    }
+
     EventBus.on("hideBrowser", (hide) => {
         if(hide)  hideBrowser()
         else  showBrowser()
@@ -60,6 +75,7 @@ onDeactivated(() => {
     EventBus.on("hideBrowser")
     EventBus.off("chainChanged")
     EventBus.off("accountsChanged")
+    hideBrowser()
 })
 
 
@@ -77,6 +93,8 @@ const showBrowser = async () => {
 
 const handleAppEvents = () => {
     CApp.addListener('backButton', async () => {
+
+        if(isBrowserHidden.value) return;
 
         if(urlInputFocused.value){
             document.getElementById("addr-bar-input").blur()

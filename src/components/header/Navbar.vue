@@ -13,7 +13,6 @@ const props = defineProps({
     <div>
         <div class="d-flex p-2 px-3 align-items-center justify-content-between flex-nowrap">
             <div class="fw-semibold fs-6 pe-2 text-truncate d-flex align-items-center"  
-                style="max-width: 45vw;"
             >   
                 <NativeBackBtn  
                     :url="props.backUrl" 

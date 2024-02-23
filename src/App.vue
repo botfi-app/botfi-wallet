@@ -43,7 +43,7 @@ const updateBalances = async() => {
 
 <template>
   <router-view v-slot="{ Component, route }">
-      <KeepAlive>
+      <KeepAlive :include="['browser','wallet']">
         <component :is="Component"   />
       </KeepAlive>
   </router-view>

@@ -4,13 +4,15 @@
  * @author BotFi <hello@botfi.app>
  */
 
-import { onBeforeMount, onBeforeUnmount, onMounted, ref } from 'vue';
+import { onActivated, onBeforeMount, onBeforeUnmount, onMounted, ref } from 'vue';
 import { useTokens } from '../../composables/useTokens';
 import { useNetworks } from '../../composables/useNetworks';
 import Utils from '../../classes/Utils';
 import Http from '../../classes/Http';
 import { Modal as bsModal } from 'bootstrap';
 import { useWalletStore } from '../../store/walletStore';
+import InlineError from '../common/InlineError.vue';
+import LoadingView from '../../layouts/LoadingView.vue';
 
 
 const props = defineProps({
@@ -25,12 +27,14 @@ const emit = defineEmits(['select', "init"])
 
 const selected = ref(props.selected)
 const initialized = ref(false)
+const initializationErr = ref("")
 const networks   = useNetworks()
 const tokensCore = useTokens()
 const searchResults = ref([])
 const keyword = ref("")
 const errorMsg = ref("")
 const id = ref("token-selector-modal")
+const isInitialLoading = ref(false)
 const isLoading = ref(false) 
 const initialData = ref({})
 const walletStore = useWalletStore()
@@ -42,31 +46,48 @@ const netInfo = ref({})
 let intval;
 
 onBeforeMount(async () => {
-
-    netInfo.value = await networks.getActiveNetworkInfo()
-
-    activeWallet.value = await walletStore.getActiveWalletInfo()
-    walletAddrs.value = await walletStore.getWalletAddresses()
-
-    let chainId = netInfo.value.chainId
-
-
-    if(window.swapTokens && chainId in window.swapTokens){
-        searchResults.value = window.swapTokens[chainId] || {}
-    } else {
-        await fetchData()
-    }
-
-    initialData.value = searchResults.value
-
-    initialized.value = true
-
-    emit("init", { reloadBalances, getTokenInfo })
+    initialize()
 })
 
-onBeforeUnmount(() => {
+onActivated(() => {
     if(intval) clearInterval(intval)
 })
+
+const initialize = async () => {
+    try {
+
+        isInitialLoading.value = true 
+        errorMsg.value = ""
+
+        netInfo.value = await networks.getActiveNetworkInfo()
+
+        activeWallet.value = await walletStore.getActiveWalletInfo()
+        walletAddrs.value = await walletStore.getWalletAddresses()
+
+        let chainId = netInfo.value.chainId
+
+
+        if(window.swapTokens && chainId in window.swapTokens){
+            searchResults.value = window.swapTokens[chainId] || {}
+        } else {
+            await fetchData()
+        }
+
+        initialData.value = searchResults.value
+
+        initialized.value = true
+
+        emit("init", { reloadBalances, getTokenInfo })
+    } catch(e){
+        Utils.logError("TokenSelectorModal#initialize:", e)
+        errorMsg.value = "Failed to fetch tokens"
+        initialize.value = false
+    } finally {
+        isInitialLoading.value = false
+    }
+}
+
+
 
 const getTokenInfo = (tokenAddr) => {
    
@@ -153,6 +174,7 @@ const fetchData = async () => {
 
         searchResults.value = tokensOnChainData
 
+        return true 
     } catch(e){
         errorMsg.value = Utils.generalErrorMsg
         Utils.logError("TokenSelectorModal#initialize:", e)
@@ -162,7 +184,6 @@ const fetchData = async () => {
 }
 
 const fetchTokensOnChainDataAndBalances = async (tokensDataArr) => {
-
 
     let tokensContractsArr = []
     
@@ -370,6 +391,7 @@ const importToken = async () => {
         title="Select Token"
         :has-header="true"
         :has-footer="false"
+        @show="onModalShow"
         size="modal-md"
     >
         <template #body>
@@ -377,72 +399,80 @@ const importToken = async () => {
             <ScrollToTop
                :scrollElement="`#${id}`"
             />
-
-            <div>
-                <div class="import-search-form px-2">
-                    <SearchForm
-                        :dataToFilter="null"
-                        :filterKeys="[]"
-                        @change="onSearch"
-                        placeholder="Search name or paste address"
-                        :disabled="isLoading"
+            <LoadingView :is-loading="isInitialLoading">
+                <div v-if="!initialized && errorMsg != ''" class="py-5">
+                    <InlineError 
+                        :text="errorMsg" 
+                        :can-retry="true"
+                        @retry="initialize"           
                     />
                 </div>
-                <div v-if="showImportBtn" class="pb-2 center-vh">
-                    <div class="py-5">
-                        <div class="center-vh">
-                            <h5 class="hint">Token not found</h5>
-                        </div>
-                        <div class="center-vh">
-                            <button @click="importToken" class='btn btn-primary rounded'>
-                                Import
-                            </button>
+                <div v-else>
+                    <div class="import-search-form px-2">
+                        <SearchForm
+                            :dataToFilter="null"
+                            :filterKeys="[]"
+                            @change="onSearch"
+                            placeholder="Search name or paste address"
+                            :disabled="isLoading"
+                        />
+                    </div>
+                    <div v-if="showImportBtn" class="pb-2 center-vh">
+                        <div class="py-5">
+                            <div class="center-vh">
+                                <h5 class="hint">Token not found</h5>
+                            </div>
+                            <div class="center-vh">
+                                <button @click="importToken" class='btn btn-primary rounded'>
+                                    Import
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div v-else class="pb-2">
-                    <loading-view :isLoading="isLoading">
-                        <ul class="list-group list-group-flush w-full">
-                            <template v-for="(item, contract) in searchResults" :key="contract">
-                                <li class="list-group-item py-3 m-pointer no-select"
-                                    @click.prevent="onItemSelect(item)"
-                                >
-                                    <div class="d-flex justify-content-between">
-                                        <div class="d-flex">
-                                            <Image 
-                                                :src="item.image" 
-                                                :placeholder="item.symbol[0].toUpperCase()"
-                                                :width="24"
-                                                :height="24"
-                                                class="rounded-circle shadow-lg me-2"
-                                            />
-                                            <div>
-                                                <span>{{ item.name }}</span>
-                                                <span class="ms-2 muted hint">
-                                                    {{ item.symbol.toUpperCase() }}
-                                                </span>
+                    <div v-else class="pb-2">
+                        <loading-view :isLoading="isLoading">
+                            <ul class="list-group list-group-flush w-full">
+                                <template v-for="(item, contract) in searchResults" :key="contract">
+                                    <li class="list-group-item py-3 m-pointer no-select"
+                                        @click.prevent="onItemSelect(item)"
+                                    >
+                                        <div class="d-flex justify-content-between">
+                                            <div class="d-flex">
+                                                <Image 
+                                                    :src="item.image" 
+                                                    :placeholder="item.symbol[0].toUpperCase()"
+                                                    :width="24"
+                                                    :height="24"
+                                                    class="rounded-circle shadow-lg me-2"
+                                                />
+                                                <div>
+                                                    <span>{{ item.name }}</span>
+                                                    <span class="ms-2 muted hint">
+                                                        {{ item.symbol.toUpperCase() }}
+                                                    </span>
+                                                </div>
                                             </div>
-                                        </div>
+                                            
+                                            <div class="d-flex justify-content-end">
+                                                <div class="fs-14">
+                                                    {{ getBalance(item) }}
+                                                </div>
+                                                <Icon 
+                                                    v-if="item.contract == selected"
+                                                    name="teenyicons:tick-solid" 
+                                                    class="text-success ms-2" 
+                                                    :size="14"
+                                                />
+                                            </div>
                                         
-                                        <div class="d-flex justify-content-end">
-                                            <div class="fs-14">
-                                                {{ getBalance(item) }}
-                                            </div>
-                                            <Icon 
-                                                v-if="item.contract == selected"
-                                                name="teenyicons:tick-solid" 
-                                                class="text-success ms-2" 
-                                                :size="14"
-                                            />
                                         </div>
-                                     
-                                    </div>
-                                </li>
-                            </template>
-                        </ul>
-                    </loading-view>
+                                    </li>
+                                </template>
+                            </ul>
+                        </loading-view>
+                    </div>
                 </div>
-            </div>
+            </LoadingView>
         </template>
     </Modal>
 </template>

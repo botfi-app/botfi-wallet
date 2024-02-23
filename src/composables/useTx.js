@@ -27,7 +27,7 @@ export const useTx = () => {
                 return null
             }
 
-            console.log("txData====>", txData)
+            //console.log("txData====>", txData)
 
             let _methodSig = txData.substring(0, 10)
 

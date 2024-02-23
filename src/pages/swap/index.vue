@@ -1,10 +1,26 @@
+
+<script>
+  export default {
+    name: 'swap'
+  }
+</script>
 <script setup>
 /**
  * BotFi (https://botfi.app)
  * @author BotFi <hello@botfi.app>
  */
 
-import { nextTick, onBeforeMount, onBeforeUnmount, onMounted, ref, toRaw, watch } from 'vue';
+import { 
+    nextTick, 
+    onBeforeMount, 
+    onBeforeUnmount, 
+    onMounted, 
+    ref, 
+    toRaw, 
+    watch,
+    onActivated,
+    onDeactivated
+} from 'vue';
 import { useTokens } from '../../composables/useTokens';
 import { useNetworks } from '../../composables/useNetworks';
 import { useWalletStore } from '../../store/walletStore';
@@ -17,7 +33,7 @@ import swapConfig from "../../config/swap"
 import  { useSwap } from '../../composables/useSwap';
 import InlineError from '../../components/common/InlineError.vue';
 import SwapSettings from '../../components/modals/SwapSettings.vue';
-import { MaxUint256, parseUnits } from 'ethers';
+import { MaxUint256, formatUnits, parseUnits } from 'ethers';
 import SwapQuotesModal from '../../components/modals/SwapQuotesModal.vue';
 import ConfirmSwapModal from '../../components/modals/ConfirmSwapModal.vue';
 import { useRoute } from 'vue-router';
@@ -38,13 +54,13 @@ const wallets           = useWalletStore()
 const activeWallet     = ref()
 const balanceInfo      = ref(null)
 
-const networks      = useNetworks()
-const netInfo       = ref()
+const networks              = useNetworks()
+const { activeNetwork }     = networks
+const netInfo               = ref()
 
 const swapCore = useSwap()
 const  { swapSetting } = swapCore
 const slippage         = ref(swapSetting.value.slippage) 
-
 
 const tokenA = ref(null)
 const tokenB = ref(null)
@@ -85,9 +101,23 @@ onBeforeMount(() => {
     initialize()
 })
 
+onActivated(() => {
+    if(!initialized.value){
+        initialize()
+    }
+})
+
+onDeactivated(() => {
+    stopQuoteUpdateTimer()
+})
+
 onBeforeUnmount(() => {
     stopQuoteUpdateTimer()
 })
+
+watch(activeNetwork, () => {
+    initialize()
+}, { deep: true })
 
 watch(swapSetting, () => {
     slippage.value = swapSetting.value.slippage
@@ -329,7 +359,7 @@ const fetchQuotes = async () => {
     
     isFetchingQuotes.value = true 
 
-    //console.log("Helloo Booomm===>")
+    //console.log("tokenAInputValue.value.toString()===>>>", tokenAInputValue.value.toString())
 
     let tokenAInfo = tokenA.value
     let tokenBInfo = tokenB.value;
@@ -337,7 +367,9 @@ const fetchQuotes = async () => {
     //lets now enocde the amount into tokenA's format
     let tokenAInputVal2 = parseUnits(tokenAInputValue.value.toString(), tokenAInfo.decimals)
 
-    if(tokenAInputVal2 == 0) return;
+    //console.log("tokenBInfo===>", tokenBInfo)
+
+    if(tokenAInputVal2 == BigInt("0")) return;
 
     let recipient = activeWallet.value.address 
 
@@ -376,14 +408,25 @@ const onTokenAInputReady = (input) => {
     tokenAInputEl.value = input
 }
 
-const setMaxBalance = (val) => {
+const setBalanceByPercent = (percent=0) => {
+    
+    let tA = tokenA.value
+    let balance = tA.balanceInfo.value
+
+    let value = "0";
+    let pBPS = percent * 100 
+
+    if(percent > 0 && balance > BigInt(0)){
+        let pVal =  Utils.calPercentBPS(balance, pBPS)
+        value = formatUnits(pVal, tA.decimals)
+    }
+    
     let input = tokenAInputEl.value 
-    input["value"] = val
+    input["value"] = value
     input.dispatchEvent(new Event('change'))
 }
 
 const selectQuote = (index) => {
-    fetchQuoteGasInfo(index)
     let quoteAmtOut = Utils.formatFiat(quotesDataArr.value[index].formattedAmountOutWithSlippage)
     tokenBInputValue.value = quoteAmtOut
     selectedQuoteIndex.value = index
@@ -445,15 +488,16 @@ const handleOnSubmit = async () => {
 
         //lets check if the selected quote has gas estimate
         //let curQuoteInfo = quotesArr[curQuoteIdx]
-    
         if(!tokenApproved.value){
             if(!(await approveTokenSpend())) return;
         }
 
-
         loader = Utils.loader("Initialising gas data..")
 
-        if(!(await fetchQuoteGasInfo(quoteItemIndex))) return false 
+        if(!(await stimulateSwapTx(quoteItemIndex))){
+            Utils.mAlert("Swap failed, increase slippage and try again")
+            return false
+        }
 
         nextTick(() => {
             let intval = setInterval(() =>{
@@ -509,6 +553,7 @@ const executeSwapTx =  async (dataObj) => {
         //console.log("resultStatus===>", resultStatus)
 
         if(resultStatus.isError()){
+            ignoreQuoteRefresh.value = false 
             return Utils.mAlert(resultStatus.getMessage())
         }
 
@@ -551,6 +596,8 @@ const executeSwapTx =  async (dataObj) => {
                 }
 
                 //console.log("newTokenB===>", newTokenB)
+                ignoreQuoteRefresh.value = false 
+
              })
           })
 
@@ -567,7 +614,11 @@ const executeSwapTx =  async (dataObj) => {
             icon: "swap_success_2.svg",
             explorerUrl
         })
-        
+
+        tokenAInputValue.value = 0
+        quotesDataArr.value = []
+        ignoreQuoteRefresh.value = false 
+
     } catch(e){
         Utils.mAlert(Utils.generalErrorMsg)
         Utils.logError("swap#executeSwap:", e)
@@ -582,7 +633,7 @@ const getTotalQuoteText = () => {
     return `${len} Quote${(len) > 1 ? 's': ''} Found`
 }
 
-const fetchQuoteGasInfo = async (idx) => {
+const stimulateSwapTx = async (idx) => {
 
     let item = quotesDataArr.value[idx]
 
@@ -593,7 +644,7 @@ const fetchQuoteGasInfo = async (idx) => {
     let data = await item.estimateGas()
 
     if(data == null){
-        Utils.mAlert("Failed to fetch gas info for quote, try again later")
+       // Utils.mAlert("Failed to fetch gas info for quote, try again later")
         return false;
     } 
 
@@ -631,13 +682,14 @@ const fetchQuoteGasInfo = async (idx) => {
                 <div>
                     <SwapInputAndTokenSelect
                         :tokenInfo="tokenA"
+                        :isPrimary="true"
                         @open-token-select-modal="openTokenSelectModal('tokenA')"
                         @ready="onTokenAInputReady"
                         @input-change="v => tokenAInputValue = v"
                         :inputAttrs="{
                             focused: ''
                         }"
-                        @balance-click="b => setMaxBalance(b.formatted)"
+                        @setBalance="setBalanceByPercent"
                         :key="tokenASelectState"
                     />
                 </div>

@@ -5,6 +5,7 @@ import Image from '../common/Image.vue';
 import Utils from '../../classes/Utils';
 
 const p = defineProps({
+    isPrimary: { type: Boolean, default: false},
     tokenInfo: { type: null, required: true },
     isFocused: { type: Boolean, default: false },
     inputAttrs: { type: Object, default: {} }
@@ -77,17 +78,17 @@ const getBalance = () => {
                 </div>
                 <div v-if="p.tokenInfo != null" 
                     class="d-flex center-vh fs-14 lh-2  hint m-pointer"
-                    @click="emit('balance-click', p.tokenInfo.balanceInfo)"
+                    @click="emit('setBalance', 100)"
                 >
                     <div class=''>Balance:</div> 
                     <div class='ms-1'>{{ getBalance() }}</div>
                 </div>
             </div>  
-            <div class="flex-grow-1 mt-2">
+            <div class="flex-grow-1 mt-2 d-flex">
                 <input 
                     type="text" 
                     v-number
-                    class="w-full amount-input fw-bold fs-4"
+                    class="w-full amount-input fw-bold fs-4 flex-grow-1"
                     placeholder="0"
                     :autofocus="isFocused"
                     v-bind="p.inputAttrs"
@@ -95,6 +96,15 @@ const getBalance = () => {
                     ref="inputRef"
                     v-model="inputVal"
                 />
+                <div class="d-flex" v-if="p.isPrimary">
+                    <template v-for="(value, percent) in {50: '50%', 100: 'Max'}">
+                        <button @click="emit('setBalance', percent)"
+                            class="btn btn-outline-primary btn-sm rounded m-1"
+                        >
+                            {{ value }}
+                        </button>
+                    </template>
+                </div>
             </div>
         </div>  
     </div>

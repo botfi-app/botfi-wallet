@@ -73,17 +73,21 @@ export const useTokens = () => {
 
         let netInfo = await net.getActiveNetworkInfo()
 
+        //console.log("netInfo====>", netInfo)
+
         let image =  netInfo.icon || ""
 
         if("icon" in netInfo.nativeCurrency && netInfo.nativeCurrency.icon.trim() != ""){
             image = netInfo.nativeCurrency.icon || "";
         }
 
+        let assetInfo = netInfo.nativeCurrency
+
         return {
-            ...netInfo.nativeCurrency,
             image,
             chainId: netInfo.chainId,
-            contract: Utils.nativeTokenAddr
+            contract: Utils.nativeTokenAddr,
+            ...assetInfo
         }
     }
 
@@ -110,8 +114,12 @@ export const useTokens = () => {
                                     .reverse()
                                     .sortBy("createdAt")
 
+                //console.log("tokensArr1===>", tokensArr)
+
                 // add the native token to the top of the data
                 tokensArr.unshift((await getNativeTokenInfo()))
+
+                //console.log("tokensArr2===>", tokensArr)
 
                 let balancesObj = await getUserBalances()
 
@@ -126,6 +134,10 @@ export const useTokens = () => {
                 tokensArr.forEach(item => {
 
                     let token = item.contract;
+
+                    if(Utils.isNativeToken(token) && !item.decimals){
+                        item.decimals = 18
+                    }
                     
                     let tokenBalances = (balancesObj[token.toLowerCase()] || {})
 

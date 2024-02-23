@@ -23,8 +23,10 @@ onBeforeMount(async ()=> {
     initialized.value = true
 })
 
-const getQuoteSrcInfo = (item) => {
-    return Utils.getQuoteSrcInfo(item.routeInfo.parsedGroup)
+const getQuoteSrc = (item) => {
+    return item.routeInfo.parsedId
+            .replace(/(\d+)\_(\d+)$/gi,"$1.$2")
+            .replace(/\_+/g," ")
 }
 
 const onItemClick = (index) => {
@@ -51,7 +53,7 @@ const onItemClick = (index) => {
                         <thead>
                             <tr class="fs-14 fw-semibold">
                                 <th>Receive ({{ p.tokenB.symbol.toUpperCase() }})</th>
-                                <th>Gas Fee ({{ nativeToken.symbol.toUpperCase() }})</th>
+                                <!--<th>Gas Fee ({{ nativeToken.symbol.toUpperCase() }})</th>--->
                                 <th>Source</th>
                             </tr>
                         </thead>
@@ -65,15 +67,17 @@ const onItemClick = (index) => {
                                             {{ Utils.formatCrypto(item.formattedAmountOutWithSlippage, 4) }}
                                         </div>
                                     </td>
+                                    <!--
                                     <td>
                                         <div v-if="!item.gasFee"></div>
                                         <div v-else>
                                             {{ Utils.formatCrypto(formatUnits(item.gasFee, nativeToken.decimals), 4) }} 
                                         </div>
                                     </td>
+                                    -->
                                     <td>
-                                        <div :class="`btn btn-sm rounded-lg text-capitalize ${getQuoteSrcInfo(item).cssClass}`">
-                                            {{ getQuoteSrcInfo(item).name }}
+                                        <div class="btn btn-sm rounded-lg text-capitalize">
+                                            {{ getQuoteSrc(item) }}
                                         </div>
                                     </td>
                                 </tr>

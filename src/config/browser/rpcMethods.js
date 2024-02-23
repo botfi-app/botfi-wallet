@@ -47,13 +47,16 @@ export default {
     eth_signTypedData_v4: {
         hasPermission: true,
         askAlways: true,
-        template: "",
-        confirmBtn: 'Sign'
+        template: "{{WEBSITE}} is requesting a signature sign request; please only authorize trusted websites.",
+        confirmBtn: 'Sign',
+        warning: "This operation may grant the requester an access to your assets"
     },
 
     personal_sign: {
         hasPermission: true,
         askAlways: true,
+        template: "{{WEBSITE}} is requesting a signature sign request; please only authorize trusted websites.",
+        warning: "This operation may grant the requester an access to your assets",
         confirmBtn: 'Sign'
     },
 

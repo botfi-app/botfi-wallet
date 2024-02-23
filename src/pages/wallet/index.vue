@@ -1,3 +1,8 @@
+<script>
+  export default {
+    name: 'wallet'
+  }
+</script>
 <script setup>
 /**
  * BotFi (https://botfi.app)
@@ -5,7 +10,7 @@
  * @license MIT 
  */
 
-import { inject, onBeforeMount, ref } from 'vue';
+import { inject, onActivated, ref } from 'vue';
 import WalletLayout from '../../layouts/WalletLayout.vue';
 import ProfilePhoto from '../../components/common/ProfilePhoto.vue';
 import Utils from '../../classes/Utils';
@@ -16,11 +21,13 @@ import TokensAndActivityTabs from '../../components/wallet/TokensAndActivityTabs
 const botUtils = inject("botUtils")
 const userInfo = ref({})
 const name = ref("")
+const initialized = ref(false)
 //const { fetchSettings } = useSettings()
 
-onBeforeMount(() => {
-    initialize()
-
+onActivated(() => {
+    if(!initialized){
+        initialize()
+    }
     //nets.getExplorer(58)
 })
 
@@ -35,6 +42,8 @@ const initialize = async() => {
 
    // let tokens = await getTokens() 
    // nativeTokenInfo.value = tokens[Utils.nativeTokenAddr] 
+
+   initialized.value = true
 }
 </script>
 <template>

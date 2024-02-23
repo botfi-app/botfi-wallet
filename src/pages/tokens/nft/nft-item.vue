@@ -5,7 +5,7 @@
     }
 </route>
 <script setup>
-import { onBeforeMount, ref } from 'vue';
+import { onActivated, onBeforeMount, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useNFT } from '../../../composables/useNFT'
 import Utils from '../../../classes/Utils';
@@ -16,12 +16,13 @@ import { useWalletStore } from '../../../store/walletStore';
 const route = useRoute()
 const router = useRouter()
 const { getNFTById, removeNFT, getNFTs } = useNFT()
-const  { getActiveNetworkInfo }  = useNetworks()
+const  netCore  = useNetworks()
 const  {  getActiveWalletInfo } = useWalletStore()
 const dbData = ref(null)
 const nftInfo = ref(null)
 const pageError = ref("")
 const isOwner = ref(false)
+const pageTitle = ref("")
 
 onBeforeMount(()=>{
   initialize()
@@ -31,7 +32,8 @@ const initialize = async () => {
 
   dbData.value = await getNFTById(route.params.id)
 
-  //consoe.log(" dbData.value===>",  dbData.value)
+  //console.log("route.params===>", route.params)
+  ///console.log(" dbData.value===>",  dbData.value)
 
   if(dbData.value == null){
     pageError.value = "NFT item not found"
@@ -40,10 +42,12 @@ const initialize = async () => {
 
   let _nft = dbData.value.nftInfo;
 
-  let activeNetworkInfo = await getActiveNetworkInfo()
+  let userNets = (await netCore.getUserNetworks()).networks
+
+  let netName = (userNets[_nft.chainId] || {}).chainName || ""
 
   //console.log("activeNet===>", activeNet)
-  _nft.chain  = `${activeNetworkInfo.name} (${_nft.chainId})`
+  _nft.chain  = `${netName} (${_nft.chainId})`
           
   _nft = {..._nft, 
           contract: _nft.collection,
@@ -56,6 +60,8 @@ const initialize = async () => {
   let nftOwner = (_nft.owner || "").toLowerCase().trim()
 
  isOwner.value = (nftOwner != '' && nftOwner == activeWallet)
+
+ pageTitle.value = _nft.name
 
   nftInfo.value = _nft
 }
@@ -118,15 +124,13 @@ const sendNFT = () => {
 </script>
 <template>
     <WalletLayout
-      title=""
-      :showNav="false"
+      :title="pageTitle"
+      :showNav="true"
       :hasNetSelect="true"
-      :hasAddrSelect="false"
+      :hasAddrSelect="true"
       :pageError="pageError"
+      backUrl="/tokens#tab-nfts"
     >   
-        <NativeBackBtn 
-          url="/tokens#tab-nfts"
-        />
 
         <div class="w-400 mb-5">
           <div v-if="dbData != null && nftInfo != null">

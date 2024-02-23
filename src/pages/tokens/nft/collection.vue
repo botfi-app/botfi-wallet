@@ -20,6 +20,8 @@ const route     = useRoute()
 const pageError = ref("")
 const contract  = ref("")
 const chainId   = ref()
+const pageTitle = ref("")
+
 //const pageTitle = ref("NFT Collection")
 const isLoading = ref(false)
 const dataObj   = ref(null)
@@ -28,7 +30,8 @@ const  {  getActiveWalletInfo } = useWalletStore()
 
 const activeWalletAddr = ref("")
 
-onBeforeMount(() => {
+
+onBeforeMount(()=>{
     initialize()
 })
 
@@ -72,12 +75,12 @@ const initialize = async () => {
 
         let activeNetworkInfo = await getActiveNetworkInfo()
 
-        //console.log("activeNet===>", activeNet)
-        resultObj.chain  = `${activeNetworkInfo.name} (${resultObj.chainId})`
+        //console.log("activeNet===>", activeNetworkInfo)
+        resultObj.chain  = `${activeNetworkInfo.chainName} (${resultObj.chainId})`
                 
         dataObj.value = resultObj
 
-        //pageTitle.value = resultObj.name 
+        pageTitle.value = resultObj.name 
         
     } catch(e) {
         Utils.logError("tokens#nft-collection#[contract]:", e)
@@ -89,16 +92,13 @@ const initialize = async () => {
 </script>
 <template>
     <WalletLayout
-        title=""
-        :showNav="false"
+        :title="pageTitle"
+        :showNav="true"
         :hasNetSelect="false"
-        :hasAddrSelect="true"
+        :hasAddrSelect="false"
         :pageError="pageError"
+        backUrl="/tokens/import-nft"
     >   
-
-        <NativeBackBtn 
-            url="/tokens/import-nft"
-        />
 
         <div class="w-400 mb-5">
             <loading-view :isLoading="isLoading">

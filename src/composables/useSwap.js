@@ -287,7 +287,7 @@ export const useSwap =  () => {
             //console.log("resultData===>", resultData)
         
             let processedQuotes = []
-            let gasEstimateCallsArr = []
+            //let gasEstimateCallsArr = []
     
             for(let item of resultData) {
     
@@ -335,12 +335,14 @@ export const useSwap =  () => {
                     }
                 } 
                 
-                //console.log("amountOut===>", amountOut)
+                ///console.log("amountOut===>", amountOut)
+                //console.log("tokenBInfo 22===>", tokenBInfo)
 
                 // if no value, skip
                 if(!amountOut) continue;
             
                 dataObj['routeInfo'] = routeInfo
+                //dataObj["routeGroup"]
 
                 let slippageAmt = Utils.calPercentBPS(amountOut, slippageBPS)
                
@@ -353,7 +355,7 @@ export const useSwap =  () => {
                                                             amountOutWithSlippage, 
                                                             tokenBInfo.decimals
                                                         )
-                
+               // console.log("dataObj===>", dataObj)
                 dataObj.feeData = feeData
 
 
@@ -387,46 +389,18 @@ export const useSwap =  () => {
                         payloadAbi:       data.payloadAbi
                     }
                 } //end gas estimate
-
-                gasEstimateCallsArr.push(dataObj.estimateGas())
+                
                 processedQuotes.push(dataObj)
 
             } //end loop
             
-            let estimateGasResults =  await Promise.allSettled(gasEstimateCallsArr)
-
-            for(let i in estimateGasResults){
-
-                let pResult = estimateGasResults[i]
-
-                if(pResult.status != 'fulfilled'){
-                    Utils.logError(`useSwap#fetchQuote#estimateGasResults: ${pResult.reason}`)
-                    continue
-                }
-              
-                if(pResult.value  != null){
-                    processedQuotes[i] = {...processedQuotes[i], ...pResult.value}
-                }
-            }
-
+      
             // sort with higher output and lower gas
             let sortedData = processedQuotes.sort(( item1, item2 ) => {
                 if(item1.amountOut > item2.amountOut) return -1;
                 else return 0
-            }).sort(( item1, item2 ) => {
-
-                let item1GasFee = item1.gasFee || null
-                let item2GasFee = item2.gasFee || null
-
-                if(item1GasFee  != null && 
-                    item2GasFee != null && 
-                    (item1.amountOut > item2.amountOut || item1.amountOut == item2.amountOut) &&
-                    item1GasFee <= item2GasFee
-                ) 
-                return -1;
-                else return 0;
-
             })
+           
 
             return Status.successData(sortedData)
         } catch(e){
@@ -720,7 +694,7 @@ export const useSwap =  () => {
 
             swapFactory = contracts.swap.factory;
 
-            //console.log("quoteInfo===>", quoteInfo)
+            console.log("quoteInfo===>", quoteInfo)
             //console.log("amountInWithoutFee===>", amountInWithoutFee)
             
             let payload = quoteInfo.payload;

@@ -92,8 +92,6 @@ const doRemoveToken = async (token) => {
 
         let resultStatus = await removeToken(token)
 
-        console.log("resultStatus===>", resultStatus)
-
         if(resultStatus.isError()){
             return Utils.errorAlert(resultStatus.getMessage())
         }   
@@ -102,16 +100,12 @@ const doRemoveToken = async (token) => {
 
         let _tokensData = resultStatus.getData() || null 
 
-        console.log("_tokensData===>", _tokensData)
-
         if(_tokensData != null){
             nextTick(() => {
                 tokensData.value = _tokensData
                 dataState.value = Date.now()
             })
         }
-
-        processTokens()
     } catch(e){
         Utils.logError(`TokenBalances#removeToken:`, e)
         Utils.errorAlert(Utils.generalErrorMsg)

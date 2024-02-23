@@ -30,11 +30,11 @@ const onRetry = () => {
             >
                 Oops!
             </h1>
-            <h5  style="--bs-text-opacity: .5;"
-                :class="`text-center text-dark-emphasis px-4 ${props.textClass} text-capitalize`"
+            <div  style="--bs-text-opacity: .5;"
+                :class="`text-center fs-14 text-dark-emphasis px-4 ${props.textClass} text-capitalize`"
             >
                 {{ props.text.replace("_", " ") }}
-            </h5>
+        </div>
             <div class="mt-2 d-flex w-full justify-content-center">
                 <button @click.prevent="onRetry"
                     class="btn btn-info btn-sm rounded-pill px-5 center-vh"

@@ -99,8 +99,11 @@ const initialize = async () => {
 
         activeWalletAddr.value = (await walletStore.getActiveWalletInfo()).address;
 
+        let _mthd = method.value
+        let _rp =  requestParams.value
+        
 
-        if(["eth_sendTransaction"].includes(method.value)){
+        if(["eth_sendTransaction"].includes(_mthd)){
 
             isTx.value = true
             
@@ -118,7 +121,7 @@ const initialize = async () => {
 
             web3Conn = web3ConnStatus.getData()
 
-            let requestParamsObj = requestParams.value[0] ||  null
+            let requestParamsObj = _rp[0] ||  null
 
             //lets fetch the tx data 
             if(requestParamsObj == null){
@@ -130,7 +133,6 @@ const initialize = async () => {
             txValue.value = requestParamsObj.value || null 
 
             //console.log("txDataObj==>", txDataObj)
-
 
             let _txValueText = "0"
 
@@ -199,6 +201,17 @@ const initialize = async () => {
       
             decodedContractInfo.value = methodInfoArr
         } //end if eth_sendTransaction
+
+        else if(_mthd == ""){
+
+            let requiredAddr = _rp[0] || ""
+
+            if(requiredAddr.toLowerCase() == activeWalletAddr.value.toLowerCase()){
+                return errorMsg.value = "The required wallet address does not match the active wallet"
+            }
+
+            //let rpObj = 
+        }
 
     } catch(e){
         Utils.logError("PermissionModal#initialize:", e)

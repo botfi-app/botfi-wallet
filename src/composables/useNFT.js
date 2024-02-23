@@ -274,9 +274,9 @@ export const useNFT = () => {
 
            let dId = await db.nfts.put(dataToSave)
 
-            updateOnChainNFTData()
-
-            getNFTs(true)
+           await getNFTs(true)
+           
+           updateOnChainNFTData()
 
            return Status.success("", dId)
        } catch(e){

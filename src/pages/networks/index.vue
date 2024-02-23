@@ -1,6 +1,6 @@
 
 <script setup>
-import { onActivated, onBeforeMount, onDeactivated, ref } from 'vue';
+import { onActivated, onBeforeMount, onBeforeUnmount, onDeactivated, ref } from 'vue';
 import Utils from '../../classes/Utils';
 import WalletLayout from '../../layouts/WalletLayout.vue';
 import NativeBackBtn from '../../components/common/NativeBackBtn.vue';
@@ -29,7 +29,7 @@ const networksDataToRender = ref({})
 let returnOnSelect = false
 let backUrl = ""
 
-onActivated(() => {
+onBeforeMount(() => {
     let q = route.query;
     returnOnSelect = ("returnOnSelect" in q)
 
@@ -37,7 +37,7 @@ onActivated(() => {
     if(backUrl == '') backUrl = "/wallet"
 })
 
-onDeactivated(()=>{
+onBeforeUnmount(()=>{
     returnOnSelect = false
 })
 
@@ -194,7 +194,7 @@ const onSearch = async (keyword, filteredData) => {
                                 <Image 
                                     :width="20"
                                     :height="20"
-                                    :src="item.icon || ''" 
+                                    :src="item.image || ''" 
                                     alt=""
                                     :placeholder="item.chainName"
                                     class="rounded-circle"

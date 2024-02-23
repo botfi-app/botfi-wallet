@@ -16,7 +16,7 @@ export default {
             },
             rpcUrls: ["https://ethereum.publicnode.com"],
             blockExplorerUrls: [ "https://ethercan.io"],
-            icon: "/images/crypto/eth.svg"
+            image: "/images/crypto/eth.svg"
         },
 
         137: {
@@ -31,7 +31,7 @@ export default {
             },
             rpcUrls: ["https://polygon-bor.publicnode.com"],
             blockExplorerUrls: [ "https://polygonscan.com"],
-            icon: "/images/crypto/matic.svg"
+            image: "/images/crypto/matic.svg"
         },
 
         56: {
@@ -46,7 +46,7 @@ export default {
             },
             rpcUrls: ["https://bsc.publicnode.com"],
             blockExplorerUrls: [ "https://bscscan.com"],
-            icon: "/images/crypto/bnb.svg"
+            image: "/images/crypto/bnb.svg"
         },
 
         42161: {
@@ -59,11 +59,11 @@ export default {
                 symbol:     "ETH",
                 decimals:   18,
                 chainId:    1,
-                icon: "/images/crypto/eth.svg"
+                image: "/images/crypto/eth.svg"
             },
             rpcUrls: ["https://arb1.arbitrum.io/rpc"],
             blockExplorerUrls: [ "https://arbiscan.io/"],
-            icon: "/images/crypto/arb.svg"
+            image: "/images/crypto/arb.svg"
         },
 
         324: {
@@ -76,11 +76,11 @@ export default {
                 symbol:     "ETH",
                 decimals:   18,
                 chainId:    1,
-                icon: "/images/crypto/eth.svg"
+                image: "/images/crypto/eth.svg"
             },
             rpcUrls: ["https://mainnet.era.zksync.io"],
             blockExplorerUrls: [ "https://era.zksync.network/" ],
-            icon: "/images/crypto/zksync.svg"
+            image: "/images/crypto/zksync.svg"
         },
 
         10: {
@@ -93,11 +93,11 @@ export default {
                 symbol:     "ETH",
                 decimals:   18,
                 chainId:    1,
-                icon: "/images/crypto/eth.svg"
+                image: "/images/crypto/eth.svg"
             },
             rpcUrls: ["https://mainnet.optimism.io"],
             blockExplorerUrls: [ "https://optimistic.etherscan.io/"],
-            icon: "/images/crypto/op.svg"
+            image: "/images/crypto/op.svg"
         },
 
         8453: {
@@ -110,11 +110,11 @@ export default {
                 symbol:     "ETH",
                 decimals:   18,
                 chainId:    1,
-                icon: "/images/crypto/eth.svg"
+                image: "/images/crypto/eth.svg"
             },
             rpcUrls: ["https://mainnet.base.org"],
             blockExplorerUrls: [ "https://basescan.org"],
-            icon: "/images/crypto/base.svg"
+            image: "/images/crypto/base.svg"
         },
 
         59144: {
@@ -127,11 +127,11 @@ export default {
                 symbol:     "ETH",
                 decimals:   18,
                 chainId:    1,
-                icon: "/images/crypto/eth.svg"
+                image: "/images/crypto/eth.svg"
             },
             rpcUrls: ["https://rpc.linea.build"],
             blockExplorerUrls: [ "https://lineascan.build/"],
-            icon: "/images/crypto/linea.svg"
+            image: "/images/crypto/linea.svg"
         },
 
         43114: { 
@@ -146,7 +146,7 @@ export default {
             },
             rpcUrls: ["https://avalanche-c-chain.publicnode.com"],
             blockExplorerUrls: [ "https://snowtrace.io/"],
-            icon: "/images/crypto/avax.svg"
+            image: "/images/crypto/avax.svg"
         },
 
         106: { 
@@ -161,7 +161,7 @@ export default {
             },
             rpcUrls: ["https://evmexplorer.velas.com/rpc"],
             blockExplorerUrls: ["https://evmexplorer.velas.com/"],
-            icon: "/images/crypto/avax.svg"
+            image: "/images/crypto/avax.svg"
         },
 
         250: { 
@@ -176,7 +176,7 @@ export default {
             },
             rpcUrls: ["https://fantom.publicnode.com"],
             blockExplorerUrls: ["https://ftmscan.com/"],
-            icon: "/images/crypto/ftm.svg"
+            image: "/images/crypto/ftm.svg"
         },
 
         25: { 
@@ -191,7 +191,7 @@ export default {
             },
             rpcUrls: ["https://evm.cronos.org"],
             blockExplorerUrls: ["https://cronos.org/explorer"],
-            icon: "/images/crypto/cro.svg"
+            image: "/images/crypto/cro.svg"
         },
 
         100: { 
@@ -206,7 +206,7 @@ export default {
             },
             rpcUrls: ["https://rpc.gnosischain.com"],
             blockExplorerUrls: ["https://gnosisscan.io"],
-            icon: "/images/crypto/gno.svg"
+            image: "/images/crypto/gno.svg"
         },
 
         1284: { 
@@ -221,7 +221,7 @@ export default {
             },
             rpcUrls: ["https://rpc.api.moonbeam.network"],
             blockExplorerUrls: ["https://moonbeam.moonscan.io/"],
-            icon: "/images/crypto/glmr.svg"
+            image: "/images/crypto/glmr.svg"
         },
 
         86: { 
@@ -236,7 +236,7 @@ export default {
             },
             rpcUrls: ["https://evm.nodeinfo.cc"],
             blockExplorerUrls: ["https://gatescan.org"],
-            icon: "/images/crypto/gt.svg"
+            image: "/images/crypto/gt.svg"
         },
 
         66: { 
@@ -251,7 +251,7 @@ export default {
             },
             rpcUrls: ["https://exchainrpc.okex.org"],
             blockExplorerUrls: ["https://www.oklink.com/okexchain"],
-            icon: "/images/crypto/okb.svg"
+            image: "/images/crypto/okb.svg"
         },
 
         40: { 
@@ -266,7 +266,7 @@ export default {
             },
             rpcUrls: ["https://mainnet.telos.net/evm"],
             blockExplorerUrls: ["https://teloscan.io"],
-            icon: "/images/crypto/tlos.svg"
+            image: "/images/crypto/tlos.svg"
         },
 
         128: { 
@@ -281,7 +281,7 @@ export default {
             },
             rpcUrls: ["https://http-mainnet.hecochain.com"],
             blockExplorerUrls: ["https://hecoinfo.com"],
-            icon: "/images/crypto/ht.svg"
+            image: "/images/crypto/ht.svg"
         },
 
         1101: {
@@ -294,11 +294,11 @@ export default {
                 symbol:     "ETH",
                 decimals:   18,
                 chainId:    1,
-                icon: "/images/crypto/eth.svg"
+                image: "/images/crypto/eth.svg"
             },
             rpcUrls: ["https://zkevm-rpc.com"],
             blockExplorerUrls: [ "https://zkevm.polygonscan.com/"],
-            icon: "/images/crypto/pols.svg"
+            image: "/images/crypto/pols.svg"
         },
     }
 }
