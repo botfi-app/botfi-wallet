@@ -8,6 +8,7 @@ import { useNetworks } from '../../composables/useNetworks';
 import { useTx } from '../../composables/useTx';
 import { useTokens } from '../../composables/useTokens';
 import { Wallet, formatUnits, getUint, getBigInt, parseUnits, formatEther } from "ethers"
+import RenderEthSignTyedData from '../common/RenderEthSignTyedData.vue';
 
 const tokensCore = useTokens()
 const txCore = useTx()
@@ -202,7 +203,7 @@ const initialize = async () => {
             decodedContractInfo.value = methodInfoArr
         } //end if eth_sendTransaction
 
-        else if(_mthd == ""){
+        else if(_mthd == "eth_signTypedData_v4"){
 
             let requiredAddr = _rp[0] || ""
 
@@ -210,7 +211,23 @@ const initialize = async () => {
                 return errorMsg.value = "The required wallet address does not match the active wallet"
             }
 
-            //let rpObj = 
+            let sigInfo = _rp[1] || {}
+            let domainInfo = sigInfo["domain"] || {}
+
+            let requiredChainId = domainInfo.chainId || ""
+            let curChainId = activeNetwork.value.chainId
+
+            if(requiredChainId == "" || requiredChainId != curChainId){
+                return errorMsg.value = "The required network does not match the connected network" 
+            }   
+
+        } else if(["personal_sign","eth_decrypt"].includes(_mthd)){
+
+            let requiredAddr = _rp[0] || ""
+
+            if(requiredAddr.toLowerCase() == activeWalletAddr.value.toLowerCase()){
+                return errorMsg.value = "The required wallet address does not match the active wallet"
+            }
         }
 
     } catch(e){
@@ -321,7 +338,9 @@ const onShow = () => {
 
 const onHide = () => {
     isOpened.value = false 
-    isReady.value = false
+    isReady.value  = false
+    method.value   = ""
+
     emits('hide')
 }
 
@@ -468,30 +487,37 @@ const processFeeAndFinalAmount = () => {
                                 </div>
                             </div>
                         </div>
-
-                        <template v-if="decodedContractInfo.length > 0">
-                            <div>
-                                <div class="fs-12 fw-bold muted text-start mb-1 mt-4">
-                                    Contract Info
-                                </div>
-                                <div class="px-3 py-2 bg-darken-5 rounded-lg">
-                                    <template v-for="item in decodedContractInfo">
-                                        <div class="space-between my-3 fs-12 fw-medium">
-                                            <div class="text-capitalize pe-4 no-break">
-                                                {{ item.name }}:
-                                            </div>
-                                            <div class="text-end d-flex  text-break">
-                                                <div class="" v-if="Utils.isAddress(item.value)">
-                                                    <CopyBtn :text="item.value" btnClasses="text-warning" />
+                        
+                        <div v-if="isTx">
+                            <template v-if="decodedContractInfo.length > 0">
+                                <div>
+                                    <div class="fs-12 fw-bold muted text-start mb-1 mt-4">
+                                        Contract Info
+                                    </div>
+                                    <div class="px-3 py-2 bg-darken-5 rounded-lg">
+                                        <template v-for="item in decodedContractInfo">
+                                            <div class="space-between my-3 fs-12 fw-medium">
+                                                <div class="text-capitalize pe-4 no-break">
+                                                    {{ item.name }}:
                                                 </div>
-                                                <div>{{ item.value }}</div>
+                                                <div class="text-end d-flex  text-break">
+                                                    <div class="" v-if="Utils.isAddress(item.value)">
+                                                        <CopyBtn :text="item.value" btnClasses="text-warning" />
+                                                    </div>
+                                                    <div>{{ item.value }}</div>
+                                                </div>
                                             </div>
-                                        </div>
-                                    </template>
-                                </div>
-                            </div> 
-                        </template>
-
+                                        </template>
+                                    </div>
+                                </div> 
+                            </template>
+                        </div>
+                        <div v-else-if="['eth_signTypedData_v4'].includes(method)">
+                    
+                            <RenderEthSignTyedData 
+                                :params="requestParams"
+                            />
+                        </div>
                     </div>
                 </LoadingView>
             </div>

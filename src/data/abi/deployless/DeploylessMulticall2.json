@@ -1,1 +1,1 @@
-["constructor(bool requireSuccess, tuple(address target, bytes callData)[] calls)"]
+["constructor(bool requireSuccess, (address target, bytes callData)[] calls)"]

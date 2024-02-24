@@ -156,12 +156,15 @@ export const useBrowser = () => {
                 }
             } 
         
+            let permissionShown = false 
 
             if(rpcMethodInfo.hasPermission){
                 
                 if(!isSiteConneted || rpcMethodInfo.askAlways == true){
 
                     EventBus.emit("hideBrowser", true)
+
+                    permissionShown = true
 
                     let text = rpcMethodInfo.template || ""
 
@@ -296,6 +299,8 @@ export const useBrowser = () => {
                 EventBus.emit("hideBrowser", true)
                 loader = Utils.loader("Processing Request")
             }
+
+            if(permissionShown) loader = Utils.loader("Processing...")
 
             let rpcResultStatus = await  web3.queryRPCMethod(method, params)
 

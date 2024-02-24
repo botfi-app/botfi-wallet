@@ -18,6 +18,7 @@ import dynamicImport from 'vite-plugin-dynamic-import'
 import legacy from '@vitejs/plugin-legacy'
 import { argv } from 'process'
 import basicSsl from '@vitejs/plugin-basic-ssl'
+import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill'
 
 //console.log("process.env.====>", process.env.BOTFI_PLATFORM)
 
@@ -101,17 +102,24 @@ export default defineConfig({
       "whatwg-fetch",
       "animate.css"
     ],
-    /*esbuildOptions: {
-      target: "esnext", 
-      supported: { 
-        bigint: true 
-      },
-    }*/
+    esbuildOptions: {
+        // Node.js global to browser globalThis
+        define: {
+            global: 'globalThis'
+        },
+        // Enable esbuild polyfill plugins
+        plugins: [
+            NodeGlobalsPolyfillPlugin({
+                buffer: true
+            })
+        ]
+    }
   },
 
   build: {
     polyfillDynamicImport: true,
-    target: "es2015"
+    target: "es2015",
+    
   },
 
   server: {
@@ -122,6 +130,9 @@ export default defineConfig({
     headers: {
       "localtonet-skip-warning": "true"
     }
-  }
+  },
 
+  define: {
+    //"global": {},
+  },
 })

@@ -1,1 +1,1 @@
-["constructor(tuple(address token, address account)[] calls)"]
+["constructor((address token, address account)[] calls)"]

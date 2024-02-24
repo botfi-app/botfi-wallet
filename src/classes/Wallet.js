@@ -26,6 +26,8 @@ import multicall3Abi from "../data/abi_min/multicall3.js"
 import deploylessContractsBytes from "../config/deployless/bytecodes.json"
 import botfiContractAddrs from "../config/contracts/botfi/index.js"
 import app from "../config/app.js";
+import { signTypedData, SignTypedDataVersion } from "@metamask/eth-sig-util"
+
 
 const defaultAbiCoder = AbiCoder.defaultAbiCoder()
 
@@ -61,12 +63,12 @@ export default class Wallet {
                         )
 
             if(wallet != null){
-                let setWalletStatus = await this.setWallet(wallet)
+                let setWalletStatus = this.setWallet(wallet)
 
                 if(setWalletStatus.isError()){
                     return setWalletStatus
                 }
-            }
+            }   
 
             //this.provider.pollingInterval = 5000;
 
@@ -183,8 +185,11 @@ export default class Wallet {
             return this.notConnectedError()
         }
 
-        this.signer = new ethersWallet(privateKey, this.provider)
+        let __signer = new ethersWallet(privateKey, this.provider)
         
+        this.signer = __signer;
+
+        //__signer.signTypedData()
         return Status.successData(this)
     }
 
@@ -1038,6 +1043,29 @@ export default class Wallet {
         }
     }
 
+    async eth_signTypedData_v4(params) {
+        try {
+
+            const [address, data] = params;
+
+            let version = SignTypedDataVersion.V4
+
+            let privateKey = Buffer.from(
+                this.signer.privateKey.substring(2),
+                'hex',
+            );
+
+            return signTypedData({
+                privateKey, 
+                data, 
+                version
+            })
+
+        } catch(e){
+            console.log("Wallet#eth_signTypedData_v4: ", e)
+            throw e;
+        }
+    }
 
     async queryRPCMethod(method, params=[]) {
 
@@ -1046,7 +1074,6 @@ export default class Wallet {
         switch(method){
 
             case "eth_chainId":
-                console.log("eth_chainId ===> ", this.chainId, "===>", Utils.toHex(this.chainId))
                 query = async () => Utils.toHex(this.chainId)
             break;
             case "eth_requestAccounts":
@@ -1058,12 +1085,9 @@ export default class Wallet {
             case "eth_sendTransaction":
                 query = () => this.rpcSendTx("eth_sendTransaction", params)
             break;
-            case "eth_sendRawTransaction":
-                query = () => this.rpcSendTx("eth_sendRawTransaction", params)
+            case "eth_signTypedData_v4":
+                query = () => this.eth_signTypedData_v4(params)
             break;
-            //case "web3_clientVersion":
-              //  query = () => app.app_name_slug
-            //break;
             default:
                 query = () => this.provider.send(method, params)
             break;
@@ -1079,7 +1103,6 @@ export default class Wallet {
             return Status.error(e.message)
                          .setCode(e.code)
         }
-
        
     }
 
