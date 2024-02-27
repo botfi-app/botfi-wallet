@@ -6,7 +6,7 @@
 
 
 import Utils from '../classes/Utils';
-import { NativeBiometric } from "capacitor-native-biometric";
+//import { NativeBiometric } from "capacitor-native-biometric";
 import { useSimpleDB } from './useSimpleDB';
 import Status from '../classes/Status';
 
@@ -14,10 +14,20 @@ export const useBiometricAuth =  () => {
 
     const sDB = useSimpleDB()
     const bAuthKey = "app.botfi.app.auth_password"
+    let NativeBiometric = null;
+
+    const getNativeBiometric = async () => {
+        if(!NativeBiometric){
+            NativeBiometric = (await import("capacitor-native-biometric")).NativeBiometric
+            //NativeBiometric  = biometricLib.NativeBiometric
+        }
+    }
 
     const isSupported = async () => {
 
         if(!Utils.isPlatform("capacitor")) return false; 
+
+        await getNativeBiometric()
 
         try{
             let info = await NativeBiometric.isAvailable()
@@ -34,7 +44,7 @@ export const useBiometricAuth =  () => {
     const setCredential = async ({ key, username, password }) => {
         try {   
 
-            if(!isSupported()) return Status.success();
+            if(!(await isSupported())) return Status.success();
             
             let params = {
                 username, 
@@ -57,6 +67,8 @@ export const useBiometricAuth =  () => {
 
     const verifyIdentity = async () => {
         try {
+
+            if(!(await isSupported())) return Status.error("Biometric not supported");
             
             await NativeBiometric.verifyIdentity({
                 reason:     "Authenticate to proceed",
@@ -77,6 +89,8 @@ export const useBiometricAuth =  () => {
     const getCredential = async (key) => {
 
         try {
+
+            if(!(await isSupported())) return Status.error("Biometric not supported");
 
             let data = await NativeBiometric.getCredentials({ server: key })
             return Status.successData(data)
@@ -112,6 +126,8 @@ export const useBiometricAuth =  () => {
     const clearBiometricAuth = async () => {
         try {
 
+            if(!(await isSupported())) return Status.success();
+
             await sDB.setItem("biometric_auth_enabled", false)
             await deleteCredential(bAuthKey)
 
@@ -124,6 +140,8 @@ export const useBiometricAuth =  () => {
 
     const deleteCredential = async (key) => {
         try {
+
+            if(!(await isSupported())) return Status.success();
 
             await NativeBiometric.deleteCredentials({
                 server: key,

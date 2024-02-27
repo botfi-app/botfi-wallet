@@ -7,8 +7,7 @@ import browser from '../../config/browser';
 
 const p = defineProps({
     progress: { type: Number, default: 0 },
-    url: { type: String, default: "" },
-    totalTabs: { type: Number, default: 0 }, 
+    url: { type: String, default: "" }, 
 })
 
 const clearBtn = ref()
@@ -21,7 +20,7 @@ const fullUrl = ref(p.url)
 const urlHost = ref("")
 const isSecure = ref(false)
 
-const emits = defineEmits(["urlChange", "openHome", "inputFocused"])
+const emits = defineEmits(["urlChange", "openHome", "inputFocused", "reload"])
 
 onMounted(() => {
     processUrl()
@@ -102,7 +101,6 @@ const handleUserInput = (e) => {
                     <Icon name="iconamoon:home-light" :size="24" />
                 </a>
             </div>
-        
 
             <div :class="`
                 addr-input-wrapper 
@@ -138,16 +136,21 @@ const handleUserInput = (e) => {
                     <button ref="clearBtn" class="btn btn-none rounded-circle p-0 clear-btn">
                         <Icon name="ooui:close" :size="20" />
                     </button>
+                    <a  href="#" @click.prevent="emits('reload')"
+                        class="btn btn-none p-0 reload-btn"
+                    >
+                        <Icon name="radix-icons:reload"  :size="20" />
+                    </a>
                 </div>
             </div>
             <div class="d-flex center-vh ms-2 menu-btns">
                 <NetSelectModal />
-                <a href="#" @click.prevent
-                    class="btn rounded py-0  center-vh fs-14 tabs-btn"
+                <router-link 
+                    to="/browser/menu"
+                    class="py-0  px-1 center-vh ms-1"
                 >
-                   {{ p.totalTabs }}
-                </a>
-             
+                    <Icon name="iconamoon:menu-kebab-vertical" class="icon"  />
+                </router-link>
             </div>
         </div>
         <div  v-if="progress > 0 && progress < 1"
@@ -202,6 +205,10 @@ const handleUserInput = (e) => {
 
             .clear-btn {
                 display: inline-block;
+            }
+
+            .reload-btn {
+                display: none;
             }
         }
     }

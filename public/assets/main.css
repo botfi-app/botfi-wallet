@@ -1,11 +1,11 @@
-:root {
+/*:root {
   --bs-body-bg: #1e1e1e;
-}
+}*/
 
 .hidden { display: none !important; }
 
 body {
-  background: var(--bs-body-bg);
+ background: var(--bs-body-bg);
 }
 
 #main-loader {

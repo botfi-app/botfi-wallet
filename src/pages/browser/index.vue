@@ -20,6 +20,7 @@ import { useBrowser } from "../../composables/useBrowser"
 import { usePermission } from '../../composables/usePermission';
 import EventBus from '../../classes/EventBus';
 import { useNetworks } from '../../composables/useNetworks';
+import { useBrowserTabs } from '../../composables/useBrowserTabs';
 
 const netCore = useNetworks()
 const { activeNetwork } = netCore
@@ -28,6 +29,7 @@ const walletStore = useWalletStore()
 const { activeWallet } = walletStore
 
 const browserCore = useBrowser()
+const browserTabs = useBrowserTabs()
 
 const router = useRouter()
 const route = useRoute()
@@ -191,15 +193,25 @@ const handleWebviewEvents = async (tabId) => {
 
     w.handleNavigation(async (event) => {
         
+        let url = (event.url || "").trim()
+
         //consolelog("event===>", event)
-        if(!('url'  in event)) return;
+        if(url == "") return;
+
+        if(!/^(https?:\/\/)/.test(url)){
+            window.location = url
+            event.complete(true);
+            return false; 
+        }
 
         if (event.newWindow) {
-            await newTab({ setActive: true, url: event.url })
+            await newTab({ setActive: true, url })
         } else {
             w.loadUrl(event.url)
-            tabs.value[tabId].url = event.url
+            tabs.value[tabId].url = url
         }
+
+        browserTabs.saveTabs(tabs)
 
         event.complete(true);
     });
@@ -283,7 +295,7 @@ const emitWeb3Events = async (eventName, value) => {
             <AddressBar 
                 :progress="tabs[activeTabId].progress" 
                 :url="tabs[activeTabId].url"
-                :totalTabs="Object.keys(tabs).length"
+                @reload="reload"
                 @urlChange="handleURLChange"
                 @openHome="openHome"
                 @inputFocused="(v) => urlInputFocused = v"
@@ -299,7 +311,7 @@ const emitWeb3Events = async (eventName, value) => {
             <BrowserToolBar 
                 @goBack="goBack"
                 @goFoward="goForward"
-                @reload="reload"
+                 :totalTabs="Object.keys(tabs).length"
                 :canGoBack="tabs[activeTabId].canGoBack"
                 :canGoForward="tabs[activeTabId].canGoForward"
             />
@@ -310,6 +322,7 @@ const emitWeb3Events = async (eventName, value) => {
             @hide="showBrowser"
             ref="permissionModalRef"
         />
+
     </WalletLayout> 
 </template>
 <style lang="scss">

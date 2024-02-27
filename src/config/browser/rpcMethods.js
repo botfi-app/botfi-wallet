@@ -60,6 +60,14 @@ export default {
         confirmBtn: 'Sign'
     },
 
+    eth_getEncryptionPublicKey: {
+        hasPermission: true,
+        askAlways: true,
+        template: "{{WEBSITE}} is requesting for your wallet's public key",
+        warning:  "This operation may grant the requester an access to your assets",
+        confirmBtn: 'Sign'
+    },
+
     eth_sendTransaction: {
         hasPermission: true,
         askAlways: true,

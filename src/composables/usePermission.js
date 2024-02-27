@@ -6,6 +6,7 @@
 
 import { onBeforeMount, ref, computed, toValue } from "vue"
 import { useSimpleDB } from "./useSimpleDB"
+import EventBus from "../classes/EventBus"
 
 
 const $state = ref({
@@ -51,10 +52,27 @@ export const usePermission = () => {
         return getConnectedSites()
     }
 
+    const removeSite = async (origin) => {
+
+        origin = origin.trim().toLowerCase()
+        let connectedSites = await getConnectedSites()
+        
+        if(!(origin in connectedSites)) return true;
+
+        delete connectedSites[origin]
+
+        EventBus.emit("connected-site-remove", origin)
+
+        await db.setItem("connected_sites", JSON.stringify(connectedSites))
+
+        return getConnectedSites()
+    }
+
     return {
         isSiteConnected,
         connectedSites,
         getConnectedSites,
-        connectSite
+        connectSite,
+        removeSite
     }
 }

@@ -100,6 +100,9 @@ export default class TelegramCore {
         return this.webApp.platform
     }
 
+    DB = () => window.localStorage
+
+
     backBtn(onClick = null) {
         
         let _isSupported =  (this.isMinVersion("6.10"))

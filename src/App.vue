@@ -39,11 +39,22 @@ const updateBalances = async() => {
   isUpdatingBalance.value = false
 }
 
+const keepAliveIncludes = [
+  'wallet'
+] 
+
+if(window.app_platform == 'capacitor'){
+  keepAliveIncludes.push(...[
+      'browser',
+      'connected-sites', 
+      'browser-menu'
+  ])
+}
 </script>
 
 <template>
   <router-view v-slot="{ Component, route }">
-      <KeepAlive :include="['browser','wallet']">
+      <KeepAlive :include="keepAliveIncludes">
         <component :is="Component"   />
       </KeepAlive>
   </router-view>

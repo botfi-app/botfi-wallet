@@ -26,7 +26,13 @@ import multicall3Abi from "../data/abi_min/multicall3.js"
 import deploylessContractsBytes from "../config/deployless/bytecodes.json"
 import botfiContractAddrs from "../config/contracts/botfi/index.js"
 import app from "../config/app.js";
-import { signTypedData, SignTypedDataVersion } from "@metamask/eth-sig-util"
+import { 
+    signTypedData, 
+    SignTypedDataVersion, 
+    personalSign, 
+    decrypt,
+    getEncryptionPublicKey
+} from "@metamask/eth-sig-util"
 
 
 const defaultAbiCoder = AbiCoder.defaultAbiCoder()
@@ -1067,6 +1073,72 @@ export default class Wallet {
         }
     }
 
+    async personalSign(params) {
+        try {
+
+            const [address, data] = params;
+
+            let privateKey = Buffer.from(
+                this.signer.privateKey.substring(2),
+                'hex',
+            );
+
+            return personalSign({
+                privateKey, 
+                data
+            })
+
+        } catch(e){
+            console.log("Wallet#personalSign: ", e)
+            throw e;
+        }
+    }
+
+    async ethDecrypt(params) {
+        try {
+
+            const [address, data] = params;
+
+            let privateKey = Buffer.from(
+                this.signer.privateKey.substring(2),
+                'hex',
+            );
+
+            return decrypt({
+                privateKey, 
+                data
+            })
+
+        } catch(e){
+            console.log("Wallet#ethDecrypt: ", e)
+            throw e;
+        }
+    }
+
+    async getEncryptionPublicKey(params) {
+        try {
+
+            const address = params[0];
+
+            if(!Utils.isAddress(address) || address != this.signer.address){
+                let e = Error("invalidParams")
+                e.code = ErrorCodes.invalidParams
+                throw e;
+            }
+
+            let privateKey = Buffer.from(
+                this.signer.privateKey.substring(2),
+                'hex',
+            );
+
+            return getEncryptionPublicKey(privateKey)
+
+        } catch(e){
+            console.log("Wallet#ethDecrypt: ", e)
+            throw e;
+        }
+    }
+
     async queryRPCMethod(method, params=[]) {
 
         let query = null;
@@ -1087,6 +1159,15 @@ export default class Wallet {
             break;
             case "eth_signTypedData_v4":
                 query = () => this.eth_signTypedData_v4(params)
+            break;
+            case "personal_sign":
+                query = () => this.personalSign(params)
+            break;
+            case "eth_decrypt":
+                query = () => this.ethDecrypt(params)
+            break;
+            case "eth_getEncryptionPublicKey":
+                query = () => this.getEncryptionPublicKey(params)
             break;
             default:
                 query = () => this.provider.send(method, params)

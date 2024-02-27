@@ -6,11 +6,12 @@ import Utils from '../../classes/Utils';
 
 const p = defineProps({
     canGoBack: { type: Boolean, default: false }, 
-    canGoForward: { type: Boolean, default: false }
+    canGoForward: { type: Boolean, default: false },
+    totalTabs: { type: Number, default: 0 },
 })
 
 const walletStore = useWalletStore()
-const emits = defineEmits(["goBack", "goForward", "reload"])
+const emits = defineEmits(["goBack", "goForward"])
 
 const canGoBack = ref(p.canGoBack)
 const canGoForward = ref(p.canGoForward)
@@ -42,10 +43,12 @@ watch(p, () => {
         >
             <Icon name="ic:round-arrow-forward" class="icon" :size="28" />
         </button>
-        <button  @click.prevent="emitEvt('reload')"
-            :class="`btn btn-none mx-1`"
+
+        
+        <button @click.prevent
+            class="btn rounded py-0 px-2 center-vh fs-14 tabs-btn"
         >
-            <Icon name="tabler:reload" class="icon" :size="28" />
+            {{ p.totalTabs }}
         </button>
 
         <div class="pe-3" v-if="walletStore.activeWallet">

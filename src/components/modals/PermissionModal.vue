@@ -7,8 +7,9 @@ import Utils from '../../classes/Utils';
 import { useNetworks } from '../../composables/useNetworks';
 import { useTx } from '../../composables/useTx';
 import { useTokens } from '../../composables/useTokens';
-import { Wallet, formatUnits, getUint, getBigInt, parseUnits, formatEther } from "ethers"
+import { Wallet, formatUnits, getUint, getBigInt, parseUnits, formatEther, isHexString } from "ethers"
 import RenderEthSignTyedData from '../common/RenderEthSignTyedData.vue';
+
 
 const tokensCore = useTokens()
 const txCore = useTx()
@@ -207,7 +208,7 @@ const initialize = async () => {
 
             let requiredAddr = _rp[0] || ""
 
-            if(requiredAddr.toLowerCase() == activeWalletAddr.value.toLowerCase()){
+            if(requiredAddr.toLowerCase() != activeWalletAddr.value.toLowerCase()){
                 return errorMsg.value = "The required wallet address does not match the active wallet"
             }
 
@@ -223,10 +224,23 @@ const initialize = async () => {
 
         } else if(["personal_sign","eth_decrypt"].includes(_mthd)){
 
+            let requiredAddr = _rp[1] || ""
+            let data = _rp[0] || ""
+
+            if(_mthd == "personal_sign" && !data.startsWith("0x")){
+                return errorMsg.value = "Parameter #2 requires a valid hex value"
+            }
+
+            if(requiredAddr.toLowerCase() != activeWalletAddr.value.toLowerCase()){
+                return errorMsg.value = `unknown wallet address: '${requiredAddr}'`
+            }
+        } 
+        else if(_mthd == "eth_getEncryptionPublicKey") {
+
             let requiredAddr = _rp[0] || ""
 
-            if(requiredAddr.toLowerCase() == activeWalletAddr.value.toLowerCase()){
-                return errorMsg.value = "The required wallet address does not match the active wallet"
+            if(requiredAddr.toLowerCase() != activeWalletAddr.value.toLowerCase()){
+                return errorMsg.value = `unknown wallet address: '${requiredAddr}'`
             }
         }
 
@@ -517,6 +531,13 @@ const processFeeAndFinalAmount = () => {
                             <RenderEthSignTyedData 
                                 :params="requestParams"
                             />
+                        </div>
+
+                        <div class="text-start" 
+                            v-else-if="['personal_sign','eth_decrypt'].includes(method)"
+                        >
+                            <div class="fs-12 fw-semibold my-2">Message</div>
+                            <p class="fs-14 text-break">{{ requestParams[0] || "" }}</p>
                         </div>
                     </div>
                 </LoadingView>

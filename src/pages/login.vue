@@ -65,7 +65,9 @@ const handleBiometricAuth = async (silent=false) => {
     //console.log("supportsBiometricAuth===>",supportsBiometricAuth.value)
     //console.log("biometricUnlockEnabled===>", biometricUnlockEnabled.value)
 
-    if(supportsBiometricAuth.value && biometricUnlockEnabled.value){
+    if(!supportsBiometricAuth.value) return;
+
+    if(biometricUnlockEnabled.value){
 
         bAuthRetries.value += 1
         biometricAuthError.value = ''
@@ -143,19 +145,21 @@ const handleLogin = async (silent=false) => {
         return Utils.errorAlert(errMsg)
     }
 
-    if(!biometricUnlockEnabled.value){
-        
-        if(unlockWithBiometric) {
-            // first lets authenticate user first 
-            let authStatus = await bAuth.verifyIdentity()
+    if(supportsBiometricAuth.value){
+        if(!biometricUnlockEnabled.value){
+            
+            if(unlockWithBiometric) {
+                // first lets authenticate user first 
+                let authStatus = await bAuth.verifyIdentity()
 
-            if(!authStatus.isError()){
-                await bAuth.enableBiometricAuth(p)
+                if(!authStatus.isError()){
+                    await bAuth.enableBiometricAuth(p)
+                }
             }
+        } else {
+            if(!unlockWithBiometric) await bAuth.clearBiometricAuth()
         }
-    } else {
-        if(!unlockWithBiometric) await bAuth.clearBiometricAuth()
-    }
+    } //end if biometric is supported
 
     redirectLoggedIn()
 }

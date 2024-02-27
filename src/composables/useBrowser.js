@@ -8,12 +8,11 @@ import { onBeforeMount, ref, computed, toValue } from "vue"
 import Wallet from "../classes/Wallet"
 import Status from "../classes/Status"
 import app from "../config/app"
-import { useSimpleDB } from "./useSimpleDB"
+//import { useSimpleDB } from "./useSimpleDB"
 import injectScript from "../config/browser/injectScript"
 import Utils from "../classes/Utils"
 import ErrorCodes from "../classes/ErrorCodes"
 import rpcMethods from "../config/browser/rpcMethods"
-import { isURL } from 'validator'
 import { usePermission } from "./usePermission"
 import { useWalletStore } from "../store/walletStore"
 import { useNetworks } from "./useNetworks"
@@ -52,6 +51,8 @@ export const useBrowser = () => {
 
         return methodInfo
     }
+
+    
 
     const processPermissionText = async ({method, text, origin, params}) => {
         
@@ -97,9 +98,11 @@ export const useBrowser = () => {
 
             permissionModal = toValue(permissionModal)
 
+            /*
             console.log("method===>", method)
             console.log("params====>", params)
             console.log("getConnectedSites===>", await permission.getConnectedSites())
+            */
 
             if(origin.trim().length == 0){
                 return Status.error("Invalid source origin")
@@ -136,9 +139,10 @@ export const useBrowser = () => {
 
             let parsedTxData = null
             
-            console.log("permissionModal====>", permissionModal)
+            /*/console.log("permissionModal====>", permissionModal)
             console.log("rpcMethodInfo===>", rpcMethodInfo)
             console.log("orign====>>>>", origin)
+            */
 
             if(method == "wallet_switchEthereumChain"){
                 if(params.length == 0){
@@ -193,7 +197,8 @@ export const useBrowser = () => {
                     }
 
                     if(!isSiteConneted){
-                        await permission.connectSite(origin)
+                       let connectSite = await permission.connectSite(origin)
+                       //console.log("connectSite====>", connectSite)
                     }
 
                     // if the request is eth_sendTransaction, then lets retrieve
@@ -351,7 +356,7 @@ export const useBrowser = () => {
             data: resultStatus
         }
 
-        console.log("finalMessage===>", finalMessage)
+        //console.log("finalMessage===>", finalMessage)
 
         webview.postMessage(JSON.stringify(finalMessage))
 
