@@ -47,7 +47,8 @@ if(window.app_platform == 'capacitor'){
   keepAliveIncludes.push(...[
       'browser',
       'connected-sites', 
-      'browser-menu'
+      'browser-menu',
+      'browser-tabs'
   ])
 }
 </script>

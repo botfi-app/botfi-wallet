@@ -43,5 +43,7 @@ export default {
 
     default_explorer: "https://routescan.io/",
 
+    favicon_loader: "https://www.google.com/s2/favicons?sz={{SIZE}}&domain={{DOMAIN}}",
+
     ...devConfig
 }

@@ -15,6 +15,22 @@ export default (tabId) => {
         // registered events 
         const registeredEvents = {}
 
+        // on loaded, lets send the title and url
+        window.addEventListener("load", () => {
+            const sendPageInfo = () => {
+                sendMessage({ 
+                    method: "webpageInfoUpdate",
+                    params: [{ 
+                        tabId,
+                        title: document.title, 
+                        url: window.location.href 
+                    }]
+                }, false)
+            }
+
+            sendPageInfo()
+        })
+
         /// send message to app
         const sendMessage = async (message, waitForReply=false) => {
             

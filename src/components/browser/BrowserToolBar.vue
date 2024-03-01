@@ -45,11 +45,11 @@ watch(p, () => {
         </button>
 
         
-        <button @click.prevent
-            class="btn rounded py-0 px-2 center-vh fs-14 tabs-btn"
+        <router-link to="/browser/tabs"
+            class="btn rounded py-0 px-2 fs-12 center-vh fs-14 tabs-btn"
         >
             {{ p.totalTabs }}
-        </button>
+        </router-link>
 
         <div class="pe-3" v-if="walletStore.activeWallet">
             <router-link to="/wallet/addresses?r=/browser&returnOnSelect"
@@ -76,7 +76,7 @@ watch(p, () => {
     background: var(--bs-body-bg-dark-5);
 
     .tabs-btn {
-        height: 30px;
+        height: 27px;
         border: 2px solid var(--bs-body-color) !important;
         opacity: 0.6;
     }

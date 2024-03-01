@@ -626,4 +626,13 @@ export default class Utils {
         return ("0x"+_val.toString(16))
     }
 
+    static parseUrl(url){
+        return (new URL(url))
+    }
+
+    static getFaviconURL(url, size=16){
+        return appConfig.favicon_loader
+                    .replace("{{DOMAIN}}", url)
+                    .replace("{{SIZE}}", size)
+    }
 }

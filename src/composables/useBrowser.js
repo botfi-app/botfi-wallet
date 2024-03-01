@@ -335,6 +335,12 @@ export const useBrowser = () => {
         const method = requestData["method"] || ""
         const params = requestData["params"] || []
 
+        if(method == "webpageInfoUpdate"){
+            console.log("webPageInfo===>", params)
+            EventBus.emit("onWebpageInfoUpdate",  params[0])
+            return;
+        }
+
         let resultStatus =  await  _processWebMessage({
                                 origin: sourceOrigin, 
                                 method, 

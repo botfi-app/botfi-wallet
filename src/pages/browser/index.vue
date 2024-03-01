@@ -9,8 +9,8 @@
 </script>
 
 <script setup>
-import { nextTick, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, watch } from 'vue';
-import { WebviewEmbed } from '@botfi-app/capacitor-webview-embed';  
+import {  onActivated, onBeforeMount, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import {WebviewEmbed as webview} from '../../../../../capacitorjs/capacitor-webview-overlay';  
 import browserConfig from "../../config/browser"
 import Utils from '../../classes/Utils';
 import { App as CApp } from '@capacitor/app';
@@ -41,23 +41,23 @@ const urlInputFocused = ref(false)
 const { connectedSites } = usePermission();
 const permissionModalRef = ref()
 
-onMounted(() => {
+onBeforeMount(() => {
+
     if(initialized.value) return;
 
     handleBrowserInit()
     handleAppEvents()
+    initBrowserEvents()
+    initializeWebviewEvents()
 
     initialized.value = true 
-
-    //console.log("connectedSites===>", connectedSites)
 })
 
+watch(tabs, () => {
+    EventBus.emit("tabsUpdated", tabs.value)
+})
 
-onActivated(async () => {
-
-    if(isBrowserHidden.value){
-        showBrowser()
-    }
+const initBrowserEvents = () => {
 
     EventBus.on("hideBrowser", (hide) => {
         if(hide)  hideBrowser()
@@ -71,26 +71,52 @@ onActivated(async () => {
     EventBus.on("accountsChanged", (account)=>{
         emitWeb3Events("accountsChanged", [account])
     })
+
+    EventBus.on("onWebpageInfoUpdate", (info) => handleWebpageInfoUpdate(info))
+
+    EventBus.on("switchBrowserTab", (tabId) => switchTab(tabId))
+
+    EventBus.on("newBrowserTab", () => newTab({ setActive: true }))
+
+    EventBus.on("closeBrowserTab", (tabId) => closeBrowserTab(tabId) )
+}
+
+onActivated(async () => {
+
+    if(isBrowserHidden.value){
+        showBrowser()
+    }
+
+    window.getBrowserTabs = () => {
+        return tabs.value
+    }
 })
 
-onDeactivated(() => {
-    EventBus.on("hideBrowser")
+onBeforeUnmount(() => {
+    
+    EventBus.off("hideBrowser")
     EventBus.off("chainChanged")
     EventBus.off("accountsChanged")
+    EventBus.off("switchBrowserTab")
+    EventBus.off("onWebpageInfoUpdate")
+    EventBus.off("newBrowserTab");
+
     hideBrowser()
+
+    webview.removeAllEvents()
 })
 
 
 const hideBrowser = async () => {
     isBrowserHidden.value = true
     let tab = getActiveTab()
-    if(tab != null) await tab.webview.hide()
+    if(tab != null) await webview.hide(tab.id)
 }
 
 const showBrowser = async () => {
     isBrowserHidden.value = false
     let tab = getActiveTab()
-    if(tab != null) await tab.webview.show()
+    if(tab != null) await webview.show(tab.id)
 }
 
 const handleAppEvents = () => {
@@ -113,7 +139,7 @@ const handleAppEvents = () => {
             return false
         }
 
-        t.webview.goBack()
+        webview.goBack()
     });
 
     CApp.addListener('appStateChange', async ({ isActive }) => {
@@ -134,22 +160,33 @@ const handleBrowserInit = () => {
     }, 1000);
 }
 
+/*
+watch(activeTabId, () => {
+    let ts = tabs.value
+    Object.keys(ts).forEach(tabId => {
+        let hidden = (tabId == activeTabId.value) ? false : true 
+        tabs.value[tabId].hidden = hidden 
+    })
+})
+*/
+
 const newTab = async ({ url = browserConfig.homepage, setActive=false }) => { 
 
     let tabId = Utils.getUUID()
 
-    if(setActive) activeTabId.value = tabId
-
-    let webview =  new WebviewEmbed();
+    //let webview =  new WebviewEmbed();
 
     tabs.value[tabId] = {
         id: tabId, 
         url, 
+        title: "",
         hidden: setActive,
         canGoBack: false, 
         canGoForward: false,
         progress: 0 
     }
+
+    if(setActive) activeTabId.value = tabId
 
     let injectScript = browserCore.getInjectScript(tabId)
     
@@ -166,6 +203,7 @@ const newTab = async ({ url = browserConfig.homepage, setActive=false }) => {
         await webview.open({ 
             url, 
             element,  
+            webviewId: tabId,
             script: {
                 javascript: injectScript,
                 injectionTime: 0
@@ -173,10 +211,6 @@ const newTab = async ({ url = browserConfig.homepage, setActive=false }) => {
             webMessageJsObjectName: "botfi_msg_channel"
         })
 
-        if(!setActive) webview.hide()
-
-        tabs.value[tabId].webview = webview
-        handleWebviewEvents(tabId)
 
     }, 500)
 
@@ -184,18 +218,43 @@ const newTab = async ({ url = browserConfig.homepage, setActive=false }) => {
     return  tabs.value[tabId]
 }
 
-const handleWebviewEvents = async (tabId) => {
+const switchTab = (tabId) => {
+    
+    let tab = tabs.value[tabId] || null
+    
+    if(!tab) return;
 
-    let tab = tabs.value[tabId]
-    let w = tab.webview;
- 
-    //console.log("w====>", w)
+    webview.setActiveWebview(tabId)
 
-    w.handleNavigation(async (event) => {
+    // lets get current tab and hide it 
+    activeTabId.value = tabId
+}
+
+const closeBrowserTab = async (tabId) => {
+    
+    let { result: nextActiveTab } = await webview.close(tabId)
+    delete tabs.value[tabId]
+
+    activeTabId.value = (nextActiveTab != "") ? nextActiveTab : null
+}
+
+const handleWebpageInfoUpdate = (info={}) => {
+    let tabId = (info.tabId || "").toString().trim()
+    let webpageTitle = (info.title || "").toString().trim()
+
+    if(tabId == "" || !(tabId in tabs.value)) return;
+
+    tabs.value[tabId].title = webpageTitle
+}
+
+const initializeWebviewEvents = async () => {
+
+    webview.handleNavigation(async (event) => {
         
         let url = (event.url || "").trim()
+        let tabId = event.webviewId
 
-        //consolelog("event===>", event)
+        console.log("event===>", event)
         if(url == "") return;
 
         if(!/^(https?:\/\/)/.test(url)){
@@ -207,7 +266,7 @@ const handleWebviewEvents = async (tabId) => {
         if (event.newWindow) {
             await newTab({ setActive: true, url })
         } else {
-            w.loadUrl(event.url)
+            webview.loadUrl(tabId, event.url)
             tabs.value[tabId].url = url
         }
 
@@ -215,13 +274,16 @@ const handleWebviewEvents = async (tabId) => {
 
         event.complete(true);
     });
+    
+    webview.onPageLoaded(async (dataObj) => {
 
-    w.onPageLoaded(async (dataObj) => {
+        console.log("dataObj===>", dataObj)
         
         let { url = ''} = dataObj
+        let tabId = dataObj.webviewId;
 
-        tabs.value[tabId].canGoBack = (await w.canGoBack())
-        tabs.value[tabId].canGoForward = (await w.canGoForward())
+        tabs.value[tabId].canGoBack = (await webview.canGoBack(tabId))
+        tabs.value[tabId].canGoForward = (await webview.canGoForward(tabId))
         tabs.value[tabId].progress = 0;
         
         if(url.trim() != '') {
@@ -230,48 +292,51 @@ const handleWebviewEvents = async (tabId) => {
 
     })
     
-    w.onProgress((p) => {
-        tabs.value[tabId].progress = p.value;
+    webview.onProgress(({ webviewId, value }) => {
+        if(webviewId in tabs.value){
+            tabs.value[webviewId].progress = value;
+        }
     })
 
-    w.onMessage(async (dataObj) => {
+    webview.onMessage(async (dataObj) => {
         browserCore.processWebMessage({
-            webview: w, 
+            webview, 
             dataObj,
             permissionModal: permissionModalRef
         });
     });
-
+    
 }
 
 
 const getActiveTab = () => tabs.value[activeTabId.value]
 
 const handleURLChange = async (newUrl) => {
-    //console.log("newUrl====>",newUrl)
-     getActiveTab().webview.loadUrl(newUrl)
+    console.log("newUrl====>",newUrl)
+    console.log("getActiveTab()===>>>", getActiveTab())
+    webview.loadUrl(activeTabId.value, newUrl)
 }
 
 const openHome = async () => {
-    getActiveTab().webview.loadUrl(browserConfig.homepage)
+    webview.loadUrl(activeTabId.value,browserConfig.homepage)
 }
 
 const goBack = async () => {
     let t = getActiveTab()
     if(t.canGoBack){
-        await t.webview.goBack();
+        webview.goBack(t.id);
     }
 }
 
 const goForward = () => {
     let t = getActiveTab()
     if(t.canGoForward){
-        t.webview.goForward();
+        webview.goForward(t.id);
     }
 }
 
 const reload = () => {
-    getActiveTab().webview.reload();
+    webview.reload(activeTabId.value);
 }
 
 
@@ -279,11 +344,13 @@ const emitWeb3Events = async (eventName, value) => {
     let _tabs = tabs.value
     Object.keys(_tabs).forEach((tabId) => {
         let t = _tabs[tabId]
-        if(t.webview){
-            browserCore.emitWeb3Event(t.webview, eventName, value)
+        if(webview){
+            //browserCore.emitWeb3Event(t.webview, eventName, value)
         }
     })
 }
+
+const isActiveTab = (tabId) => tabId == activeTabId.value
 </script>
 <template>
     <WalletLayout
@@ -299,22 +366,28 @@ const emitWeb3Events = async (eventName, value) => {
                 @urlChange="handleURLChange"
                 @openHome="openHome"
                 @inputFocused="(v) => urlInputFocused = v"
+                :key="activeTabId"
             />
           <template v-for="tabInfo in tabs" :key="tabInfo.id">
-            <div 
-                :id="tabInfo.id"
-                :class="`tab w-100 flex-grow-1 ${isBrowserHidden ? 'b-hidden': ''}`"
-                v-if="(tabInfo.id == activeTabId)"
-            ></div>
-            <div v-else class="tab not-active"></div>
+            <div>
+                <div 
+                    :id="tabInfo.id"
+                    :class="'tab '+
+                        `${ isBrowserHidden  ? 'b-hidden': ''} `+
+                        `${ tabInfo.id != activeTabId ? 'not-active' : ''}`
+                    "  
+                />
+            </div>
           </template>
-            <BrowserToolBar 
-                @goBack="goBack"
-                @goFoward="goForward"
-                 :totalTabs="Object.keys(tabs).length"
-                :canGoBack="tabs[activeTabId].canGoBack"
-                :canGoForward="tabs[activeTabId].canGoForward"
-            />
+            <div class="browser-footer">
+                <BrowserToolBar 
+                    @goBack="goBack"
+                    @goFoward="goForward"
+                    :totalTabs="Object.keys(tabs).length"
+                    :canGoBack="tabs[activeTabId].canGoBack"
+                    :canGoForward="tabs[activeTabId].canGoForward"
+                />
+            </div>
         </div>
 
         <PermissionModal 
@@ -333,13 +406,27 @@ const emitWeb3Events = async (eventName, value) => {
 }
 .tab{
     width: 100vw;
+    height: calc(100vh - 120px);
+    z-index: 10;
+    position: absolute;
+    top: 60px;
+    left: 0px;
     display: block;
-    height: calc(100vh - 120px) !important;
+
     &.not-active {
-        display: none;
+        display: none !important; 
+        z-index: 0;
     }
 
-    &.b-hidden { visibility: hidden; }
+    &.b-hidden { 
+        display: none;
+    }
+}
+
+.browser-footer{
+    position: absolute;
+    bottom: 0px;
+    width: 100vw;
 }
 
 </style>
