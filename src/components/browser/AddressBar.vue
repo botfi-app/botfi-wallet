@@ -4,6 +4,11 @@ import Utils from '../../classes/Utils';
 import NetSelectModal from '../modals/NetSelectModal.vue';
 import { isURL } from 'validator'
 import browser from '../../config/browser';
+import EventBus from '../../classes/EventBus';
+import HistoryItems from './HistoryItems.vue';
+//import { useBrowserHistory } from '../../composables/useBrowserHistory';
+import { Share } from '@capacitor/share';
+import SearchSuggest from './SearchSuggest.vue';
 
 const p = defineProps({
     progress: { type: Number, default: 0 },
@@ -19,12 +24,22 @@ const progress = ref(0)
 const fullUrl = ref(p.url)
 const urlHost = ref("")
 const isSecure = ref(false)
+const showSuggestionBox = ref(false)
+const editMode = ref(false)
 
-const emits = defineEmits(["urlChange", "openHome", "inputFocused", "reload"])
+const emits = defineEmits([
+        "urlChange", 
+        "openHome", 
+        "inputFocused", 
+        "reload",
+        "suggestBoxShow"
+])
 
 onMounted(() => {
     processUrl()
 })
+
+const hideBrowser = (opt) => EventBus.emit("hideBrowser", opt)
 
 watch(p, () => {
     //console.log("p===>", p)
@@ -41,35 +56,59 @@ const processUrl = () => {
     isSecure.value = (parsedUrl.protocol == 'https:')
 
     if(!inputFocused.value){
-        urlInputText.value = urlHost.value
+        inputRef.value.value = urlHost.value
     }
 }
 
-watch(inputFocused, () => emits("inputFocused", inputFocused.value))
+watch(inputFocused, () => {
+    emits("inputFocused", inputFocused.value)
+    if(inputFocused.value){
+        hideBrowser(true)
+    }
+})
+
+watch(showSuggestionBox, () => {
+    if(!showSuggestionBox.value){
+        hideBrowser(false)
+        userInput.value = ""
+    }
+})
 
 const handleOnSubmit = () => {
 
-    let text = userInput.value.trim()
+    let input = inputRef.value
+    let value = input.value;
 
-    if(!isURL(text)){
-        text = `${browser.default_search}${text}`
+    if(value != "") {
+    
+        if(!isURL(value)){
+            value = browser.defaultSearch.replace("{{KEYWORD}}", value)
+
+            //update to the search url 
+            input.value = value
+        }
+
+        emits("urlChange",  value)
     }
 
-    userInput.value = ''
-
+    showSuggestionBox.value = false
     inputRef.value.blur()
 
-    emits("urlChange",  text)
 }
 
 const inputFocus = (e) => {
     let _input = inputRef.value
     inputFocused.value = true
-    _input.value = fullUrl.value
+    
+    // if the suggestion box isnt showing,
+    if(!editMode.value){
+        _input.value = ""
+    }
 
     if(e.relatedTarget == clearBtn.value) return;
-
-    nextTick(() => _input.select())
+    
+    //nextTick(() => _input.select())
+    showSuggestionBox.value = true
 }
 
 const inputBlur = (e) => {
@@ -80,15 +119,64 @@ const inputBlur = (e) => {
         return false;
     }
 
+    let t = e.target;
     inputFocused.value = false
-    urlInputText.value = urlHost.value
+    
+    //console.log("e.value.trim()===>", t.value.trim())
+
+    if(!showSuggestionBox.value || t.value.trim() == ""){
+        t.value = urlHost.value
+    }
+
 }
 
 const handleUserInput = (e) => {
-    userInput.value = e.target.value;
+    nextTick(() => {
+        userInput.value = e.target.value;
+    })
 }
 
+const onHistoryItemSelect = (url) => {
+    emits("urlChange",  url)
+    showSuggestionBox.value = false
+}
 
+const editURL = () => {
+
+    editMode.value = true 
+    
+    let input = inputRef.value
+    input.value = fullUrl.value
+    
+    setTimeout(() => {
+        input.focus()
+        nextTick(() => editMode.value = false )
+    }, 200)
+}
+
+const  copyURL = () => {
+    Utils.copyText({ text: fullUrl.value, showToast: true, successText: "URL Copied" })
+}
+
+const shareURL = async () => {
+    await Share.share({
+        url: fullUrl.value
+    });
+}
+
+const close = () => {
+    showSuggestionBox.value = false
+    nextTick(()=> {
+        inputRef.value.blur()
+    })
+}
+
+const searchByKeyword = (word) => {
+    inputRef.value.value = word
+    handleOnSubmit()
+}
+
+defineExpose({inputFocused, showSuggestionBox, close});
 </script>
 <template>
     <div class="w-100">
@@ -122,19 +210,17 @@ const handleUserInput = (e) => {
                         id="addr-bar-input"
                         type="text"
                         class="w-full no-border flex-grow-1"
-                        style="border:none;" 
-                        v-model="urlInputText"
                         @focus="inputFocus"
                         @blur="inputBlur"
                         autocapitalize="off"
                         autosave="off"
                         autocorrect="off"
-                        @keydown="handleUserInput"
+                        @keyup="handleUserInput"
                     />
                 </form>
                 <div class="center-vh">
                     <button ref="clearBtn" class="btn btn-none rounded-circle p-0 clear-btn">
-                        <Icon name="ooui:close" :size="20" />
+                        <Icon name="eva:arrow-forward-outline"  />
                     </button>
                     <a  href="#" @click.prevent="emits('reload')"
                         class="btn btn-none p-0 reload-btn"
@@ -157,7 +243,50 @@ const handleUserInput = (e) => {
             class="loading-bar p-0 m-0 shadow" 
             :style="{ width: `${(progress * 100)}%` }"
         />
- 
+        <div v-if="showSuggestionBox" class="history-suggest-box">
+            <div class="addr-info d-flex mb-3 center-vh ps-3 px-2">
+                <div class="text-truncate fs-14 fw-middle text-muted">
+                    {{ fullUrl }}
+                </div>
+                <div class="d-flex mx-1">
+                    <button @click.prevent="copyURL"
+                        class="btn btn-icon bg-darken-5 rounded-circle shadow mx-1 text-warning"
+                    >
+                        <Icon name="solar:copy-bold-duotone" />
+                    </button>
+                    <button @click.prevent="editURL"
+                        class="btn btn-icon bg-darken-5 rounded-circle shadow mx-1 text-primary"
+                    >
+                        <Icon name="lets-icons:edit-duotone" />
+                    </button>
+                    <button @click.prevent="shareURL"
+                        class="btn btn-icon bg-darken-5 rounded-circle shadow mx-1 text-info"
+                    >
+                        <Icon name="icon-park-twotone:share-one" />
+                    </button>
+                    <button @click.prevent="close"
+                        class="btn btn-icon bg-darken-5 rounded-circle shadow mx-1 text-danger"
+                    >
+                        <Icon name="mdi:close" />
+                    </button>
+                </div>
+            </div>
+            <div style="margin-top: 80px;">
+                <div>
+                    <SearchSuggest 
+                        :keyword="userInput" 
+                        @select="searchByKeyword"
+                    />
+                </div>
+                <div>
+                    <h5 class="px-2">History</h5>
+                    <HistoryItems 
+                        :limit="10" 
+                        @select="onHistoryItemSelect"
+                    />
+                </div>
+            </div>
+        </div>
     </div>
   
 </template>
@@ -170,6 +299,7 @@ const handleUserInput = (e) => {
     
     background: var(--bs-body-bg-dark-5);
     height: 60px;
+    z-index: 5px;
 
     .addr-input-wrapper {
         background: $itemBg;
@@ -241,8 +371,25 @@ const handleUserInput = (e) => {
     height: 3px; 
     background: var(--bs-primary);  
     position: relative;
+    top: -3px;
     transition: width 1s ease-in-out, visibility 1s linear;
 }
 
+.addr-info {
+    background: var(--bs-body-bg-dark-2);
+    width: 100%;
+    height: 60px;
+    position: fixed !important;
+    top: 60px;
+    z-index: 10;
+}
 
+.history-suggest-box {
+    height: 100vh !important;
+    overflow-y: scroll !important;
+    padding-bottom: 150px !important;
+    display: block !important;
+    position: relative;
+    z-index: 0 !important;
+}
 </style>

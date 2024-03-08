@@ -103,7 +103,9 @@ const initialize = async () => {
 
         let _mthd = method.value
         let _rp =  requestParams.value
-        
+
+        //console.log("_mthd=====>", _mthd)
+        //console.log("_rp===>", _rp)
 
         if(["eth_sendTransaction"].includes(_mthd)){
 
@@ -212,8 +214,16 @@ const initialize = async () => {
                 return errorMsg.value = "The required wallet address does not match the active wallet"
             }
 
-            let sigInfo = _rp[1] || {}
+            let sigInfo = _rp[1] || "{}"
+            
+            if(typeof sigInfo == 'string'){
+                try { sigInfo = JSON.parse(sigInfo) } catch(e) { sigInfo = {} }
+            }
+
             let domainInfo = sigInfo["domain"] || {}
+
+            //console.log("sigInfo============>", typeof sigInfo)
+            console.log("domainInfo============>", domainInfo)
 
             let requiredChainId = domainInfo.chainId || ""
             let curChainId = activeNetwork.value.chainId

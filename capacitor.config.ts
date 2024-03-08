@@ -9,17 +9,21 @@ const config: CapacitorConfig = {
     androidScheme: 'https',
 
     // remove is plthugin during production build:  @jcesarmobile/ssl-skip
-    "url":  "https://192.168.8.100:5173",
-    "cleartext": true
+    url:  "https://192.168.8.100:5173",
+    cleartext: true,
   },
   
   android: {
-    webContentsDebuggingEnabled: false 
+    webContentsDebuggingEnabled: false,
+    allowMixedContent: true 
   },
 
   plugins: {
     CapacitorHttp: {
       enabled: false,
+    },
+    CapacitorCookies: {
+      enabled: true,
     },
   }
 };

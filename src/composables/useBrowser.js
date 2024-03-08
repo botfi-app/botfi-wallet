@@ -20,16 +20,17 @@ import EventBus from "../classes/EventBus"
 import { useTx } from "./useTx"
 import { useTokens } from "./useTokens"
 import { useNFT } from "./useNFT"
-
+import { useBrowserHistory } from "./useBrowserHistory"
 
 export const useBrowser = () => {
 
-    const permission  = usePermission()
-    const walletStore = useWalletStore()
-    const netCore     = useNetworks()
-    const txCore      = useTx()
-    const tokenCore   = useTokens()
-    const nftCore     = useNFT()
+    const permission      = usePermission()
+    const walletStore     = useWalletStore()
+    const netCore         = useNetworks()
+    const txCore          = useTx()
+    const tokenCore       = useTokens()
+    const nftCore         = useNFT()
+    const browserHistory  = useBrowserHistory()
 
     const { activeWallet } = walletStore
 
@@ -83,6 +84,10 @@ export const useBrowser = () => {
         return text
     }
     
+    const hideBrowser = (opt) => {
+        EventBus.emit("hideBrowser", opt)
+        return opt
+    }
 
     const _processWebMessage = async({
         origin="", 
@@ -93,6 +98,7 @@ export const useBrowser = () => {
     }) => {
 
         let loader = null
+        let browserHidden = null
 
         try {
 
@@ -166,7 +172,7 @@ export const useBrowser = () => {
                 
                 if(!isSiteConneted || rpcMethodInfo.askAlways == true){
 
-                    EventBus.emit("hideBrowser", true)
+                    hideBrowser(true)
 
                     permissionShown = true
 
@@ -189,7 +195,7 @@ export const useBrowser = () => {
                                         requestParams: params
                                     })
 
-                    EventBus.emit("hideBrowser", false)
+                    hideBrowser(false)
 
                     if(!pResult.isConfirmed){
                         return Status.error("User rejected request")
@@ -217,7 +223,7 @@ export const useBrowser = () => {
 
                 if(!resultStatus.isError()){
 
-                    EventBus.emit("hideBrowser", true)
+                    hideBrowser(true)
 
                     let { chainId, chainName } = params[0]
 
@@ -225,7 +231,7 @@ export const useBrowser = () => {
                         text: `Switch your active network to ${chainName} (chainId: ${chainId})`
                     })
 
-                    EventBus.emit("hideBrowser", false)
+                    hideBrowser(false)
 
                     if(popup.isConfirmed){
 
@@ -239,6 +245,7 @@ export const useBrowser = () => {
                 }
 
                 return resultStatus;
+                
             } else if (method == "wallet_switchEthereumChain") {
                 return netCore.setActiveNetwork(parseInt(params[0], 16))
             } 
@@ -256,7 +263,7 @@ export const useBrowser = () => {
 
                 let contract = opts.address;
 
-                EventBus.emit("hideBrowser", true)
+                hideBrowser(true)
 
                 let activeNet = await netCore.getActiveNetworkInfo()
                 let wallet = activeWallet.address
@@ -286,6 +293,8 @@ export const useBrowser = () => {
                                     })
                 }
 
+                hideBrowser(false)
+
                 if(resultStatus.isError()) return resultStatus
 
                 return Status.successData(true)
@@ -300,8 +309,11 @@ export const useBrowser = () => {
 
             let web3 = web3ConnStatus.getData()
 
+            let bHidden = null;
+
             if(["eth_sendTransaction"].includes(method)){
-                EventBus.emit("hideBrowser", true)
+                hideBrowser(true)
+                bHidden = true
                 loader = Utils.loader("Processing Request")
             }
 
@@ -309,6 +321,10 @@ export const useBrowser = () => {
 
             let rpcResultStatus = await  web3.queryRPCMethod(method, params)
 
+            if(bHidden){
+                hideBrowser(false)
+            }
+            
             return rpcResultStatus
         } catch(e){
             Utils.logError("useBrowser#processWebMessage:", e)
@@ -316,17 +332,18 @@ export const useBrowser = () => {
                          .setCode(ErrorCodes.internal)
         } finally {
             if(loader) loader.close()
-            EventBus.emit("hideBrowser", false)
         }
     }
 
     const processWebMessage = async({
-        webview, 
+        webviewPlugin, 
         dataObj, 
         permissionModal
     }) => {
 
-        const { sourceOrigin="", message="" } = dataObj
+        //console.log("dataObj===>", dataObj)
+
+        const { webviewId: tabId, sourceOrigin="", message="" } = dataObj
         const msgObj = JSON.parse(message)
         
         const requestData = msgObj.requestData || {}
@@ -336,7 +353,8 @@ export const useBrowser = () => {
         const params = requestData["params"] || []
 
         if(method == "webpageInfoUpdate"){
-            console.log("webPageInfo===>", params)
+            //console.log("webPageInfo===>", params)
+            browserHistory.save(params[0] || {})
             EventBus.emit("onWebpageInfoUpdate",  params[0])
             return;
         }
@@ -345,6 +363,7 @@ export const useBrowser = () => {
                                 origin: sourceOrigin, 
                                 method, 
                                 params,
+                                tabId,
                                 permissionModal
                             })
 
@@ -364,30 +383,31 @@ export const useBrowser = () => {
 
         //console.log("finalMessage===>", finalMessage)
 
-        webview.postMessage(JSON.stringify(finalMessage))
+        webviewPlugin.postMessage(tabId, JSON.stringify(finalMessage))
 
         if(["eth_accounts", "eth_requestAccounts",].includes(method) && 
             !resultStatus.isError()
         ){
             let activeNet = await netCore.getActiveNetworkInfo()
-            emitWeb3Event(webview, "connect", { chainId: Utils.toHex(activeNet.chainId) })
+            emitWeb3Event(webviewPlugin, tabId, "connect", { chainId: Utils.toHex(activeNet.chainId) })
         }
 
     } //end func
 
 
-    const emitWeb3Event = async (webview, eventName, eventData) => {
+    const emitWeb3Event = async (webviewPlugin, tabId, eventName, eventData) => {
         
         let data = { eventName, eventData }
 
         let finalMessage = {
+            webviewId: tabId,
             origin: null,
             requestId: null,
             msgType: "event",
             data
         }
 
-        webview.postMessage(JSON.stringify(finalMessage))
+        webviewPlugin.postMessage(tabId, JSON.stringify(finalMessage))
     }
     
     return {

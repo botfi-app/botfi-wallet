@@ -6,11 +6,13 @@
 
 import { onBeforeMount, ref, computed, toValue } from "vue"
 import Status from "../classes/Status"
-import app from "../config/app"
 import { useSimpleDB } from "./useSimpleDB"
-import EventBus from "../classes/EventBus"
 import browser from "../config/browser"
 
+const $state = ref({
+    activeTabId: "",
+    tabs: {}
+})
 
 export const useBrowserTabs = () => {
 
@@ -20,49 +22,63 @@ export const useBrowserTabs = () => {
         await getTabs()
     })
 
+
+    const activeTabId = computed(() => $state.value.activeTabId )
+    const tabItems = computed(() => $state.value.tabs )
+
     const saveTabs = async (tabs={}) => {
 
         tabs = toValue(tabs)
         
-        if(tabs.length == 0) return Status.success()
+        //console.log("Hmmmm===>", tabs)
 
-        let c = 0;
-        let processedTabs = []
-        let primaryTabId;
+        if(Object.keys(tabs).length == 0) return Status.success()
 
+        let activeTabId = "";
+        let processedTabs = {}
+       
         for(let tabId of Object.keys(tabs)){
             
-            let { url, hidden } = tabs[tabId]
+            let { url, title, hidden } = tabs[tabId]
            
-            if(url == browser.homepage) continue
+            //if(url == browser.homepage) continue
             
-            processedTabs[c] = url
+            processedTabs[tabId] = { id: tabId, url, title, hidden }
 
-            if(!hidden) primaryTabId = c
-
-            c++;
+            if(!hidden) activeTabId = tabId
         }
 
         let dataToSave = JSON.stringify({
-                            primaryTabId,
+                            activeTabId,
                             tabs: processedTabs
                         })
 
         await db.setItem("browserTabs", dataToSave)
+
+        let $s = $state.value 
+        $s.tabs = processedTabs
+        $s.activeTabId = activeTabId
     }
 
     const getTabs = async () => {
         
-        let dataStr = await db.getItem("browserTabs") || "[]"
+        let dataStr = await db.getItem("browserTabs") || "{}"
         let dataJson = JSON.parse(dataStr)
 
-        ///$state.value.tabs = dataJson
+        //console.log("dataStr===>", dataStr)
+
+        if(Object.keys(dataStr).length > 0){
+            $state.value.tabs        = dataJson.tabs
+            $state.value.activeTabId = dataJson.activeTabId
+        }
 
         return dataJson
     }
 
     return {
         saveTabs,
-        getTabs
+        getTabs,
+        activeTabId,
+        tabs: tabItems
     }
 }

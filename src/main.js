@@ -86,7 +86,7 @@ const loadPlatformPlugin = async () => {
     
     let platform = platforms[loc.hostname.toLowerCase()] || ""
 
-    console.log("platform===>", platform)
+    //console.log("platform===>", platform)
 
     if(platform == ""){
         if(loc.pathname != '/error/unknown-client'){

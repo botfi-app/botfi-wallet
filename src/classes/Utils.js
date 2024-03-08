@@ -635,4 +635,30 @@ export default class Utils {
                     .replace("{{DOMAIN}}", url)
                     .replace("{{SIZE}}", size)
     }
+
+    static jsonToHTMLRow(data = "") {
+        if(typeof data != "object"){
+            return data
+        }
+
+        let dataHTML = ""
+
+        for(let key in data){
+            dataHTML += `
+                <div class="my-3">
+                    <div class="fs-12 fw-semibold text-capitalize">
+                        ${key}:
+                    </div>
+                    <div>
+                        ${(typeof data[key] == 'object') 
+                            ? jsonToHTMLRow(data[key])
+                            : `<div class="text-break">${data[key]}</div>`
+                        }
+                    </div>
+                </div>
+            `
+        }
+
+        return dataHTML
+    }
 }

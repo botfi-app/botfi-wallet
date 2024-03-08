@@ -40,15 +40,14 @@ const updateBalances = async() => {
 }
 
 const keepAliveIncludes = [
-  'wallet'
+  //'wallet'
 ] 
 
 if(window.app_platform == 'capacitor'){
   keepAliveIncludes.push(...[
       'browser',
       'connected-sites', 
-      'browser-menu',
-      'browser-tabs'
+      'browser-menu'
   ])
 }
 </script>

@@ -1052,7 +1052,9 @@ export default class Wallet {
     async eth_signTypedData_v4(params) {
         try {
 
-            const [address, data] = params;
+            let [address, data] = params;
+
+            //console.log("eth_signTypedData_v4#data===>", typeof data)
 
             let version = SignTypedDataVersion.V4
 
@@ -1060,6 +1062,11 @@ export default class Wallet {
                 this.signer.privateKey.substring(2),
                 'hex',
             );
+
+            if(typeof data != 'object') {
+                let dataStr = (data || "{}").toString()
+                try { data = JSON.parse(dataStr) } catch(e){ data = {} }
+            }
 
             return signTypedData({
                 privateKey, 

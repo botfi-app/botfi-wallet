@@ -13,16 +13,10 @@ import { onActivated, onBeforeMount, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import Utils from '../../classes/Utils';
 import EventBus from '../../classes/EventBus';
+import { useBrowserTabs } from "../../composables/useBrowserTabs"
 
 const router = useRouter()
-const tabs = ref(window.getBrowserTabs())
-
-onBeforeMount(() => initialize())
-onActivated(()   => initialize())
-
-const initialize = () => {
-    tabs.value = window.getBrowserTabs()
-}
+const { tabs } = useBrowserTabs();
 
 const newTab = () => {
     EventBus.emit("newBrowserTab")
@@ -35,15 +29,15 @@ const switchTab = (tabId) => {
 }
 
 
-const deleteTab = (tabId) => {
+const closeBrowserTab = (tabId) => {
+
     EventBus.emit('closeBrowserTab', tabId)
+
+    if(Object.keys(tabs.value).length == 1){
+        router.go(-1)
+    }
 }
 
-onBeforeMount(() => {
-    EventBus.on("tabsUpdated", (_tabs) => {
-        tabs.value = _tabs
-    })
-})
 </script>
 <template>
     <WalletLayout
@@ -65,14 +59,14 @@ onBeforeMount(() => {
                 <template v-for="item in tabs">
                     <div class="tab-item col-6 p-1">
                         <div class="tab-content border rounded d-flex flex-column">
-                            <div class="tab-header d-flex align-items-center p-1 px-1">
-                                <div class="flex-grow-1 text-truncate fs-12 fw-medium pe-1">
+                            <div class="tab-header d-flex space-between align-items-center p-1 px-1">
+                                <div class="text-truncate t-title fs-12 fw-medium px-1">
                                     {{ item.title }}
                                 </div>
-                                <a href="#" @click.prevent="deleteTab(item.id)" 
+                                <a href="#" @click.prevent="closeBrowserTab(item.id)" 
                                     class="text-muted close-btn center-vh"
                                 >
-                                    <Icon name="mdi:times" :size="20" />
+                                    <Icon name="mdi:times" :size="22" />
                                 </a>
                             </div>
                             <a href="#" class="tab-action flex-grow-1 center-vh" 
@@ -83,12 +77,12 @@ onBeforeMount(() => {
                                         <Image 
                                             :src="Utils.getFaviconURL(item.url, 64)"
                                             :placeholder="Utils.parseUrl(item.url).host"
-                                            :width="64"
-                                            :height="64"
+                                            :width="48"
+                                            :height="48"
                                             class="rounded-circle"
                                         />
                                     </div>
-                                    <div class="fs-14 mt-2 text-break text-muted">
+                                    <div class="fs-14 mt-2 text-break text-muted px-2">
                                         {{ Utils.parseUrl(item.url).hostname }}
                                     </div>
                                 </div>
@@ -109,11 +103,14 @@ onBeforeMount(() => {
     }
 
     .tab-header {
-        //height: 20px;
+        .t-title { width: calc(90%); }
     }
     
     .tab-action {
         width: 100%;
+        &.new-tab {
+            height: 100%;
+        }
 
         &:not(.new-tab){
             position: relative;
@@ -125,6 +122,10 @@ onBeforeMount(() => {
         width:  32px !important;
         height: 32px !important;
         padding: 0px !important;
+        border-radius: 16px;
+        position: relative;
+        z-index: 100;
+        background: var(--bs-body-bg-dark-3) !important;
     }
 }
 </style>

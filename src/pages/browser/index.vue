@@ -9,8 +9,8 @@
 </script>
 
 <script setup>
-import {  onActivated, onBeforeMount, onBeforeUnmount, onMounted, ref, watch } from 'vue';
-import {WebviewEmbed as webview} from '../../../../../capacitorjs/capacitor-webview-overlay';  
+import {  onActivated, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import {WebviewEmbed as webviewPlugin } from '../../../../../capacitorjs/capacitor-webview-overlay';  
 import browserConfig from "../../config/browser"
 import Utils from '../../classes/Utils';
 import { App as CApp } from '@capacitor/app';
@@ -21,6 +21,7 @@ import { usePermission } from '../../composables/usePermission';
 import EventBus from '../../classes/EventBus';
 import { useNetworks } from '../../composables/useNetworks';
 import { useBrowserTabs } from '../../composables/useBrowserTabs';
+import { Share } from '@capacitor/share';
 
 const netCore = useNetworks()
 const { activeNetwork } = netCore
@@ -40,28 +41,61 @@ const isBrowserHidden = ref(false)
 const urlInputFocused = ref(false)
 const { connectedSites } = usePermission();
 const permissionModalRef = ref()
+const addrBarRef = ref(null)
 
-onBeforeMount(() => {
+onMounted(() => {
 
     if(initialized.value) return;
 
-    handleBrowserInit()
     handleAppEvents()
     initBrowserEvents()
     initializeWebviewEvents()
 
+    openSavedTabs()
+
     initialized.value = true 
 })
 
+
 watch(tabs, () => {
+   // console.log("watch#tabs===>", tabs.value)
+    browserTabs.saveTabs(tabs)
     EventBus.emit("tabsUpdated", tabs.value)
+}, { deep: true })
+
+watch(isBrowserHidden, () => {
+    console.log("isBrowserHidden====>", isBrowserHidden.value)
 })
+
+const openSavedTabs = async () => {
+
+    let savedTabsData = await browserTabs.getTabs()
+    let savedTabs = savedTabsData.tabs || {}
+    let savedActiveTabId = savedTabsData.activeTab || ""
+
+    let itemKeys = Object.keys(savedTabs)
+
+    if(itemKeys.length > 0){
+        if( savedActiveTabId == "") savedActiveTabId = itemKeys[0]
+        
+        for(let tabId of itemKeys){
+            let setActive = (savedActiveTabId == tabId)
+            newTab({ tabId, url: savedTabs[tabId].url, setActive })
+        }
+    } else {
+        newTab({  setActive: true })
+    }
+}
 
 const initBrowserEvents = () => {
 
     EventBus.on("hideBrowser", (hide) => {
-        if(hide)  hideBrowser()
-        else  showBrowser()
+        if(hide) {
+            hideBrowser();  
+        } else { 
+            showBrowser();
+            console.trace() 
+        } 
     })
 
     EventBus.on("chainChanged", (netInfo)=>{
@@ -82,13 +116,8 @@ const initBrowserEvents = () => {
 }
 
 onActivated(async () => {
-
     if(isBrowserHidden.value){
         showBrowser()
-    }
-
-    window.getBrowserTabs = () => {
-        return tabs.value
     }
 })
 
@@ -103,43 +132,56 @@ onBeforeUnmount(() => {
 
     hideBrowser()
 
-    webview.removeAllEvents()
+    webviewPlugin.removeAllEvents()
 })
 
 
 const hideBrowser = async () => {
     isBrowserHidden.value = true
     let tab = getActiveTab()
-    if(tab != null) await webview.hide(tab.id)
+    if(tab != null) await webviewPlugin.hide(tab.id)
 }
 
 const showBrowser = async () => {
     isBrowserHidden.value = false
     let tab = getActiveTab()
-    if(tab != null) await webview.show(tab.id)
+    if(tab != null) await webviewPlugin.show(tab.id)
 }
 
 const handleAppEvents = () => {
     CApp.addListener('backButton', async () => {
 
-        if(isBrowserHidden.value) return;
+        let _activeTabId = activeTabId.value
+        let _addrBarRef = addrBarRef.value
 
-        if(urlInputFocused.value){
-            document.getElementById("addr-bar-input").blur()
-            return false
+        if(_addrBarRef){
+
+            if(urlInputFocused.value){
+                document.getElementById("addr-bar-input").blur()
+                return false
+            }
+
+            if(_addrBarRef.showSuggestionBox){
+                _addrBarRef.close()
+                return false;
+            }
         }
-        
+
+        // process the data above first cos when the addr bar is focused, the browser 
+        // is hidden
+        if(isBrowserHidden.value) return;
+ 
         if(activeTabId.value == null){
             return false
         }   
 
-        let t = tabs.value[activeTabId.value]
+        let t = tabs.value[_activeTabId]
 
         if(!t.canGoBack){
             return false
         }
 
-        webview.goBack()
+        webviewPlugin.goBack(_activeTabId)
     });
 
     CApp.addListener('appStateChange', async ({ isActive }) => {
@@ -150,15 +192,6 @@ const handleAppEvents = () => {
     });
 }
 
-const handleBrowserInit = () => {
-    setTimeout(async ()=> {
-        if(activeTabId.value == null){
-           await newTab({ setActive: true })
-        }
-
-        initialized.value = true 
-    }, 1000);
-}
 
 /*
 watch(activeTabId, () => {
@@ -170,72 +203,116 @@ watch(activeTabId, () => {
 })
 */
 
-const newTab = async ({ url = browserConfig.homepage, setActive=false }) => { 
-
-    let tabId = Utils.getUUID()
-
-    //let webview =  new WebviewEmbed();
+const newTab = async ({ 
+    tabId = Utils.getUUID(),
+    url = browserConfig.homepage,
+    setActive = false 
+}) => { 
 
     tabs.value[tabId] = {
         id: tabId, 
         url, 
         title: "",
-        hidden: setActive,
+        webviewCreated: setActive,
         canGoBack: false, 
         canGoForward: false,
         progress: 0 
     }
 
-    if(setActive) activeTabId.value = tabId
+    if(setActive) {
+        
+        activeTabId.value = tabId
 
-    let injectScript = browserCore.getInjectScript(tabId)
-    
-    //console.log("jsToInject===>", jsToInject)
+        let injectScript = browserCore.getInjectScript(tabId)
+        
+        //lets make sure the element is ready 
+        let intval = window.setInterval( async () => {
+            let element = document.getElementById(tabId)
 
-    //lets make sure the element is ready 
-    let intval = window.setInterval( async () => {
-        let element = document.getElementById(tabId)
+            if(!element) return;
 
-        if(!element) return;
+            clearInterval(intval)
 
-        clearInterval(intval)
-
-        await webview.open({ 
-            url, 
-            element,  
-            webviewId: tabId,
-            script: {
-                javascript: injectScript,
-                injectionTime: 0
-            },
-            webMessageJsObjectName: "botfi_msg_channel"
-        })
+            await webviewPlugin.open({ 
+                url, 
+                element,  
+                webviewId: tabId,
+                script: {
+                    javascript: injectScript,
+                    injectionTime: 0
+                },
+                webMessageJsObjectName: "botfi_msg_channel"
+            })
 
 
-    }, 500)
-
+        }, 500)
+    }
 
     return  tabs.value[tabId]
 }
 
-const switchTab = (tabId) => {
+const switchTab = async (tabId) => {
     
     let tab = tabs.value[tabId] || null
     
     if(!tab) return;
 
-    webview.setActiveWebview(tabId)
+    if(!tab.webviewCreated){
+        // lets recreate the tab but this time creating the webview item
+        await newTab({ tabId, url: tab.url, setActive: true })
 
-    // lets get current tab and hide it 
-    activeTabId.value = tabId
+    } else {
+        await webviewPlugin.setActiveWebview(tabId)
+        
+        // lets get current tab and hide it 
+        activeTabId.value = tabId
+    }
+
 }
 
 const closeBrowserTab = async (tabId) => {
-    
-    let { result: nextActiveTab } = await webview.close(tabId)
-    delete tabs.value[tabId]
 
-    activeTabId.value = (nextActiveTab != "") ? nextActiveTab : null
+    try {
+   
+        let tabsKeysArr = Object.keys(tabs.value);
+
+        // if last tab, open home
+        if(tabsKeysArr.length == 1){
+
+            // if not initialzied do initialize it 
+            if(!tabs.value[tabId].webviewCreated){
+                return newTab({ tabId, url: browserConfig.homepage, setActive: true })
+            } else {
+                return openHome()
+            }
+        }
+
+        //if the active tab is what we are closing, lets now switch it first 
+        if(tabId === activeTabId.value){
+            
+            // lets check the tab Index 
+            let tabKeyIdx = tabsKeysArr.indexOf(tabId)
+
+            if(tabKeyIdx == -1) return;
+
+            let nextTabIdx = (tabKeyIdx == 0) ? 1 :tabKeyIdx - 1;
+
+            let nextTabId = tabsKeysArr[nextTabIdx]
+
+            await switchTab(nextTabId)
+
+            //console.log("nextTabId===>", nextTabId)
+        }
+        
+        delete tabs.value[tabId]
+        
+        if(tabs.value[tabId].webviewCreated){
+            await webviewPlugin.close(tabId)
+        }
+
+    } catch(e){
+        Utils.logError("browser#closeBrowserTab:", e)
+    }
 }
 
 const handleWebpageInfoUpdate = (info={}) => {
@@ -249,16 +326,19 @@ const handleWebpageInfoUpdate = (info={}) => {
 
 const initializeWebviewEvents = async () => {
 
-    webview.handleNavigation(async (event) => {
+    webviewPlugin.handleNavigation(async (event) => {
         
         let url = (event.url || "").trim()
         let tabId = event.webviewId
 
-        console.log("event===>", event)
+        //console.log("event===>", event)
         if(url == "") return;
 
         if(!/^(https?:\/\/)/.test(url)){
-            window.location = url
+            await Share.share({
+                url: url,
+                dialogTitle: 'Open with',
+            });
             event.complete(true);
             return false; 
         }
@@ -266,41 +346,46 @@ const initializeWebviewEvents = async () => {
         if (event.newWindow) {
             await newTab({ setActive: true, url })
         } else {
-            webview.loadUrl(tabId, event.url)
+            webviewPlugin.loadUrl(tabId, event.url)
             tabs.value[tabId].url = url
         }
 
-        browserTabs.saveTabs(tabs)
+        ///browserTabs.saveTabs(tabs)
 
         event.complete(true);
     });
     
-    webview.onPageLoaded(async (dataObj) => {
+    webviewPlugin.onPageLoaded(async (dataObj) => {
 
-        console.log("dataObj===>", dataObj)
+        //console.log("dataObj===>", dataObj)
         
         let { url = ''} = dataObj
         let tabId = dataObj.webviewId;
 
-        tabs.value[tabId].canGoBack = (await webview.canGoBack(tabId))
-        tabs.value[tabId].canGoForward = (await webview.canGoForward(tabId))
-        tabs.value[tabId].progress = 0;
+        let tab =  tabs.value[tabId] || null 
+
+        if(tab == null) return;
+
+        tab.canGoBack = (await webviewPlugin.canGoBack(tabId))
+        tab.canGoForward = (await webviewPlugin.canGoForward(tabId))
+        tab.progress = 0;
         
         if(url.trim() != '') {
-            tabs.value[tabId].url = url
+            tab.url = url
         }
 
+        tabs.value[tabId] = tab
     })
     
-    webview.onProgress(({ webviewId, value }) => {
+    webviewPlugin.onProgress(({ webviewId, value }) => {
         if(webviewId in tabs.value){
             tabs.value[webviewId].progress = value;
         }
     })
 
-    webview.onMessage(async (dataObj) => {
+    webviewPlugin.onMessage(async (dataObj) => {
         browserCore.processWebMessage({
-            webview, 
+            webviewPlugin, 
             dataObj,
             permissionModal: permissionModalRef
         });
@@ -312,45 +397,52 @@ const initializeWebviewEvents = async () => {
 const getActiveTab = () => tabs.value[activeTabId.value]
 
 const handleURLChange = async (newUrl) => {
-    console.log("newUrl====>",newUrl)
-    console.log("getActiveTab()===>>>", getActiveTab())
-    webview.loadUrl(activeTabId.value, newUrl)
+    //console.log("newUrl====>",newUrl)
+    //console.log("getActiveTab()===>>>", getActiveTab())
+    webviewPlugin.loadUrl(activeTabId.value, newUrl)
 }
 
 const openHome = async () => {
-    webview.loadUrl(activeTabId.value,browserConfig.homepage)
+    webviewPlugin.loadUrl(activeTabId.value,browserConfig.homepage)
 }
 
 const goBack = async () => {
     let t = getActiveTab()
     if(t.canGoBack){
-        webview.goBack(t.id);
+        webviewPlugin.goBack(t.id);
     }
 }
 
 const goForward = () => {
     let t = getActiveTab()
     if(t.canGoForward){
-        webview.goForward(t.id);
+        webviewPlugin.goForward(t.id);
     }
 }
 
 const reload = () => {
-    webview.reload(activeTabId.value);
+    webviewPlugin.reload(activeTabId.value);
 }
 
 
 const emitWeb3Events = async (eventName, value) => {
     let _tabs = tabs.value
     Object.keys(_tabs).forEach((tabId) => {
-        let t = _tabs[tabId]
-        if(webview){
-            //browserCore.emitWeb3Event(t.webview, eventName, value)
+        if(webviewPlugin){
+            browserCore.emitWeb3Event(webviewPlugin, tabId, eventName, value)
         }
     })
 }
 
-const isActiveTab = (tabId) => tabId == activeTabId.value
+const getActiveTabItem = (key, _default) => {
+    
+    let tId = activeTabId.value
+    let _tabs = tabs.value
+
+    if(!tId || !_tabs[tId]) return _default
+
+    return _tabs[tId][key]
+}
 </script>
 <template>
     <WalletLayout
@@ -360,8 +452,9 @@ const isActiveTab = (tabId) => tabId == activeTabId.value
     >  
         <div class="browser">
             <AddressBar 
-                :progress="tabs[activeTabId].progress" 
-                :url="tabs[activeTabId].url"
+                :progress="getActiveTabItem('progress', 0)" 
+                :url="getActiveTabItem('url', '')"
+                ref="addrBarRef"
                 @reload="reload"
                 @urlChange="handleURLChange"
                 @openHome="openHome"
@@ -370,12 +463,11 @@ const isActiveTab = (tabId) => tabId == activeTabId.value
             />
           <template v-for="tabInfo in tabs" :key="tabInfo.id">
             <div>
-                <div 
-                    :id="tabInfo.id"
-                    :class="'tab '+
+                <div :id="tabInfo.id"
+                     :class="'tab '+
                         `${ isBrowserHidden  ? 'b-hidden': ''} `+
                         `${ tabInfo.id != activeTabId ? 'not-active' : ''}`
-                    "  
+                     "  
                 />
             </div>
           </template>
@@ -384,15 +476,13 @@ const isActiveTab = (tabId) => tabId == activeTabId.value
                     @goBack="goBack"
                     @goFoward="goForward"
                     :totalTabs="Object.keys(tabs).length"
-                    :canGoBack="tabs[activeTabId].canGoBack"
-                    :canGoForward="tabs[activeTabId].canGoForward"
+                    :canGoBack="getActiveTabItem('canGoBack', false)"
+                    :canGoForward="getActiveTabItem('canGoForward', false)"
                 />
             </div>
         </div>
 
         <PermissionModal 
-            @show="hideBrowser"
-            @hide="showBrowser"
             ref="permissionModalRef"
         />
 

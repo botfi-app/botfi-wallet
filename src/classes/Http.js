@@ -2,6 +2,7 @@
 import Status from "./Status"
 import appConfig from "../config/app"
 import Utils from "./Utils"
+import fetchJsonp from "fetch-jsonp"
 
 export default class Http {
 
@@ -21,41 +22,9 @@ export default class Http {
      * @param {*} data 
      * @param {*} hasAuth 
      */
-    static async requestApi( method, uri, data={}, requiresAuth = false){
+    static async requestApi( method, uri, data={}){
 
         let headers = {"x-key": appConfig.apiKey, "localtonet-skip-warning": 1}
-
-        //let chainName = appConfig.default_chain;
-
-        /*let walletCore = window.walletCore;
-
-        if(walletCore != null && walletCore.isConnected()){
-            
-            //lets get auth 
-            let authInfoStatus = await AuthCore.getAuth(walletCore)
-
-            //console.log(authInfoStatus)
-
-            if(authInfoStatus.isError()){
-                return authInfoStatus;
-            }
-
-            let authInfo = authInfoStatus.getData()
-
-            //console.log("walletCore===>>>", walletCore)
-
-            headers["x-account"]         = walletCore.account;
-            headers["x-chain-id"]        = walletCore.chainId;
-            headers["x-chain-name"]      = walletCore.chainName;
-            headers["x-auth-id"]         = authInfo.id;
-            headers["x-auth-signature"]  = authInfo.signature;
-
-        } else {
-
-            if(requiresAuth){
-                return Status.errorPromise("wallet_not_connected")
-            }
-        }*/
 
 
         let apiEndpoint = appConfig.server_url
@@ -141,7 +110,32 @@ export default class Http {
             return Status.errorPromise("REQUEST_FAILED",e)
         }
     } //end fun
- 
+
+    static async getJSONP(url, opts={}){
+        try {
+
+
+            let rparams = {
+                ...{
+                    "credentials":  'omit',
+                    "redirect":     "follow",
+                    //mode:           "no-cors"
+                },
+                ...opts
+            }
+
+            let response = await fetchJsonp(url)
+
+            let resultJson = await response.json()
+
+            return Status.success("", resultJson)
+        } catch (e) {
+            console.error(`getJSONP Error: ${url}`,e)
+            return Status.errorPromise("REQUEST_FAILED",e)
+        }
+    } //end fun
+
+
     /**
      * http post
      * @param {*} url 
