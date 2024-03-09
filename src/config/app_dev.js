@@ -10,6 +10,5 @@ export default {
         "localhost":             "capacitor",
         "192.168.8.100":         "capacitor",
         "native-dev.botfi.app":  "capacitor",
-        "native-dev.localto.net":  "capacitor",
     },
 }

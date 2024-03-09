@@ -34,7 +34,7 @@ onBeforeMount(() => {
                 :width="24" 
                 :height="24" 
                 class="rounded-circle shadow"
-                :src="activeNetwork.icon || ''" 
+                :src="activeNetwork.image || ''" 
                 :placeholder="activeNetwork.chainName"
             />
             <div class="ms-2 me-2 a text-truncate fs-6">

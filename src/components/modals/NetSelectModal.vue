@@ -16,7 +16,7 @@ const { isNetReady, activeNetwork } = useNetworks()
             :width="30" 
             :height="30" 
             class="rounded-circle"
-            :src="activeNetwork.icon || ''" 
+            :src="activeNetwork.image || ''" 
             :placeholder="activeNetwork.chainName"
             :key="activeNetwork.chainName"
         />

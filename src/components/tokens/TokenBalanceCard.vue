@@ -118,12 +118,12 @@ watch(tokens, () => {
                 <template v-for="(item, index) in actionArr" :key="index">
                     <div class="text-center">
                         <button @click.prevent="item.onClick"
-                            class="btn btn-primary p-0 rounded-circle center-vh"
+                            class="btn btn-primary p-0 mx-2 rounded-circle center-vh"
                             v-bind="item.attr"
                         >
                             <Icon :name="item.icon"  />
                         </button>
-                        <div class="fs-12 hint fw-semibold mt-2">
+                        <div class="fs-14 hint fw-medium mt-2">
                             {{ item.text }}
                         </div>
                     </div>

@@ -66,12 +66,24 @@ export const useNetworks = () => {
         if($s.userNetworkInfo != null) {
             return $s.userNetworkInfo
         }
-       
+        
+        let defaultChains = await fetchDefaultNetworks(true)
         let userNetworkInfo = await DB.getItem(USER_NETWORKS) 
 
         if(userNetworkInfo == null) {
-            userNetworkInfo = await fetchDefaultNetworks(true)
-            await DB.setItem(USER_NETWORKS, userNetworkInfo)
+            await DB.setItem(USER_NETWORKS, defaultChains)
+        } else {
+
+            let defaultChainNets = defaultChains.networks
+
+            //console.log("defaultChain==>", defaultChainNets)
+
+            // lets check if we have added new chains then we add it 
+            for(let chainId in defaultChainNets){
+                if(!(chainId in userNetworkInfo.networks)){
+                    userNetworkInfo.networks[chainId] = defaultChainNets[chainId]
+                }
+            }
         }
 
         //console.log("userNetworkInfo===>", userNetworkInfo)

@@ -16,12 +16,14 @@ export default {
     app_name_slug: "botfi_wallet",
 
     platforms: {
-        "pwa.botfi.app":  "pwa",
-        "tbot.botfi.app": "telegram",
-        "localhost":      "capacitor",
-        "192.168.8.100":  "capacitor",
+        "pwa.botfi.app":        "pwa",
+        "tbot.botfi.app":       "telegram",
+        "localhost":             "capacitor",
+        "192.168.8.100":         "capacitor",
         "native-dev.botfi.app":  "capacitor",
     },
+
+    default_chain: 56,
 
     server_url: "https://api.botfi.app",
 

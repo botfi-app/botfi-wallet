@@ -9,7 +9,6 @@ export {}
 
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
-    AccountSelectModal: typeof import('./src/components/modals/AccountSelectModal.vue')['default']
     ActivityList: typeof import('./src/components/activity/ActivityList.vue')['default']
     ActivityTab: typeof import('./src/components/wallet/tabs/ActivityTab.vue')['default']
     ActivityViewerModal: typeof import('./src/components/modals/ActivityViewerModal.vue')['default']
@@ -18,17 +17,12 @@ declare module '@vue/runtime-core' {
     BotFiLoader: typeof import('./src/components/common/BotFiLoader.vue')['default']
     BotFiProvider: typeof import('./src/layouts/BotFiProvider.vue')['default']
     BottomNav: typeof import('./src/components/footer/BottomNav.vue')['default']
-    BottomToolBar: typeof import('./src/components/browser/BottomToolBar.vue')['default']
     BridgeChainSelector: typeof import('./src/components/modals/BridgeChainSelector.vue')['default']
     BrowserHome: typeof import('./src/components/browser/BrowserHome.vue')['default']
-    BrowserPermittedDapps: typeof import('./src/components/modals/BrowserPermittedDapps.vue')['default']
-    BrowserPermittedWebsites: typeof import('./src/components/modals/BrowserPermittedWebsites.vue')['default']
     BrowserToolBar: typeof import('./src/components/browser/BrowserToolBar.vue')['default']
     CollapsibleText: typeof import('./src/components/common/CollapsibleText.vue')['default']
     ConfirmSwapModal: typeof import('./src/components/modals/ConfirmSwapModal.vue')['default']
     ConfirmTokenSend: typeof import('./src/components/modals/ConfirmTokenSend.vue')['default']
-    ConnectedSites: typeof import('./src/components/modals/ConnectedSites.vue')['default']
-    ConnectedSitesModal: typeof import('./src/components/modals/ConnectedSitesModal.vue')['default']
     CopyBtn: typeof import('./src/components/common/CopyBtn.vue')['default']
     DefaultNetAndWallet: typeof import('./src/components/modals/DefaultNetAndWallet.vue')['default']
     DepostAddressModal: typeof import('./src/components/modals/DepostAddressModal.vue')['default']
@@ -55,7 +49,6 @@ declare module '@vue/runtime-core' {
     Navbar: typeof import('./src/components/header/Navbar.vue')['default']
     NetSelectModal: typeof import('./src/components/modals/NetSelectModal.vue')['default']
     NetworkSelect: typeof import('./src/components/header/NetworkSelect.vue')['default']
-    NetworkSelectModal: typeof import('./src/components/modals/NetworkSelectModal.vue')['default']
     NewScanModal: typeof import('./src/components/modals/NewScanModal.vue')['default']
     NewWalletModal: typeof import('./src/components/modals/NewWalletModal.vue')['default']
     NFTCollectionCard: typeof import('./src/components/tokens/NFTCollectionCard.vue')['default']

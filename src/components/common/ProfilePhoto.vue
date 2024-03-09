@@ -58,7 +58,7 @@ onBeforeMount(() => {
             :size="props.size"
             variant="ring" 
             class="rounded" 
-            :square="true"
+            :square="!props.rounded"
         />
     </div>
 </template>

@@ -35,14 +35,15 @@ const initialize = async() => {
     
     userInfo.value =  botUtils.getUserInfo() || {}
     let username = (userInfo.value.username || "").trim()
-    name.value = (username.length > 0) ? '@'+username : userInfo.firstName; 
+    name.value = ((username.length > 0) ? '@'+username : userInfo.firstName).trim(); 
 
+    console.log("userInfo===>", userInfo)
    // let settings  = await fetchSettings()
    // defaultCurrency.value = (settings.defaultCurrency || "usd").toLowerCase()
 
    // let tokens = await getTokens() 
    // nativeTokenInfo.value = tokens[Utils.nativeTokenAddr] 
-
+ 
    initialized.value = true
 }
 </script>
@@ -56,12 +57,20 @@ const initialize = async() => {
                <div class="max-w400">
                     <div class="d-flex justify-content-between align-items-center mt-3 mb-2 mx-2">
                         <div class="v-center">
-                            <ProfilePhoto 
-                                :user-id="`${userInfo.id}`" 
-                                :size="26"
-                                :rounded="false"
+                            <div class="d-flex align-items-center" 
                                 v-if="Utils.isPlatform('telegram')"
-                            />
+                            >
+                                <ProfilePhoto 
+                                    :user-id="`${userInfo.id}`" 
+                                    :size="24"
+                                    :rounded="true"
+                                />
+                                
+                                <div class="ps-1 text-truncate" v-if="name != ''">
+                                    Hi, {{ name }}
+                                </div>
+                                <div class="ps-1 text-truncate" v-else>Welcome</div>
+                            </div>
                             <div v-else>
                                 <div class="rounded-lg p-1 shadow center-vh">
                                     <img src="/images/svg/logo.svg" width="28" />

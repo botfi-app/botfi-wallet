@@ -23,8 +23,8 @@ const initiatialize = async () => {
 
         let pDataArray = []
 
-        for(let item of Object.entries(dataObj)){
-           let [symbol, name] = item 
+        for(let symbol in dataObj){
+            let name = dataObj[symbol]
            pDataArray.push({ symbol, name })
         }
 
@@ -38,7 +38,7 @@ const initiatialize = async () => {
 }
 
 const onSearch = async (keyword, filteredData) => {
-    console.log("filteredData===>", filteredData)
+    //console.log("filteredData===>", filteredData)
    dataToRender.value = filteredData
 }
 

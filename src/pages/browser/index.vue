@@ -10,7 +10,7 @@
 
 <script setup>
 import {  onActivated, onBeforeUnmount, onMounted, ref, watch } from 'vue';
-import {WebviewEmbed as webviewPlugin } from '../../../../../capacitorjs/capacitor-webview-overlay';  
+import {WebviewEmbed as webviewPlugin } from '@botfi-app/capacitor-webview-embed';  
 import browserConfig from "../../config/browser"
 import Utils from '../../classes/Utils';
 import { App as CApp } from '@capacitor/app';

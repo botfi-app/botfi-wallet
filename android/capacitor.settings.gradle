@@ -3,7 +3,7 @@ include ':capacitor-android'
 project(':capacitor-android').projectDir = new File('../node_modules/@capacitor/android/capacitor')
 
 include ':botfi-app-capacitor-webview-embed'
-project(':botfi-app-capacitor-webview-embed').projectDir = new File('../../../capacitorjs/capacitor-webview-overlay/android')
+project(':botfi-app-capacitor-webview-embed').projectDir = new File('../node_modules/@botfi-app/capacitor-webview-embed/android')
 
 include ':capacitor-app'
 project(':capacitor-app').projectDir = new File('../node_modules/@capacitor/app/android')

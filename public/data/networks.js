@@ -300,5 +300,21 @@ export default {
             blockExplorerUrls: [ "https://zkevm.polygonscan.com/"],
             image: "/images/crypto/pols.svg"
         },
+        7000: {
+            chainName: "Zeta Chain",
+            chainId: 7000,
+            chain: "ZETA",
+            shortName: "ZETA",
+            nativeCurrency: {
+                name:       "ZETA",
+                symbol:     "ZETA",
+                decimals:   18,
+                chainId:    1,
+                image: "/images/crypto/eth.svg"
+            },
+            rpcUrls: ["https://zetachain-evm.blockpi.network/v1/rpc/public"],
+            blockExplorerUrls: [ "https://explorer.zetachain.com/"],
+            image: "/images/crypto/zeta.svg"
+        },
     }
 }
