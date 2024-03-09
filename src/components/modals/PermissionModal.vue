@@ -223,7 +223,7 @@ const initialize = async () => {
             let domainInfo = sigInfo["domain"] || {}
 
             //console.log("sigInfo============>", typeof sigInfo)
-            console.log("domainInfo============>", domainInfo)
+            //console.log("domainInfo============>", domainInfo)
 
             let requiredChainId = domainInfo.chainId || ""
             let curChainId = activeNetwork.value.chainId

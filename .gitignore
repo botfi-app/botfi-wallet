@@ -25,3 +25,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+capacitor.config.ts
+.capgo_key.pub
+.capgo_key

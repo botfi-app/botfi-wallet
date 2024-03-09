@@ -94,7 +94,6 @@ const initBrowserEvents = () => {
             hideBrowser();  
         } else { 
             showBrowser();
-            console.trace() 
         } 
     })
 
