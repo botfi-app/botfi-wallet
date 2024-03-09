@@ -18,6 +18,7 @@ export default {
     platforms: {
         "pwa.botfi.app":        "pwa",
         "tbot.botfi.app":       "telegram",
+        "tgbot.botfi.app":       "telegram",
         "localhost":             "capacitor",
         "192.168.8.100":         "capacitor",
         "native-dev.botfi.app":  "capacitor",

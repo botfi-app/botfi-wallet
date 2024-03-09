@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "sh ./scripts/dev.sh",
-    "build_web": "sh ./scripts/build.sh",
+    "build_web": "cross-env BOTFI_PLATFORM=web sh ./scripts/build.sh",
     "build_android": "cross-env BOTFI_PLATFORM=capacitor sh ./scripts/build_android.sh",
     "preview": "vite preview",
     "compile": "npx hardhat compile",

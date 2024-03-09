@@ -22,6 +22,13 @@ export default [
         icon: "uim:apps",
         url: "/scanner",
         platforms: ['all']
+    },
+
+    {
+        name: "Settings",     
+        icon: "solar:settings-minimalistic-bold",
+        url: "/settings",
+        platforms: ['telegram']
     }
  
  ]
