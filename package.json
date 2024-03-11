@@ -4,12 +4,12 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "cross-env BOTFI_PLATFORM=dev sh ./scripts/dev.sh",
+    "dev": "cross-env NODE_ENV=development BOTFI_PLATFORM=dev sh ./scripts/dev.sh",
     "build_telegram": "cross-env BOTFI_PLATFORM=telegram sh ./scripts/build_telegram.sh",
     "build_android": "cross-env BOTFI_PLATFORM=capacitor sh ./scripts/build_android.sh",
     "preview": "vite preview",
     "compile": "npx hardhat compile",
-    "run_android": "sh ./scripts/run_android.sh",
+    "run_android": "cross-env NODE_ENV=development BOTFI_PLATFORM=dev sh ./scripts/run_android.sh",
     "gen_assets": "npx @capacitor/assets generate --iconBackgroundColor '#1e1e1e' --iconBackgroundColorDark '#1e1e1e' --splashBackgroundColor '#1e1e1e' --splashBackgroundColorDark '#1e1e1e'",
     "sync": "npx cap sync"
   },

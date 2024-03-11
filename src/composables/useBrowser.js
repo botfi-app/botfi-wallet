@@ -247,7 +247,7 @@ export const useBrowser = () => {
                 return resultStatus;
                 
             } else if (method == "wallet_switchEthereumChain") {
-                return netCore.setActiveNetwork(parseInt(params[0], 16))
+                return netCore.setActiveNetwork(Utils.hexToInt(params[0]))
             } 
             else if (method == "wallet_watchAsset") { 
 

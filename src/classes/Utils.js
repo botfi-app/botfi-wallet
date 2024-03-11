@@ -619,10 +619,10 @@ export default class Utils {
     static hexToInt(val){
         return (val.toString().startsWith("0x"))
                     ? parseInt(val,16)
-                    : val
+                    : parseInt(val)
     }
 
-    static toHex(_val) {
+    static toHex(_val) { 
         return ("0x"+_val.toString(16))
     }
 

@@ -2,17 +2,10 @@
 
 BASEDIR=$(dirname "$0")
 
-#SSL_SKIP_DIR="$BASEDIR/../node_modules/@jcesarmobile/ssl-skip"
-
-#if [ ! -d $SSL_SKIP_DIR ]; then
-    npm install --save-dev "@jcesarmobile/ssl-skip" -f
-#fi
+npm install --save-dev "@jcesarmobile/ssl-skip" -f
 
 unlink $BASEDIR/../capacitor.config.ts
 cp -f $BASEDIR/../capacitor.config-dev.ts $BASEDIR/../capacitor.config.ts
-
-cross-env NODE_ENV=development 
-cross-env BOTFI_PLATFORM=dev
 
 npx cap sync && \
 npx cap run android &&  \

@@ -9,8 +9,8 @@
 </script>
 
 <script setup>
-import {  onActivated, onBeforeUnmount, onMounted, ref, watch } from 'vue';
-import {WebviewEmbed as webviewPlugin } from '@botfi-app/capacitor-webview-embed';  
+import {  nextTick, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, watch } from 'vue';
+import {WebviewEmbed as webviewPlugin } from '../../../../../capacitorjs/capacitor-webview-overlay';  
 import browserConfig from "../../config/browser"
 import Utils from '../../classes/Utils';
 import { App as CApp } from '@capacitor/app';
@@ -52,6 +52,12 @@ onMounted(() => {
     initializeWebviewEvents()
 
     openSavedTabs()
+
+    showBrowser()
+
+    window.addEventListener("resize", () => {
+        nextTick(() => refreshDimensions())
+    })
 
     initialized.value = true 
 })
@@ -115,9 +121,11 @@ const initBrowserEvents = () => {
 }
 
 onActivated(async () => {
-    if(isBrowserHidden.value){
-        showBrowser()
-    }
+   showBrowser()
+})
+
+onDeactivated(()=>{
+   hideBrowser()
 })
 
 onBeforeUnmount(() => {
@@ -138,18 +146,41 @@ onBeforeUnmount(() => {
 const hideBrowser = async () => {
     isBrowserHidden.value = true
     let tab = getActiveTab()
-    if(tab != null) await webviewPlugin.hide(tab.id)
+    if(tab != null) {
+        await webviewPlugin.hide(tab.id)
+    }
 }
 
 const showBrowser = async () => {
     isBrowserHidden.value = false
     let tab = getActiveTab()
-    if(tab != null) await webviewPlugin.show(tab.id)
+    if(tab != null) {
+        await webviewPlugin.show(tab.id)
+        refreshDimensions()
+    }
+}
+
+const refreshDimensions = () => {
+    setTimeout(() => {
+
+        //addr bar height
+        let addrBarH = 60
+        let bottomToolbarH = 60
+        
+        webviewPlugin.updateDimensions({
+            webviewId: activeTabId.value,
+            width: Math.ceil(window.innerWidth),
+            height: Math.ceil(window.innerHeight - (addrBarH + bottomToolbarH)),
+            x: 0,
+            y: addrBarH
+        });
+
+    }, 200)
 }
 
 const handleAppEvents = () => {
     CApp.addListener('backButton', async () => {
-
+        
         let _activeTabId = activeTabId.value
         let _addrBarRef = addrBarRef.value
 
@@ -247,6 +278,8 @@ const newTab = async ({
         }, 500)
     }
 
+    nextTick(() => refreshDimensions())
+
     return  tabs.value[tabId]
 }
 
@@ -267,6 +300,7 @@ const switchTab = async (tabId) => {
         activeTabId.value = tabId
     }
 
+    nextTick(() => refreshDimensions())
 }
 
 const closeBrowserTab = async (tabId) => {
@@ -460,16 +494,12 @@ const getActiveTabItem = (key, _default) => {
                 @inputFocused="(v) => urlInputFocused = v"
                 :key="activeTabId"
             />
-          <template v-for="tabInfo in tabs" :key="tabInfo.id">
-            <div>
-                <div :id="tabInfo.id"
-                     :class="'tab '+
-                        `${ isBrowserHidden  ? 'b-hidden': ''} `+
-                        `${ tabInfo.id != activeTabId ? 'not-active' : ''}`
-                     "  
+            <template v-for="tab in tabs">
+                <div  
+                    :id="tab.id"
+                    :class="`tab  ${isBrowserHidden || activeTabId != tab.id ? 't-hidden': ''} `"
                 />
-            </div>
-          </template>
+            </template>
             <div class="browser-footer">
                 <BrowserToolBar 
                     @goBack="goBack"
@@ -496,19 +526,16 @@ const getActiveTabItem = (key, _default) => {
 .tab{
     width: 100vw;
     height: calc(100vh - 120px);
-    z-index: 10;
     position: absolute;
     top: 60px;
-    left: 0px;
+    z-index: 10;
     display: block;
 
-    &.not-active {
-        display: none !important; 
-        z-index: 0;
-    }
-
-    &.b-hidden { 
+    &.t-hidden { 
         display: none;
+        z-index: 0;
+        width: 0px;
+        height: 0px;
     }
 }
 

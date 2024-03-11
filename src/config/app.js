@@ -33,7 +33,7 @@ export default {
     ///is dev
     is_dev,
 
-    crypto_icons_cdn: "https://assets.botfi.app",
+    crypto_icons_cdn: "https://tgbot.botfi.app",
 
     // gecko api endpoint 
     gecko_api_endpoint: "https://api.coingecko.com/api/v3/",

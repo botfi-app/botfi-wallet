@@ -24,7 +24,7 @@ onBeforeMount(() => {
 
 const updateBalances = async() => {
 
- 
+ //console.log("window.app_platform===>", window.app_platform)
   
   if(!walletStore.isLoggedIn() || isUpdatingBalance.value == true) return;
   
@@ -47,7 +47,8 @@ if(window.app_platform == 'capacitor'){
   keepAliveIncludes.push(...[
       'browser',
       'connected-sites', 
-      'browser-menu'
+      'browser-menu',
+      'browser-tabs'
   ])
 }
 </script>
@@ -55,16 +56,9 @@ if(window.app_platform == 'capacitor'){
 <template>
   <router-view v-slot="{ Component, route }">
       <KeepAlive :include="keepAliveIncludes">
-        <component :is="Component"   />
+        <component :is="Component" />
       </KeepAlive>
   </router-view>
   
   <toast />
 </template>
-
-<style scoped>
-.animate__fastest {
-  -webkit-animation-duration: 200ms;
-  animation-duration: 200ms;
-}
-</style>

@@ -3,6 +3,7 @@ import { onBeforeMount, ref } from 'vue'
 import Utils from '../../classes/Utils';
 import { useSettings } from "../../composables/useSettings"
 import EventBus from '../../classes/EventBus';
+import currencies from '../../data/currencies';
 
 const { settings, saveSettings } = useSettings()
 
@@ -20,7 +21,7 @@ const initialize = async () => {
     try{
 
         isLoading.value = true 
-        let dataObj = (await import("/data/fiat-currencies.js?url")).default;
+        let dataObj = currencies
 
         let pDataArray = []
 
