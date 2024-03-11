@@ -4,7 +4,7 @@ import { useWalletStore } from '../store/walletStore';
 import { useRouter } from 'vue-router';
 import MainLayout from './MainLayout.vue';
 import Navbar from '../components/header/Navbar.vue';
-
+import { useRoute } from 'vue-router';
 
 const props = defineProps({
     title: { type: String, default: ''},
@@ -19,12 +19,13 @@ const props = defineProps({
 })
 
 const walletStore = useWalletStore()
-const router = useRouter()
+const router =      useRouter()
+const route  =      useRoute()
 const initialized = ref(false)
 
 
 onBeforeMount(() => {
-
+    
     if(!walletStore.isLoggedIn()){
         return router.push("/login")
     }
@@ -37,6 +38,7 @@ onBeforeMount(() => {
     <MainLayout 
         :title="props.title"
         v-if="initialized"
+        :key="route.path"
     >    
         <template v-if="props.showNav">
             <Navbar 

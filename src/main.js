@@ -1,4 +1,4 @@
-import { createApp } from 'vue'
+/*import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import SimpleBar from 'simplebar'
 import 'simplebar/dist/simplebar.css';
@@ -125,3 +125,4 @@ const loadPlatformPlugin = async () => {
 
 startApp()
 
+*/

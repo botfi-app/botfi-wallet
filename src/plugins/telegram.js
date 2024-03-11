@@ -11,7 +11,7 @@ import AppTheme from "../classes/AppTheme";
 
 export default {
     install: (app, options={}) => {
-
+        
         let { router } = options;
         
         ///ensureTelegramClient()

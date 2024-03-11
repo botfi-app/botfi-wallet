@@ -8,7 +8,6 @@ if [ ! -d $SSL_SKIP_DIR ]; then
     npm install --save-dev "@jcesarmobile/ssl-skip" -f
 fi
 
-
 sh $BASEDIR/core.sh
 npx vite --host
 

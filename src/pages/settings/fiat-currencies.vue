@@ -6,16 +6,17 @@ import EventBus from '../../classes/EventBus';
 
 const { settings, saveSettings } = useSettings()
 
+const initialized = ref(false)
 const isLoading = ref(false)
 const fiatCurrencies = ref([])
 const dataToRender = ref([])
 const pageError = ref("")
 
 onBeforeMount(() => {
-    initiatialize()
+    initialize()
 })
 
-const initiatialize = async () => {
+const initialize = async () => {
     try{
 
         isLoading.value = true 
@@ -29,6 +30,8 @@ const initiatialize = async () => {
         }
 
         fiatCurrencies.value = pDataArray
+        initialized.value = true 
+
     }catch(e){
         Utils.logError("fiat-currencies:", e)
         pageError.value = Utils.generalErrorMsg
@@ -65,13 +68,13 @@ const currencyItemClick = async (item) => {
         title="" 
         :page-error="pageError"
         :showNav="false"
+        v-if="initialized"
     >   
-
         <div class="w-800 mb-5">
             <div class="d-flex p-2 justify-content-between align-items-center flex-nowrap">
           
                 <div class="center-vh">
-                    <NativeBackBtn url="/settings" />
+                    <NativeBackBtn url="/settings"  />
                     <div class="fw-semibold fs-6 pe-2">Fiat Currency</div>
                 </div>
                 <div class="fw-medium d-flex">
@@ -112,6 +115,5 @@ const currencyItemClick = async (item) => {
                 </nav>
             </loading-view>
         </div>
-
     </WalletLayout>
 </template>

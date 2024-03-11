@@ -18,12 +18,17 @@ import legacy from '@vitejs/plugin-legacy'
 import { argv } from 'process'
 import basicSsl from '@vitejs/plugin-basic-ssl'
 import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill'
+import { createHtmlPlugin } from 'vite-plugin-html'
 
 //console.log("process.env.====>", process.env.BOTFI_PLATFORM)
 
-const botfiPlatform = process.env.BOTFI_PLATFORM || ""
+const botfiPlatform = (process.env.BOTFI_PLATFORM || "").trim()
+const env = process.env.NODE_ENV
 
-console.log("Building for Platform:", botfiPlatform)
+console.log("Bot Platform==>", botfiPlatform)
+console.log("process.env.NODE_ENV==>", env)
+
+let htmlPuginData = { injectScript: "" }
 
 const plugins = [
   vue(),
@@ -52,7 +57,7 @@ const plugins = [
   }),
 ]
 
-if (process.env.NODE_ENV === "production") {
+if (env == "production") {
 
   if(botfiPlatform != 'capacitor'){
     plugins.push(...[
@@ -67,16 +72,41 @@ if (process.env.NODE_ENV === "production") {
         })
       ]
     )
+  } 
+
+  if(botfiPlatform == "telegram"){
+    htmlPuginData = {
+      injectScript: `<script src="https://telegram.org/js/telegram-web-app.js"></script>`,
+    }
   }
 
+
 } else {
+
+  htmlPuginData = {
+    injectScript: `<script src="https://telegram.org/js/telegram-web-app.js"></script>`,
+  }
+
   plugins.push(...[
     basicSsl()
   ])
 }
 
+plugins.push(createHtmlPlugin({
+  minify: false,
+  entry: `src/main_${botfiPlatform}.js`,
+  template: './index.html',
+  inject: {
+    data: htmlPuginData
+  }
+
+}));
+
 export default defineConfig({
   //base: '/',
+  rollupInputOptions: {
+    input: path.resolve(__dirname, `/src/main_${botfiPlatform}.js`)
+  },
 
   plugins,
   resolve: {

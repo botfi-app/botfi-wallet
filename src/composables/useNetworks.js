@@ -80,12 +80,12 @@ export const useNetworks = () => {
 
             // lets check if we have added new chains then we add it 
             for(let chainId in defaultChainNets){
-                if(!(chainId in userNetworkInfo.networks)){
+                //if(!(chainId in userNetworkInfo.networks)){
                     userNetworkInfo.networks[chainId] = defaultChainNets[chainId]
-                }
+                //}
             }
         }
-
+        
         //console.log("userNetworkInfo===>", userNetworkInfo)
 
         $s.userNetworkInfo   = userNetworkInfo

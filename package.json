@@ -4,8 +4,8 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "sh ./scripts/dev.sh",
-    "build_web": "cross-env BOTFI_PLATFORM=web sh ./scripts/build.sh",
+    "dev": "cross-env BOTFI_PLATFORM=dev sh ./scripts/dev.sh",
+    "build_telegram": "cross-env BOTFI_PLATFORM=telegram sh ./scripts/build_telegram.sh",
     "build_android": "cross-env BOTFI_PLATFORM=capacitor sh ./scripts/build_android.sh",
     "preview": "vite preview",
     "compile": "npx hardhat compile",
@@ -118,6 +118,7 @@
     "vite-plugin-compression": "^0.5.1",
     "vite-plugin-compression2": "^0.11.0",
     "vite-plugin-dynamic-import": "^1.5.0",
+    "vite-plugin-html": "^3.2.2",
     "vite-plugin-mkcert": "^1.17.2",
     "vite-plugin-node-stdlib-browser": "^0.2.1",
     "vite-plugin-pages": "^0.31.0",

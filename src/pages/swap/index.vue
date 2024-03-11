@@ -257,7 +257,7 @@ const initialize = async () => {
     isChainSupported.value  = await swapCore.isChainSupported()
 
     if(!isChainSupported.value){
-        return pageError.value = `Swap not supported on ${netInfo.value.name}`
+        return pageError.value = `Swap not supported on ${netInfo.value.chainName}`
     }
 
         

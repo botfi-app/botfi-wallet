@@ -310,7 +310,7 @@ export default {
                 symbol:     "ZETA",
                 decimals:   18,
                 chainId:    1,
-                image: "/images/crypto/eth.svg"
+                image: "/images/crypto/zeta.svg"
             },
             rpcUrls: ["https://zetachain-evm.blockpi.network/v1/rpc/public"],
             blockExplorerUrls: [ "https://explorer.zetachain.com/"],

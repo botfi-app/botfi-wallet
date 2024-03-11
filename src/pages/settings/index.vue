@@ -14,11 +14,11 @@ const { settings } = useSettings()
         :showNav="true"
         :hasNetSelect="false"
         :hasAddrSelect="false"
-        backUrl="/wallet"
+        backUrl="/wallet" 
     >   
         
         <div class="w-800 mb-5">
-            <div class="mt-3"> 
+            <div class=""> 
                 <div class="h-divided" />           
                 <nav class="list-group list-group-flush">
                     <router-link to="/settings/fiat-currencies" 

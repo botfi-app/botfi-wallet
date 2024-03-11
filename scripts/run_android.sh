@@ -11,6 +11,9 @@ BASEDIR=$(dirname "$0")
 unlink $BASEDIR/../capacitor.config.ts
 cp -f $BASEDIR/../capacitor.config-dev.ts $BASEDIR/../capacitor.config.ts
 
-cross-env NODE_ENV=development npx cap sync && \
+cross-env NODE_ENV=development 
+cross-env BOTFI_PLATFORM=dev
+
+npx cap sync && \
 npx cap run android &&  \
 npx cap sync

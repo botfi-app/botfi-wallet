@@ -16,8 +16,8 @@ export default {
     app_name_slug: "botfi_wallet",
 
     platforms: {
-        "pwa.botfi.app":        "pwa",
-        "tbot.botfi.app":       "telegram",
+        "pwa.botfi.app":         "pwa",
+        "tbot.botfi.app":        "telegram",
         "tgbot.botfi.app":       "telegram",
         "localhost":             "capacitor",
         "192.168.8.100":         "capacitor",

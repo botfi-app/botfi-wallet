@@ -1,0 +1,21 @@
+BotFi stands out as a cutting-edge decentralized finance (DeFi) automation protocol, 
+revolutionizing various tasks within the DeFi ecosystem. 
+
+**Features:**
+
+🏛️  Self-Custody Wallet     🟢
+
+💡  Limit & Instant Swap    🟢
+
+🏝️  NFT Support                 🟢
+
+🕵  Token Scanner             🟢
+
+🌉  Token Bridge                 🟡
+
+⏰  DCA Automation           🟡
+
+🔫  Sniper Bot                     🟡
+
+🪞  Mirror / Copy Trading   🟡
+

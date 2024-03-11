@@ -20,6 +20,7 @@ import { parseUnits } from 'ethers';
 import ConfirmTokenSend from '../../../components/modals/ConfirmTokenSend.vue';
 import { Modal as bsModal } from 'bootstrap'
 import QRCodeReaderModal from '../../../components/modals/QRCodeReaderModal.vue';
+import NativeBackBtn from '../../../components/common/NativeBackBtn.vue';
 
 
 const route = useRoute()
@@ -184,7 +185,7 @@ const confirmSendToken = async () => {
             <div class='d-flex justify-content-between px-2'>
 
                 <div class="center-vh">
-                    <NativeBackBtn 
+                    <NativeBackBtn  
                         :url="`/tokens/${tokenAddress}`"
                         text=""
                     />
