@@ -184,7 +184,7 @@ const  handleOnSubmit= async () => {
                     </div>
                 </div>
                 <div class="px-2 py-2">
-                    <button @click="handleOnSubmit" class="btn btn-primary w-full rounded-lg">
+                    <button @click="handleOnSubmit" class="btn btn-lg btn-primary w-full rounded-lg">
                         Confirm Swap
                     </button>
                 </div>

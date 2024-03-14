@@ -6,6 +6,8 @@
 
 body {
  background: var(--bs-body-bg);
+ width: 100vw;
+
 }
 
 #main-loader {
@@ -33,29 +35,30 @@ body {
   align-items: center;
   background-color: transparent;
 }
+
 .spinner-box::after {
   content: '';
   position: absolute;
   z-index: 200 !important;
-  width: 60px !important;
-  height: 60px !important;
-  background-image: url(/images/svg/logo.svg);
-  background-repeat: no-repeat;
-  background-size: 40px 40px;
-  background-position: center;
-}
-.spinner-box.loader-sm::after {
   width: 30px !important;
   height: 30px !important;
   background-size: 28px 28px;
+  background-image: url(/images/svg/logo.svg);
+  background-repeat: no-repeat;
+  background-position: center;
+}
+.spinner-box.loader-sm::after {
+  width: 28px !important;
+  height: 28px !important;
+  background-size: 24px 24px;
 }
 .spinner-box.loader-sm .configure-border-1, .spinner-box.loader-sm .configure-border-2 {
-  width: 45px !important;
-  height: 45px !important;
+  width: 32px !important;
+  height: 32px !important;
 }
 .spinner-box .configure-border-1 {
-  width: 65px;
-  height: 65px;
+  width: 45px !important;
+  height: 45px !important;
   padding: 3px;
   border-radius: 4px;
   position: absolute;
@@ -66,8 +69,8 @@ body {
   animation: configure-clockwise 3s ease-in-out 0s infinite alternate;
 }
 .spinner-box .configure-border-2 {
-  width: 65px;
-  height: 65px;
+  width: 45px !important;
+  height: 45px !important;
   padding: 3px;
   border-radius: 4px;
   left: -115px;

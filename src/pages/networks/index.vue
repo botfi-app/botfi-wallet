@@ -1,6 +1,6 @@
 
 <script setup>
-import { onActivated, onBeforeMount, onBeforeUnmount, onDeactivated, ref } from 'vue';
+import { nextTick, onActivated, onBeforeMount, onBeforeUnmount, onDeactivated, ref } from 'vue';
 import Utils from '../../classes/Utils';
 import WalletLayout from '../../layouts/WalletLayout.vue';
 import NativeBackBtn from '../../components/common/NativeBackBtn.vue';
@@ -27,18 +27,18 @@ let _modal = null
 const dataState = ref(Date.now())
 const networksDataToRender = ref({})
 let returnOnSelect = false
-let backUrl = ""
+let backUrl = ref("/wallet")
 
 onBeforeMount(() => {
     let q = route.query;
-    returnOnSelect = ("returnOnSelect" in q)
+    //returnOnSelect = ("returnOnSelect" in q)
 
-    backUrl = (q.r || "").trim();
-    if(backUrl == '') backUrl = "/wallet"
+    backUrl.value = (q.r || "").trim();
+    if(backUrl.value == '') backUrl.value = "/wallet"
 })
 
 onBeforeUnmount(()=>{
-    returnOnSelect = false
+    //returnOnSelect = false
 })
 
 const onItemClick = async (item) => {
@@ -70,11 +70,9 @@ const setDefaultNetwork = async () => {
 
     //console.log("returnOnSelect====>", returnOnSelect)
 
-    if(returnOnSelect) {
-        setTimeout(() => {
-            router.push(backUrl)
-        }, 200)
-    }
+    //if(returnOnSelect) {
+    nextTick(() => router.push(backUrl.value))
+    //}
 }
 
 const removeNetwork = async () => {
@@ -159,7 +157,9 @@ const onSearch = async (keyword, filteredData) => {
             <loading-view :isLoading="isLoading" :key="dataState">
                 <div class="d-flex p-2 justify-content-between align-items-center flex-nowrap">
                     <div class="center-vh">
-                        <NativeBackBtn />
+                        <NativeBackBtn 
+                            :url="backUrl" 
+                        />
                         <div class="fw-semibold fs-6">Networks</div>
                     </div>
                     <div class="ps-2">

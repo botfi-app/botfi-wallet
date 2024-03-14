@@ -41,7 +41,7 @@ export const useBrowserHistory = () => {
             try {
                 let item = historyArr[i] || null 
 
-                console.log("item=====>", item)
+                //console.log("item=====>", item)
 
                 if(typeof item != 'object' || item == null){
                     delete historyArr[i]

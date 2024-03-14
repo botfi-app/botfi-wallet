@@ -120,7 +120,7 @@ const onSubmit = async () => {
                         </div>
                         <div class="mt-3">
                             <button @click.prevent="onSubmit"
-                                class="btn btn-primary rounded w-full btn-lg"
+                                class="btn btn-lg btn-primary rounded w-full btn-lg"
                             >
                                 Scan
                             </button>

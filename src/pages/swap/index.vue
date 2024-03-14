@@ -775,7 +775,7 @@ const stimulateSwapTx = async (idx) => {
                 </div>
             </div>
             <div class="">
-                <button class="btn btn-primary rounded-lg w-full" 
+                <button class="btn btn-primary rounded w-full" 
                     :disabled="isFetchingQuotes || quotesError != '' || hasInsufficientFunds"
                     @click="handleOnSubmit"
                 >   

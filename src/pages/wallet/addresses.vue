@@ -7,7 +7,7 @@
 
 import { useRouter, useRoute } from 'vue-router';
 import { useWalletStore } from '../../store/walletStore';
-import { ref, onActivated } from 'vue'
+import { ref, nextTick, onBeforeMount } from 'vue'
 import NewWalletModal from '../../components/modals/NewWalletModal.vue';
 import WalletNameEditor from '../../components/modals/WalletNameEditor.vue';
 import { Modal as bsModal } from 'bootstrap'
@@ -31,15 +31,13 @@ const walletNameEditorModalId = ref("wallet-name-editor-modal-"+Date.now())
 const revealPKModalId = ref("reveal-pk-modal-"+Date.now())
 const importWalletModalId = ref("import-wallet-"+Date.now())
 
-let returnOnSelect = false
-let backUrl = "/wallet"
+let backUrl = ref("/wallet")
 
-onActivated(() => {
+onBeforeMount(() => {
     let q = route.query;
-    returnOnSelect = ("returnOnSelect" in q)
 
-    backUrl = (q.r || "").trim();
-    if(backUrl == '') backUrl = "/wallet"
+    backUrl.value = (q.r || "").trim();
+    if(backUrl.value == '') backUrl.value = "/wallet"
 })
 
 const onSearch = async (keyword, filteredData) => {
@@ -86,9 +84,7 @@ const setActiveWallet = async () => {
     dataState.value = Date.now()
     menuModalInst.value.hide()
 
-    window.setTimeout(() => {
-        router.push(backUrl)
-    }, 200)
+    nextTick(() => router.push(backUrl.value) )
 }
 
 const editItemName = async () => {
@@ -140,7 +136,9 @@ const copyAddress = async (addr) =>{
             <div class="d-flex p-2 align-items-center justify-content-between flex-nowrap">
 
                 <div class="center-vh">
-                    <NativeBackBtn />
+                    <NativeBackBtn 
+                        :url="backUrl.value" 
+                    />
                     <div class="fw-semibold fs-6 pe-2">Wallets</div>
                 </div>
                 

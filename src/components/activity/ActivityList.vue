@@ -136,7 +136,7 @@ const iconInfo = (item) => {
 
         <div v-if="props.enableViewAllBtn" class='w-full d-flex justify-content-end'>
             <router-link to="/activity" 
-                class="btn btn-outline-primary rounded-pill shadow"
+                class="btn btn-lg btn-outline-primary rounded-pill shadow"
             >
                 <div class="d-flex align-items-center">
                     <div class="me-2">View All</div>

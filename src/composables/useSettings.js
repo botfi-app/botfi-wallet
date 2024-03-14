@@ -21,7 +21,7 @@ export const useSettings = () => {
     const dbCore = useDB()
     const botUtils = inject("botUtils")
 
-    console.log("botUtils===>", botUtils)
+    //console.log("botUtils===>", botUtils)
 
     const settings = computed(() => $settings.value )
 

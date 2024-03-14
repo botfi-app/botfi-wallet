@@ -69,8 +69,8 @@ watch(tabs, () => {
     EventBus.emit("tabsUpdated", tabs.value)
 }, { deep: true })
 
-watch(isBrowserHidden, () => {
-    console.log("isBrowserHidden====>", isBrowserHidden.value)
+watch(activeTabId, () => {
+    nextTick(() => refreshDimensions())
 })
 
 const openSavedTabs = async () => {
@@ -147,6 +147,9 @@ const hideBrowser = async () => {
     isBrowserHidden.value = true
     let tab = getActiveTab()
     if(tab != null) {
+        await webviewPlugin.updateDimensions({ 
+            webviewId: tab.id, width: 0, height: 0, x: 0, y: 0 
+        });
         await webviewPlugin.hide(tab.id)
     }
 }
@@ -167,10 +170,12 @@ const refreshDimensions = () => {
         let addrBarH = 60
         let bottomToolbarH = 60
         
+        let height =  Math.ceil(window.innerHeight - (addrBarH + bottomToolbarH))
+
         webviewPlugin.updateDimensions({
             webviewId: activeTabId.value,
             width: Math.ceil(window.innerWidth),
-            height: Math.ceil(window.innerHeight - (addrBarH + bottomToolbarH)),
+            height,
             x: 0,
             y: addrBarH
         });
@@ -278,8 +283,6 @@ const newTab = async ({
         }, 500)
     }
 
-    nextTick(() => refreshDimensions())
-
     return  tabs.value[tabId]
 }
 
@@ -299,8 +302,6 @@ const switchTab = async (tabId) => {
         // lets get current tab and hide it 
         activeTabId.value = tabId
     }
-
-    nextTick(() => refreshDimensions())
 }
 
 const closeBrowserTab = async (tabId) => {
@@ -365,9 +366,10 @@ const initializeWebviewEvents = async () => {
         let tabId = event.webviewId
 
         //console.log("event===>", event)
+
         if(url == "") return;
 
-        if(!/^(https?:\/\/)/.test(url)){
+        if(!/^(https?:\/\/)/i.test(url)){
             await Share.share({
                 url: url,
                 dialogTitle: 'Open with',
@@ -387,7 +389,7 @@ const initializeWebviewEvents = async () => {
 
         event.complete(true);
     });
-    
+
     webviewPlugin.onPageLoaded(async (dataObj) => {
 
         //console.log("dataObj===>", dataObj)

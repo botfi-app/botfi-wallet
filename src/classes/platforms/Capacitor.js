@@ -58,7 +58,11 @@ export default class Capacitor {
 
         return {
             isSupported: () => isSupported,
-            readText: (callback) => Clipboard.read().then((type, value) => callback(value))
+            readText: (callback) => {
+                Clipboard.read().then((result)=>{
+                    callback(result.value || "")
+                })
+            }
         }
     }
     

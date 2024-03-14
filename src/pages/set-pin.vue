@@ -97,12 +97,15 @@ const onSave = async () => {
         title="Set Pin"
         v-if="initialized"
     >
-        <div class="p-3">
+        <div class="p-3 space-between">
             <NativeBackBtn 
                 url="/" 
                 btn-class="btn btn-warning px-3" 
                 text="Back"  
             />
+            <button class="btn btn-outline rounded-circle">
+                dfdß
+            </button>
         </div>
 
         <div class="d-flex flex-column w-400 pb-5 align-items-center">
@@ -155,3 +158,5 @@ const onSave = async () => {
         </div>
     </main-layout>
 </template>
+
+ 

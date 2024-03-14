@@ -92,7 +92,7 @@ const importWallet = async () => {
                     </div>
                     <div class="my-3">
                         <button @click.prevent="importWallet"
-                            class="btn btn-primary w-full rounded fw-semibold"
+                            class="btn btn-lg btn-primary w-full rounded fw-semibold"
                         >
                             Import
                         </button>

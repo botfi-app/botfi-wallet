@@ -38,7 +38,7 @@ onBeforeMount(async () => {
 
     clipboard.value = botUtils.clipboard()
 
-    ///console.log("clipboard===>", clipboard.value)
+    console.log("clipboard===>", clipboard.value)
 
 })
 
@@ -107,7 +107,8 @@ const pasteWords = async () => {
 
   if(!c.isSupported()) return; 
 
-  c.readText((textData) => {
+  c.readText((textData="") => {
+    //console.log("textData===>", textData)
     __handleDataPaste(textData.trim())
   })
 

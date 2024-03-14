@@ -54,7 +54,7 @@ const copyAddr = async () => {
                         <div>{{ pageError }}</div>
                         <div>
                             <button @click.prevent="initialize" 
-                                class='btn btn-success btn-md px-4 py-2 rounded-pill mt-4'
+                                class='btn btn-lg btn-success px-4 py-2 rounded-pill mt-4'
                             >
                                 Retry
                             </button>

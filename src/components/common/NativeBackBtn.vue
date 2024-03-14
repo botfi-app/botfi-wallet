@@ -5,7 +5,8 @@ import { useRouter, useRoute } from 'vue-router';
 const p = defineProps({
     url: { type: String, default: "" },
     text: { type: String, default: ""  },
-    btnClass: { type: String, default: "" }
+    btnClass: { type: String, default: "" },
+    hideArrow: { type: Boolean, default: false }
 })
 
 const botUtils = inject("botUtils")
@@ -56,10 +57,10 @@ onBeforeUnmount(() => {
                 ${ p.btnClass }
             `"
         >
-            <span class="d-flex align-items-center justify-content-start me-1">
-                <Icon name="bx:arrow-back" class="me-2" :size="24" />
+            <div class="d-flex align-items-center d-block justify-content-center me-1">
+                <Icon v-if="!p.hideArrow" name="bx:arrow-back"  class="me-2" :size="24" />
                 <span v-if="p.text != ''" class="me-2">{{p.text}}</span>
-            </span>
+            </div>
          </a> 
     </div>
 </template>

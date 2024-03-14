@@ -47,7 +47,7 @@ const onIntroFinished = () => skipIntro.value = true
             v-if="Utils.isPlatform('capacitor') && !skipIntro"
             @finish="onIntroFinished"
         />
-        <div v-else class="d-flex flex-column w-400 px-5 auth-box align-items-center justify-content-center">
+        <div v-else class="d-flex flex-column w-400 px-4 auth-box align-items-center justify-content-center">
         
             <top-logo class="mt-5" />
 

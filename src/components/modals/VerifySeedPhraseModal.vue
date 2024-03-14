@@ -51,6 +51,10 @@ const  handleSubmit = async () => {
 
     emit("submit")
 }
+
+const onInputChange = (index) => {
+    formData.value[index] = (formData.value[index] || "").trim().toLowerCase()
+}
 </script>
 <template>
     <Modal
@@ -68,19 +72,20 @@ const  handleSubmit = async () => {
                 <div class="row justify-content-cneter align-items-center mx-1 mb-2">
                     <template v-for="(key, index) in dataKeysArr" :key="index">
                         <div class="col-6 p-1">
-                            <div class="form-floating">
+                            <div class="form-floating mb-3">
                                 <input 
                                     type="text" 
                                     v-model="formData[index]"
                                     class="form-control w-full rounded-lg" 
                                     :id="`word_${key}`" 
-                                    :placeholder="`Enter word #${key + 1}`"
+                                    :placeholder="``"
                                     autoCapitalize='off'
                                     autocomplete="off"
                                     autocorrect="off"
                                     autosave="off"
+                                    @change="onInputChange(index)"
                                 >
-                                <label :for="`word_${key}`">
+                                <label class="" :for="`word_${key}`">
                                     Word #{{ key + 1 }}
                                 </label>
                             </div>

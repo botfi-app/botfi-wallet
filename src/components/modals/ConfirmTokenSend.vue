@@ -587,7 +587,7 @@ const handleOnRetry = () => {
                         </div>
                         <div class='mx-3 mt-4 mb-3'>
                             <button @click.prevent="processTransfer"
-                                class="btn btn-success w-full rounded-pill"
+                                class="btn btn-lg btn-success w-full rounded-pill"
                             >
                                 Send
                             </button>

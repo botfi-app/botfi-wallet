@@ -80,7 +80,7 @@ const revealPk = async () => {
                         </div>
                         <div class="mt-4 px-2 w-full ">
                             <button @click.prevent="revealPk" 
-                                    class="btn rounded-pill btn-primary w-full"
+                                    class="btn btn-lg rounded-pill btn-primary w-full"
                             >
                                 Reveal
                             </button>

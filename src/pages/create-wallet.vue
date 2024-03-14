@@ -157,7 +157,7 @@ const getCopySeedPhrase = () => (
 
                     <div class="d-flex flex-row py-4 w-full">
                         <button
-                            class="btn btn-success rounded-pill mx-1 w-full" 
+                            class="btn  btn-success rounded-pill mx-1 w-full" 
                             @click="isPhraseHidden=!isPhraseHidden"
                         >
                             {{ isPhraseHidden ? "Reveal" : "Hide" }}

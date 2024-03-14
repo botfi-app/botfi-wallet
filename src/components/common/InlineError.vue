@@ -37,7 +37,7 @@ const onRetry = () => {
         </div>
             <div class="mt-2 d-flex w-full justify-content-center">
                 <button @click.prevent="onRetry"
-                    class="btn btn-info btn-sm rounded-pill px-5 center-vh"
+                    class="btn btn-info btn-lg rounded-pill px-5 center-vh"
                     v-if="props.canRetry"
                 >
                     <Icon name="ant-design:reload-outlined" :size="18" />
