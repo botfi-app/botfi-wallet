@@ -12,7 +12,7 @@ import app from "../config/app"
 import ErrorCodes from "../classes/ErrorCodes"
 import Utils from "../classes/Utils"
 import EventBus from "../classes/EventBus"
-import networks from "../../public/data/networks"
+//import networks from "../../public/data/networks"
 
 const $state = ref({
     isReady: false, 
@@ -49,9 +49,9 @@ export const useNetworks = () => {
             return $s.defaultNetworkInfo
         }
 
-        //let results = await import( /* @vite-ignore */
-                        //        `/data/networks.js?url=1&r=${Date.now()}`
-                        //    )
+        let results = (await import( /* @vite-ignore */
+                        app.default_networks_url
+                     )).default
            
         //let data = results.default;
 
