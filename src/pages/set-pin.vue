@@ -103,9 +103,7 @@ const onSave = async () => {
                 btn-class="btn btn-warning px-3" 
                 text="Back"  
             />
-            <button class="btn btn-outline rounded-circle">
-                dfdß
-            </button>
+
         </div>
 
         <div class="d-flex flex-column w-400 pb-5 align-items-center">

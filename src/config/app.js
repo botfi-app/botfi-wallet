@@ -24,6 +24,8 @@ export default {
         "native-dev.botfi.app":  "capacitor",
     },
 
+    github_repo:  "https://github.com/botfi-app/botfi-wallet",
+
     default_chain: 56,
 
     server_url: "https://api.botfi.app",

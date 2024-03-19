@@ -12,7 +12,7 @@ import app from "../config/app"
 import ErrorCodes from "../classes/ErrorCodes"
 import Utils from "../classes/Utils"
 import EventBus from "../classes/EventBus"
-import networks from "../data/networks"
+import networks from "../../public/data/networks"
 
 const $state = ref({
     isReady: false, 

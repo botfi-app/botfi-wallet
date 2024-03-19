@@ -97,6 +97,8 @@ const handleBiometricAuth = async (silent=false) => {
  
         if(credDataStatus.isError()){
             if(!silent) Utils.mAlert(credDataStatus.getMessage())
+            biometricUnlockEnabled.value = false
+            bAuth.clearBiometricAuth()
             return;
         }
         
@@ -259,8 +261,8 @@ const resetWallets = async () => {
             <div v-if="supportsBiometricAuth"
                 class="p-3 w-full my-1 mb-3 d-flex align-items-center"
             >
-                <label for="unlockWithBiometric" class="me-2" id="">Unlock with Biometric?</label>
-                <div class="form-check form-switch">
+                <label for="unlockWithBiometric" id="">Unlock with Biometric?</label>
+                <div class="form-check form-switch ms-3">
                     <input 
                         class="form-check-input rounded-pill" 
                         type="checkbox" 
