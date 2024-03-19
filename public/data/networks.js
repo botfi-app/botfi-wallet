@@ -2,7 +2,7 @@
  * networks, this file must be loaded to botfi-assets.github.io
  */
 
-const imgUrl = (img) => "/botfi-wallet/public/images/crypto/"+img+".svg"
+const imgUrl = (img) => img
 
 export default {
     

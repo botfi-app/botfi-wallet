@@ -51,9 +51,26 @@ export const useNetworks = () => {
 
         let data =   (await import( /* @vite-ignore */
                        app.default_networks_url
-                     )).default
+                    )).default
            
 
+        let networksObj = data.networks || {}
+
+        for(let key in networksObj){
+
+            if(!Utils.isValidUrl(networksObj[key].image)){
+                networksObj[key].image = Utils.getTokenIconUrl(networksObj[key].image)
+            }
+            
+            if(!Utils.isValidUrl(networksObj[key].nativeCurrency.image)){
+                networksObj[key].nativeCurrency.image = Utils.getTokenIconUrl(networksObj[key].nativeCurrency.image)
+            }
+        }
+
+        console.log(" data.networks====>",  data.networks)
+
+        data.networks = networksObj
+        
         $s.defaultNetworkInfo = data;
 
         return data 
