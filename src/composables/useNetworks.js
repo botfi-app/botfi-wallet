@@ -50,7 +50,9 @@ export const useNetworks = () => {
             return $s.defaultNetworkInfo
         }
 
-        let resultStatus = await Http.getJSONP(app.default_networks_url)
+        let resultStatus = await Http.getJSONP("/data/networks.json")
+
+        console.log("resultStatus==>", resultStatus)
                      
         if(resultStatus.isError()){
             return {}

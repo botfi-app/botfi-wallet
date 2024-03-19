@@ -26,7 +26,7 @@ export default {
 
     github_repo:  "https://github.com/botfi-app/botfi-wallet",
 
-    default_networks_url: "https://raw.githubusercontent.com/botfi-app/botfi-wallet/main/public/data/networks.js",
+    default_networks_url: "/data/networks.json",
 
     default_chain: 56,
 
