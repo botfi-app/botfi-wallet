@@ -2324,6 +2324,11 @@
   dependencies:
     multiformats "^12.0.1"
 
+"@jcesarmobile/ssl-skip@^0.3.0":
+  version "0.3.0"
+  resolved "https://registry.npmjs.org/@jcesarmobile/ssl-skip/-/ssl-skip-0.3.0.tgz"
+  integrity sha512-vnYzQxgoQCuPQetfhWIR4KAAbuRcmvthWhF/qGgSp3X+VKQ05wtkVMdQNyKDkizANkB4M/R+DoPJtLEULDKmiA==
+
 "@jridgewell/gen-mapping@^0.3.0", "@jridgewell/gen-mapping@^0.3.2":
   version "0.3.3"
   resolved "https://registry.npmjs.org/@jridgewell/gen-mapping/-/gen-mapping-0.3.3.tgz"

@@ -31,3 +31,6 @@ project(':capacitor-native-biometric').projectDir = new File('../node_modules/ca
 
 include ':capacitor-plugin-safe-area'
 project(':capacitor-plugin-safe-area').projectDir = new File('../node_modules/capacitor-plugin-safe-area/android')
+
+include ':jcesarmobile-ssl-skip'
+project(':jcesarmobile-ssl-skip').projectDir = new File('../node_modules/@jcesarmobile/ssl-skip/android')

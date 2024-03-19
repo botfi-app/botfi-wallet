@@ -12,6 +12,7 @@ import app from "../config/app"
 import ErrorCodes from "../classes/ErrorCodes"
 import Utils from "../classes/Utils"
 import EventBus from "../classes/EventBus"
+import Http from "../classes/Http"
 //import networks from "../../public/data/networks"
 
 const $state = ref({
@@ -49,15 +50,26 @@ export const useNetworks = () => {
             return $s.defaultNetworkInfo
         }
 
-        let results = (await import( /* @vite-ignore */
-                        app.default_networks_url
-                     )).default
-           
-        //let data = results.default;
+        let resultStatus = await Http.getJSONP(app.default_networks_url)
+                     
+        if(resultStatus.isError()){
+            return {}
+        }   
 
-        $s.defaultNetworkInfo = networks;
+        let resultData = resultStatus.getData() || {}
 
-        return networks
+        let networksObj = resultData.networks || {}
+
+        for(let key in networksObj){
+            networksObj[key].image = Utils.getTokenIconUrl(networksObj[key].image)
+            networksObj[key].nativeCurrency.image = Utils.getTokenIconUrl(networksObj[key].nativeCurrency.image)
+        }
+
+        resultData.networks = networksObj
+        
+        $s.defaultNetworkInfo = resultData;
+
+        return resultData
     }
 
     const getUserNetworks = async () => {
