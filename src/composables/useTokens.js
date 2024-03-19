@@ -104,6 +104,10 @@ export const useTokens = () => {
                 tokensObj = {}
 
                 let netInfo = await net.getActiveNetworkInfo()
+
+                //console.log("netInfo===>", netInfo)
+
+                if(!netInfo) return {}
                 
                 let chainId = netInfo.chainId
                 let userId = botUtils.getUid()

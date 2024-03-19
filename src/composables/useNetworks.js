@@ -12,7 +12,6 @@ import app from "../config/app"
 import ErrorCodes from "../classes/ErrorCodes"
 import Utils from "../classes/Utils"
 import EventBus from "../classes/EventBus"
-import Http from "../classes/Http"
 //import networks from "../../public/data/networks"
 
 const $state = ref({
@@ -50,28 +49,14 @@ export const useNetworks = () => {
             return $s.defaultNetworkInfo
         }
 
-        let resultStatus = await Http.getJSONP("/data/networks.json")
+        let data =   (await import( /* @vite-ignore */
+                       app.default_networks_url
+                     )).default
+           
 
-        console.log("resultStatus==>", resultStatus)
-                     
-        if(resultStatus.isError()){
-            return {}
-        }   
+        $s.defaultNetworkInfo = data;
 
-        let resultData = resultStatus.getData() || {}
-
-        let networksObj = resultData.networks || {}
-
-        for(let key in networksObj){
-            networksObj[key].image = Utils.getTokenIconUrl(networksObj[key].image)
-            networksObj[key].nativeCurrency.image = Utils.getTokenIconUrl(networksObj[key].nativeCurrency.image)
-        }
-
-        resultData.networks = networksObj
-        
-        $s.defaultNetworkInfo = resultData;
-
-        return resultData
+        return data 
     }
 
     const getUserNetworks = async () => {
@@ -83,9 +68,11 @@ export const useNetworks = () => {
         }
         
         let defaultChains = await fetchDefaultNetworks(true)
-        let userNetworkInfo = await DB.getItem(USER_NETWORKS) 
+        let userNetworkInfo = await DB.getItem(USER_NETWORKS) || {} 
 
-        if(userNetworkInfo == null) {
+        //console.log("userNetworkInfo===>", userNetworkInfo)
+ 
+        if(Object.keys(userNetworkInfo).length == 0) {
             await DB.setItem(USER_NETWORKS, defaultChains)
         } else {
 
@@ -95,9 +82,9 @@ export const useNetworks = () => {
 
             // lets check if we have added new chains then we add it 
             for(let chainId in defaultChainNets){
-                //if(!(chainId in userNetworkInfo.networks)){
+                if(!(chainId in userNetworkInfo.networks)){
                     userNetworkInfo.networks[chainId] = defaultChainNets[chainId]
-                //}
+                }
             }
         }
         
@@ -112,7 +99,7 @@ export const useNetworks = () => {
 
     const getActiveNetworkInfo = async () => {
         await getUserNetworks()
-        return toValue(activeNetwork)
+        return toValue($state.value.userActiveNetwork)
     }
 
     const setActiveNetwork = async (chainId) => {

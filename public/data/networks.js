@@ -1,3 +1,9 @@
+/**
+ * networks, this file must be loaded to botfi-assets.github.io
+ */
+
+const imgUrl = (img) => "/botfi-wallet/public/images/crypto/"+img+".svg"
+
 export default {
     
     default: 56,
@@ -12,11 +18,11 @@ export default {
                 name:       "Ethereum",
                 symbol:     "ETH",
                 decimals:   18,
-                image: "eth"
+                image: imgUrl("eth")
             },
             rpcUrls: ["https://ethereum.publicnode.com"],
             blockExplorerUrls: [ "https://ethercan.io"],
-            image: "eth"
+            image: imgUrl("eth")
         },
 
         137: {
@@ -28,11 +34,11 @@ export default {
                 name:       "MATIC",
                 symbol:     "MATIC",
                 decimals:   18,
-                image: "matic"
+                image: imgUrl("matic")
             },
             rpcUrls: ["https://polygon-bor.publicnode.com"],
             blockExplorerUrls: [ "https://polygonscan.com"],
-            image:  "matic"
+            image: imgUrl("matic")
         },
 
         56: {
@@ -44,11 +50,11 @@ export default {
                 name:       "BNB",
                 symbol:     "BNB",
                 decimals:   18,
-                image:  "bnb"
+                image: imgUrl("bnb")
             },
             rpcUrls: ["https://bsc.publicnode.com"],
             blockExplorerUrls: [ "https://bscscan.com"],
-            image:  "bnb"
+            image: imgUrl("bnb")
         },
 
         42161: {
@@ -61,11 +67,11 @@ export default {
                 symbol:     "ETH",
                 decimals:   18,
                 chainId:    1,
-                image:  "eth" 
+                image: imgUrl("eth")
             },
             rpcUrls: ["https://arb1.arbitrum.io/rpc"],
             blockExplorerUrls: [ "https://arbiscan.io/"],
-            image:  "arb"
+            image: imgUrl("arb")
         },
 
         324: {
@@ -78,11 +84,11 @@ export default {
                 symbol:     "ETH",
                 decimals:   18,
                 chainId:    1,
-                image:      "eth"
+                image: imgUrl("eth")
             },
             rpcUrls: ["https://mainnet.era.zksync.io"],
             blockExplorerUrls: [ "https://era.zksync.network/" ],
-            image:  "zksync"
+            image: imgUrl("zksync")
         },
 
         10: {
@@ -95,11 +101,11 @@ export default {
                 symbol:     "ETH",
                 decimals:   18,
                 chainId:    1,
-                image:      "eth"
+                image:      imgUrl("eth")
             },
             rpcUrls: ["https://mainnet.optimism.io"],
             blockExplorerUrls: [ "https://optimistic.etherscan.io/"],
-            image:  "op"
+            image: imgUrl("op")
         },
 
         8453: {
@@ -112,11 +118,11 @@ export default {
                 symbol:     "ETH",
                 decimals:   18,
                 chainId:    1,
-                image:      "eth"
+                image:      imgUrl("eth")
             },
             rpcUrls: ["https://mainnet.base.org"],
             blockExplorerUrls: [ "https://basescan.org"],
-            image:  "base"
+            image: imgUrl("base")
         },
 
         59144: {
@@ -129,11 +135,11 @@ export default {
                 symbol:     "ETH",
                 decimals:   18,
                 chainId:    1,
-                image:      "eth"
+                image: imgUrl("eth")
             },
             rpcUrls: ["https://rpc.linea.build"],
             blockExplorerUrls: [ "https://lineascan.build/"],
-            image: "linea"
+            image: imgUrl("linea")
         },
 
         43114: { 
@@ -145,11 +151,11 @@ export default {
                 name:       "Avalanche",
                 symbol:     "AVAX",
                 decimals:   18,
-                image:      "avax"
+                image: imgUrl("avax")
             },
             rpcUrls: ["https://avalanche-c-chain.publicnode.com"],
             blockExplorerUrls: [ "https://snowtrace.io/"],
-            image:  "avax"
+            image: imgUrl("avax")
         },
 
         106: { 
@@ -161,11 +167,11 @@ export default {
                 name:       "Velas",
                 symbol:     "VLX",
                 decimals:   18,
-                image:      "vlx"
+                image: imgUrl("vlx")
             },
             rpcUrls: ["https://evmexplorer.velas.com/rpc"],
             blockExplorerUrls: ["https://evmexplorer.velas.com/"],
-            image:  "vlx"
+            image: imgUrl("vlx")
         },
 
         250: { 
@@ -177,11 +183,11 @@ export default {
                 name:       "Fantom",
                 symbol:     "FTM",
                 decimals:   18,
-                image:      "ftm"
+                image: imgUrl("ftm")
             },
             rpcUrls: ["https://fantom.publicnode.com"],
             blockExplorerUrls: ["https://ftmscan.com/"],
-            image:  "ftm"
+            image: imgUrl("ftm")
         },
 
         25: { 
@@ -193,11 +199,11 @@ export default {
                 name:       "Cronos",
                 symbol:     "CRO",
                 decimals:   18,
-                image:  "cro"
+                image: imgUrl("cro")
             },
             rpcUrls: ["https://evm.cronos.org"],
             blockExplorerUrls: ["https://cronos.org/explorer"],
-            image: "cro"
+            image: imgUrl("cro")
         },
 
         100: { 
@@ -209,11 +215,11 @@ export default {
                 name:       "Gnosis",
                 symbol:     "GNO",
                 decimals:   18,
-                image: "gno"
+                image: imgUrl("gno")
             },
             rpcUrls: ["https://rpc.gnosischain.com"],
             blockExplorerUrls: ["https://gnosisscan.io"],
-            image: "gno"
+            image: imgUrl("gno")
         },
 
         1284: { 
@@ -225,11 +231,11 @@ export default {
                 name:       "Moonbeam",
                 symbol:     "GLMR",
                 decimals:   18,
-                image: "glmr"
+                image: imgUrl("glmr")
             },
             rpcUrls: ["https://rpc.api.moonbeam.network"],
             blockExplorerUrls: ["https://moonbeam.moonscan.io/"],
-            image: "glmr"
+            image: imgUrl("glmr")
         },
 
         86: { 
@@ -241,11 +247,11 @@ export default {
                 name:       "Gate",
                 symbol:     "GT",
                 decimals:   18,
-                image: "gt"
+                image: imgUrl("gt")
             },
             rpcUrls: ["https://evm.nodeinfo.cc"],
             blockExplorerUrls: ["https://gatescan.org"],
-            image: "gt"
+            image: imgUrl("gt")
         },
 
         66: { 
@@ -257,11 +263,11 @@ export default {
                 name:       "OKB",
                 symbol:     "OKB",
                 decimals:   18,
-                image: "okb"
+                image: imgUrl("okb")
             },
             rpcUrls: ["https://exchainrpc.okex.org"],
             blockExplorerUrls: ["https://www.oklink.com/okexchain"],
-            image: "okb"
+            image: imgUrl("okb")
         },
 
         40: { 
@@ -273,11 +279,11 @@ export default {
                 name:       "Telos",
                 symbol:     "TLOS",
                 decimals:   18,
-                image: "tlos"
+                image: imgUrl("tlos")
             },
             rpcUrls: ["https://mainnet.telos.net/evm"],
             blockExplorerUrls: ["https://teloscan.io"],
-            image: "tlos"
+            image: imgUrl("tlos")
         },
 
         128: { 
@@ -289,11 +295,11 @@ export default {
                 name:       "Huobi Token",
                 symbol:     "HT",
                 decimals:   18,
-                image: "ht"
+                image: imgUrl("ht")
             },
             rpcUrls: ["https://http-mainnet.hecochain.com"],
             blockExplorerUrls: ["https://hecoinfo.com"],
-            image: "ht"
+            image: imgUrl("ht")
         },
 
         1101: {
@@ -306,11 +312,11 @@ export default {
                 symbol:     "ETH",
                 decimals:   18,
                 chainId:    1,
-                image: "eth"
+                image: imgUrl("eth")
             },
             rpcUrls: ["https://zkevm-rpc.com"],
             blockExplorerUrls: [ "https://zkevm.polygonscan.com/"],
-            image: "pols"
+            image: imgUrl("pols")
         },
         7000: {
             chainName: "Zeta Chain",
@@ -322,7 +328,23 @@ export default {
                 symbol:     "ZETA",
                 decimals:   18,
                 chainId:    1,
-                image: "zeta"
+                image: imgUrl("zeta")
+            },
+            rpcUrls: ["https://zetachain-evm.blockpi.network/v1/rpc/public"],
+            blockExplorerUrls: [ "https://explorer.zetachain.com/"],
+            image: imgUrl("zeta")
+        },
+        7000: {
+            chainName: "Zeta Chain",
+            chainId: 7000,
+            chain: "ZETA",
+            shortName: "ZETA",
+            nativeCurrency: {
+                name:       "ZETA",
+                symbol:     "ZETA",
+                decimals:   18,
+                chainId:    1,
+                image: imgUrl("zeta")
             },
             rpcUrls: ["https://zetachain-evm.blockpi.network/v1/rpc/public"],
             blockExplorerUrls: [ "https://explorer.zetachain.com/"],
@@ -338,11 +360,11 @@ export default {
                 symbol:     "ZETA",
                 decimals:   18,
                 chainId:    1,
-                image: "zeta"
+                image: imgUrl("zeta")
             },
             rpcUrls: ["https://zetachain-evm.blockpi.network/v1/rpc/public"],
             blockExplorerUrls: [ "https://explorer.zetachain.com/"],
-            image: "zeta"
+            image: imgUrl("zeta")
         },
         7000: {
             chainName: "Zeta Chain",
@@ -354,27 +376,11 @@ export default {
                 symbol:     "ZETA",
                 decimals:   18,
                 chainId:    1,
-                image: "zeta"
+                image: imgUrl("zeta")
             },
             rpcUrls: ["https://zetachain-evm.blockpi.network/v1/rpc/public"],
             blockExplorerUrls: [ "https://explorer.zetachain.com/"],
-            image: "zeta"
-        },
-        7000: {
-            chainName: "Zeta Chain",
-            chainId: 7000,
-            chain: "ZETA",
-            shortName: "ZETA",
-            nativeCurrency: {
-                name:       "ZETA",
-                symbol:     "ZETA",
-                decimals:   18,
-                chainId:    1,
-                image: "zeta"
-            },
-            rpcUrls: ["https://zetachain-evm.blockpi.network/v1/rpc/public"],
-            blockExplorerUrls: [ "https://explorer.zetachain.com/"],
-            image: "zeta"
+            image: imgUrl("zeta")
         },
 
         2525: {
@@ -387,7 +393,7 @@ export default {
                 symbol:     "INJ",
                 decimals:   18,
                 chainId:    1,
-                image:      "inj"
+                image:     imgUrl("inj")
             },
             rpcUrls: ["https://mainnet.rpc.inevm.com/http"],
             blockExplorerUrls: [ "https://explorer.inevm.com/"],
