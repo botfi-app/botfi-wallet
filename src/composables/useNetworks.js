@@ -85,11 +85,11 @@ export const useNetworks = () => {
         }
         
         let defaultChains = await fetchDefaultNetworks(true)
-        let userNetworkInfo = await DB.getItem(USER_NETWORKS) || {} 
+        let userNetworkInfo = await DB.getItem(USER_NETWORKS)
 
         //console.log("userNetworkInfo===>", userNetworkInfo)
  
-        if(Object.keys(userNetworkInfo).length == 0) {
+        if(!userNetworkInfo || Object.keys(userNetworkInfo).length == 0) {
             await DB.setItem(USER_NETWORKS, defaultChains)
         } else {
 

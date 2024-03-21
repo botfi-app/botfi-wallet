@@ -21,4 +21,4 @@ rm -rf $BASEDIR/../dist/images/crypto/
 
 npx cap sync  
 npx cap copy 
-#npx cap open android
+npx cap open android

@@ -52,5 +52,7 @@ export default {
 
     favicon_loader: "https://www.google.com/s2/favicons?sz={{SIZE}}&domain={{DOMAIN}}",
 
+    pyth_price_feed_url: "https://hermes.pyth.network/v2/price_feeds?query=usd&asset_type=crypto",
+
     ...devConfig
 }
