@@ -1,7 +1,7 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'app.botfi.native',
+  appId: 'app.botfi.app',
   appName: 'BotFi',
   webDir: 'dist',
   server: {
@@ -14,6 +14,11 @@ const config: CapacitorConfig = {
   plugins: { 
     CapacitorCookies: {
       enabled: true
+    },
+    SplashScreen: {
+      launchAutoHide: true, 
+      launchShowDuration: 1,
+      launchFadeOutDuration: 1
     },
     CapacitorUpdater: {
       updateUrl: 'https://app-updates.botfi.app/updates/updates.json',

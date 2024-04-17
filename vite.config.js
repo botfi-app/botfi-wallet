@@ -39,7 +39,13 @@ const plugins = [
   
   AutoImport(),
   
-  legacy({ targets: ['defaults', 'not IE 11'] }),
+  legacy({ 
+    targets: ['defaults', 'not IE 11', 'chrome>=60', "chromeAndroid>=60"],
+    modernTargets: ['defaults', 'chrome>=60',"chromeAndroid>=60"],
+    polyfills: true, 
+    modernPolyfills: true,
+    externalSystemJS: true
+  }),
   
   Pages({
     importMode: (botfiPlatform == 'capacitor') ? 'sync': 'async'
@@ -137,8 +143,11 @@ export default defineConfig({
 
   build: {
     polyfillDynamicImport: true,
-    target: "es2015",
-    
+    minify: false,
+    target: "es2020", // Enable Big integer literals
+    commonjsOptions: {
+      transformMixedEsModules: true, 
+    }
   },
 
   server: {

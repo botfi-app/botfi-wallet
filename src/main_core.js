@@ -12,6 +12,9 @@ import "./assets/scss/app.scss"
 import App from './App.vue'
 import router from "./router"
 import appConfig from "./config/app"
+import dynamicImportPolyfill from 'dynamic-import-polyfill'
+
+dynamicImportPolyfill.initialize()
 
 const platforms = appConfig.platforms 
 const pinia = createPinia()
@@ -70,8 +73,8 @@ const rmLoaderNShowContent = () => {
  * @param {*} platformPlugins {platformName: pluginInstance}
  * @returns 
  */
-const startApp = (platformPlugins={}) => {
-
+const startApp = (platformPlugins={}, onComplete = null) => {
+    
     const platforms = appConfig.platforms 
     let loc = window.location
 
@@ -96,6 +99,8 @@ const startApp = (platformPlugins={}) => {
     document.body.classList.add(`platform-${platform}`)
 
     document.body.dataset.appLoaded=true
+
+    if(typeof onComplete == 'function') onComplete()
 
     // mount 
     app.mount('#app')

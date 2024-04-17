@@ -31,3 +31,4 @@ capacitor.config-prod.ts
 capacitor.config-dev.ts
 .capgo_key.pub
 .capgo_key
+google-services.json

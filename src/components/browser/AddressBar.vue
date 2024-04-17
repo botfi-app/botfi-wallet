@@ -7,7 +7,6 @@ import browser from '../../config/browser';
 import EventBus from '../../classes/EventBus';
 import HistoryItems from './HistoryItems.vue';
 //import { useBrowserHistory } from '../../composables/useBrowserHistory';
-import { Share } from '@capacitor/share';
 import SearchSuggest from './SearchSuggest.vue';
 
 const p = defineProps({
@@ -158,11 +157,14 @@ const  copyURL = () => {
     Utils.copyText({ text: fullUrl.value, showToast: true, successText: "URL Copied" })
 }
 
+/*
 const shareURL = async () => {
-    await Share.share({
-        url: fullUrl.value
+    await window.navigator.share({
+        url: fullUrl.value,
+        title: 'Open with',
+        text: ""
     });
-}
+}*/
 
 const close = () => {
     showSuggestionBox.value = false
@@ -259,11 +261,13 @@ defineExpose({inputFocused, showSuggestionBox, close});
                     >
                         <Icon name="lets-icons:edit-duotone" />
                     </button>
+                    <!--
                     <button @click.prevent="shareURL"
                         class="btn btn-icon bg-darken-5 rounded-circle shadow mx-1 text-info"
                     >
                         <Icon name="icon-park-twotone:share-one" />
                     </button>
+                    -->
                     <button @click.prevent="close"
                         class="btn btn-icon bg-darken-5 rounded-circle shadow mx-1 text-danger"
                     >

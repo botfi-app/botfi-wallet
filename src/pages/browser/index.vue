@@ -21,7 +21,6 @@ import { usePermission } from '../../composables/usePermission';
 import EventBus from '../../classes/EventBus';
 import { useNetworks } from '../../composables/useNetworks';
 import { useBrowserTabs } from '../../composables/useBrowserTabs';
-import { Share } from '@capacitor/share';
 
 const netCore = useNetworks()
 const { activeNetwork } = netCore
@@ -370,10 +369,11 @@ const initializeWebviewEvents = async () => {
         if(url == "") return;
 
         if(!/^(https?:\/\/)/i.test(url)){
-            await Share.share({
+            /*await navigator.share({
                 url: url,
-                dialogTitle: 'Open with',
-            });
+                title: 'Open with',
+                text: ""
+            });*/
             event.complete(true);
             return false; 
         }

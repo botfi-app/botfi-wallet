@@ -1090,6 +1090,11 @@
   resolved "https://registry.npmjs.org/@bugsnag/safe-json-stringify/-/safe-json-stringify-6.0.0.tgz"
   integrity sha512-htzFO1Zc57S8kgdRK9mLcPVTW1BY2ijfH7Dk2CeZmspTWKdKqSo1iwmqrq2WtRjFlo8aRZYgLX0wFrDXF/9DLA==
 
+"@capacitor-firebase/crashlytics@^5.4.1":
+  version "5.4.1"
+  resolved "https://registry.npmjs.org/@capacitor-firebase/crashlytics/-/crashlytics-5.4.1.tgz"
+  integrity sha512-OuqjTv5J9j3GPCPcFmfaIqplFW6seB2ypD1oFmyGC+BvWqy8tDsfQ1JRO+BXApBjkha1HdSJASCPhaZF5CkaCQ==
+
 "@capacitor/android@^5.6.0":
   version "5.6.0"
   resolved "https://registry.npmjs.org/@capacitor/android/-/android-5.6.0.tgz"
@@ -1170,15 +1175,10 @@
   resolved "https://registry.npmjs.org/@capacitor/preferences/-/preferences-5.0.6.tgz"
   integrity sha512-aDe4wGTVSAIue6XXdUFgyz7SGszxK/Ptt/iWTydMpzc1PlZXw1XTTnciM+S+SLLNZFzXlkpXT3wMnh9t0DojUA==
 
-"@capacitor/share@^5.0.7":
+"@capacitor/splash-screen@^5.0.7":
   version "5.0.7"
-  resolved "https://registry.npmjs.org/@capacitor/share/-/share-5.0.7.tgz"
-  integrity sha512-4GraggRRxwhstxIdF9JyOEBq4QTufqFOekdB4P9GeiQYWJoA5VraSR1mwy4Trke1VFfaBjz/nGi4WQOJdHIAgg==
-
-"@capacitor/splash-screen@^5.0.6":
-  version "5.0.6"
-  resolved "https://registry.npmjs.org/@capacitor/splash-screen/-/splash-screen-5.0.6.tgz"
-  integrity sha512-9B8wSm89D+LlshFw8B+mjPU8pJNf1WOx2mkMjMvcH0/EqxNaE+ZaO8lPCX+9WvWSEZs3O3l11qiSnOFHeK0t9A==
+  resolved "https://registry.npmjs.org/@capacitor/splash-screen/-/splash-screen-5.0.7.tgz"
+  integrity sha512-2aAhhZPi7GU8DDs9dhH4OnMJ3rTscPS/TYKzm03fzhBby6ykSXY6HqKgaWdhfCR4TvLsHf0VKpWZu4ZHD0S7iQ==
 
 "@capacitor/status-bar@^5.0.6":
   version "5.0.6"
@@ -4065,7 +4065,7 @@
   resolved "https://registry.npmjs.org/@vitejs/plugin-basic-ssl/-/plugin-basic-ssl-1.1.0.tgz"
   integrity sha512-wO4Dk/rm8u7RNhOf95ZzcEmC9rYOncYgvq4z3duaJrCgjN8BxAnDVyndanfcJZ0O6XZzHz6Q0hTimxTg8Y9g/A==
 
-"@vitejs/plugin-legacy@^4.1.0":
+"@vitejs/plugin-legacy@^4.1.1":
   version "4.1.1"
   resolved "https://registry.npmjs.org/@vitejs/plugin-legacy/-/plugin-legacy-4.1.1.tgz"
   integrity sha512-um3gbVouD2Q/g19C0qpDfHwveXDCAHzs8OC3e9g6aXpKoD1H14himgs7wkMnhAynBJy7QqUoZNAXDuqN8zLR2g==
@@ -6837,6 +6837,11 @@ duplexer3@^0.1.4:
   version "0.1.5"
   resolved "https://registry.npmjs.org/duplexer3/-/duplexer3-0.1.5.tgz"
   integrity sha512-1A8za6ws41LQgv9HrE/66jyC5yuSjQ3L/KOpFtoBilsAK2iA2wuS5rTt1OCzIvtS2V7nVmedsUU+DGRcjBmOYA==
+
+dynamic-import-polyfill@^0.1.1:
+  version "0.1.1"
+  resolved "https://registry.npmjs.org/dynamic-import-polyfill/-/dynamic-import-polyfill-0.1.1.tgz"
+  integrity sha512-m953zv0w5oDagTItWm6Auhmk/pY7EiejaqiVbnzSS3HIjh1FCUeK7WzuaVtWPNs58A+/xpIE+/dVk6pKsrua8g==
 
 easyqrcodejs@^4.5.0:
   version "4.5.0"
@@ -14168,10 +14173,10 @@ tempy@^1.0.1:
     type-fest "^0.16.0"
     unique-string "^2.0.0"
 
-terser@^5.0.0, terser@^5.10.0, terser@^5.24.0, terser@^5.4.0:
-  version "5.24.0"
-  resolved "https://registry.npmjs.org/terser/-/terser-5.24.0.tgz"
-  integrity sha512-ZpGR4Hy3+wBEzVEnHvstMvqpD/nABNelQn/z2r0fjVWGQsN3bpOLzQlqDxmb4CDZnXq5lpjnQ+mHQLAOpfM5iw==
+terser@^5.0.0, terser@^5.10.0, terser@^5.30.3, terser@^5.4.0:
+  version "5.30.3"
+  resolved "https://registry.npmjs.org/terser/-/terser-5.30.3.tgz"
+  integrity sha512-STdUgOUx8rLbMGO9IOwHLpCqolkDITFFQSMYYwKE1N2lY6MVSaeoi10z/EhWxRc6ybqoVmKSkhKYH/XUpl7vSA==
   dependencies:
     "@jridgewell/source-map" "^0.3.3"
     acorn "^8.8.2"

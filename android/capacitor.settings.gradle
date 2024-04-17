@@ -5,6 +5,9 @@ project(':capacitor-android').projectDir = new File('../node_modules/@capacitor/
 include ':botfi-app-capacitor-webview-embed'
 project(':botfi-app-capacitor-webview-embed').projectDir = new File('../node_modules/@botfi-app/capacitor-webview-embed/android')
 
+include ':capacitor-firebase-crashlytics'
+project(':capacitor-firebase-crashlytics').projectDir = new File('../node_modules/@capacitor-firebase/crashlytics/android')
+
 include ':capacitor-app'
 project(':capacitor-app').projectDir = new File('../node_modules/@capacitor/app/android')
 
@@ -16,9 +19,6 @@ project(':capacitor-device').projectDir = new File('../node_modules/@capacitor/d
 
 include ':capacitor-preferences'
 project(':capacitor-preferences').projectDir = new File('../node_modules/@capacitor/preferences/android')
-
-include ':capacitor-share'
-project(':capacitor-share').projectDir = new File('../node_modules/@capacitor/share/android')
 
 include ':capacitor-splash-screen'
 project(':capacitor-splash-screen').projectDir = new File('../node_modules/@capacitor/splash-screen/android')
